@@ -1,340 +1,230 @@
 "use client";
 
-import React, { useState } from 'react';
-import { 
-  Users, 
+import { useState, useEffect } from "react";
+import {
+  Users,
   UserCheck,
   UserX,
-  Clock,
   Search,
   Download,
   Plus,
-  Eye,
-  Edit,
   Award,
   ArrowUpDown,
-  MoreHorizontal,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react';
+} from "lucide-react";
+import axios from "axios";
+import EditStudentModel from "./EditStudentModel";
+import ExportModal from "./ExportModal";
+import {
+  StudentProvider,
+  useStudentContext,
+} from "../../context/StudentContext.";
+import StudentTable from "./StudentTable.";
+import ImportModal from "./ImportModal";
+import ImportResultsModal from "./ImportResultsModal";
+import UpdateModal from "./UpdateModal";
+import UpdateResultsModal from "./UpdateResultsModal";
 
-export default function StudentManagement() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('all');
-  const [selectedBatch, setSelectedBatch] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState('asc');
-  const [selectedStudents, setSelectedStudents] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedYear, setSelectedYear] = useState('2024-25');
+function StudentManagementContent() {
+  const {
+    students,
+    setStudents,
+    showEditStudentModal,
+    showExportModal,
+    setShowExportModal,
+    formatStudentName,
+    showImportModal,
+    setShowImportModal,
+    showUpdateModal,
+    setShowUpdateModal,
+    showImportResultsModal,
+    setShowImportResultsModal,
+    showUpdateResultsModal,
+    setShowUpdateResultsModal,
+    importResults,
+    setImportResults,
+    updateResults,
+    setUpdateResults,
+  } = useStudentContext();
 
-  const academicYears = [
-    '2024-25',
-    '2023-24', 
-    '2022-23',
-    '2021-22'
-  ];
-
-  const students = [
-    {
-      id: 1,
-      name: 'Rahul Sharma',
-      rollNo: '21BCS001',
-      branch: 'Computer Science',
-      batch: '2021-2025',
-      cgpa: 8.5,
-      email: 'rahul.sharma@college.edu',
-      phone: '+91-9876543210',
-      status: 'placed',
-      company: 'TCS',
-      package: 7.5,
-      offerDate: '2024-07-15',
-      joiningDate: '2024-08-01',
-      placementType: 'on-campus',
-      rounds: ['Aptitude', 'Technical', 'HR'],
-      currentRound: 'Completed',
-      skills: ['Java', 'Spring Boot', 'MySQL'],
-      internships: 2,
-      eligibilityStatus: 'Eligible',
-      backlogs: 0,
-      attendancePercentage: 92
-    },
-    {
-      id: 2,
-      name: 'Priya Singh',
-      rollNo: '21BCS002',
-      branch: 'Computer Science',
-      batch: '2021-2025',
-      cgpa: 9.2,
-      email: 'priya.singh@college.edu',
-      phone: '+91-9876543211',
-      status: 'in-process',
-      company: 'Infosys',
-      package: null,
-      offerDate: null,
-      joiningDate: null,
-      placementType: 'on-campus',
-      rounds: ['Aptitude', 'Technical', 'HR'],
-      currentRound: 'Technical',
-      skills: ['Python', 'Django', 'PostgreSQL'],
-      internships: 1,
-      eligibilityStatus: 'Eligible',
-      backlogs: 0,
-      attendancePercentage: 95
-    },
-    {
-      id: 3,
-      name: 'Amit Kumar',
-      rollNo: '21BCS003',
-      branch: 'Computer Science',
-      batch: '2021-2025',
-      cgpa: 7.8,
-      email: 'amit.kumar@college.edu',
-      phone: '+91-9876543212',
-      status: 'unplaced',
-      company: null,
-      package: null,
-      offerDate: null,
-      joiningDate: null,
-      placementType: null,
-      rounds: [],
-      currentRound: null,
-      skills: ['JavaScript', 'React', 'Node.js'],
-      internships: 0,
-      eligibilityStatus: 'Eligible',
-      backlogs: 1,
-      attendancePercentage: 78
-    },
-    {
-      id: 4,
-      name: 'Sneha Patel',
-      rollNo: '21IT004',
-      branch: 'Information Technology',
-      batch: '2021-2025',
-      cgpa: 8.9,
-      email: 'sneha.patel@college.edu',
-      phone: '+91-9876543213',
-      status: 'placed',
-      company: 'Wipro',
-      package: 6.5,
-      offerDate: '2024-07-20',
-      joiningDate: '2024-08-15',
-      placementType: 'on-campus',
-      rounds: ['Aptitude', 'Technical', 'HR'],
-      currentRound: 'Completed',
-      skills: ['C++', 'Data Structures', 'Algorithms'],
-      internships: 2,
-      eligibilityStatus: 'Eligible',
-      backlogs: 0,
-      attendancePercentage: 88
-    },
-    {
-      id: 5,
-      name: 'Arjun Reddy',
-      rollNo: '21ECE005',
-      branch: 'Electronics',
-      batch: '2021-2025',
-      cgpa: 6.8,
-      email: 'arjun.reddy@college.edu',
-      phone: '+91-9876543214',
-      status: 'ineligible',
-      company: null,
-      package: null,
-      offerDate: null,
-      joiningDate: null,
-      placementType: null,
-      rounds: [],
-      currentRound: null,
-      skills: ['VLSI', 'Embedded Systems'],
-      internships: 0,
-      eligibilityStatus: 'Ineligible - Low CGPA',
-      backlogs: 3,
-      attendancePercentage: 65
-    },
-    {
-      id: 6,
-      name: 'Kavya Nair',
-      rollNo: '21BCS006',
-      branch: 'Computer Science',
-      batch: '2021-2025',
-      cgpa: 9.5,
-      email: 'kavya.nair@college.edu',
-      phone: '+91-9876543215',
-      status: 'multiple-offers',
-      company: 'Microsoft',
-      package: 25.0,
-      offerDate: '2024-07-10',
-      joiningDate: '2024-07-25',
-      placementType: 'on-campus',
-      rounds: ['Aptitude', 'Technical-1', 'Technical-2', 'Managerial', 'HR'],
-      currentRound: 'Completed',
-      skills: ['Machine Learning', 'Python', 'TensorFlow'],
-      internships: 3,
-      eligibilityStatus: 'Eligible',
-      backlogs: 0,
-      attendancePercentage: 98,
-      additionalOffers: [
-        { company: 'Google', package: 30.0 },
-        { company: 'Amazon', package: 22.0 }
-      ]
-    }
-  ];
-
-  const placementRules = {
-    eligibilityCriteria: {
-      minimumCGPA: 7.0,
-      maximumBacklogs: 2,
-      minimumAttendance: 75
-    },
-    categories: {
-      'Super Dream': { minPackage: 20 },
-      'Dream': { minPackage: 10, maxPackage: 19.99 },
-      'Day 1': { minPackage: 7, maxPackage: 9.99 },
-      'Day 2': { minPackage: 4, maxPackage: 6.99 },
-      'Pool Campus': { minPackage: 0, maxPackage: 3.99 }
-    }
-  };
-
-  const getStatistics = () => {
-    const totalStudents = students.length;
-    const placedStudents = students.filter(s => s.status === 'placed' || s.status === 'multiple-offers').length;
-    const inProcessStudents = students.filter(s => s.status === 'in-process').length;
-    const unplacedStudents = students.filter(s => s.status === 'unplaced').length;
-    const ineligibleStudents = students.filter(s => s.status === 'ineligible').length;
-    const placementPercentage = ((placedStudents / totalStudents) * 100).toFixed(1);
-    
-    const avgPackage = students
-      .filter(s => s.package)
-      .reduce((acc, s) => acc + s.package, 0) / 
-      students.filter(s => s.package).length;
-    
-    const highestPackage = Math.max(...students.filter(s => s.package).map(s => s.package));
-
-    return {
-      totalStudents,
-      placedStudents,
-      inProcessStudents,
-      unplacedStudents,
-      ineligibleStudents,
-      placementPercentage,
-      avgPackage: avgPackage.toFixed(1),
-      highestPackage
-    };
-  };
-
-  const stats = getStatistics();
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("all");
+  const [selectedBatch, setSelectedBatch] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const getFilteredStudents = () => {
-    let filtered = students;
+    let filtered = [...students];
 
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(student => student.status === selectedCategory);
-    }
-
-    if (selectedBranch !== 'all') {
-      filtered = filtered.filter(student => student.branch === selectedBranch);
-    }
-
-    if (selectedBatch !== 'all') {
-      filtered = filtered.filter(student => student.batch === selectedBatch);
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(student => 
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.rollNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (student.company && student.company.toLowerCase().includes(searchTerm.toLowerCase()))
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(
+        (student) => student.placement_status === selectedCategory
       );
     }
 
+    if (selectedBranch !== "all") {
+      filtered = filtered.filter(
+        (student) => student.branch === selectedBranch
+      );
+    }
+
+    if (selectedBatch !== "all") {
+      filtered = filtered.filter(
+        (student) => student.batch_year.toString() === selectedBatch
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (student) =>
+          formatStudentName(student)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          student.registration_number
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          student.college_email
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Sorting logic
     filtered.sort((a, b) => {
       let aValue, bValue;
-      
+
       switch (sortBy) {
-        case 'name':
-          aValue = a.name;
-          bValue = b.name;
+        case "name":
+          aValue = formatStudentName(a);
+          bValue = formatStudentName(b);
           break;
-        case 'rollNo':
-          aValue = a.rollNo;
-          bValue = b.rollNo;
+        case "rollNo":
+          aValue = a.registration_number || "";
+          bValue = b.registration_number || "";
           break;
-        case 'cgpa':
-          aValue = a.cgpa;
-          bValue = b.cgpa;
+        case "cgpa":
+          aValue = a.cgpa || 0;
+          bValue = b.cgpa || 0;
           break;
-        case 'package':
-          aValue = a.package || 0;
-          bValue = b.package || 0;
+        case "package":
+          aValue = (a.current_offer?.package || 0) / 100000;
+          bValue = (b.current_offer?.package || 0) / 100000;
           break;
         default:
-          aValue = a.name;
-          bValue = b.name;
+          aValue = formatStudentName(a);
+          bValue = formatStudentName(b);
       }
 
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
+      return sortOrder === "asc"
+        ? aValue > bValue
+          ? 1
+          : -1
+        : aValue < bValue
+          ? 1
+          : -1;
     });
 
     return filtered;
   };
 
-  const getStatusIcon = (status) => {
-    switch(status) {
-      case 'placed':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'multiple-offers':
-        return <Award className="h-4 w-4 text-purple-600" />;
-      case 'in-process':
-        return <Clock className="h-4 w-4 text-blue-600" />;
-      case 'unplaced':
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'ineligible':
-        return <AlertCircle className="h-4 w-4 text-orange-600" />;
-      default:
-        return <Users className="h-4 w-4 text-gray-600" />;
+  // Add fetchStudents function to make it reusable
+  const fetchStudents = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/students");
+      setStudents(response.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'placed': return 'bg-green-100 text-green-800';
-      case 'multiple-offers': return 'bg-purple-100 text-purple-800';
-      case 'in-process': return 'bg-blue-100 text-blue-800';
-      case 'unplaced': return 'bg-red-100 text-red-800';
-      case 'ineligible': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+  // Update the useEffect to use the fetchStudents function
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const getStatistics = () => {
+    const totalStudents = students.length;
+    const placedStudents = students.filter(
+      (s) => s.placement_status === "placed"
+    ).length;
+    const unplacedStudents = students.filter(
+      (s) => s.placement_status === "unplaced"
+    ).length;
+    const multipleOffersStudents = students.filter(
+      (s) => Array.isArray(s.offers_received) && s.offers_received.length > 1
+    ).length;
+    const debarredStudents = students.filter(
+      (s) => s.placement_status === "debarred"
+    ).length;
+    const familyBusinessStudent = students.filter(
+      (s) => s.placement_status === "family_business"
+    ).length;
+    const otherStudent = students.filter(
+      (s) => s.placement_status === "others"
+    ).length;
+    const higher_studiesStudents = students.filter(
+      (s) => s.placement_status === "higher_studies"
+    ).length;
+    const entrepreneurshipStudents = students.filter(
+      (s) => s.placement_status === "entrepreneurship"
+    ).length;
+
+    const validStudents = students.filter(
+      (s) => s.current_offer && s.current_offer.package
+    );
+
+    // Declare defaults
+    let highestPackage = 0;
+    let lowestPackage = 0;
+    let avgPackage = 0;
+    let medianPackage = 0;
+
+    if (validStudents.length > 0) {
+      const packages = validStudents.map(
+        (s) => s.current_offer.package / 100000
+      );
+      packages.sort((a, b) => a - b); // sort ascending
+
+      // Highest (last element)
+      highestPackage = packages[packages.length - 1];
+
+      // Lowest (first element)
+      lowestPackage = packages[0];
+
+      // Average
+      avgPackage = packages.reduce((acc, p) => acc + p, 0) / packages.length;
+
+      // Median
+      const mid = Math.floor(packages.length / 2);
+      if (packages.length % 2 === 0) {
+        medianPackage = (packages[mid - 1] + packages[mid]) / 2;
+      } else {
+        medianPackage = packages[mid];
+      }
     }
+
+    return {
+      totalStudents,
+      placedStudents,
+      unplacedStudents,
+      multipleOffersStudents,
+      debarredStudents,
+      otherStudent,
+      familyBusinessStudent,
+      higher_studiesStudents,
+      entrepreneurshipStudents,
+      avgPackage: avgPackage.toFixed(1),
+      highestPackage,
+      medianPackage,
+      lowestPackage,
+    };
   };
 
-  const getCategoryFromPackage = (packageAmount) => {
-    if (!packageAmount) return 'N/A';
-    if (packageAmount >= 20) return 'Super Dream';
-    if (packageAmount >= 10) return 'Dream';
-    if (packageAmount >= 7) return 'Day 1';
-    if (packageAmount >= 4) return 'Day 2';
-    return 'Pool Campus';
-  };
+  const stats = getStatistics();
 
-  const checkEligibility = (student) => {
-    const { minimumCGPA, maximumBacklogs, minimumAttendance } = placementRules.eligibilityCriteria;
-    
-    if (student.cgpa < minimumCGPA) return { eligible: false, reason: 'Ineligible' };
-    if (student.backlogs > maximumBacklogs) return { eligible: false, reason: 'Too many backlogs' };
-    if (student.attendancePercentage < minimumAttendance) return { eligible: false, reason: 'Low attendance' };
-    
-    return { eligible: true, reason: 'Eligible' };
-  };
-
+  const branches = [...new Set(students.map((s) => s.branch))];
+  const batches = [...new Set(students.map((s) => s.batch))];
   const filteredStudents = getFilteredStudents();
-  const branches = [...new Set(students.map(s => s.branch))];
-  const batches = [...new Set(students.map(s => s.batch))];
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -343,46 +233,95 @@ export default function StudentManagement() {
         <div className="flex justify-between items-center">
           <div>
             <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold text-gray-800">Student Management</h1>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-700 text-sm font-medium"
-              >
-                {academicYears.map(year => (
-                  <option key={year} value={year}>
-                    Batch {year}
-                  </option>
-                ))}
-              </select>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Student Management
+              </h1>
             </div>
             <p className="text-gray-600 mt-1">
-              Manage and categorize students based on placement status and college rules
+              Manage and categorize students based on placement status and
+              college rules
             </p>
           </div>
           <div className="flex space-x-3">
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2">
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
+            >
               <Download className="h-4 w-4" />
               <span>Export Data</span>
             </button>
-            <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2">
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+            >
               <Plus className="h-4 w-4" />
               <span>Import Data</span>
             </button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+            <button
+              onClick={() => setShowUpdateModal(true)}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"
+            >
               <Plus className="h-4 w-4" />
-              <span>Add Student</span>
+              <span>Update Data</span>
             </button>
           </div>
         </div>
+        {/* Export Modal */}
+        {showExportModal && <ExportModal filteredStudents={filteredStudents} />}
+
+        {/* // NEW TODO  */}
+        {/* Import Modal */}
+        {showImportModal && (
+          <ImportModal
+            onClose={() => setShowImportModal(false)}
+            onImportComplete={(results) => {
+              setImportResults(results);
+              setShowImportModal(false);
+              setShowImportResultsModal(true);
+            }}
+          />
+        )}
+        {showUpdateModal && (
+          <UpdateModal
+            onClose={() => setShowUpdateModal(false)}
+            onUpdateComplete={(results) => {
+              setUpdateResults(results);
+              setShowUpdateModal(false);
+              setShowUpdateResultsModal(true);
+              // Refresh students data
+              fetchStudents();
+            }}
+          />
+        )}
+
+        {showImportResultsModal && importResults && (
+          <ImportResultsModal
+            results={importResults}
+            onClose={() => setShowImportResultsModal(false)}
+          />
+        )}
+
+        {showUpdateResultsModal && updateResults && (
+          <UpdateResultsModal
+            results={updateResults}
+            onClose={() => setShowUpdateResultsModal(false)}
+          />
+        )}
+
+        {/* Edit Student Modal */}
+        {showEditStudentModal && <EditStudentModel />}
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Students</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalStudents}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Students
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.totalStudents}
+                </p>
               </div>
               <Users className="h-8 w-8 text-blue-600" />
             </div>
@@ -391,53 +330,60 @@ export default function StudentManagement() {
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Interested</p>
-                <p className="text-sm font-medium text-gray-600">(for Placement)</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalStudents-2}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Interested
+                </p>
+                <p className="text-sm font-medium text-gray-600">
+                  (for Placement)
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.totalStudents - 2}
+                </p>
               </div>
               <Users className="h-8 w-8 text-blue-600" />
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Placed</p>
-                <p className="text-2xl font-bold text-green-600">{stats.placedStudents}</p>
-                <p className="text-xs text-green-600">{stats.placementPercentage}%</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.placedStudents}
+                </p>
               </div>
               <UserCheck className="h-8 w-8 text-green-600" />
             </div>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">In Process</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.inProcessStudents}</p>
-              </div>
-              <Clock className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Unplaced</p>
-                <p className="text-2xl font-bold text-red-600">{stats.unplacedStudents}</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {stats.unplacedStudents}
+                </p>
               </div>
               <UserX className="h-8 w-8 text-red-600" />
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg CTC</p>
-                <p className="text-xl font-bold text-purple-600">{stats.avgPackage} LPA</p>
-                <p className="text-xs text-gray-500">Highest: {stats.highestPackage} LPA</p>
-                <p className="text-xs text-gray-500">Medium: 12 LPA</p>
-                <p className="text-xs text-gray-500">Lowest: 6 LPA</p>
+                <p className="text-xl font-bold text-purple-600">
+                  {stats.avgPackage} LPA
+                </p>
+                <p className="text-xs text-gray-500">
+                  Highest: {stats.highestPackage} LPA
+                </p>
+                <p className="text-xs text-gray-500">
+                  Medium: {stats.medianPackage} LPA
+                </p>
+                <p className="text-xs text-gray-500">
+                  Lowest: {stats.lowestPackage} LPA
+                </p>
               </div>
               <Award className="h-8 w-8 text-purple-600" />
             </div>
@@ -448,23 +394,64 @@ export default function StudentManagement() {
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">Category:</span>
-              <div className="flex space-x-2">
+              <span className="text-sm font-medium text-gray-700">
+                Category:
+              </span>
+              <div className="flex space-x-1">
                 {[
-                  { key: 'all', label: 'All Students', count: stats.totalStudents },
-                  { key: 'placed', label: 'Placed', count: stats.placedStudents },
-                  { key: 'multiple-offers', label: 'Multiple Offers', count: students.filter(s => s.status === 'multiple-offers').length },
-                  { key: 'in-process', label: 'In Process', count: stats.inProcessStudents },
-                  { key: 'unplaced', label: 'Unplaced', count: stats.unplacedStudents },
-                  { key: 'ineligible', label: 'Ineligible', count: stats.ineligibleStudents }
+                  {
+                    key: "all",
+                    label: "All Students",
+                    count: stats.totalStudents,
+                  },
+                  {
+                    key: "placed",
+                    label: "Placed",
+                    count: stats.placedStudents,
+                  },
+                  {
+                    key: "unplaced",
+                    label: "Unplaced",
+                    count: stats.unplacedStudents,
+                  },
+                  {
+                    key: "multiple-offers",
+                    label: "Multiple Offers",
+                    count: stats.multipleOffersStudentss,
+                  },
+                  {
+                    key: "higher_studies",
+                    label: "Higher Studies",
+                    count: stats.higher_studiesStudents,
+                  },
+                  {
+                    key: "entrepreneurship",
+                    label: "Entrepreneurship",
+                    count: stats.entrepreneurshipStudents,
+                  },
+                  {
+                    key: "debarred",
+                    label: "Debarred",
+                    count: stats.debarredStudents,
+                  },
+                  {
+                    key: "family_business",
+                    label: "Family Business",
+                    count: stats.familyBusinessStudent,
+                  },
+                  {
+                    key: "others",
+                    label: "Others",
+                    count: stats.otherStudent,
+                  },
                 ].map((category) => (
                   <button
                     key={category.key}
                     onClick={() => setSelectedCategory(category.key)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedCategory === category.key
-                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? "bg-blue-100 text-blue-700 border border-blue-200"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
                     {category.label} ({category.count})
@@ -474,7 +461,6 @@ export default function StudentManagement() {
             </div>
           </div>
         </div>
-
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border">
           <div className="flex flex-wrap gap-4 items-center">
@@ -490,164 +476,86 @@ export default function StudentManagement() {
                 />
               </div>
             </div>
-            
-            <select 
-              value={selectedBranch} 
+
+            {/* Branches Filter */}
+            <select
+              value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Branches</option>
-              {branches.map(branch => (
-                <option key={branch} value={branch}>{branch}</option>
+              <option key="all-branches" value="all">
+                All Branches
+              </option>
+              {branches.map((branch) => (
+                <option key={`branch-${branch}`} value={branch}>
+                  {branch}
+                </option>
               ))}
             </select>
-            
-            <select 
-              value={selectedBatch} 
+
+            {/* Batches Filter */}
+            <select
+              value={selectedBatch}
               onChange={(e) => setSelectedBatch(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Batches</option>
-              {batches.map(batch => (
-                <option key={batch} value={batch}>{batch}</option>
+              <option key="all-batches" value="all">
+                All Batches
+              </option>
+              {batches.map((batch) => (
+                <option key={`batch-${batch}`} value={batch}>
+                  {batch}
+                </option>
               ))}
             </select>
-            
-            <select 
-              value={sortBy} 
+
+            {/* Sort Options */}
+            <select
+              value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="name">Sort by Name</option>
-              <option value="rollNo">Sort by Roll No</option>
-              <option value="cgpa">Sort by CGPA</option>
-              <option value="package">Sort by Package</option>
+              <option key="sort-name" value="name">
+                Sort by Name
+              </option>
+              <option key="sort-rollNo" value="rollNo">
+                Sort by Roll No
+              </option>
+              <option key="sort-cgpa" value="cgpa">
+                Sort by CGPA
+              </option>
+              <option key="sort-package" value="package">
+                Sort by Package
+              </option>
             </select>
-            
+
             <button
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
               className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-1"
             >
               <ArrowUpDown className="h-4 w-4" />
-              <span className="text-sm">{sortOrder === 'asc' ? 'ASC' : 'DESC'}</span>
+              <span className="text-sm">
+                {sortOrder === "asc" ? "ASC" : "DESC"}
+              </span>
             </button>
           </div>
         </div>
-
         {/* Students Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <input type="checkbox" className="rounded" />
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Details</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academic Info</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placement Details</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eligibility</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStudents.map((student) => {
-                  const eligibility = checkEligibility(student);
-                  return (
-                    <tr key={student.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" className="rounded" />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                          <div className="text-sm text-gray-500">{student.rollNo}</div>
-                          <div className="text-xs text-gray-400">{student.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm text-gray-900">{student.branch}</div>
-                          <div className="text-sm text-gray-500">CGPA: {student.cgpa}</div>
-                          <div className="text-xs text-gray-400">
-                            Backlogs: {student.backlogs} | Attendance: {student.attendancePercentage}%
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(student.status)}
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(student.status)}`}>
-                            {student.status.replace('-', ' ')}
-                          </span>
-                        </div>
-                        {student.currentRound && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Round: {student.currentRound}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {student.company ? (
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{student.company}</div>
-                            {student.package && (
-                              <div className="text-sm text-green-600">{student.package} LPA</div>
-                            )}
-                            {student.package && (
-                              <div className="text-xs text-purple-600">
-                                {getCategoryFromPackage(student.package)}
-                              </div>
-                            )}
-                            {student.additionalOffers && (
-                              <div className="text-xs text-blue-600">
-                                +{student.additionalOffers.length} more offers
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-400">Not placed</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`flex items-center space-x-1 ${
-                          eligibility.eligible ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {eligibility.eligible ? (
-                            <CheckCircle className="h-4 w-4" />
-                          ) : (
-                            <XCircle className="h-4 w-4" />
-                          )}
-                          <span className="text-xs">{eligibility.reason}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button className="text-green-600 hover:text-green-900">
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-900">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+        <StudentTable filteredStudents={filteredStudents} />
         {/* Summary */}
         <div className="text-center text-sm text-gray-500">
           Showing {filteredStudents.length} of {students.length} students
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrap the component with StudentProvider
+export default function StudentManagement() {
+  return (
+    <StudentProvider>
+      <StudentManagementContent />
+    </StudentProvider>
   );
 }
