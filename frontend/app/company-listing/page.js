@@ -1,213 +1,114 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Plus,
   Search,
-  Filter,
-  Edit,
-  Trash2,
-  Eye,
   Calendar,
-  MapPin,
   Users,
-  DollarSign,
   Clock,
   Building2,
-  ChevronDown,
-  X,
+  Award,
+  RefreshCw,
 } from "lucide-react";
+import {
+  CompaniesProvider,
+  useCompaniesContext,
+} from "../../context/CompaniesContext";
+import { BatchProvider } from "../../context/BatchContext";
+import CompanyCardView from "./CompanyCardView";
+import { CompanyDetailModal } from "./CompanyDetailModal";
+import { CompanyTableView } from "./CompanyTableView";
 
 const CompanyListing = () => {
-  const [activeTab, setActiveTab] = useState("current");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState("table"); // table or cards
+  const [showAddModal, setShowAddModal] = useState(false); // controls add company modal visibility
+  const {
+    selectedCompany,
+    selectedBatch,
+    typeFilter,
+    sectorFilter,
+    companies,
+    fetchCompanies,
+    setTypeFilter,
+    setSectorFilter,
+    searchTerm,
+    setSearchTerm,
+    filteredCompanies,
+    activeTab,
+    setActiveTab,
+    stats,
+  } = useCompaniesContext();
 
-  // Sample data for companies
-  const [companies, setCompanies] = useState([
-    {
-      id: 1,
-      name: "Google India",
-      logo: "https://via.placeholder.com/40x40/4285f4/ffffff?text=G",
-      status: "active",
-      type: "current",
-      visitDate: "2024-08-15",
-      arrivalDate: "2024-08-20",
-      package: "25-30 LPA",
-      positions: 15,
-      location: "Bangalore, Hyderabad",
-      requirements: "CSE, IT, ECE",
-      cgpa: "7.5+",
-      rounds: 4,
-      applied: 120,
-      description: "Software Development Engineer roles",
-      glassdoorRating: 4.5,
-      profilesOffered: ["SDE", "Product Manager", "Data Scientist"],
-    },
-    {
-      id: 2,
-      name: "Microsoft",
-      logo: "https://via.placeholder.com/40x40/00a1f1/ffffff?text=M",
-      status: "upcoming",
-      type: "current",
-      visitDate: "2024-08-22",
-      arrivalDate: "2024-08-22",
-      package: "22-28 LPA",
-      positions: 12,
-      location: "Noida, Pune",
-      requirements: "CSE, IT",
-      cgpa: "8.0+",
-      rounds: 3,
-      applied: 0,
-      description: "Full Stack Developer positions",
-      glassdoorRating: 4.2,
-      profilesOffered: ["SDE", "Intern"],
-    },
-    {
-      id: 3,
-      name: "Amazon",
-      logo: "https://via.placeholder.com/40x40/ff9900/ffffff?text=A",
-      status: "completed",
-      type: "current",
-      visitDate: "2024-07-30",
-      arrivalDate: "2024-08-2",
-      package: "20-25 LPA",
-      positions: 20,
-      location: "Chennai, Bangalore",
-      requirements: "All Branches",
-      cgpa: "7.0+",
-      rounds: 4,
-      applied: 180,
-      description: "SDE-1 and Support Engineer roles",
-      glassdoorRating: 4.0,
-      profilesOffered: ["SDE", "Support Engineer"],
-    },
-    {
-      id: 4,
-      name: "Infosys",
-      logo: "https://via.placeholder.com/40x40/0066cc/ffffff?text=I",
-      status: "pipeline",
-      type: "upcoming",
-      visitDate: "2024-09-10",
-      arrivalDate: "2024-09-21",
-      package: "12-18 LPA",
-      positions: 50,
-      location: "Multiple Locations",
-      requirements: "All Branches",
-      cgpa: "6.5+",
-      rounds: 3,
-      applied: 0,
-      description: "Systems Engineer and Specialist Programmer",
-      glassdoorRating: 3.8,
-      profilesOffered: ["Systems Engineer", "Specialist Programmer"],
-    },
-  ]);
-
-  const [newCompany, setNewCompany] = useState({
-    name: "",
-    visitDate: "",
-    package: "",
-    positions: "",
-    location: "",
-    requirements: "",
-    cgpa: "",
-    rounds: "",
-    description: "",
-    status: "upcoming",
-  });
+  // Get unique sectors for filter
+  const uniqueSectors = [
+    ...new Set(companies.map((c) => c.sector).filter(Boolean)),
+  ];
 
   const statusColors = {
-    active: "bg-green-100 text-green-800",
-    upcoming: "bg-blue-100 text-blue-800",
-    completed: "bg-gray-100 text-gray-800",
-    pipeline: "bg-yellow-100 text-yellow-800",
-    cancelled: "bg-red-100 text-red-800",
+    arrived: "bg-green-100 text-green-800 border-green-200",
+    upcoming: "bg-blue-100 text-blue-800 border-blue-200",
+    late: "bg-red-100 text-red-800 border-red-200",
   };
 
-  const filteredCompanies = companies.filter((company) => {
-    const matchesTab =
-      activeTab === "all" ||
-      (activeTab === "current" && company.type === "current") ||
-      (activeTab === "upcoming" && company.type === "upcoming");
-
-    const matchesSearch = company.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesFilter =
-      filterStatus === "all" || company.status === filterStatus;
-
-    return matchesTab && matchesSearch && matchesFilter;
-  });
-
-  const handleAddCompany = () => {
-    if (newCompany.name && newCompany.visitDate) {
-      const company = {
-        ...newCompany,
-        id: companies.length + 1,
-        logo: `https://via.placeholder.com/40x40/6366f1/ffffff?text=${newCompany.name.charAt(0)}`,
-        type: newCompany.status === "pipeline" ? "upcoming" : "current",
-        applied: 0,
-        positions: parseInt(newCompany.positions) || 0,
-        rounds: parseInt(newCompany.rounds) || 1,
-      };
-      setCompanies([...companies, company]);
-      setNewCompany({
-        name: "",
-        visitDate: "",
-        package: "",
-        positions: "",
-        location: "",
-        requirements: "",
-        cgpa: "",
-        rounds: "",
-        description: "",
-        status: "upcoming",
-      });
-      setShowAddModal(false);
-    }
+  const companyTypeColors = {
+    tech: "bg-purple-100 text-purple-800",
+    nontech: "bg-rose-100 text-rose-800",
   };
-
-  const getStats = () => {
-    const total = companies.length;
-    const active = companies.filter((c) => c.status === "active").length;
-    const upcoming = companies.filter(
-      (c) => c.status === "upcoming" || c.status === "pipeline"
-    ).length;
-    const completed = companies.filter((c) => c.status === "completed").length;
-
-    return { total, active, upcoming, completed };
-  };
-
-  const stats = getStats();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Company Management
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Company Management Dashboard
               </h1>
-              <p className="text-gray-600 mt-1">
-                Manage current and upcoming recruitment drives
+              <p className="text-gray-600">
+                Manage recruitment drives, track applications, and monitor
+                company relationships
               </p>
             </div>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <Plus size={20} />
-              Add Company
-            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === "table"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Table
+                </button>
+                <button
+                  onClick={() => setViewMode("cards")}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === "cards"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Cards
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Plus size={20} />
+                Add Company
+              </button>
+            </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <div className="bg-blue-50 p-4 rounded-lg">
+          {/* Enhanced Stats Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mt-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
               <div className="flex items-center gap-3">
                 <Building2 className="text-blue-600" size={24} />
                 <div>
@@ -220,516 +121,249 @@ const CompanyListing = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg">
+
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-100">
               <div className="flex items-center gap-3">
-                <Users className="text-green-600" size={24} />
+                <Award className="text-yellow-600" size={24} />
                 <div>
-                  <p className="text-green-600 text-sm font-medium">Active</p>
-                  <p className="text-2xl font-bold text-green-900">
-                    {stats.active}
+                  <p className="text-yellow-600 text-sm font-medium">Marquee</p>
+                  <p className="text-2xl font-bold text-yellow-900">
+                    {stats.marquee}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="bg-yellow-50 p-4 rounded-lg">
+
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
               <div className="flex items-center gap-3">
-                <Clock className="text-yellow-600" size={24} />
+                <Users className="text-green-600" size={24} />
                 <div>
-                  <p className="text-yellow-600 text-sm font-medium">
+                  <p className="text-green-600 text-sm font-medium">Arrived</p>
+                  <p className="text-2xl font-bold text-green-900">
+                    {stats.arrived}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-100">
+              <div className="flex items-center gap-3">
+                <Clock className="text-purple-600" size={24} />
+                <div>
+                  <p className="text-purple-600 text-sm font-medium">
                     Upcoming
                   </p>
-                  <p className="text-2xl font-bold text-yellow-900">
+                  <p className="text-2xl font-bold text-purple-900">
                     {stats.upcoming}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
+
+            <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-100">
               <div className="flex items-center gap-3">
                 <Calendar className="text-gray-600" size={24} />
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">Completed</p>
+                  <p className="text-gray-600 text-sm font-medium">Late</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.completed}
+                    {stats.late}
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* TODO */}
+            <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-100">
+              Export Data
             </div>
           </div>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
           {/* Tabs */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {["current", "upcoming", "all"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === tab
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)} Companies
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {[
+              { key: "all", label: "All Companies", icon: Building2 },
+              { key: "marquee", label: "Marquee", icon: Award },
+              { key: "arrived", label: "Arrived", icon: Users },
+              { key: "upcoming", label: "Upcoming", icon: Clock },
+              { key: "late", label: "Late", icon: Clock },
+            ].map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                    activeTab === tab.key
+                      ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <IconComponent size={16} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-              <input
-                type="text"
-                placeholder="Search companies..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Filter size={20} />
-                Filters
-                <ChevronDown size={16} />
-              </button>
-            </div>
-          </div>
-
-          {/* Advanced Filters */}
-          {showFilters && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="upcoming">Upcoming</option>
-                    <option value="completed">Completed</option>
-                    <option value="pipeline">Pipeline</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Companies List */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Profiles
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Glassdoor Rating
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Scheduled Visit
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actual Arrival
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Package
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    No. of Vacancies
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Applied
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCompanies.map((company) => (
-                  <tr key={company.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          className="h-10 w-10 rounded-lg"
-                          src={company.logo}
-                          alt={company.name}
-                        />
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {company.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {company.description}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[company.status]}`}
-                      >
-                        {company.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex flex-wrap gap-1">
-                        {company.profilesOffered?.map((profile, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full"
-                          >
-                            {profile}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1">
-                        <span
-                          className={`text-sm font-medium ${
-                            company.glassdoorRating >= 4
-                              ? "text-green-600"
-                              : company.glassdoorRating >= 3
-                                ? "text-yellow-600"
-                                : "text-red-600"
-                          }`}
-                        >
-                          {company.glassdoorRating}
-                        </span>
-                        <svg
-                          className="w-4 h-4 text-yellow-400 fill-current"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center gap-1">
-                        <Calendar size={16} className="text-gray-400" />
-                        {new Date(company.visitDate).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center gap-1">
-                        <Calendar size={16} className="text-gray-400" />
-                        {company.arrivalDate
-                          ? new Date(company.arrivalDate).toLocaleDateString()
-                          : "-"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center gap-1">
-                        ₹ {company.package}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center gap-1">
-                        <Users size={16} className="text-gray-400" />
-                        {company.positions}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium">{company.applied}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <button className="text-blue-600 hover:text-blue-900">
-                          <Eye size={16} />
-                        </button>
-                        <button className="text-gray-600 hover:text-gray-900">
-                          <Edit size={16} />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredCompanies.length === 0 && (
-            <div className="text-center py-12">
-              <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-semibold text-gray-900">
-                No companies found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Try adjusting your search or filters
+          {/* TODO */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Batch {selectedBatch}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                {companies.length} companies registered
               </p>
             </div>
-          )}
-        </div>
 
-        {/* Add Company Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Add New Company
-                </h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X size={24} />
-                </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search companies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+                />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Company Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newCompany.name}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, name: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., Google India"
-                  />
-                </div>
+              {/* Type Filter */}
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Types</option>
+                <option value="tech">Tech</option>
+                <option value="nontech">Non-Tech</option>
+              </select>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Visit Date *
-                  </label>
-                  <input
-                    type="date"
-                    value={newCompany.visitDate}
-                    onChange={(e) =>
-                      setNewCompany({
-                        ...newCompany,
-                        visitDate: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+              {/* Sector Filter */}
+              <select
+                value={sectorFilter}
+                onChange={(e) => setSectorFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Sectors</option>
+                {uniqueSectors.map((sector) => (
+                  <option key={sector} value={sector}>
+                    {sector}
+                  </option>
+                ))}
+              </select>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Package Range
-                  </label>
-                  <input
-                    type="text"
-                    value={newCompany.package}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, package: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 12-18 LPA"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Positions
-                  </label>
-                  <input
-                    type="number"
-                    value={newCompany.positions}
-                    onChange={(e) =>
-                      setNewCompany({
-                        ...newCompany,
-                        positions: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 25"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    value={newCompany.location}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, location: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., Bangalore, Chennai"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Branch Requirements
-                  </label>
-                  <input
-                    type="text"
-                    value={newCompany.requirements}
-                    onChange={(e) =>
-                      setNewCompany({
-                        ...newCompany,
-                        requirements: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., CSE, IT, ECE"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Minimum CGPA
-                  </label>
-                  <input
-                    type="text"
-                    value={newCompany.cgpa}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, cgpa: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 7.5+"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Rounds
-                  </label>
-                  <input
-                    type="number"
-                    value={newCompany.rounds}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, rounds: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 3"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={newCompany.status}
-                    onChange={(e) =>
-                      setNewCompany({ ...newCompany, status: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="upcoming">Upcoming</option>
-                    <option value="active">Active</option>
-                    <option value="pipeline">Pipeline</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Glassdoor Rating
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="5"
-                    step="0.1"
-                    value={newCompany.glassdoorRating}
-                    onChange={(e) =>
-                      setNewCompany({
-                        ...newCompany,
-                        glassdoorRating: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 4.5"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Profiles Offered
-                  </label>
-                  <input
-                    type="text"
-                    value={newCompany.profilesOffered}
-                    onChange={(e) =>
-                      setNewCompany({
-                        ...newCompany,
-                        profilesOffered: e.target.value.split(","),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., SDE, Data Scientist, Product Manager"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Separate multiple profiles with commas
-                  </p>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Job Description
-                  </label>
-                  <textarea
-                    value={newCompany.description}
-                    onChange={(e) =>
-                      setNewCompany({
-                        ...newCompany,
-                        description: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    rows="3"
-                    placeholder="Brief description of the role and company"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddCompany}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Add Company
-                </button>
-              </div>
+              <button
+                onClick={fetchCompanies}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </button>
             </div>
           </div>
+        </div>
+
+        {/* Companies Display */}
+        {viewMode === "cards" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
+            {filteredCompanies.map((company) => (
+              <CompanyCardView
+                key={company.id}
+                company={company}
+                statusColors={statusColors}
+                companyTypeColors={companyTypeColors}
+              />
+            ))}
+            {/* Empty State */}
+            {filteredCompanies.length === 0 && (
+              <div className="col-span-full flex items-center justify-center">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-md w-full text-center">
+                  <div className="bg-gray-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                    <Building2 className="h-10 w-10 text-gray-400" />
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {searchTerm ||
+                    typeFilter !== "all" ||
+                    sectorFilter !== "all"
+                      ? "No companies match your filters"
+                      : "No companies found"}
+                  </h3>
+
+                  <p className="text-gray-500 mb-6">
+                    {searchTerm ||
+                    typeFilter !== "all" ||
+                    sectorFilter !== "all" ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Search className="h-4 w-4" />
+                        Try adjusting your search criteria or filters
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center">
+                        Add a new company to get started with placement
+                        management.
+                      </span>
+                    )}
+                  </p>
+
+                  {!searchTerm &&
+                    typeFilter === "all" &&
+                    sectorFilter === "all" && (
+                      <button
+                        onClick={() => setShowAddModal(true)}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Company
+                      </button>
+                    )}
+
+                  {(searchTerm ||
+                    typeFilter !== "all" ||
+                    sectorFilter !== "all") && (
+                    <div className="flex items-center justify-center gap-4">
+                      <button
+                        onClick={() => {
+                          setSearchTerm("");
+                          setTypeFilter("all");
+                          setSectorFilter("all");
+                        }}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                        Reset Filters
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <CompanyTableView
+            statusColors={statusColors}
+            companyTypeColors={companyTypeColors}
+          />
         )}
+
+        {/* Company Detail Modal */}
+        {selectedCompany && <CompanyDetailModal />}
       </div>
     </div>
   );
 };
 
-export default CompanyListing;
+// Update the wrapped component to include BatchProvider
+const WrappedCompanyListing = () => (
+  <BatchProvider>
+    <CompaniesProvider>
+      <CompanyListing />
+    </CompaniesProvider>
+  </BatchProvider>
+);
+
+export default WrappedCompanyListing;

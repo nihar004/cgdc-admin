@@ -1,9 +1,9 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 const BatchContext = createContext();
 
-function BatchProvider({ children }) {
+export function BatchProvider({ children }) {
   const [selectedBatch, setSelectedBatch] = useState(() => {
     // Check if localStorage is available (client-side)
     if (typeof window !== "undefined" && window.localStorage) {
@@ -20,7 +20,7 @@ function BatchProvider({ children }) {
     const controller = new AbortController();
     async function fetchBatches() {
       try {
-        const res = await axios.get("http://localhost:5000/students/batches", {
+        const res = await axios.get("http://localhost:5000/batches", {
           signal: controller.signal,
         });
         const fetchedBatches = res.data;
@@ -54,11 +54,34 @@ function BatchProvider({ children }) {
     }
   }, [selectedBatch]);
 
+  const reloadBatches = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/batches");
+      const fetchedBatches = res.data;
+      setBatches(fetchedBatches);
+
+      // If no batch is selected and we have batches, select the first one
+      if (!selectedBatch && fetchedBatches.length > 0) {
+        setSelectedBatch(fetchedBatches[0].year);
+      }
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+    }
+  };
+
   return (
-    <BatchContext.Provider value={{ selectedBatch, setSelectedBatch, batches }}>
+    <BatchContext.Provider
+      value={{ selectedBatch, setSelectedBatch, batches, reloadBatches }}
+    >
       {children}
     </BatchContext.Provider>
   );
 }
 
-export { BatchContext, BatchProvider };
+export const useBatchContext = () => {
+  const context = useContext(BatchContext);
+  if (!context) {
+    throw new Error("useBatchContext must be used within a BatchProvider");
+  }
+  return context;
+};

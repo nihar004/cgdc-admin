@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Users,
   UserCheck,
@@ -23,6 +23,7 @@ import ImportModal from "./ImportModal";
 import ImportResultsModal from "./ImportResultsModal";
 import UpdateModal from "./UpdateModal";
 import UpdateResultsModal from "./UpdateResultsModal";
+import { BatchProvider, useBatchContext } from "../../context/BatchContext";
 
 function StudentManagementContent() {
   const {
@@ -46,10 +47,11 @@ function StudentManagementContent() {
     setUpdateResults,
   } = useStudentContext();
 
+  const { selectedBatch } = useBatchContext();
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("all");
-  const [selectedBatch, setSelectedBatch] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
 
@@ -57,20 +59,17 @@ function StudentManagementContent() {
     let filtered = [...students];
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (student) => student.placement_status === selectedCategory
-      );
+      filtered = filtered.filter((student) => {
+        if (selectedCategory === "multiple-offers") {
+          return student.offers_received && student.offers_received.length > 1;
+        }
+        return student.placement_status === selectedCategory;
+      });
     }
 
     if (selectedBranch !== "all") {
       filtered = filtered.filter(
         (student) => student.branch === selectedBranch
-      );
-    }
-
-    if (selectedBatch !== "all") {
-      filtered = filtered.filter(
-        (student) => student.batch_year.toString() === selectedBatch
       );
     }
 
@@ -127,13 +126,18 @@ function StudentManagementContent() {
     return filtered;
   };
 
-  // Add fetchStudents function to make it reusable
   const fetchStudents = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/students");
+      if (!selectedBatch) {
+        console.warn("No batch selected!");
+        return;
+      }
+      const response = await axios.get("http://localhost:5000/students", {
+        params: { batch: selectedBatch }, // send batch as query param
+      });
       setStudents(response.data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching students:", err);
     }
   };
 
@@ -151,7 +155,7 @@ function StudentManagementContent() {
       (s) => s.placement_status === "unplaced"
     ).length;
     const multipleOffersStudents = students.filter(
-      (s) => Array.isArray(s.offers_received) && s.offers_received.length > 1
+      (s) => s.offers_received && s.offers_received.length > 1
     ).length;
     const debarredStudents = students.filter(
       (s) => s.placement_status === "debarred"
@@ -417,7 +421,7 @@ function StudentManagementContent() {
                   {
                     key: "multiple-offers",
                     label: "Multiple Offers",
-                    count: stats.multipleOffersStudentss,
+                    count: stats.multipleOffersStudents,
                   },
                   {
                     key: "higher_studies",
@@ -493,22 +497,6 @@ function StudentManagementContent() {
               ))}
             </select>
 
-            {/* Batches Filter */}
-            <select
-              value={selectedBatch}
-              onChange={(e) => setSelectedBatch(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option key="all-batches" value="all">
-                All Batches
-              </option>
-              {batches.map((batch) => (
-                <option key={`batch-${batch}`} value={batch}>
-                  {batch}
-                </option>
-              ))}
-            </select>
-
             {/* Sort Options */}
             <select
               value={sortBy}
@@ -554,8 +542,10 @@ function StudentManagementContent() {
 // Wrap the component with StudentProvider
 export default function StudentManagement() {
   return (
-    <StudentProvider>
-      <StudentManagementContent />
-    </StudentProvider>
+    <BatchProvider>
+      <StudentProvider>
+        <StudentManagementContent />
+      </StudentProvider>
+    </BatchProvider>
   );
 }

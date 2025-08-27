@@ -53,7 +53,9 @@ export const StudentProvider = ({ children }) => {
   const [updateResults, setUpdateResults] = useState(null);
 
   const formatStudentName = (student) => {
-    return `${student.first_name} ${student.last_name}`;
+    return student.last_name
+      ? `${student.first_name} ${student.last_name}`
+      : `${student.first_name}`;
   };
 
   const fetchStudents = async () => {

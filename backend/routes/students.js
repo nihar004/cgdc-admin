@@ -32,12 +32,30 @@ const upload = multer({
 });
 
 // Get all students
+// routes.get("/", async (req, res) => {
+//   try {
+//     const result = await db.query("SELECT * FROM students");
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error("Error fetching greetings:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 routes.get("/", async (req, res) => {
+  const { batch } = req.query; // e.g. ?batch=2024
   try {
-    const result = await db.query("SELECT * FROM students");
+    let query = "SELECT * FROM students";
+    const values = [];
+
+    if (batch) {
+      query += " WHERE batch_year = $1";
+      values.push(batch);
+    }
+
+    const result = await db.query(query, values);
     res.json(result.rows);
   } catch (error) {
-    console.error("Error fetching greetings:", error);
+    console.error("Error fetching students:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -516,6 +534,36 @@ routes.get("/batches", async (req, res) => {
   } catch (err) {
     console.error("Error fetching batches:", err);
     res.status(500).json({ error: "Failed to fetch batches" });
+  }
+});
+
+// Add a new batch
+routes.post("/batches", async (req, res) => {
+  const { year } = req.body;
+
+  if (!year || isNaN(year) || year < 2010 || year > 2100) {
+    return res.status(400).json({ error: "Invalid batch year" });
+  }
+
+  try {
+    const existingBatch = await db.query(
+      "SELECT * FROM batches WHERE year = $1",
+      [year]
+    );
+
+    if (existingBatch.rows.length > 0) {
+      return res.status(400).json({ error: "Batch year already exists" });
+    }
+
+    const result = await db.query(
+      "INSERT INTO batches (year) VALUES ($1) RETURNING *",
+      [year]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Error adding batch:", err);
+    res.status(500).json({ error: "Failed to add batch" });
   }
 });
 
