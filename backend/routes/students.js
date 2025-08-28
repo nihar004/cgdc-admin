@@ -388,7 +388,7 @@ routes.put("/bulk-update", upload.single("file"), async (req, res) => {
 
       try {
         const updateQuery = `
-          UPDATE students 
+          UPDATE students
           SET ${updateFields.join(", ")}
           WHERE registration_number = $${paramIndex}
           RETURNING id, first_name, last_name, registration_number, branch, batch_year
@@ -482,7 +482,7 @@ routes.put("/update/:id", async (req, res) => {
     values.push(id);
 
     const updateQuery = `
-      UPDATE students 
+      UPDATE students
       SET ${updateFields.join(", ")}
       WHERE id = $${paramIndex}
       RETURNING *
@@ -523,47 +523,6 @@ routes.delete("/:id", async (req, res) => {
   } catch (err) {
     console.error("Error deleting student:", err);
     res.status(500).json({ error: "Failed to delete student" });
-  }
-});
-
-// GET all batches
-routes.get("/batches", async (req, res) => {
-  try {
-    const result = await db.query("SELECT year FROM batches ORDER BY year");
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Error fetching batches:", err);
-    res.status(500).json({ error: "Failed to fetch batches" });
-  }
-});
-
-// Add a new batch
-routes.post("/batches", async (req, res) => {
-  const { year } = req.body;
-
-  if (!year || isNaN(year) || year < 2010 || year > 2100) {
-    return res.status(400).json({ error: "Invalid batch year" });
-  }
-
-  try {
-    const existingBatch = await db.query(
-      "SELECT * FROM batches WHERE year = $1",
-      [year]
-    );
-
-    if (existingBatch.rows.length > 0) {
-      return res.status(400).json({ error: "Batch year already exists" });
-    }
-
-    const result = await db.query(
-      "INSERT INTO batches (year) VALUES ($1) RETURNING *",
-      [year]
-    );
-
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error("Error adding batch:", err);
-    res.status(500).json({ error: "Failed to add batch" });
   }
 });
 
