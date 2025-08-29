@@ -21,6 +21,10 @@ import {
   Plus,
   RefreshCw,
   Search,
+  UserCheck,
+  Target,
+  Users,
+  CheckCircle,
 } from "lucide-react";
 
 import { useCompaniesContext } from "../../context/CompaniesContext";
@@ -174,7 +178,7 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
                                 {company.company_name}
                               </h3>
                               {company.is_marquee && (
-                                <div className="flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                                <div className="flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium">
                                   <Award size={12} />
                                   Marquee
                                 </div>
@@ -218,13 +222,27 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
                       {/* Type & Sector */}
                       <td className="px-4 py-5">
                         <div className="space-y-2">
-                          <span
-                            className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${companyTypeColors[company.company_type]}`}
-                          >
-                            {company.company_type?.toUpperCase()}
-                          </span>
+                          {/* Flex row for badges */}
+                          <div className="flex items-center gap-2 font-semibold text-xs">
+                            {/* PS Type */}
+                            {company.ps_type && (
+                              <div className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                <Target size={12} />
+                                <span>{company.ps_type}</span>
+                              </div>
+                            )}
+
+                            {/* Company Type */}
+                            <span
+                              className={`items-center px-3 py-1 rounded ${companyTypeColors[company.company_type]}`}
+                            >
+                              {company.company_type?.toUpperCase()}
+                            </span>
+                          </div>
+
+                          {/* Sector */}
                           {company.sector && (
-                            <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                            <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded w-fit">
                               {company.sector}
                             </div>
                           )}
@@ -253,20 +271,38 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
                       </td>
 
                       {/* Requirements */}
-                      <td className="px-6 py-5">
-                        <div className="space-y-1 text-xs">
-                          {/* If both CGPA and Backlogs are missing */}
+                      <td className="px-2 py-5 flex flex-col items-center ">
+                        <div className="space-y-1 text-xs flex flex-col items-center">
+                          {/* If all requirements are missing */}
                           {!company.min_cgpa &&
                             !company.max_backlogs &&
-                            !company.bond_required && (
+                            !company.bond_required &&
+                            !company.allowed_specializations && (
                               <div className="text-gray-500 italic">
                                 No Requirements
                               </div>
                             )}
 
+                          {/* Allowed Specializations */}
+                          {company.allowed_specializations && (
+                            <div className="flex flex-wrap gap-1 justify-center">
+                              {company.allowed_specializations
+                                .replace(/[{}]/g, "") // Remove curly braces
+                                .split(",")
+                                .map((spec, index) => (
+                                  <span
+                                    key={index}
+                                    className="bg-purple-100 text-purple-700 px-1 py-1 rounded text-xs font-medium"
+                                  >
+                                    {spec.trim()}
+                                  </span>
+                                ))}
+                            </div>
+                          )}
+
                           {/* CGPA */}
                           {company.min_cgpa && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex gap-1">
                               <GraduationCap
                                 size={12}
                                 className="text-blue-500"
@@ -279,7 +315,7 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
 
                           {/* Backlogs */}
                           {company.max_backlogs && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex gap-1">
                               <AlertCircle
                                 size={12}
                                 className="text-orange-500"
@@ -302,7 +338,7 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
                       <td className="px-6 py-5">
                         <div className="space-y-2">
                           <span
-                            className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${statusColors[status]}`}
+                            className={`inline-flex px-2.5 py-1 text-xs font-medium rounded ${statusColors[status]}`}
                           >
                             {status}
                           </span>
@@ -332,32 +368,30 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
 
                       {/* Applications */}
                       <td className="px-1 py-5">
-                        <div className="space-y-2">
+                        <div className="space-y-2 flex flex-col items-center">
+                          {/* TODO START*/}
+                          <div className="flex items-center gap-1 mb-2">
+                            <UserCheck size={14} className="text-emerald-500" />
+                            <span className="font-medium text-xs text-gray-500">
+                              {company.total_eligible_students || 0} Eligible
+                              Students
+                            </span>
+                          </div>
+                          {/* TODO END */}
                           <div className="grid grid-cols-2 gap-2 text-xs ">
                             <div className="text-center bg-blue-50 rounded p-2 w-full">
                               <div className="font-bold text-blue-600">
-                                {company.applications_count || 0}
+                                {company.total_applications_count || 0}
                               </div>
-                              <div className="text-blue-500">Applied</div>
+                              <div className="text-blue-500">Registered</div>
                             </div>
                             <div className="text-center bg-green-50 rounded p-2 w-full">
                               <div className="font-bold text-green-600">
-                                {company.selected || 0}
+                                {company.total_selected || 0}
                               </div>
                               <div className="text-green-500">Selected</div>
                             </div>
                           </div>
-
-                          {(company.applications_count || 0) > 0 && (
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-300"
-                                style={{
-                                  width: `${Math.min(((company.selected || 0) / (company.applications_count || 1)) * 100, 100)}%`,
-                                }}
-                              ></div>
-                            </div>
-                          )}
                         </div>
                       </td>
 
@@ -446,11 +480,55 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
                                             ?.replace("_", " ")
                                             .toUpperCase()}
                                         </span>
-                                        <span className="text-sm font-medium text-green-600">
-                                          {formatPackage(
-                                            position.package_range
+
+                                        {/* Conditional Compensation Display */}
+                                        <div className="flex items-center gap-2">
+                                          {/* Full Time - Show only package_range (annual) */}
+                                          {position.job_type === "full_time" &&
+                                            position.package_range && (
+                                              <span className="text-sm font-medium text-green-600">
+                                                {formatPackage(
+                                                  position.package_range
+                                                )}
+                                              </span>
+                                            )}
+
+                                          {/* Internship - Show only stipend (monthly) */}
+                                          {position.job_type === "internship" &&
+                                            position.internship_stipend_monthly && (
+                                              <span className="text-sm font-medium text-green-600">
+                                                ₹
+                                                {
+                                                  position.internship_stipend_monthly
+                                                }
+                                                /month
+                                              </span>
+                                            )}
+
+                                          {/* Internship + PPO - Show both */}
+                                          {position.job_type ===
+                                            "internship_plus_ppo" && (
+                                            <>
+                                              {position.internship_stipend_monthly && (
+                                                <span className="text-sm font-medium text-blue-600">
+                                                  ₹
+                                                  {
+                                                    position.internship_stipend_monthly
+                                                  }
+                                                  /month
+                                                </span>
+                                              )}
+                                              {position.package_range && (
+                                                <span className="text-sm font-medium text-green-600">
+                                                  +{" "}
+                                                  {formatPackage(
+                                                    position.package_range
+                                                  )}{" "}
+                                                </span>
+                                              )}
+                                            </>
                                           )}
-                                        </span>
+                                        </div>
                                       </div>
                                     </div>
 
@@ -463,6 +541,72 @@ export function CompanyTableView({ statusColors, companyTypeColors }) {
                                     >
                                       <Trash2 size={14} />
                                     </button>
+                                  </div>
+
+                                  {/* Position Statistics */}
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3 text-xs">
+                                    <div className="bg-blue-50 p-2 rounded">
+                                      <div className="flex items-center gap-1">
+                                        <Users
+                                          size={12}
+                                          className="text-blue-500"
+                                        />
+                                        <span className="font-medium text-blue-700">
+                                          Registered
+                                        </span>
+                                      </div>
+                                      <div className="text-sm font-semibold text-blue-800 mt-1">
+                                        {position.applications_count || 0}
+                                      </div>
+                                    </div>
+
+                                    <div className="bg-green-50 p-2 rounded">
+                                      <div className="flex items-center gap-1">
+                                        <CheckCircle
+                                          size={12}
+                                          className="text-green-500"
+                                        />
+                                        <span className="font-medium text-green-700">
+                                          Selected
+                                        </span>
+                                      </div>
+                                      <div className="text-sm font-semibold text-green-800 mt-1">
+                                        {position.selected_students || 0}
+                                      </div>
+                                    </div>
+
+                                    {(position.rounds_start_date ||
+                                      position.rounds_end_date) && (
+                                      <div className="bg-orange-50 p-2 rounded">
+                                        <div className="flex items-center gap-1">
+                                          <Calendar
+                                            size={12}
+                                            className="text-orange-500"
+                                          />
+                                          <span className="font-medium text-orange-700">
+                                            Rounds
+                                          </span>
+                                        </div>
+                                        <div className="text-xs text-orange-800 mt-1">
+                                          {position.rounds_start_date && (
+                                            <div>
+                                              Start:{" "}
+                                              {new Date(
+                                                position.rounds_start_date
+                                              ).toLocaleDateString()}
+                                            </div>
+                                          )}
+                                          {position.rounds_end_date && (
+                                            <div>
+                                              End:{" "}
+                                              {new Date(
+                                                position.rounds_end_date
+                                              ).toLocaleDateString()}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
 
                                   {/* Documents */}

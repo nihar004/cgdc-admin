@@ -25,6 +25,12 @@ import UpdateModal from "./UpdateModal";
 import UpdateResultsModal from "./UpdateResultsModal";
 import { BatchProvider, useBatchContext } from "../../context/BatchContext";
 
+const BRANCHES = [
+  { value: "CSE", label: "CSE" },
+  { value: "ECE", label: "ECE" },
+  { value: "ME", label: "ME" },
+];
+
 function StudentManagementContent() {
   const {
     students,
@@ -226,8 +232,6 @@ function StudentManagementContent() {
 
   const stats = getStatistics();
 
-  const branches = [...new Set(students.map((s) => s.branch))];
-  const batches = [...new Set(students.map((s) => s.batch))];
   const filteredStudents = getFilteredStudents();
 
   return (
@@ -487,12 +491,10 @@ function StudentManagementContent() {
               onChange={(e) => setSelectedBranch(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option key="all-branches" value="all">
-                All Branches
-              </option>
-              {branches.map((branch) => (
-                <option key={`branch-${branch}`} value={branch}>
-                  {branch}
+              <option value="all">All Branches</option>
+              {BRANCHES.map((branch) => (
+                <option key={branch.value} value={branch.value}>
+                  {branch.label}
                 </option>
               ))}
             </select>

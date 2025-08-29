@@ -38,11 +38,14 @@ const CompanyListing = () => {
     activeTab,
     setActiveTab,
     stats,
+    specializationFilter,
+    setSpecializationFilter,
   } = useCompaniesContext();
 
-  // Get unique sectors for filter
-  const uniqueSectors = [
-    ...new Set(companies.map((c) => c.sector).filter(Boolean)),
+  const SPECIALIZATIONS = [
+    { value: "CSE", label: "CSE" },
+    { value: "ECE", label: "ECE" },
+    { value: "ME", label: "ME" },
   ];
 
   const statusColors = {
@@ -248,10 +251,30 @@ const CompanyListing = () => {
                 onChange={(e) => setSectorFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
+                {/* ('E-Commerce, Logistics and Business', 'EdTech', 'IT & Consulting', 'IT Service', 'IT Software (Product)', 'Others*') */}
                 <option value="all">All Sectors</option>
-                {uniqueSectors.map((sector) => (
-                  <option key={sector} value={sector}>
-                    {sector}
+                <option value="E-Commerce, Logistics and Business">
+                  E-Commerce, Logistics and Business
+                </option>
+                <option value="EdTech">EdTech</option>
+                <option value="IT & Consulting">IT & Consulting</option>
+                <option value="IT Service">IT Service</option>
+                <option value="IT Software (Product)">
+                  IT Software (Product)
+                </option>
+                <option value="Others*">Others*</option>
+              </select>
+
+              {/* Specialization Filter */}
+              <select
+                value={specializationFilter}
+                onChange={(e) => setSpecializationFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Branches</option>
+                {SPECIALIZATIONS.map((spec) => (
+                  <option key={spec.value} value={spec.value}>
+                    {spec.label}
                   </option>
                 ))}
               </select>
@@ -289,7 +312,8 @@ const CompanyListing = () => {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     {searchTerm ||
                     typeFilter !== "all" ||
-                    sectorFilter !== "all"
+                    sectorFilter !== "all" ||
+                    specializationFilter !== "all"
                       ? "No companies match your filters"
                       : "No companies found"}
                   </h3>
@@ -297,7 +321,8 @@ const CompanyListing = () => {
                   <p className="text-gray-500 mb-6">
                     {searchTerm ||
                     typeFilter !== "all" ||
-                    sectorFilter !== "all" ? (
+                    sectorFilter !== "all" ||
+                    specializationFilter !== "all" ? (
                       <span className="flex items-center justify-center gap-2">
                         <Search className="h-4 w-4" />
                         Try adjusting your search criteria or filters
@@ -310,9 +335,11 @@ const CompanyListing = () => {
                     )}
                   </p>
 
+                  {/* Update the condition for showing Add/Reset buttons */}
                   {!searchTerm &&
                     typeFilter === "all" &&
-                    sectorFilter === "all" && (
+                    sectorFilter === "all" &&
+                    specializationFilter === "all" && (
                       <button
                         onClick={() => setShowAddModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
@@ -324,13 +351,15 @@ const CompanyListing = () => {
 
                   {(searchTerm ||
                     typeFilter !== "all" ||
-                    sectorFilter !== "all") && (
+                    sectorFilter !== "all" ||
+                    specializationFilter !== "all") && (
                     <div className="flex items-center justify-center gap-4">
                       <button
                         onClick={() => {
                           setSearchTerm("");
                           setTypeFilter("all");
                           setSectorFilter("all");
+                          setSpecializationFilter("all"); // Add this line
                         }}
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200"
                       >

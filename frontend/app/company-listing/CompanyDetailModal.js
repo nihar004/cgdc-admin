@@ -18,6 +18,10 @@ import {
   Star,
   FileText,
   Tag,
+  AtSign,
+  UserCheck,
+  Target,
+  CheckCircle,
 } from "lucide-react";
 import { useCompaniesContext } from "../../context/CompaniesContext";
 
@@ -96,6 +100,14 @@ export function CompanyDetailModal() {
                       {statusConfig[status]?.label || "Upcoming"}
                     </span>
 
+                    {/* PS Type Badge */}
+                    {selectedCompany.ps_type && (
+                      <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                        <Target size={14} />
+                        <span>{selectedCompany.ps_type}</span>
+                      </div>
+                    )}
+
                     {selectedCompany.company_type && (
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
                         <Tag size={12} className="mr-1" />
@@ -171,6 +183,15 @@ export function CompanyDetailModal() {
                           {selectedCompany.primary_hr_designation}
                         </p>
                       </div>
+                      {/* Account Owner */}
+                      {selectedCompany.account_owner && (
+                        <div className="flex items-center gap-1 mt-2 text-md text-slate-900 font-bold">
+                          <AtSign size={16} className="text-blue-600" />
+                          <span className="font-bold text-slate-900 text-sm">
+                            Account Owner: {selectedCompany.account_owner}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-3">
                       <div>
@@ -201,44 +222,156 @@ export function CompanyDetailModal() {
 
                 {/* Open Positions */}
                 <div className="bg-white border border-slate-200 rounded-xl p-4">
-                  <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Briefcase size={18} className="text-slate-600" />
-                    Open Positions ({selectedCompany.positions?.length || 0})
-                  </h3>
-                  <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                      <Briefcase size={18} className="text-slate-600" />
+                      Open Positions ({selectedCompany.positions?.length || 0})
+                    </h3>
+                  </div>
+
+                  <div className="space-y-4">
                     {selectedCompany.positions?.map((position) => (
                       <div
                         key={position.id}
                         className="border border-slate-200 rounded-lg p-4 hover:shadow-sm transition-all duration-200"
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
-                            <h4 className="text-base font-bold text-slate-900 mb-1">
+                            <h4 className="text-base font-bold text-slate-900 mb-2">
                               {position.position_title}
                             </h4>
-                            <div className="flex items-center gap-2 mb-2">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-xs font-bold border ${
-                                  position.is_active
-                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                    : "bg-slate-100 text-slate-600 border-slate-300"
-                                }`}
-                              >
-                                {position.is_active ? "Active" : "Inactive"}
-                              </span>
+
+                            {/* Status and Job Type Badges */}
+                            <div className="flex items-center gap-2 mb-3">
                               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                                 {position.job_type
                                   ?.replace("_", " ")
                                   .toUpperCase()}
                               </span>
                             </div>
-                          </div>
-                          <div className="text-right ml-3">
-                            <div className="text-lg font-bold text-emerald-600">
-                              {formatPackage(position.package_range)}
+
+                            {/* Compensation Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              {/* Full Time Package */}
+                              {position.job_type === "full_time" &&
+                                position.package_range && (
+                                  <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                                    <div className="text-lg font-bold text-green-600">
+                                      {formatPackage(position.package_range)}
+                                    </div>
+                                    <div className="text-xs text-green-700 font-medium">
+                                      Annual Package
+                                    </div>
+                                  </div>
+                                )}
+
+                              {/* Internship Stipend */}
+                              {position.job_type === "internship" &&
+                                position.internship_stipend_monthly && (
+                                  <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                    <div className="text-lg font-bold text-blue-600">
+                                      ₹{position.internship_stipend_monthly}
+                                      /month
+                                    </div>
+                                    <div className="text-xs text-blue-700 font-medium">
+                                      Internship Stipend
+                                    </div>
+                                  </div>
+                                )}
+
+                              {/* Internship + PPO */}
+                              {position.job_type === "internship_plus_ppo" && (
+                                <>
+                                  {position.internship_stipend_monthly && (
+                                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                      <div className="text-lg font-bold text-blue-600">
+                                        ₹{position.internship_stipend_monthly}
+                                        /month
+                                      </div>
+                                      <div className="text-xs text-blue-700 font-medium">
+                                        Internship Stipend
+                                      </div>
+                                    </div>
+                                  )}
+                                  {position.package_range && (
+                                    <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                                      <div className="text-lg font-bold text-green-600">
+                                        {formatPackage(position.package_range)}
+                                      </div>
+                                      <div className="text-xs text-green-700 font-medium">
+                                        PPO Package
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              )}
                             </div>
-                            <div className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-                              Package Range
+                            {/* Application Statistics */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                              <div className="bg-blue-50 p-3 rounded-lg">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <Users size={14} className="text-blue-500" />
+                                  <span className="text-xs font-medium text-blue-700">
+                                    Registered
+                                  </span>
+                                </div>
+                                <div className="text-lg font-bold text-blue-800">
+                                  {position.applications_count || 0}
+                                </div>
+                              </div>
+
+                              <div className="bg-green-50 p-3 rounded-lg">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <CheckCircle
+                                    size={14}
+                                    className="text-green-500"
+                                  />
+                                  <span className="text-xs font-medium text-green-700">
+                                    Selected
+                                  </span>
+                                </div>
+                                <div className="text-lg font-bold text-green-800">
+                                  {position.selected_students || 0}
+                                </div>
+                              </div>
+
+                              {/* Rounds Schedule */}
+                              {(position.rounds_start_date ||
+                                position.rounds_end_date) && (
+                                <div className="bg-orange-50 p-3 rounded-lg col-span-2 md:col-span-1">
+                                  <div className="flex items-center gap-1 mb-1">
+                                    <Calendar
+                                      size={14}
+                                      className="text-orange-500"
+                                    />
+                                    <span className="text-xs font-medium text-orange-700">
+                                      Rounds Schedule
+                                    </span>
+                                  </div>
+                                  <div className="text-sm text-orange-800 space-y-1">
+                                    {position.rounds_start_date && (
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-xs">Start:</span>
+                                        <span className="font-medium">
+                                          {new Date(
+                                            position.rounds_start_date
+                                          ).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {position.rounds_end_date && (
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-xs">End:</span>
+                                        <span className="font-medium">
+                                          {new Date(
+                                            position.rounds_end_date
+                                          ).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -247,7 +380,7 @@ export function CompanyDetailModal() {
                         {position.documents &&
                           position.documents.length > 0 && (
                             <div className="border-t border-slate-100 pt-3">
-                              <div className="text-xs font-semibold text-slate-700 mb-2">
+                              <div className="text-sm font-semibold text-slate-700 mb-2">
                                 Documents:
                               </div>
                               <div className="flex flex-wrap gap-1.5">
@@ -277,7 +410,7 @@ export function CompanyDetailModal() {
                 </div>
 
                 {/* Eligibility Requirements */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                     <GraduationCap size={18} className="text-blue-600" />
                     Eligibility Requirements
@@ -285,15 +418,39 @@ export function CompanyDetailModal() {
 
                   {!selectedCompany.min_cgpa &&
                   !selectedCompany.max_backlogs &&
-                  !selectedCompany.bond_required ? (
+                  !selectedCompany.bond_required &&
+                  !selectedCompany.allowed_specializations ? (
                     <div className="text-center py-6 text-slate-500 italic">
                       No specific requirements mentioned
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
+                      {/* Allowed Specializations */}
+                      {selectedCompany.allowed_specializations && (
+                        <div className="bg-violet-50 rounded-lg p-3 border border-violet-300">
+                          <h4 className="text-sm font-semibold text-purple-900 mb-2">
+                            Eligible Branches
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedCompany.allowed_specializations
+                              .replace(/[{}]/g, "")
+                              .split(",")
+                              .map((spec, index) => (
+                                <span
+                                  key={index}
+                                  className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-sm font-medium"
+                                >
+                                  {spec.trim()}
+                                </span>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Existing requirements - CGPA, Backlogs, Bond */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {selectedCompany.min_cgpa && (
-                          <div className="bg-white rounded-lg p-3 border border-blue-200">
+                          <div className="bg-white rounded-lg p-3 border border-gray-300">
                             <div className="text-2xl font-bold text-blue-600 mb-0.5">
                               {selectedCompany.min_cgpa}
                             </div>
@@ -304,7 +461,7 @@ export function CompanyDetailModal() {
                         )}
                         {selectedCompany.max_backlogs !== null &&
                           selectedCompany.max_backlogs !== undefined && (
-                            <div className="bg-white rounded-lg p-3 border border-orange-200">
+                            <div className="bg-white rounded-lg p-3 border border-gray-300">
                               <div className="text-2xl font-bold text-orange-600 mb-0.5">
                                 ≤{selectedCompany.max_backlogs}
                               </div>
@@ -348,10 +505,19 @@ export function CompanyDetailModal() {
                     Statistics
                   </h3>
                   <div className="space-y-4">
+                    {/* Eligible Students Count */}
+                    <div className="flex items-center gap-2 mb-4 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg border border-indigo-200">
+                      <UserCheck size={16} />
+                      <span className="font-medium">
+                        {selectedCompany.total_eligible_students || 0} Eligible
+                        Students
+                      </span>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                         <div className="text-xl font-bold text-blue-600">
-                          {selectedCompany.applications_count || 0}
+                          {selectedCompany.total_applications_count || 0}
                         </div>
                         <div className="text-xs text-blue-600 font-semibold uppercase tracking-wide">
                           Applied
@@ -359,7 +525,7 @@ export function CompanyDetailModal() {
                       </div>
                       <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200">
                         <div className="text-xl font-bold text-emerald-600">
-                          {selectedCompany.selected || 0}
+                          {selectedCompany.total_selected || 0}
                         </div>
                         <div className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">
                           Selected
@@ -392,13 +558,13 @@ export function CompanyDetailModal() {
                 </div>
 
                 {/* Schedule Information */}
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Calendar size={16} className="text-emerald-600" />
+                    <Calendar size={16} className="text-slate-600" />
                     Schedule
                   </h3>
                   <div className="space-y-3">
-                    <div className="bg-white rounded-lg p-3 border border-emerald-200">
+                    <div className="bg-white rounded-lg p-3 border border-slate-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar size={14} className="text-blue-500" />
                         <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
@@ -418,7 +584,7 @@ export function CompanyDetailModal() {
                     </div>
 
                     {selectedCompany.actual_arrival && (
-                      <div className="bg-white rounded-lg p-3 border border-emerald-200">
+                      <div className="bg-white rounded-lg p-3 border border-slate-200">
                         <div className="flex items-center gap-2 mb-1">
                           <Clock size={14} className="text-emerald-500" />
                           <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
@@ -481,19 +647,6 @@ export function CompanyDetailModal() {
                         />
                       </a>
                     )}
-                    <a
-                      href={`mailto:${selectedCompany.primary_hr_email}`}
-                      className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 transition-all duration-200 group"
-                    >
-                      <Mail size={16} className="text-emerald-600" />
-                      <span className="text-sm font-semibold text-slate-700 group-hover:text-emerald-700">
-                        Contact HR
-                      </span>
-                      <ExternalLink
-                        size={12}
-                        className="text-slate-400 ml-auto"
-                      />
-                    </a>
                   </div>
                 </div>
               </div>

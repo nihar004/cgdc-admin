@@ -14,12 +14,13 @@ export function CompaniesProvider({ children }) {
   const [typeFilter, setTypeFilter] = useState("all");
   const [sectorFilter, setSectorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
+  const [specializationFilter, setSpecializationFilter] = useState("all");
 
   const formatPackage = (amount) => {
     if (amount >= 10000000) {
       return `₹${(amount / 10000000).toFixed(1)} Cr`;
     } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)} L`;
+      return `₹${(amount / 100000).toFixed(1)} LPA`;
     }
     return `₹${amount.toLocaleString()}`;
   };
@@ -79,7 +80,21 @@ export function CompaniesProvider({ children }) {
       (activeTab === "marquee" && company.is_marquee) ||
       activeTab === status;
 
-    return matchesSearch && matchesType && matchesSector && matchesStatus;
+    // Updated specialization filter logic
+    const matchesSpecialization =
+      specializationFilter === "all" ||
+      (company.allowed_specializations &&
+        specializationFilter
+          .split(",")
+          .every((spec) => company.allowed_specializations.includes(spec)));
+
+    return (
+      matchesSearch &&
+      matchesType &&
+      matchesSector &&
+      matchesStatus &&
+      matchesSpecialization
+    );
   });
 
   // Calculate statistics
@@ -128,6 +143,8 @@ export function CompaniesProvider({ children }) {
         setActiveTab,
         stats,
         getCompanyStatus,
+        specializationFilter,
+        setSpecializationFilter,
       }}
     >
       {children}

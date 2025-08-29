@@ -17,6 +17,10 @@ import {
   Users,
   Book,
   Building2,
+  GraduationCap,
+  Target,
+  CheckCircle,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { useCompaniesContext } from "../../context/CompaniesContext";
@@ -53,6 +57,12 @@ export default function CompanyCardView({
                       <Award size={12} className="mr-1" />
                       Marquee
                     </span>
+                  )}
+                  {company.ps_type && (
+                    <div className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full text-xs border border-blue-200">
+                      <Target size={14} />
+                      <span>{company.ps_type}</span>
+                    </div>
                   )}
                   {company.glassdoor_rating && (
                     <div className="flex items-center gap-1 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
@@ -117,11 +127,19 @@ export default function CompanyCardView({
       </div>
 
       {/* Content Section */}
-      <div className="p-4 space-y-3 pt-2">
-        {/* Stats Grid */}
-        <div
-          className={`grid gap-4 ${company.actual_arrival ? "grid-cols-4" : "grid-cols-3"}`}
-        >
+      <div className="p-4 space-y-4 pt-2">
+        {/* PS Type + Eligible Students */}
+        <div className="flex items-center">
+          <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg text-sm font-medium">
+            <Users size={14} />
+            <span>
+              {company.total_eligible_students || 0} Eligible Students
+            </span>
+          </div>
+        </div>
+
+        {/* Stats Grid - Updated with new metrics */}
+        <div className="grid grid-cols-4 gap-4">
           {/* Schedule */}
           <div className="bg-slate-50 rounded-xl p-4 text-center">
             <Calendar size={16} className="text-slate-500 mx-auto mb-2" />
@@ -148,41 +166,73 @@ export default function CompanyCardView({
             </div>
           )}
 
-          {/* Applications */}
-          <div className="bg-blue-50 rounded-xl p-4 text-center">
+          {/* Applications - Updated with percentage */}
+          <div className="bg-blue-50 rounded-xl p-4 text-center relative">
             <Users size={16} className="text-blue-500 mx-auto mb-2" />
-            <div className="text-xs text-blue-600 mb-1">Applied</div>
+            <div className="text-xs text-blue-600 mb-1">Registered</div>
             <div className="text-sm font-semibold text-blue-900">
-              {company.applications_count || 0}
+              {company.total_applications_count || 0}
             </div>
           </div>
 
-          {/* Selected */}
-          <div className="bg-amber-50 rounded-xl p-4 text-center">
-            <Award size={16} className="text-amber-500 mx-auto mb-2" />
-            <div className="text-xs text-amber-600 mb-1">Selected</div>
-            <div className="text-sm font-semibold text-amber-900">
-              {company.selected || 0}
+          {/* Selected - Updated with percentage */}
+          <div className="bg-emerald-50 rounded-xl p-4 text-center relative">
+            <CheckCircle size={16} className="text-emerald-500 mx-auto mb-2" />
+            <div className="text-xs text-emerald-600 mb-1">Selected</div>
+            <div className="text-sm font-semibold text-emerald-900">
+              {company.total_selected || 0}
             </div>
+            {company.applications_count > 0 && (
+              <div className="absolute bottom-2 left-0 right-0 px-4">
+                <div className="h-1 bg-emerald-100 rounded-full">
+                  <div
+                    className="h-1 bg-emerald-500 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${Math.min(
+                        (company.selected / company.applications_count) * 100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Requirements Section */}
-        <div className="bg-slate-50 rounded-xl p-4">
+        {/* Requirements Section - Updated with specializations */}
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div className="flex items-center gap-2 mb-3">
-            <Book size={16} className="text-slate-600" />
+            <GraduationCap size={16} className="text-slate-600" />
             <h4 className="text-sm font-semibold text-slate-900">
-              Requirements
+              Eligibility & Requirements
             </h4>
           </div>
 
-          {!company.min_cgpa &&
-          !company.max_backlogs &&
-          !company.bond_required ? (
-            <div className="text-sm text-slate-500 italic">
-              No specific requirements mentioned
-            </div>
-          ) : (
+          <div className="space-y-3">
+            {/* Allowed Specializations */}
+            {company.allowed_specializations && (
+              <div className="bg-violet-50 rounded-lg p-3 border border-violet-300">
+                <h5 className="text-xs font-medium text-purple-700 mb-2">
+                  Eligible Branches
+                </h5>
+                <div className="flex flex-wrap gap-2">
+                  {company.allowed_specializations
+                    .replace(/[{}]/g, "")
+                    .split(",")
+                    .map((spec, index) => (
+                      <span
+                        key={index}
+                        className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-xs font-medium"
+                      >
+                        {spec.trim()}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Existing requirements (CGPA, Backlogs, Bond) */}
             <div className="space-y-2">
               {company.min_cgpa && (
                 <div className="flex items-center justify-between text-sm">
@@ -208,10 +258,10 @@ export default function CompanyCardView({
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Positions Section */}
+        {/* Positions Section - Updated with more details */}
         {company.positions && company.positions.length > 0 && (
           <div className="border-t border-slate-100 pt-3">
             <button
@@ -243,21 +293,130 @@ export default function CompanyCardView({
                     key={position.id}
                     className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-all duration-200"
                   >
-                    <div className="flex justify-between items-start">
+                    {/* Position Header */}
+                    <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h5 className="font-semibold text-slate-900 mb-1">
+                        <h5 className="font-semibold text-slate-900 mb-2">
                           {position.position_title}
                         </h5>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-medium">
                             {position.job_type?.replace("_", " ").toUpperCase()}
-                          </span>
-                          <span className="text-sm font-semibold text-emerald-600">
-                            {formatPackage(position.package_range)}
                           </span>
                         </div>
                       </div>
                     </div>
+
+                    {/* Compensation Details */}
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      {/* Internship Stipend - Show for both internship and internship+PPO */}
+                      {(position.job_type === "internship" ||
+                        position.job_type === "internship_plus_ppo") &&
+                        position.internship_stipend_monthly && (
+                          <div className="bg-blue-50 rounded-lg p-3">
+                            <div className="text-sm font-semibold text-blue-700">
+                              ₹{position.internship_stipend_monthly}/month
+                            </div>
+                            <div className="text-xs text-blue-600">
+                              Internship Stipend
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Full-time or PPO Package */}
+                      {(position.job_type === "full_time" ||
+                        position.job_type === "internship_plus_ppo") &&
+                        position.package_range && (
+                          <div className="bg-emerald-50 rounded-lg p-3">
+                            <div className="text-sm font-semibold text-emerald-700">
+                              {formatPackage(position.package_range)}
+                            </div>
+                            <div className="text-xs text-emerald-600">
+                              {position.job_type === "internship_plus_ppo"
+                                ? "PPO Package"
+                                : "Annual Package"}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* For internship+PPO, ensure both values take full width if only one is present */}
+                      {position.job_type === "internship_plus_ppo" &&
+                        (!position.internship_stipend_monthly ||
+                          !position.package_range) && (
+                          <div className="col-span-2">
+                            {position.internship_stipend_monthly && (
+                              <div className="bg-blue-50 rounded-lg p-3">
+                                <div className="text-sm font-semibold text-blue-700">
+                                  ₹{position.internship_stipend_monthly}/month
+                                </div>
+                                <div className="text-xs text-blue-600">
+                                  Internship Stipend
+                                </div>
+                              </div>
+                            )}
+                            {position.package_range && (
+                              <div className="bg-emerald-50 rounded-lg p-3">
+                                <div className="text-sm font-semibold text-emerald-700">
+                                  {formatPackage(position.package_range)}
+                                </div>
+                                <div className="text-xs text-emerald-600">
+                                  PPO Package
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Position Stats */}
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="bg-blue-50/50 rounded-lg p-2 text-center">
+                        <div className="text-sm font-semibold text-blue-700">
+                          {position.applications_count || 0}
+                        </div>
+                        <div className="text-xs text-blue-600">Registered</div>
+                      </div>
+                      <div className="bg-emerald-50/50 rounded-lg p-2 text-center">
+                        <div className="text-sm font-semibold text-emerald-700">
+                          {position.selected_students || 0}
+                        </div>
+                        <div className="text-xs text-emerald-600">Selected</div>
+                      </div>
+                    </div>
+
+                    {/* Rounds Schedule */}
+                    {(position.rounds_start_date ||
+                      position.rounds_end_date) && (
+                      <div className="bg-orange-50 rounded-lg p-3 mb-3">
+                        <div className="text-xs font-medium text-orange-700 mb-2">
+                          Rounds Schedule
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {position.rounds_start_date && (
+                            <div className="flex items-center gap-1">
+                              <Calendar size={12} className="text-orange-500" />
+                              <span className="text-orange-700">
+                                Starts:{" "}
+                                {new Date(
+                                  position.rounds_start_date
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )}
+                          {position.rounds_end_date && (
+                            <div className="flex items-center gap-1">
+                              <Clock size={12} className="text-orange-500" />
+                              <span className="text-orange-700">
+                                Ends:{" "}
+                                {new Date(
+                                  position.rounds_end_date
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Documents */}
                     {position.documents && position.documents.length > 0 && (
