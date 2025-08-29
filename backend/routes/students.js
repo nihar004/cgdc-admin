@@ -32,15 +32,6 @@ const upload = multer({
 });
 
 // Get all students
-// routes.get("/", async (req, res) => {
-//   try {
-//     const result = await db.query("SELECT * FROM students");
-//     res.json(result.rows);
-//   } catch (error) {
-//     console.error("Error fetching greetings:", error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
 routes.get("/", async (req, res) => {
   const { batch } = req.query; // e.g. ?batch=2024
   try {

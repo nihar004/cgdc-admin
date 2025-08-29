@@ -17,7 +17,7 @@ async function getBatchIdFromYear(year) {
   }
 }
 
-// GET all companies for a specific batch with positions and documents
+// GET all companies for a specific batch with positions, documents, and applications count per position
 routes.get("/batch/:batchYear", async (req, res) => {
   const { batchYear } = req.params;
 
@@ -40,7 +40,12 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'position_title', cp.position_title,
             'job_type', cp.job_type,
             'package_range', cp.package_range,
+            'internship_stipend_monthly', cp.internship_stipend_monthly,
+            'selected_students', cp.selected_students,
+            'rounds_start_date', cp.rounds_start_date,
+            'rounds_end_date', cp.rounds_end_date,
             'is_active', cp.is_active,
+            'applications_count', COALESCE(sa.registered_students, 0),
             'documents', (
               SELECT JSON_AGG(
                 JSON_BUILD_OBJECT(
@@ -62,6 +67,11 @@ routes.get("/batch/:batchYear", async (req, res) => {
       JOIN company_batches cb ON c.id = cb.company_id
       LEFT JOIN batches b ON cb.batch_id = b.id
       LEFT JOIN company_positions cp ON c.id = cp.company_id AND cp.is_active = true
+      LEFT JOIN (
+        SELECT position_id, COUNT(*) AS registered_students
+        FROM student_applications
+        GROUP BY position_id
+      ) sa ON cp.id = sa.position_id
       WHERE cb.batch_id = $1
       GROUP BY c.id, cb.batch_id, b.year
       ORDER BY c.scheduled_visit DESC
@@ -69,101 +79,34 @@ routes.get("/batch/:batchYear", async (req, res) => {
 
     const result = await db.query(query, [batchId]);
 
-    // NEW TODO: Get applications count for each company
-    // Transform the data to include applications count
-    const companiesWithStats = await Promise.all(
-      result.rows.map(async (company) => {
-        const applicationsQuery = `
-          SELECT COUNT(*) as count 
-          FROM student_applications sa
-          JOIN company_positions cp ON sa.position_id = cp.id
-          WHERE cp.company_id = $1
-        `;
+    // Transform the data to calculate total applications count and total selected per company
+    const companiesWithStats = result.rows.map((company) => {
+      // Calculate total applications for the company by summing up all position applications
+      const totalApplications = company.positions
+        ? company.positions.reduce(
+            (sum, position) => sum + (position.applications_count || 0),
+            0
+          )
+        : 0;
 
-        let applicationsCount = 0;
-        try {
-          const applicationsResult = await db.query(applicationsQuery, [
-            company.id,
-          ]);
-          applicationsCount = parseInt(applicationsResult.rows[0]?.count || 0);
-        } catch (err) {
-          // TODO NEW
-          // console.log("Applications table not found, defaulting to 0");
-        }
+      // Calculate total selected students for the company by summing up all position selected_students
+      const totalSelected = company.positions
+        ? company.positions.reduce(
+            (sum, position) => sum + (position.selected_students || 0),
+            0
+          )
+        : 0;
 
-        return {
-          ...company,
-          applications_count: applicationsCount,
-        };
-      })
-    );
+      return {
+        ...company,
+        total_applications_count: totalApplications,
+        total_selected: totalSelected,
+      };
+    });
 
     res.json(companiesWithStats);
   } catch (err) {
     console.error("Error fetching companies by batch:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET single company with all details (batch-specific)
-routes.get("/:id/batch/:batchYear", async (req, res) => {
-  const { id, batchYear } = req.params;
-
-  if (!id || isNaN(id) || !batchYear || isNaN(batchYear)) {
-    return res.status(400).json({ error: "Invalid company ID or batch year" });
-  }
-
-  try {
-    const batchId = await getBatchIdFromYear(batchYear);
-
-    const query = `
-      SELECT 
-        c.*,
-        cb.batch_id,
-        b.year as batch_year,
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-            'id', cp.id,
-            'position_title', cp.position_title,
-            'job_type', cp.job_type,
-            'package_range', cp.package_range,
-            'is_active', cp.is_active,
-            'documents', (
-              SELECT JSON_AGG(
-                JSON_BUILD_OBJECT(
-                  'id', pd.id,
-                  'document_type', pd.document_type,
-                  'document_title', pd.document_title,
-                  'document_url', pd.document_url,
-                  'file_type', pd.file_type,
-                  'display_order', pd.display_order,
-                  'uploaded_at', pd.uploaded_at
-                ) ORDER BY pd.display_order, pd.uploaded_at
-              )
-              FROM position_documents pd 
-              WHERE pd.position_id = cp.id
-            )
-          )
-        ) FILTER (WHERE cp.id IS NOT NULL) as positions
-      FROM companies c
-      JOIN company_batches cb ON c.id = cb.company_id
-      LEFT JOIN batches b ON cb.batch_id = b.id
-      LEFT JOIN company_positions cp ON c.id = cp.company_id AND cp.is_active = true
-      WHERE c.id = $1 AND cb.batch_id = $2
-      GROUP BY c.id, cb.batch_id, b.year
-    `;
-
-    const result = await db.query(query, [id, batchId]);
-
-    if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "Company not found in specified batch" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error("Error fetching company:", err);
     res.status(500).json({ error: err.message });
   }
 });
