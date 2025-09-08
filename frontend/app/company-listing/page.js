@@ -19,10 +19,10 @@ import { BatchProvider } from "../../context/BatchContext";
 import CompanyCardView from "./CompanyCardView";
 import { CompanyDetailModal } from "./CompanyDetailModal";
 import { CompanyTableView } from "./CompanyTableView";
+import CompanyFormModal from "./CompanyFormModal";
 
 const CompanyListing = () => {
   const [viewMode, setViewMode] = useState("table"); // table or cards
-  const [showAddModal, setShowAddModal] = useState(false); // controls add company modal visibility
   const {
     selectedCompany,
     selectedBatch,
@@ -40,6 +40,10 @@ const CompanyListing = () => {
     stats,
     specializationFilter,
     setSpecializationFilter,
+    showFormModal,
+    setShowFormModal,
+    editingCompany,
+    setEditingCompany,
   } = useCompaniesContext();
 
   const SPECIALIZATIONS = [
@@ -49,14 +53,40 @@ const CompanyListing = () => {
   ];
 
   const statusColors = {
-    arrived: "bg-green-100 text-green-800 border-green-200",
+    "JD Shared": "bg-green-100 text-green-800 border-green-200",
     upcoming: "bg-blue-100 text-blue-800 border-blue-200",
-    late: "bg-red-100 text-red-800 border-red-200",
+    Delayed: "bg-red-100 text-red-800 border-red-200",
   };
 
   const companyTypeColors = {
     tech: "bg-purple-100 text-purple-800",
     nontech: "bg-rose-100 text-rose-800",
+  };
+
+  // TODO START
+  const handleAddSuccess = (newCompany) => {
+    // Refresh your companies list
+    fetchCompanies();
+  };
+  // TODO END
+
+  // Update the add button click handler
+  const handleAddClick = () => {
+    setEditingCompany(null);
+    setShowFormModal(true);
+  };
+
+  // Add an edit button click handler
+  const handleEditClick = (company) => {
+    setEditingCompany(company);
+    setShowFormModal(true);
+  };
+
+  // Update the success handler
+  const handleFormSuccess = (companyData) => {
+    fetchCompanies();
+    setShowFormModal(false);
+    setEditingCompany(null);
   };
 
   return (
@@ -100,7 +130,7 @@ const CompanyListing = () => {
               </div>
 
               <button
-                onClick={() => setShowAddModal(true)}
+                onClick={handleAddClick}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <Plus size={20} />
@@ -141,9 +171,11 @@ const CompanyListing = () => {
               <div className="flex items-center gap-3">
                 <Users className="text-green-600" size={24} />
                 <div>
-                  <p className="text-green-600 text-sm font-medium">Arrived</p>
+                  <p className="text-green-600 text-sm font-medium">
+                    JD Shared
+                  </p>
                   <p className="text-2xl font-bold text-green-900">
-                    {stats.arrived}
+                    {stats.jd_shared}
                   </p>
                 </div>
               </div>
@@ -167,9 +199,9 @@ const CompanyListing = () => {
               <div className="flex items-center gap-3">
                 <Calendar className="text-gray-600" size={24} />
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">Late</p>
+                  <p className="text-gray-600 text-sm font-medium">Delayed</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.late}
+                    {stats.delayed}
                   </p>
                 </div>
               </div>
@@ -189,9 +221,9 @@ const CompanyListing = () => {
             {[
               { key: "all", label: "All Companies", icon: Building2 },
               { key: "marquee", label: "Marquee", icon: Award },
-              { key: "arrived", label: "Arrived", icon: Users },
+              { key: "JD Shared", label: "JD Shared", icon: Users },
               { key: "upcoming", label: "Upcoming", icon: Clock },
-              { key: "late", label: "Late", icon: Clock },
+              { key: "Delayed", label: "Delayed", icon: Clock },
             ].map((tab) => {
               const IconComponent = tab.icon;
               return (
@@ -299,6 +331,7 @@ const CompanyListing = () => {
                 company={company}
                 statusColors={statusColors}
                 companyTypeColors={companyTypeColors}
+                onEditClick={handleEditClick}
               />
             ))}
             {/* Empty State */}
@@ -341,7 +374,7 @@ const CompanyListing = () => {
                     sectorFilter === "all" &&
                     specializationFilter === "all" && (
                       <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => setShowFormModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         <Plus className="h-4 w-4" />
@@ -376,11 +409,24 @@ const CompanyListing = () => {
           <CompanyTableView
             statusColors={statusColors}
             companyTypeColors={companyTypeColors}
+            onEditClick={handleEditClick}
           />
         )}
 
         {/* Company Detail Modal */}
         {selectedCompany && <CompanyDetailModal />}
+
+        {showFormModal && (
+          <CompanyFormModal
+            batchYear={selectedBatch}
+            onClose={() => {
+              setShowFormModal(false);
+              setEditingCompany(null);
+            }}
+            onSuccess={handleFormSuccess}
+            editData={editingCompany}
+          />
+        )}
       </div>
     </div>
   );

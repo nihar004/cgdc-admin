@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useBatchContext } from "./BatchContext"; // Fix: Correct import name
+import { useBatchContext } from "./BatchContext";
+import { toast } from "react-hot-toast";
 
 const CompaniesContext = createContext();
 
 export function CompaniesProvider({ children }) {
-  const { selectedBatch } = useBatchContext(); // Fix: Use correct context name
+  const { selectedBatch } = useBatchContext();
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,8 +16,18 @@ export function CompaniesProvider({ children }) {
   const [sectorFilter, setSectorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
   const [specializationFilter, setSpecializationFilter] = useState("all");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteType, setDeleteType] = useState("company");
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(null);
 
   const formatPackage = (amount) => {
+    if (amount == null || isNaN(amount)) {
+      return "Not Disclosed";
+    }
+
     if (amount >= 10000000) {
       return `₹${(amount / 10000000).toFixed(1)} Cr`;
     } else if (amount >= 100000) {
@@ -50,8 +61,8 @@ export function CompaniesProvider({ children }) {
       ? new Date(company.actual_arrival)
       : null;
 
-    if (actualDate) return "arrived";
-    if (scheduledDate < now) return "late";
+    if (actualDate) return "JD Shared";
+    if (scheduledDate < now) return "Delayed";
     return "upcoming";
   };
 
@@ -101,14 +112,15 @@ export function CompaniesProvider({ children }) {
   const stats = {
     total: companies.length,
     marquee: companies.filter((company) => company.is_marquee).length,
-    arrived: companies.filter(
-      (company) => getCompanyStatus(company) === "arrived"
+    jd_shared: companies.filter(
+      (company) => getCompanyStatus(company) === "JD Shared"
     ).length,
     upcoming: companies.filter(
       (company) => getCompanyStatus(company) === "upcoming"
     ).length,
-    late: companies.filter((company) => getCompanyStatus(company) === "late")
-      .length,
+    delayed: companies.filter(
+      (company) => getCompanyStatus(company) === "Delayed"
+    ).length,
   };
 
   // Add useEffect to fetch companies when selectedBatch changes
@@ -117,6 +129,84 @@ export function CompaniesProvider({ children }) {
       fetchCompanies();
     }
   }, [selectedBatch]);
+
+  // Delete company
+  const handleDeleteCompany = async (companyId) => {
+    try {
+      await axios.delete(
+        `http://localhost:5000/companies/${companyId}/batch/${selectedBatch}`
+      );
+
+      // Optimistic update
+      setCompanies(companies.filter((company) => company.id !== companyId));
+
+      // Show success toast
+      toast.success("Company deleted successfully!", {
+        duration: 4000,
+        position: "top-right",
+      });
+
+      // Silent re-sync
+      fetchCompanies();
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.error || "Failed to delete company";
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: "top-right",
+      });
+      console.error("Error deleting company:", err);
+    }
+  };
+
+  // TODO
+  // Delete position
+  const handleDeletePosition = async (positionId) => {
+    try {
+      await axios.delete(
+        `http://localhost:5000/companies/position/${positionId}`
+      );
+      // Show success toast
+      toast.success("Position deleted successfully!", {
+        duration: 4000,
+        position: "top-right",
+      });
+
+      // Refresh companies data
+      fetchCompanies();
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.error || "Failed to delete position";
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: "top-right",
+      });
+      console.error("Error deleting position:", err);
+    }
+  };
+
+  const handleDeleteClick = (item, type = "company") => {
+    setDeleteType(type);
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      if (deleteType === "company") {
+        await handleDeleteCompany(itemToDelete.id);
+      } else {
+        await handleDeletePosition(itemToDelete.id);
+      }
+      setShowDeleteModal(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error("Delete failed:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <CompaniesContext.Provider
@@ -145,6 +235,20 @@ export function CompaniesProvider({ children }) {
         getCompanyStatus,
         specializationFilter,
         setSpecializationFilter,
+        showDeleteModal,
+        setShowDeleteModal,
+        deleteType,
+        setDeleteType,
+        itemToDelete,
+        setItemToDelete,
+        isDeleting,
+        setIsDeleting,
+        handleDeleteClick,
+        handleDeleteConfirm,
+        showFormModal,
+        setShowFormModal,
+        editingCompany,
+        setEditingCompany,
       }}
     >
       {children}

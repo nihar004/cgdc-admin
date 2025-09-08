@@ -29,6 +29,7 @@ export default function CompanyCardView({
   company,
   statusColors,
   companyTypeColors,
+  onEditClick,
 }) {
   const { formatPackage, setSelectedCompany, getCompanyStatus } =
     useCompaniesContext();
@@ -88,8 +89,8 @@ export default function CompanyCardView({
                   statusColors[status]
                 }`}
               >
-                {status === "arrived" && <Clock size={10} className="mr-1" />}
-                {status === "late" && (
+                {status === "jd_shared" && <Clock size={10} className="mr-1" />}
+                {status === "delayed" && (
                   <AlertCircle size={10} className="mr-1" />
                 )}
                 {status === "upcoming" && (
@@ -156,7 +157,7 @@ export default function CompanyCardView({
           {company.actual_arrival && (
             <div className="bg-emerald-50 rounded-xl p-4 text-center">
               <Clock size={16} className="text-emerald-500 mx-auto mb-2" />
-              <div className="text-xs text-emerald-600 mb-1">Arrived</div>
+              <div className="text-xs text-emerald-600 mb-1">JD Shared</div>
               <div className="text-sm font-semibold text-emerald-900">
                 {new Date(company.actual_arrival).toLocaleDateString("en-US", {
                   day: "numeric",
@@ -200,7 +201,7 @@ export default function CompanyCardView({
           </div>
         </div>
 
-        {/* Requirements Section - Updated with specializations */}
+        {/* Requirements Section - Updated logic */}
         <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
           <div className="flex items-center gap-2 mb-3">
             <GraduationCap size={16} className="text-slate-600" />
@@ -232,18 +233,24 @@ export default function CompanyCardView({
               </div>
             )}
 
-            {/* Existing requirements (CGPA, Backlogs, Bond) */}
-            <div className="space-y-2">
-              {company.min_cgpa && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600">Minimum CGPA</span>
-                  <span className="font-semibold text-slate-900">
-                    {company.min_cgpa}
-                  </span>
-                </div>
-              )}
-              {company.max_backlogs !== null &&
-                company.max_backlogs !== undefined && (
+            {/* Show "No requirements" message or requirements */}
+            {(!company.min_cgpa || company.min_cgpa == 0) &&
+            (!company.max_backlogs || company.max_backlogs == 999) &&
+            !company.bond_required ? (
+              <div className="text-center py-3 text-slate-500 italic">
+                No Other Specific Requirements Mentioned
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {company.min_cgpa && company.min_cgpa != 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600">Minimum CGPA</span>
+                    <span className="font-semibold text-slate-900">
+                      {company.min_cgpa}
+                    </span>
+                  </div>
+                )}
+                {company.max_backlogs && company.max_backlogs != 999 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600">Maximum Backlogs</span>
                     <span className="font-semibold text-slate-900">
@@ -251,13 +258,14 @@ export default function CompanyCardView({
                     </span>
                   </div>
                 )}
-              {company.bond_required && (
-                <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-2 rounded-lg">
-                  <AlertCircle size={14} />
-                  <span className="font-medium">Bond Required</span>
-                </div>
-              )}
-            </div>
+                {company.bond_required && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-2 rounded-lg">
+                    <AlertCircle size={14} />
+                    <span className="font-medium">Bond Required</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -309,63 +317,49 @@ export default function CompanyCardView({
 
                     {/* Compensation Details */}
                     <div className="grid grid-cols-2 gap-3 mb-3">
-                      {/* Internship Stipend - Show for both internship and internship+PPO */}
+                      {/* Internship Stipend */}
                       {(position.job_type === "internship" ||
-                        position.job_type === "internship_plus_ppo") &&
-                        position.internship_stipend_monthly && (
-                          <div className="bg-blue-50 rounded-lg p-3">
-                            <div className="text-sm font-semibold text-blue-700">
-                              ₹{position.internship_stipend_monthly}/month
-                            </div>
-                            <div className="text-xs text-blue-600">
-                              Internship Stipend
-                            </div>
+                        position.job_type === "internship_plus_ppo") && (
+                        <div className="bg-blue-50 rounded-lg p-3">
+                          <div
+                            className={`text-sm font-semibold ${
+                              position.internship_stipend_monthly === -1
+                                ? "text-gray-500"
+                                : "text-blue-700"
+                            }`}
+                          >
+                            {position.internship_stipend_monthly === -1
+                              ? "Not disclosed"
+                              : `₹${position.internship_stipend_monthly}/month`}
                           </div>
-                        )}
+                          <div className="text-xs text-blue-600">
+                            Internship Stipend
+                          </div>
+                        </div>
+                      )}
 
                       {/* Full-time or PPO Package */}
                       {(position.job_type === "full_time" ||
-                        position.job_type === "internship_plus_ppo") &&
-                        position.package_range && (
-                          <div className="bg-emerald-50 rounded-lg p-3">
-                            <div className="text-sm font-semibold text-emerald-700">
-                              {formatPackage(position.package_range)}
-                            </div>
-                            <div className="text-xs text-emerald-600">
-                              {position.job_type === "internship_plus_ppo"
-                                ? "PPO Package"
-                                : "Annual Package"}
-                            </div>
+                        position.job_type === "internship_plus_ppo") && (
+                        <div className="bg-emerald-50 rounded-lg p-3">
+                          <div
+                            className={`text-sm font-semibold ${
+                              position.package_range === -1
+                                ? "text-gray-500"
+                                : "text-emerald-700"
+                            }`}
+                          >
+                            {position.package_range === -1
+                              ? "Not disclosed"
+                              : formatPackage(position.package_range)}
                           </div>
-                        )}
-
-                      {/* For internship+PPO, ensure both values take full width if only one is present */}
-                      {position.job_type === "internship_plus_ppo" &&
-                        (!position.internship_stipend_monthly ||
-                          !position.package_range) && (
-                          <div className="col-span-2">
-                            {position.internship_stipend_monthly && (
-                              <div className="bg-blue-50 rounded-lg p-3">
-                                <div className="text-sm font-semibold text-blue-700">
-                                  ₹{position.internship_stipend_monthly}/month
-                                </div>
-                                <div className="text-xs text-blue-600">
-                                  Internship Stipend
-                                </div>
-                              </div>
-                            )}
-                            {position.package_range && (
-                              <div className="bg-emerald-50 rounded-lg p-3">
-                                <div className="text-sm font-semibold text-emerald-700">
-                                  {formatPackage(position.package_range)}
-                                </div>
-                                <div className="text-xs text-emerald-600">
-                                  PPO Package
-                                </div>
-                              </div>
-                            )}
+                          <div className="text-xs text-emerald-600">
+                            {position.job_type === "internship_plus_ppo"
+                              ? "PPO Package"
+                              : "Annual Package"}
                           </div>
-                        )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Position Stats */}
@@ -428,7 +422,7 @@ export default function CompanyCardView({
                           {position.documents.map((doc) => (
                             <a
                               key={doc.id}
-                              href={doc.document_url}
+                              href={doc.download_url.replace(/\\/g, "/")}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 text-xs bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-200 transition-all duration-200"
@@ -451,7 +445,7 @@ export default function CompanyCardView({
         {/* Actions Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-slate-100">
           <div className="flex items-center gap-3">
-            {company.website_url && (
+            {company.website_url ? (
               <a
                 href={company.website_url}
                 target="_blank"
@@ -461,8 +455,16 @@ export default function CompanyCardView({
               >
                 <Globe size={16} />
               </a>
+            ) : (
+              <div
+                className="p-2 text-red-500 opacity-60 cursor-not-allowed"
+                title="Website not available"
+              >
+                <Globe size={16} />
+              </div>
             )}
-            {company.linkedin_url && (
+
+            {company.linkedin_url ? (
               <a
                 href={company.linkedin_url}
                 target="_blank"
@@ -472,6 +474,13 @@ export default function CompanyCardView({
               >
                 <Linkedin size={16} />
               </a>
+            ) : (
+              <div
+                className="p-2 text-red-500 opacity-60 cursor-not-allowed"
+                title="LinkedIn not available"
+              >
+                <Linkedin size={16} />
+              </div>
             )}
           </div>
 
@@ -484,6 +493,7 @@ export default function CompanyCardView({
               <Eye size={16} />
             </button>
             <button
+              onClick={() => onEditClick(company)}
               className="p-2 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all duration-200"
               title="Edit Company"
             >

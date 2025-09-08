@@ -42,15 +42,15 @@ export function CompanyDetailModal() {
       icon: Calendar,
       label: "Upcoming",
     },
-    late: {
+    delayed: {
       color: "bg-amber-50 text-amber-700 border-amber-200",
       icon: AlertCircle,
-      label: "Late",
+      label: "Delayed",
     },
-    arrived: {
+    jd_shared: {
       color: "bg-emerald-50 text-emerald-700 border-emerald-200",
       icon: Clock,
-      label: "Arrived",
+      label: "JD Shared",
     },
   };
 
@@ -253,31 +253,32 @@ export function CompanyDetailModal() {
                             {/* Compensation Details */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                               {/* Full Time Package */}
-                              {position.job_type === "full_time" &&
-                                position.package_range && (
-                                  <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                                    <div className="text-lg font-bold text-green-600">
-                                      {formatPackage(position.package_range)}
-                                    </div>
-                                    <div className="text-xs text-green-700 font-medium">
-                                      Annual Package
-                                    </div>
+                              {position.job_type === "full_time" && (
+                                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                                  <div className="text-lg font-bold text-green-600">
+                                    {position.package_range === -1
+                                      ? "Not disclosed"
+                                      : formatPackage(position.package_range)}
                                   </div>
-                                )}
+                                  <div className="text-xs text-green-700 font-medium">
+                                    Annual Package
+                                  </div>
+                                </div>
+                              )}
 
                               {/* Internship Stipend */}
-                              {position.job_type === "internship" &&
-                                position.internship_stipend_monthly && (
-                                  <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                                    <div className="text-lg font-bold text-blue-600">
-                                      ₹{position.internship_stipend_monthly}
-                                      /month
-                                    </div>
-                                    <div className="text-xs text-blue-700 font-medium">
-                                      Internship Stipend
-                                    </div>
+                              {position.job_type === "internship" && (
+                                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                  <div className="text-lg font-bold text-blue-600">
+                                    {position.internship_stipend_monthly === -1
+                                      ? "Not disclosed"
+                                      : `₹${position.internship_stipend_monthly}/month`}
                                   </div>
-                                )}
+                                  <div className="text-xs text-blue-700 font-medium">
+                                    Internship Stipend
+                                  </div>
+                                </div>
+                              )}
 
                               {/* Internship + PPO */}
                               {position.job_type === "internship_plus_ppo" && (
@@ -285,8 +286,10 @@ export function CompanyDetailModal() {
                                   {position.internship_stipend_monthly && (
                                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
                                       <div className="text-lg font-bold text-blue-600">
-                                        ₹{position.internship_stipend_monthly}
-                                        /month
+                                        {position.internship_stipend_monthly ===
+                                        -1
+                                          ? "Not disclosed"
+                                          : `₹${position.internship_stipend_monthly}/month`}
                                       </div>
                                       <div className="text-xs text-blue-700 font-medium">
                                         Internship Stipend
@@ -296,7 +299,11 @@ export function CompanyDetailModal() {
                                   {position.package_range && (
                                     <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                                       <div className="text-lg font-bold text-green-600">
-                                        {formatPackage(position.package_range)}
+                                        {position.package_range === -1
+                                          ? "Not disclosed"
+                                          : formatPackage(
+                                              position.package_range
+                                            )}
                                       </div>
                                       <div className="text-xs text-green-700 font-medium">
                                         PPO Package
@@ -387,7 +394,7 @@ export function CompanyDetailModal() {
                                 {position.documents.map((doc) => (
                                   <a
                                     key={doc.id}
-                                    href={doc.document_url}
+                                    href={doc.download_url.replace(/\\/g, "/")}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-1.5 text-xs bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 px-2 py-1 rounded-lg border border-slate-200 hover:border-blue-200 transition-all duration-200 font-medium"
@@ -409,58 +416,60 @@ export function CompanyDetailModal() {
                   </div>
                 </div>
 
-                {/* Eligibility Requirements */}
+                {/* Requirements */}
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                     <GraduationCap size={18} className="text-blue-600" />
                     Eligibility Requirements
                   </h3>
 
-                  {!selectedCompany.min_cgpa &&
-                  !selectedCompany.max_backlogs &&
-                  !selectedCompany.bond_required &&
-                  !selectedCompany.allowed_specializations ? (
-                    <div className="text-center py-6 text-slate-500 italic">
-                      No specific requirements mentioned
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Allowed Specializations */}
-                      {selectedCompany.allowed_specializations && (
-                        <div className="bg-violet-50 rounded-lg p-3 border border-violet-300">
-                          <h4 className="text-sm font-semibold text-purple-900 mb-2">
-                            Eligible Branches
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedCompany.allowed_specializations
-                              .replace(/[{}]/g, "")
-                              .split(",")
-                              .map((spec, index) => (
-                                <span
-                                  key={index}
-                                  className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-sm font-medium"
-                                >
-                                  {spec.trim()}
-                                </span>
-                              ))}
-                          </div>
+                  <div className="space-y-4">
+                    {/* Allowed Specializations */}
+                    {selectedCompany.allowed_specializations && (
+                      <div className="bg-violet-50 rounded-lg p-3 border border-violet-300">
+                        <h4 className="text-sm font-semibold text-purple-900 mb-2">
+                          Eligible Branches
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedCompany.allowed_specializations
+                            .replace(/[{}]/g, "")
+                            .split(",")
+                            .map((spec, index) => (
+                              <span
+                                key={index}
+                                className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-sm font-medium"
+                              >
+                                {spec.trim()}
+                              </span>
+                            ))}
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                      {/* Existing requirements - CGPA, Backlogs, Bond */}
+                    {/* Requirements Grid */}
+                    {(!selectedCompany.min_cgpa ||
+                      selectedCompany.min_cgpa == 0) &&
+                    (!selectedCompany.max_backlogs ||
+                      selectedCompany.max_backlogs == 999) &&
+                    !selectedCompany.bond_required ? (
+                      <div className="text-center py-6 text-slate-500 italic">
+                        No Other Specific Requirements Mentioned
+                      </div>
+                    ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {selectedCompany.min_cgpa && (
-                          <div className="bg-white rounded-lg p-3 border border-gray-300">
-                            <div className="text-2xl font-bold text-blue-600 mb-0.5">
-                              {selectedCompany.min_cgpa}
+                        {selectedCompany.min_cgpa &&
+                          selectedCompany.min_cgpa != 0 && (
+                            <div className="bg-white rounded-lg p-3 border border-gray-300">
+                              <div className="text-2xl font-bold text-blue-600 mb-0.5">
+                                {selectedCompany.min_cgpa}
+                              </div>
+                              <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                                Minimum CGPA
+                              </div>
                             </div>
-                            <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                              Minimum CGPA
-                            </div>
-                          </div>
-                        )}
-                        {selectedCompany.max_backlogs !== null &&
-                          selectedCompany.max_backlogs !== undefined && (
+                          )}
+                        {selectedCompany.max_backlogs &&
+                          selectedCompany.max_backlogs != 999 && (
                             <div className="bg-white rounded-lg p-3 border border-gray-300">
                               <div className="text-2xl font-bold text-orange-600 mb-0.5">
                                 ≤{selectedCompany.max_backlogs}
@@ -471,28 +480,29 @@ export function CompanyDetailModal() {
                             </div>
                           )}
                       </div>
+                    )}
 
-                      {selectedCompany.bond_required && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                          <div className="flex items-start gap-2">
-                            <AlertCircle
-                              size={16}
-                              className="text-amber-600 mt-0.5"
-                            />
-                            <div>
-                              <span className="font-bold text-amber-800 text-sm">
-                                Bond Required
-                              </span>
-                              <p className="text-amber-700 mt-0.5 text-sm font-medium">
-                                This company requires a service bond agreement
-                                upon selection.
-                              </p>
-                            </div>
+                    {/* Bond Required Warning */}
+                    {selectedCompany.bond_required && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle
+                            size={16}
+                            className="text-amber-600 mt-0.5"
+                          />
+                          <div>
+                            <span className="font-bold text-amber-800 text-sm">
+                              Bond Required
+                            </span>
+                            <p className="text-amber-700 mt-0.5 text-sm font-medium">
+                              This company requires a service bond agreement
+                              upon selection.
+                            </p>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
