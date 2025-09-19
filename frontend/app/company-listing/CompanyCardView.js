@@ -172,7 +172,8 @@ export default function CompanyCardView({
             <Users size={16} className="text-blue-500 mx-auto mb-2" />
             <div className="text-xs text-blue-600 mb-1">Registered</div>
             <div className="text-sm font-semibold text-blue-900">
-              {company.total_applications_count || 0}
+              {/* {company.total_applications_count || 0} */}
+              {/* // TODO/ */}
             </div>
           </div>
 

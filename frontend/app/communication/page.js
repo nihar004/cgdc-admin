@@ -1,218 +1,361 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Plus, Send, Mail, FileText, Users, Eye, Edit, Trash2, Download, Link, Calendar, Filter, Search, X, ExternalLink, CheckCircle, Clock, AlertCircle, Copy } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  Plus,
+  Send,
+  Mail,
+  FileText,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Calendar,
+  Search,
+  X,
+  ExternalLink,
+  Copy,
+  Upload,
+  Users,
+} from "lucide-react";
+import axios from "axios";
 
 const CommunicationSystem = () => {
-  const [activeTab, setActiveTab] = useState('mail');
+  const [activeTab, setActiveTab] = useState("mail");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [events, setEvents] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [emails, setEmails] = useState([]);
+  const [forms, setForms] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample data for emails
-  const [emails, setEmails] = useState([
-    {
-      id: 1,
-      subject: 'Microsoft Recruitment Drive - Apply Now',
-      recipients: 'CSE, IT Students (CGPA 8.0+)',
-      sentTo: 156,
-      opened: 142,
-      clicked: 89,
-      status: 'sent',
-      sentDate: '2024-08-03',
-      type: 'company_notification',
-      company: 'Microsoft'
-    },
-    {
-      id: 2,
-      subject: 'Placement Preparation Workshop',
-      recipients: 'All Final Year Students',
-      sentTo: 320,
-      opened: 298,
-      clicked: 201,
-      status: 'sent',
-      sentDate: '2024-08-01',
-      type: 'event_notification',
-      company: null
-    },
-    {
-      id: 3,
-      subject: 'Google Interview Schedule',
-      recipients: 'Selected Students (Round 1)',
-      sentTo: 45,
-      opened: 45,
-      clicked: 43,
-      status: 'sent',
-      sentDate: '2024-08-02',
-      type: 'interview_schedule',
-      company: 'Google'
-    }
-  ]);
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  // Sample data for forms
-  const [forms, setForms] = useState([
-    {
-      id: 1,
-      title: 'Amazon Recruitment Registration',
-      description: 'Registration form for Amazon campus placement drive',
-      formUrl: 'https://forms.google.com/amazon-recruitment',
-      responses: 187,
-      status: 'active',
-      createdDate: '2024-07-28',
-      deadline: '2024-08-10',
-      company: 'Amazon',
-      branches: ['CSE', 'IT', 'ECE'],
-      cgpa: '7.0+',
-      type: 'registration'
-    },
-    {
-      id: 2,
-      title: 'Placement Feedback Survey',
-      description: 'Student feedback on placement process and improvements',
-      formUrl: 'https://forms.google.com/placement-feedback',
-      responses: 89,
-      status: 'active',
-      createdDate: '2024-08-01',
-      deadline: '2024-08-15',
-      company: null,
-      branches: ['All'],
-      cgpa: 'Any',
-      type: 'feedback'
-    },
-    {
-      id: 3,
-      title: 'TCS Pre-placement Talk Registration',
-      description: 'Register for TCS pre-placement presentation',
-      formUrl: 'https://forms.google.com/tcs-ppt',
-      responses: 245,
-      status: 'closed',
-      createdDate: '2024-07-20',
-      deadline: '2024-07-30',
-      company: 'TCS',
-      branches: ['All'],
-      cgpa: '6.5+',
-      type: 'event'
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [emailsRes, formsRes, eventsRes, companiesRes, hello] =
+        await Promise.all([
+          axios.get("http://localhost:5000/emails/campaigns"),
+          axios.get("http://localhost:5000/forms"),
+          axios.get("http://localhost:5000/events"),
+          axios.get("http://localhost:5000/companies"),
+          axios.get("http://localhost:5000/emails/active-events"),
+        ]);
+
+      // Access data directly from response.data
+      if (emailsRes.data.success) setEmails(emailsRes.data.data);
+      if (formsRes.data.success) setForms(formsRes.data.data);
+      if (eventsRes.data.success) setEvents(eventsRes.data.data);
+      if (companiesRes.data.success) setCompanies(companiesRes.data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const [newEmail, setNewEmail] = useState({
-    subject: '',
-    recipients: 'all',
-    customRecipients: '',
-    content: '',
-    type: 'general',
-    company: '',
-    sendDate: 'now'
+    title: "",
+    subject: "",
+    body_template: "",
+    email_type: "general",
+    event_id: "",
+    form_id: "",
+    scheduled_at: "",
+    manual_recipients: [],
+    use_template: false,
+    template_data: {},
   });
 
   const [newForm, setNewForm] = useState({
-    title: '',
-    description: '',
-    type: 'registration',
-    company: '',
-    branches: [],
-    cgpa: '',
-    deadline: '',
-    formType: 'google_forms'
+    title: "",
+    description: "",
+    form_url: "",
+    type: "application",
+    company_id: "",
+    event_id: "",
+    deadline: "",
+    allow_edit: false,
+    target_departments: [],
+    target_batches: [],
   });
 
+  const [csvFile, setCsvFile] = useState(null);
+
   const statusColors = {
-    sent: 'bg-green-100 text-green-800',
-    draft: 'bg-gray-100 text-gray-800',
-    scheduled: 'bg-blue-100 text-blue-800',
-    active: 'bg-green-100 text-green-800',
-    closed: 'bg-red-100 text-red-800',
-    draft_form: 'bg-gray-100 text-gray-800'
+    sent: "bg-green-100 text-green-800",
+    draft: "bg-gray-100 text-gray-800",
+    scheduled: "bg-blue-100 text-blue-800",
+    active: "bg-green-100 text-green-800",
+    closed: "bg-red-100 text-red-800",
+    draft_form: "bg-gray-100 text-gray-800",
   };
 
   const typeColors = {
-    company_notification: 'bg-blue-50 text-blue-700',
-    event_notification: 'bg-purple-50 text-purple-700',
-    interview_schedule: 'bg-orange-50 text-orange-700',
-    general: 'bg-gray-50 text-gray-700',
-    registration: 'bg-green-50 text-green-700',
-    feedback: 'bg-yellow-50 text-yellow-700',
-    event: 'bg-indigo-50 text-indigo-700'
+    company_notification: "bg-blue-50 text-blue-700",
+    event_notification: "bg-purple-50 text-purple-700",
+    interview_schedule: "bg-orange-50 text-orange-700",
+    general: "bg-gray-50 text-gray-700",
+    application: "bg-green-50 text-green-700",
+    feedback: "bg-yellow-50 text-yellow-700",
+    survey: "bg-indigo-50 text-indigo-700",
+    attendance: "bg-pink-50 text-pink-700",
+    custom: "bg-teal-50 text-teal-700",
   };
 
-  const filteredEmails = emails.filter(email => {
-    const matchesSearch = email.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || email.status === filterStatus;
+  const filteredEmails = emails.filter((email) => {
+    const matchesSearch = email.subject
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterStatus === "all" || email.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const filteredForms = forms.filter(form => {
-    const matchesSearch = form.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || form.status === filterStatus;
+  const filteredForms = forms.filter((form) => {
+    const matchesSearch = form.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterStatus === "all" || form.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
   const getEmailStats = () => {
-    const totalSent = emails.reduce((sum, email) => sum + email.sentTo, 0);
-    const totalOpened = emails.reduce((sum, email) => sum + email.opened, 0);
-    const totalClicked = emails.reduce((sum, email) => sum + email.clicked, 0);
-    const openRate = totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(1) : 0;
-    
-    return { totalSent, totalOpened, totalClicked, openRate };
+    const totalSent = emails.reduce(
+      (sum, email) => sum + email.total_recipients,
+      0
+    );
+    const sentCount = emails.filter((e) => e.status === "sent").length;
+    const scheduledCount = emails.filter(
+      (e) => e.status === "scheduled"
+    ).length;
+
+    return { totalSent, sentCount, scheduledCount };
   };
 
   const getFormStats = () => {
     const totalForms = forms.length;
-    const activeForms = forms.filter(f => f.status === 'active').length;
-    const totalResponses = forms.reduce((sum, form) => sum + form.responses, 0);
-    const avgResponses = totalForms > 0 ? Math.round(totalResponses / totalForms) : 0;
-    
+    const activeForms = forms.filter((f) => f.status === "active").length;
+    const totalResponses = forms.reduce(
+      (sum, form) => sum + (form.response_count || 0),
+      0
+    );
+    const avgResponses =
+      totalForms > 0 ? Math.round(totalResponses / totalForms) : 0;
+
     return { totalForms, activeForms, totalResponses, avgResponses };
   };
 
   const emailStats = getEmailStats();
   const formStats = getFormStats();
 
-  const handleSendEmail = () => {
-    if (newEmail.subject && newEmail.content) {
-      const email = {
+  const handleSendEmail = async () => {
+    try {
+      if (!newEmail.title || !newEmail.subject || !newEmail.body_template) {
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      const emailPayload = {
         ...newEmail,
-        id: emails.length + 1,
-        sentTo: 150, // Mock data
-        opened: 0,
-        clicked: 0,
-        status: newEmail.sendDate === 'now' ? 'sent' : 'scheduled',
-        sentDate: new Date().toISOString().split('T')[0]
+        recipient_criteria: {
+          departments: [],
+          batch_years: [],
+          min_cgpa: null,
+          max_backlogs: null,
+        },
+        template_data: {},
       };
-      setEmails([...emails, email]);
-      setNewEmail({
-        subject: '', recipients: 'all', customRecipients: '', content: '',
-        type: 'general', company: '', sendDate: 'now'
-      });
-      setShowCreateModal(false);
+
+      const response = await axios.post(
+        "http://localhost:5000/emails/campaigns",
+        emailPayload
+      );
+
+      if (response.data.success) {
+        fetchData();
+        setNewEmail({
+          title: "",
+          subject: "",
+          body_template: "",
+          email_type: "general",
+          event_id: "",
+          form_id: "",
+          scheduled_at: "",
+          manual_recipients: [],
+          use_template: false,
+          template_data: {},
+        });
+        setShowCreateModal(false);
+        alert("Email campaign created successfully!");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert(
+        "Error sending email: " +
+          (error.response?.data?.message || error.message)
+      );
     }
   };
 
-  const handleCreateForm = () => {
-    if (newForm.title && newForm.description) {
-      const form = {
+  const handleCreateForm = async () => {
+    try {
+      if (!newForm.title || !newForm.description || !newForm.form_url) {
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      const formPayload = {
         ...newForm,
-        id: forms.length + 1,
-        formUrl: `https://forms.google.com/${newForm.title.toLowerCase().replace(/\s+/g, '-')}`,
-        responses: 0,
-        status: 'active',
-        createdDate: new Date().toISOString().split('T')[0],
-        branches: Array.isArray(newForm.branches) ? newForm.branches : [newForm.branches]
+        target_departments: newForm.target_departments,
+        target_batch_years: newForm.target_batches,
       };
-      setForms([...forms, form]);
-      setNewForm({
-        title: '', description: '', type: 'registration', company: '',
-        branches: [], cgpa: '', deadline: '', formType: 'google_forms'
-      });
-      setShowFormModal(false);
+
+      const response = await axios.post(
+        "http://localhost:5000/forms",
+        formPayload
+      );
+
+      if (response.data.success) {
+        fetchData();
+        setNewForm({
+          title: "",
+          description: "",
+          form_url: "",
+          type: "application",
+          company_id: "",
+          event_id: "",
+          deadline: "",
+          allow_edit: false,
+          target_departments: [],
+          target_batches: [],
+        });
+        setShowFormModal(false);
+        alert("Form created successfully!");
+      }
+    } catch (error) {
+      console.error("Error creating form:", error);
+      alert(
+        "Error creating form: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  const handleCsvUpload = async (formId) => {
+    if (!csvFile) {
+      alert("Please select a CSV file first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("studentFile", csvFile);
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/forms/${formId}/upload-students`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert(`Successfully processed ${response.data.message}`);
+        setCsvFile(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+      alert(
+        "Error uploading CSV: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  const handleDeleteForm = async (formId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/forms/${formId}`
+      );
+      if (response.data.success) {
+        fetchData();
+        alert("Form deleted successfully");
+      }
+    } catch (error) {
+      console.error("Error deleting form:", error);
+      alert(
+        "Error deleting form: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  const handleFormStatusChange = async (formId, newStatus) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/forms/${formId}/status`,
+        {
+          status: newStatus,
+        }
+      );
+      if (response.data.success) {
+        fetchData();
+        alert("Form status updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating form status:", error);
+      alert(
+        "Error updating form status: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  const handleDeleteEmail = async (emailId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/emails/campaigns/${emailId}`
+      );
+      if (response.data.success) {
+        fetchData();
+        alert("Email campaign deleted successfully");
+      }
+    } catch (error) {
+      console.error("Error deleting email campaign:", error);
+      alert(
+        "Error deleting email campaign: " +
+          (error.response?.data?.message || error.message)
+      );
     }
   };
 
   const copyFormLink = (url) => {
     navigator.clipboard.writeText(url);
-    // You could add a toast notification here
+    alert("Form link copied to clipboard!");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading communication hub...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -221,8 +364,12 @@ const CommunicationSystem = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Communication System</h1>
-              <p className="text-gray-600 mt-1">Manage emails and forms for student communications</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Communication System
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Manage emails and forms for student communications
+              </p>
             </div>
             <div className="flex gap-3">
               <button
@@ -241,106 +388,154 @@ const CommunicationSystem = () => {
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            {activeTab === 'mail' ? (
-              <>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Send className="text-blue-600" size={24} />
-                    <div>
-                      <p className="text-blue-600 text-sm font-medium">Total Sent</p>
-                      <p className="text-2xl font-bold text-blue-900">{emailStats.totalSent}</p>
-                    </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          {activeTab === "mail" ? (
+            <>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <Mail className="text-blue-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Total Emails Sent
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {emailStats.totalSent}
+                    </p>
                   </div>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Eye className="text-green-600" size={24} />
-                    <div>
-                      <p className="text-green-600 text-sm font-medium">Open Rate</p>
-                      <p className="text-2xl font-bold text-green-900">{emailStats.openRate}%</p>
-                    </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-green-100 rounded-lg">
+                    <Send className="text-green-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Sent Campaigns
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {emailStats.sentCount}
+                    </p>
                   </div>
                 </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Users className="text-purple-600" size={24} />
-                    <div>
-                      <p className="text-purple-600 text-sm font-medium">Total Opened</p>
-                      <p className="text-2xl font-bold text-purple-900">{emailStats.totalOpened}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-orange-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <ExternalLink className="text-orange-600" size={24} />
-                    <div>
-                      <p className="text-orange-600 text-sm font-medium">Total Clicked</p>
-                      <p className="text-2xl font-bold text-orange-900">{emailStats.totalClicked}</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="text-green-600" size={24} />
-                    <div>
-                      <p className="text-green-600 text-sm font-medium">Total Forms</p>
-                      <p className="text-2xl font-bold text-green-900">{formStats.totalForms}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="text-blue-600" size={24} />
-                    <div>
-                      <p className="text-blue-600 text-sm font-medium">Active Forms</p>
-                      <p className="text-2xl font-bold text-blue-900">{formStats.activeForms}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Users className="text-purple-600" size={24} />
-                    <div>
-                      <p className="text-purple-600 text-sm font-medium">Total Responses</p>
-                      <p className="text-2xl font-bold text-purple-900">{formStats.totalResponses}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-3">
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-yellow-100 rounded-lg">
                     <Calendar className="text-yellow-600" size={24} />
-                    <div>
-                      <p className="text-yellow-600 text-sm font-medium">Avg Responses</p>
-                      <p className="text-2xl font-bold text-yellow-900">{formStats.avgResponses}</p>
-                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Scheduled
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {emailStats.scheduledCount}
+                    </p>
                   </div>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-purple-100 rounded-lg">
+                    <Users className="text-purple-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Total Recipients
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {emailStats.totalSent}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-green-100 rounded-lg">
+                    <FileText className="text-green-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Total Forms
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formStats.totalForms}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <FileText className="text-blue-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Active Forms
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formStats.activeForms}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-yellow-100 rounded-lg">
+                    <Users className="text-yellow-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Total Responses
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formStats.totalResponses}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-3 bg-purple-100 rounded-lg">
+                    <Users className="text-purple-600" size={24} />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Avg. Responses
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formStats.avgResponses}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Tabs and Search */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           {/* Tabs */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {['mail', 'forms'].map(tab => (
+            {["mail", "forms"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
                   activeTab === tab
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {tab === 'mail' ? <Mail size={20} /> : <FileText size={20} />}
+                {tab === "mail" ? <Mail size={20} /> : <FileText size={20} />}
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
@@ -349,7 +544,10 @@ const CommunicationSystem = () => {
           {/* Search and Filters */}
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder={`Search ${activeTab}...`}
@@ -365,7 +563,7 @@ const CommunicationSystem = () => {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Status</option>
-                {activeTab === 'mail' ? (
+                {activeTab === "mail" ? (
                   <>
                     <option value="sent">Sent</option>
                     <option value="draft">Draft</option>
@@ -375,7 +573,7 @@ const CommunicationSystem = () => {
                   <>
                     <option value="active">Active</option>
                     <option value="closed">Closed</option>
-                    <option value="draft_form">Draft</option>
+                    <option value="draft">Draft</option>
                   </>
                 )}
               </select>
@@ -384,18 +582,27 @@ const CommunicationSystem = () => {
         </div>
 
         {/* Content Area */}
-        {activeTab === 'mail' ? (
+        {activeTab === "mail" ? (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Subject
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Details
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Sent Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -403,44 +610,60 @@ const CommunicationSystem = () => {
                     <tr key={email.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{email.subject}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {email.subject}
+                          </div>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${typeColors[email.type]}`}>
-                              {email.type.replace('_', ' ')}
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${typeColors[email.email_type]}`}
+                            >
+                              {email.email_type.replace("_", " ")}
                             </span>
-                            {email.company && (
-                              <span className="text-xs text-gray-500">• {email.company}</span>
+                            {email.event_title && (
+                              <span className="text-xs text-gray-500">
+                                • {email.event_title}
+                              </span>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div>
-                          <div className="font-medium">{email.recipients}</div>
-                          <div className="text-gray-500">{email.sentTo} students</div>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <div className="space-y-1">
+                          <div>
+                            <span className="font-medium">Recipients:</span>{" "}
+                            {email.total_recipients}
+                          </div>
+                          {email.event_title && (
+                            <div>
+                              <span className="font-medium">Event:</span>{" "}
+                              {email.event_title}
+                            </div>
+                          )}
+                          {email.form_title && (
+                            <div>
+                              <span className="font-medium">Form:</span>{" "}
+                              {email.form_title}
+                            </div>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[email.status]}`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[email.status]}`}
+                        >
                           {email.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div className="flex items-center gap-1">
                           <Calendar size={16} className="text-gray-400" />
-                          {new Date(email.sentDate).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="space-y-1">
-                          <div className="flex justify-between">
-                            <span>Opened:</span>
-                            <span className="font-medium">{email.opened}/{email.sentTo}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Clicked:</span>
-                            <span className="font-medium">{email.clicked}/{email.sentTo}</span>
-                          </div>
+                          {email.sent_at
+                            ? new Date(email.sent_at).toLocaleDateString()
+                            : email.scheduled_at
+                              ? new Date(
+                                  email.scheduled_at
+                                ).toLocaleDateString()
+                              : "Not sent yet"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -451,7 +674,10 @@ const CommunicationSystem = () => {
                           <button className="text-gray-600 hover:text-gray-900">
                             <Edit size={16} />
                           </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          <button
+                            onClick={() => handleDeleteEmail(email.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
                             <Trash2 size={16} />
                           </button>
                         </div>
@@ -465,65 +691,101 @@ const CommunicationSystem = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredForms.map((form) => (
-              <div key={form.id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div
+                key={form.id}
+                className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{form.title}</h3>
-                    <p className="text-gray-600 text-sm mb-3">{form.description}</p>
-                    
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {form.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-3">
+                      {form.description}
+                    </p>
+
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[form.status]}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[form.status]}`}
+                      >
                         {form.status}
                       </span>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${typeColors[form.type]}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${typeColors[form.type]}`}
+                      >
                         {form.type}
                       </span>
                     </div>
 
-                    {form.company && (
+                    {form.company_name && (
                       <div className="text-sm text-gray-600 mb-2">
-                        <strong>Company:</strong> {form.company}
+                        <strong>Company:</strong> {form.company_name}
                       </div>
                     )}
-                    
-                    <div className="text-sm text-gray-600 mb-2">
-                      <strong>Branches:</strong> {form.branches.join(', ')}
-                    </div>
-                    
+
+                    {form.event_title && (
+                      <div className="text-sm text-gray-600 mb-2">
+                        <strong>Event:</strong> {form.event_title}
+                      </div>
+                    )}
+
                     <div className="text-sm text-gray-600 mb-3">
-                      <strong>CGPA:</strong> {form.cgpa}
+                      <strong>Responses:</strong> {form.response_count || 0}
                     </div>
 
                     <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <span>Created: {new Date(form.createdDate).toLocaleDateString()}</span>
+                      <span>
+                        Created:{" "}
+                        {new Date(form.created_at).toLocaleDateString()}
+                      </span>
                       {form.deadline && (
                         <span className="text-red-600">
-                          Deadline: {new Date(form.deadline).toLocaleDateString()}
+                          Deadline:{" "}
+                          {new Date(form.deadline).toLocaleDateString()}
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="text-lg font-semibold text-blue-600">
-                        {form.responses} responses
+                        {form.response_count || 0} responses
                       </div>
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => copyFormLink(form.formUrl)}
+                          onClick={() => copyFormLink(form.form_url)}
                           className="text-gray-600 hover:text-gray-900"
                           title="Copy link"
                         >
                           <Copy size={16} />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900" title="View form">
+                        <button
+                          className="text-blue-600 hover:text-blue-900"
+                          title="View form"
+                          onClick={() => window.open(form.form_url, "_blank")}
+                        >
                           <ExternalLink size={16} />
                         </button>
-                        <button className="text-green-600 hover:text-green-900" title="Download responses">
-                          <Download size={16} />
+                        <button
+                          className="text-green-600 hover:text-green-900"
+                          title="Upload CSV"
+                          onClick={() =>
+                            document
+                              .getElementById(`csv-upload-${form.id}`)
+                              .click()
+                          }
+                        >
+                          <Upload size={16} />
                         </button>
-                        <button className="text-gray-600 hover:text-gray-900" title="Edit form">
-                          <Edit size={16} />
-                        </button>
+                        <input
+                          type="file"
+                          id={`csv-upload-${form.id}`}
+                          accept=".csv"
+                          className="hidden"
+                          onChange={(e) => {
+                            setCsvFile(e.target.files[0]);
+                            handleCsvUpload(form.id);
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -549,11 +811,30 @@ const CommunicationSystem = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Campaign Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={newEmail.title}
+                    onChange={(e) =>
+                      setNewEmail({ ...newEmail, title: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Email campaign title"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Subject *
+                  </label>
                   <input
                     type="text"
                     value={newEmail.subject}
-                    onChange={(e) => setNewEmail({...newEmail, subject: e.target.value})}
+                    onChange={(e) =>
+                      setNewEmail({ ...newEmail, subject: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="Email subject"
                   />
@@ -561,56 +842,86 @@ const CommunicationSystem = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Recipients</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Type
+                    </label>
                     <select
-                      value={newEmail.recipients}
-                      onChange={(e) => setNewEmail({...newEmail, recipients: e.target.value})}
+                      value={newEmail.email_type}
+                      onChange={(e) =>
+                        setNewEmail({ ...newEmail, email_type: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="all">All Students</option>
-                      <option value="final_year">Final Year Students</option>
-                      <option value="cse">CSE Students</option>
-                      <option value="it">IT Students</option>
-                      <option value="ece">ECE Students</option>
-                      <option value="placed">Placed Students</option>
-                      <option value="unplaced">Unplaced Students</option>
-                      <option value="custom">Custom List</option>
+                      <option value="general">General</option>
+                      <option value="company_notification">
+                        Company Notification
+                      </option>
+                      <option value="event_notification">
+                        Event Notification
+                      </option>
+                      <option value="interview_schedule">
+                        Interview Schedule
+                      </option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Event (Optional)
+                    </label>
                     <select
-                      value={newEmail.type}
-                      onChange={(e) => setNewEmail({...newEmail, type: e.target.value})}
+                      value={newEmail.event_id}
+                      onChange={(e) =>
+                        setNewEmail({ ...newEmail, event_id: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="general">General</option>
-                      <option value="company_notification">Company Notification</option>
-                      <option value="event_notification">Event Notification</option>
-                      <option value="interview_schedule">Interview Schedule</option>
+                      <option value="">Select Event</option>
+                      {events.map((event) => (
+                        <option key={event.id} value={event.id}>
+                          {event.title}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
-                {newEmail.type === 'company_notification' && (
+                {newEmail.event_id && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
-                    <input
-                      type="text"
-                      value={newEmail.company}
-                      onChange={(e) => setNewEmail({...newEmail, company: e.target.value})}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Form (Optional)
+                    </label>
+                    <select
+                      value={newEmail.form_id}
+                      onChange={(e) =>
+                        setNewEmail({ ...newEmail, form_id: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="Company name"
-                    />
+                    >
+                      <option value="">Select Form</option>
+                      {forms
+                        .filter((form) => form.event_id == newEmail.event_id)
+                        .map((form) => (
+                          <option key={form.id} value={form.id}>
+                            {form.title}
+                          </option>
+                        ))}
+                    </select>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Content *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Content *
+                  </label>
                   <textarea
-                    value={newEmail.content}
-                    onChange={(e) => setNewEmail({...newEmail, content: e.target.value})}
+                    value={newEmail.body_template}
+                    onChange={(e) =>
+                      setNewEmail({
+                        ...newEmail,
+                        body_template: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     rows="8"
                     placeholder="Write your email content here..."
@@ -618,16 +929,48 @@ const CommunicationSystem = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Send Time</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Send Time
+                  </label>
                   <select
-                    value={newEmail.sendDate}
-                    onChange={(e) => setNewEmail({...newEmail, sendDate: e.target.value})}
+                    value={newEmail.scheduled_at ? "schedule" : "now"}
+                    onChange={(e) => {
+                      if (e.target.value === "now") {
+                        setNewEmail({ ...newEmail, scheduled_at: "" });
+                      } else {
+                        const now = new Date();
+                        now.setHours(now.getHours() + 1);
+                        setNewEmail({
+                          ...newEmail,
+                          scheduled_at: now.toISOString().slice(0, 16),
+                        });
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="now">Send Now</option>
                     <option value="schedule">Schedule for Later</option>
                   </select>
                 </div>
+
+                {newEmail.scheduled_at && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Schedule Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={newEmail.scheduled_at}
+                      onChange={(e) =>
+                        setNewEmail({
+                          ...newEmail,
+                          scheduled_at: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 mt-6">
@@ -642,7 +985,7 @@ const CommunicationSystem = () => {
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
                 >
                   <Send size={16} />
-                  Send Email
+                  {newEmail.scheduled_at ? "Schedule Email" : "Send Email"}
                 </button>
               </div>
             </div>
@@ -654,7 +997,9 @@ const CommunicationSystem = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Create New Form</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Create New Form
+                </h2>
                 <button
                   onClick={() => setShowFormModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -665,70 +1010,176 @@ const CommunicationSystem = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Form Title *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Form Title *
+                  </label>
                   <input
                     type="text"
                     value={newForm.title}
-                    onChange={(e) => setNewForm({...newForm, title: e.target.value})}
+                    onChange={(e) =>
+                      setNewForm({ ...newForm, title: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter form title"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description *
+                  </label>
                   <textarea
                     value={newForm.description}
-                    onChange={(e) => setNewForm({...newForm, description: e.target.value})}
+                    onChange={(e) =>
+                      setNewForm({ ...newForm, description: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     rows="4"
                     placeholder="Form description..."
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Form URL *
+                  </label>
+                  <input
+                    type="url"
+                    value={newForm.form_url}
+                    onChange={(e) =>
+                      setNewForm({ ...newForm, form_url: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://forms.google.com/your-form"
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Form Type</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Form Type
+                    </label>
                     <select
                       value={newForm.type}
-                      onChange={(e) => setNewForm({...newForm, type: e.target.value})}
+                      onChange={(e) =>
+                        setNewForm({ ...newForm, type: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="registration">Registration</option>
+                      <option value="application">Application</option>
                       <option value="feedback">Feedback</option>
-                      <option value="event">Event</option>
+                      <option value="survey">Survey</option>
+                      <option value="attendance">Attendance</option>
+                      <option value="custom">Custom</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Company (if applicable)</label>
-                    <input
-                      type="text"
-                      value={newForm.company}
-                      onChange={(e) => setNewForm({...newForm, company: e.target.value})}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company (Optional)
+                    </label>
+                    <select
+                      value={newForm.company_id}
+                      onChange={(e) =>
+                        setNewForm({ ...newForm, company_id: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="Company name"
-                    />
+                    >
+                      <option value="">Select Company</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.company_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Eligible Branches</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event (Optional)
+                  </label>
+                  <select
+                    value={newForm.event_id}
+                    onChange={(e) =>
+                      setNewForm({ ...newForm, event_id: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Event</option>
+                    {events.map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Eligible Departments
+                  </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {['CSE', 'IT', 'ECE', 'EEE', 'MECH', 'CIVIL'].map((branch) => (
-                      <label key={branch} className="flex items-center space-x-2">
+                    {["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL"].map(
+                      (department) => (
+                        <label
+                          key={department}
+                          className="flex items-center space-x-2"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={newForm.target_departments.includes(
+                              department
+                            )}
+                            onChange={(e) => {
+                              const updatedDepartments = e.target.checked
+                                ? [...newForm.target_departments, department]
+                                : newForm.target_departments.filter(
+                                    (d) => d !== department
+                                  );
+                              setNewForm({
+                                ...newForm,
+                                target_departments: updatedDepartments,
+                              });
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {department}
+                          </span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Eligible Batches
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {[2023, 2024, 2025, 2026].map((batch) => (
+                      <label
+                        key={batch}
+                        className="flex items-center space-x-2"
+                      >
                         <input
                           type="checkbox"
-                          checked={newForm.branches.includes(branch)}
+                          checked={newForm.target_batches.includes(batch)}
                           onChange={(e) => {
-                            const updatedBranches = e.target.checked
-                              ? [...newForm.branches, branch]
-                              : newForm.branches.filter(b => b !== branch);
-                            setNewForm({...newForm, branches: updatedBranches});
+                            const updatedBatches = e.target.checked
+                              ? [...newForm.target_batches, batch]
+                              : newForm.target_batches.filter(
+                                  (b) => b !== batch
+                                );
+                            setNewForm({
+                              ...newForm,
+                              target_batches: updatedBatches,
+                            });
                           }}
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">{branch}</span>
+                        <span className="text-sm text-gray-700">{batch}</span>
                       </label>
                     ))}
                   </div>
@@ -736,41 +1187,36 @@ const CommunicationSystem = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Minimum CGPA</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="10"
-                      value={newForm.cgpa}
-                      onChange={(e) => setNewForm({...newForm, cgpa: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="Minimum CGPA required"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Deadline
+                    </label>
                     <input
                       type="datetime-local"
                       value={newForm.deadline}
-                      onChange={(e) => setNewForm({...newForm, deadline: e.target.value})}
+                      onChange={(e) =>
+                        setNewForm({ ...newForm, deadline: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Form Platform</label>
-                  <select
-                    value={newForm.formType}
-                    onChange={(e) => setNewForm({...newForm, formType: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="google_forms">Google Forms</option>
-                    <option value="microsoft_forms">Microsoft Forms</option>
-                    <option value="custom">Custom Form</option>
-                  </select>
+                  <div className="flex items-center mt-6">
+                    <input
+                      type="checkbox"
+                      checked={newForm.allow_edit}
+                      onChange={(e) =>
+                        setNewForm({ ...newForm, allow_edit: e.target.checked })
+                      }
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      id="allow-edit"
+                    />
+                    <label
+                      htmlFor="allow-edit"
+                      className="ml-2 text-sm text-gray-700"
+                    >
+                      Allow editing responses
+                    </label>
+                  </div>
                 </div>
               </div>
 

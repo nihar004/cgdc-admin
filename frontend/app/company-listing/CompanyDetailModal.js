@@ -527,7 +527,8 @@ export function CompanyDetailModal() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                         <div className="text-xl font-bold text-blue-600">
-                          {selectedCompany.total_applications_count || 0}
+                          {/* {selectedCompany.total_applications_count || 0} */}
+                          {/* TODO TODO */}
                         </div>
                         <div className="text-xs text-blue-600 font-semibold uppercase tracking-wide">
                           Applied
