@@ -444,7 +444,8 @@ function processPositionData(position) {
 // ************** END Helper functions **************
 // **************************************************
 
-// GET all companies for a specific batch with positions, documents, and applications count per position
+// GET all companies for a specific batch with positions, documents
+// TODO :: add application coutn and selected count
 routes.get("/batch/:batchYear", async (req, res) => {
   const { batchYear } = req.params;
 
@@ -471,7 +472,6 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'selected_students', cp.selected_students,
             'rounds_start_date', cp.rounds_start_date,
             'rounds_end_date', cp.rounds_end_date,
-            'applications_count', COALESCE(sa.registered_students, 0),
             'documents', (
               SELECT JSON_AGG(
                 JSON_BUILD_OBJECT(
@@ -497,11 +497,6 @@ routes.get("/batch/:batchYear", async (req, res) => {
       JOIN company_batches cb ON c.id = cb.company_id
       LEFT JOIN batches b ON cb.batch_id = b.id
       LEFT JOIN company_positions cp ON c.id = cp.company_id
-      LEFT JOIN (
-        SELECT position_id, COUNT(*) AS registered_students
-        FROM student_applications
-        GROUP BY position_id
-      ) sa ON cp.id = sa.position_id
       WHERE cb.batch_id = $1
       GROUP BY c.id, cb.batch_id, b.year
       ORDER BY c.scheduled_visit DESC
@@ -509,17 +504,9 @@ routes.get("/batch/:batchYear", async (req, res) => {
 
     const result = await db.query(query, [batchId]);
 
-    // Transform the data to calculate total applications count and total selected per company
+    // Transform the data to calculate only total selected per company
     const companiesWithStats = result.rows.map((company) => {
-      // Calculate total applications for the company by summing up all position applications
-      const totalApplications = company.positions
-        ? company.positions.reduce(
-            (sum, position) => sum + (position.applications_count || 0),
-            0
-          )
-        : 0;
-
-      // Calculate total selected students for the company by summing up all position selected_students
+      // Calculate total selected students for the company
       const totalSelected = company.positions
         ? company.positions.reduce(
             (sum, position) => sum + (position.selected_students || 0),
@@ -529,7 +516,6 @@ routes.get("/batch/:batchYear", async (req, res) => {
 
       return {
         ...company,
-        total_applications_count: totalApplications,
         total_selected: totalSelected,
       };
     });
@@ -1231,5 +1217,58 @@ routes.delete("/documents/:documentId", async (req, res) => {
 
 // ************ End of Document Endpoints ************
 // ***************************************************
+
+routes.get("/with-active-positions/:batchYear", async (req, res) => {
+  try {
+    const { batchYear } = req.params;
+
+    const query = `
+      SELECT 
+          c.id AS company_id,
+          c.company_name,
+          p.id AS position_id,
+          p.position_title,
+          p.is_active,
+          p.job_type,
+          b.year
+      FROM companies c
+      JOIN company_positions p ON c.id = p.company_id
+      JOIN company_batches cb ON c.id = cb.company_id
+      JOIN batches b ON cb.batch_id = b.id
+      WHERE p.is_active = true
+        AND b.year = $1
+      ORDER BY c.company_name, p.position_title;
+    `;
+
+    const { rows } = await db.query(query, [batchYear]);
+
+    // Group positions under their companies
+    const companies = {};
+    rows.forEach((row) => {
+      if (!companies[row.company_id]) {
+        companies[row.company_id] = {
+          company_id: row.company_id,
+          company_name: row.company_name,
+          batch_year: row.batch_year,
+          positions: [],
+        };
+      }
+      companies[row.company_id].positions.push({
+        position_id: row.position_id,
+        position_title: row.position_title,
+        is_active: row.is_active,
+        job_type: row.job_type,
+      });
+    });
+
+    res.json({
+      success: true,
+      data: Object.values(companies),
+    });
+  } catch (error) {
+    console.error("Error fetching companies with active positions:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 module.exports = routes;
