@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  ArrowLeft,
   Plus,
   Search,
   Calendar,
@@ -10,6 +11,7 @@ import {
   Building2,
   Award,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import {
   CompaniesProvider,
@@ -20,6 +22,7 @@ import CompanyCardView from "./CompanyCardView";
 import { CompanyDetailModal } from "./CompanyDetailModal";
 import { CompanyTableView } from "./CompanyTableView";
 import CompanyFormModal from "./CompanyFormModal";
+import ExportCompanyModal from "./ExportCompanyModal";
 
 const CompanyListing = () => {
   const [viewMode, setViewMode] = useState("table"); // table or cards
@@ -45,6 +48,8 @@ const CompanyListing = () => {
     editingCompany,
     setEditingCompany,
   } = useCompaniesContext();
+
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const SPECIALIZATIONS = [
     { value: "CSE", label: "CSE" },
@@ -95,14 +100,22 @@ const CompanyListing = () => {
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Company Management Dashboard
-              </h1>
-              <p className="text-gray-600">
-                Manage recruitment drives, track applications, and monitor
-                company relationships
-              </p>
+            <div className="flex items-start gap-4">
+              <button
+                onClick={() => (window.location.href = "/")}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  Company Management Dashboard
+                </h1>
+                <p className="text-gray-600">
+                  Manage recruitment drives, track applications, and monitor
+                  company relationships
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -130,6 +143,14 @@ const CompanyListing = () => {
               </div>
 
               <button
+                onClick={() => setShowExportModal(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Download size={20} />
+                Export Data
+              </button>
+
+              <button
                 onClick={handleAddClick}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
               >
@@ -140,7 +161,7 @@ const CompanyListing = () => {
           </div>
 
           {/* Enhanced Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mt-6">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
               <div className="flex items-center gap-3">
                 <Building2 className="text-blue-600" size={24} />
@@ -155,7 +176,7 @@ const CompanyListing = () => {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-100">
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-300">
               <div className="flex items-center gap-3">
                 <Award className="text-yellow-600" size={24} />
                 <div>
@@ -205,11 +226,6 @@ const CompanyListing = () => {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* TODO */}
-            <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-100">
-              Export Data
             </div>
           </div>
         </div>
@@ -425,6 +441,13 @@ const CompanyListing = () => {
             }}
             onSuccess={handleFormSuccess}
             editData={editingCompany}
+          />
+        )}
+
+        {showExportModal && (
+          <ExportCompanyModal
+            companies={filteredCompanies}
+            onClose={() => setShowExportModal(false)}
           />
         )}
       </div>

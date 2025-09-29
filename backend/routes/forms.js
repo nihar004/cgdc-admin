@@ -1,484 +1,452 @@
 const express = require("express");
+const routes = express.Router();
+const db = require("../db");
 const multer = require("multer");
 const XLSX = require("xlsx");
-const csvParser = require("csv-parser");
+const Papa = require("papaparse");
 const fs = require("fs");
-const path = require("path");
-const db = require("../db");
-
-const routes = express.Router();
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "../uploads/forms");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
-
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [".csv", ".xlsx", ".xls"];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.includes(ext)) {
+    const allowedMimes = [
+      "text/csv",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+    if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Only CSV and Excel files are allowed"));
+      cb(new Error("Only CSV and Excel files are allowed!"), false);
     }
   },
 });
 
-// Parse CSV file
-function parseCSVFile(filePath) {
-  return new Promise((resolve, reject) => {
-    const results = [];
-    fs.createReadStream(filePath)
-      .pipe(csvParser())
-      .on("data", (data) => results.push(data))
-      .on("end", () => resolve(results))
-      .on("error", reject);
-  });
-}
+// Helper function to parse uploaded file
+const parseUploadedFile = async (filePath, mimetype) => {
+  let data = [];
 
-// Parse Excel file
-function parseExcelFile(filePath) {
-  try {
+  if (mimetype === "text/csv") {
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    const parsed = Papa.parse(fileContent, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+    });
+    data = parsed.data;
+  } else {
     const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    return jsonData;
-  } catch (error) {
-    throw new Error("Error parsing Excel file: " + error.message);
+    data = XLSX.utils.sheet_to_json(worksheet);
   }
-}
 
-// Validate student data from file
-function validateStudentData(studentData) {
-  const errors = [];
-  const validatedData = [];
+  return data;
+};
 
-  studentData.forEach((row, index) => {
-    const rowNumber = index + 1;
-    const student = {};
+// Helper function to detect registration number column
+const detectRegistrationColumn = (headers) => {
+  const regPatterns = [
+    /^reg(istration)?[-_]?(number|no|num)?$/i,
+    /^student[-_]?id$/i,
+    /^roll[-_]?(number|no|num)?$/i,
+    /^id[-_]?(number|no|num)?$/i,
+  ];
 
-    // Check required fields and normalize column names
-    const requiredFields = [
-      {
-        key: "enrollment_number",
-        alternatives: ["enrollment", "enroll_no", "registration_no"],
-      },
-      {
-        key: "first_name",
-        alternatives: ["firstname", "name", "student_name"],
-      },
-      { key: "last_name", alternatives: ["lastname", "surname"] },
-      {
-        key: "email",
-        alternatives: ["college_email", "personal_email", "email_id"],
-      },
-      { key: "department", alternatives: ["dept", "branch"] },
-    ];
+  for (let i = 0; i < headers.length; i++) {
+    const original = headers[i];
+    const normalized = original.replace(/\s+/g, "_").toLowerCase();
 
-    for (const field of requiredFields) {
-      let value = row[field.key];
-
-      // Try alternative column names if primary key not found
-      if (!value) {
-        for (const alt of field.alternatives) {
-          if (row[alt]) {
-            value = row[alt];
-            break;
-          }
-        }
-      }
-
-      if (!value && field.key !== "last_name") {
-        // last_name can be optional
-        errors.push(`Row ${rowNumber}: Missing ${field.key}`);
-      } else {
-        student[field.key] = value || "";
-      }
+    if (regPatterns.some((pattern) => pattern.test(normalized))) {
+      return original; // return actual header key
     }
+  }
 
-    // Optional fields
-    student.batch_year = row.batch_year || row.batch || row.year || null;
-    student.cgpa = row.cgpa || row.gpa || null;
-    student.backlogs = row.backlogs || row.backlog || 0;
+  return null;
+};
 
-    if (Object.keys(student).length > 0) {
-      validatedData.push(student);
+// Enhanced validation function with year checking
+async function validateStudentsWithYear(
+  registrationNumbers,
+  formBatchYear,
+  client
+) {
+  if (registrationNumbers.length === 0) {
+    return new Map();
+  }
+
+  // Start placeholders from $1 since we're not using formBatchYear in WHERE clause
+  const placeholders = registrationNumbers.map((_, i) => `$${i + 1}`).join(",");
+
+  const query = `
+    SELECT 
+      id, 
+      enrollment_number, 
+      first_name, 
+      last_name, 
+      registration_number,
+      batch_year,
+      department,
+      branch,
+      placement_status
+    FROM students 
+    WHERE registration_number IN (${placeholders})
+      AND registration_number IS NOT NULL
+      AND registration_number != ''
+  `;
+
+  // Remove formBatchYear from parameters since we're checking it after query
+  const result = await client.query(query, registrationNumbers);
+  const studentMap = new Map();
+
+  // Create map with validation results
+  result.rows.forEach((student) => {
+    if (student.batch_year !== formBatchYear) {
+      // Year mismatch
+      studentMap.set(student.registration_number, {
+        error: `Student batch year (${student.batch_year}) doesn't match form batch year (${formBatchYear})`,
+        student: null,
+      });
+    } else {
+      // Valid student
+      studentMap.set(student.registration_number, {
+        error: null,
+        student: student,
+      });
     }
   });
 
-  return { validatedData, errors };
+  return studentMap;
 }
 
-// Create a new form
+// 1. CREATE NEW FORM
 routes.post("/", async (req, res) => {
+  const client = await db.connect();
+
   try {
-    const {
-      title,
-      description,
-      form_url,
-      type,
-      event_id,
-      company_id,
-      deadline,
-      allow_edit = false,
-      target_departments = [],
-      target_batch_years = [],
-    } = req.body;
+    await client.query("BEGIN");
 
-    const client = await db.connect();
+    const { title, type, event_id, batch_year } = req.body;
 
-    try {
-      await client.query("BEGIN");
+    // 1️ Validate required fields
+    if (!title || !type || !batch_year) {
+      return res.status(400).json({
+        success: false,
+        message: "Title, type, and batch_year are required fields",
+      });
+    }
 
-      // Create form
-      const formResult = await client.query(
+    // 2 Validate form type
+    const validTypes = [
+      "application",
+      "feedback",
+      "survey",
+      "attendance",
+      "custom",
+    ];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid form type. Must be one of: ${validTypes.join(", ")}`,
+      });
+    }
+
+    // 3️ Validate batch year
+    const currentYear = new Date().getFullYear();
+    if (batch_year < 2020 || batch_year > currentYear + 5) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid batch year. Must be between 2020 and ${
+          currentYear + 5
+        }`,
+      });
+    }
+
+    // 4️ Validate event_id and ensure it's linked to the batch year
+    if (event_id) {
+      const eventCheck = await client.query(
         `
-        INSERT INTO forms (title, description, form_url, type, company_id, event_id, deadline, allow_edit, status)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active')
-        RETURNING id
+        SELECT e.id
+        FROM events e
+        INNER JOIN event_batches eb ON eb.event_id = e.id
+        INNER JOIN batches b ON b.id = eb.batch_id
+        WHERE e.id = $1 AND b.year = $2
       `,
-        [
-          title,
-          description,
-          form_url,
-          type,
-          company_id || null,
-          event_id || null,
-          deadline || null,
-          allow_edit,
-        ]
+        [event_id, batch_year]
       );
 
-      const formId = formResult.rows[0].id;
-
-      // Add form targets
-      for (const department of target_departments) {
-        for (const batchYear of target_batch_years) {
-          await client.query(
-            `
-            INSERT INTO form_targets (form_id, department, batch_year)
-            VALUES ($1, $2, $3)
-          `,
-            [formId, department, batchYear]
-          );
-        }
+      if (eventCheck.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message: `Invalid event_id or the event is not available for batch year ${batch_year}`,
+        });
       }
 
-      await client.query("COMMIT");
+      // 5️ Ensure one form per event per batch year
+      const formExists = await client.query(
+        "SELECT id FROM forms WHERE event_id = $1 AND batch_year = $2",
+        [event_id, batch_year]
+      );
 
-      res.json({
-        success: true,
-        message: "Form created successfully",
-        formId: formId,
-      });
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
+      if (formExists.rows.length > 0) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message: "A form already exists for this event and batch year",
+        });
+      }
     }
+
+    // 6️ Insert new form
+    const insertQuery = `
+      INSERT INTO forms (
+        title, 
+        type, 
+        event_id, 
+        batch_year, 
+        created_at
+      )
+      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+      RETURNING id, title, type, event_id, batch_year, created_at
+    `;
+    const result = await client.query(insertQuery, [
+      title,
+      type,
+      event_id || null,
+      batch_year,
+    ]);
+
+    const newForm = result.rows[0];
+
+    // 7 Fetch full details with joins
+    const detailQuery = `
+      SELECT 
+        f.id,
+        f.title,
+        f.type,
+        f.batch_year,
+        f.created_at,
+        e.title AS event_title,
+        e.event_date,
+        c.company_name,
+        cp.position_title,
+        0 AS total_responses
+      FROM forms f
+      LEFT JOIN events e ON f.event_id = e.id
+      LEFT JOIN companies c ON e.company_id = c.id
+      LEFT JOIN company_positions cp ON e.position_id = cp.id
+      WHERE f.id = $1
+    `;
+    const detailResult = await client.query(detailQuery, [newForm.id]);
+
+    await client.query("COMMIT");
+
+    res.status(201).json({
+      success: true,
+      message: "Form created successfully",
+      data: detailResult.rows[0],
+    });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error creating form:", error);
+
+    if (error.code === "23505") {
+      return res.status(400).json({
+        success: false,
+        message: "A form with this title already exists for this batch year",
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "Failed to create form",
       error: error.message,
     });
+  } finally {
+    client.release();
   }
 });
 
-// Upload student data CSV/Excel for a form
-routes.post(
-  "/:id/upload-students",
-  upload.single("studentFile"),
-  async (req, res) => {
-    try {
-      const formId = req.params.id;
-      const file = req.file;
+// 2. UPDATE FORM
+routes.put("/:id", async (req, res) => {
+  const client = await db.connect();
 
-      if (!file) {
-        return res.status(400).json({
-          success: false,
-          message: "No file uploaded",
-        });
-      }
+  try {
+    await client.query("BEGIN");
 
-      // Check if form exists
-      const formResult = await db.query("SELECT * FROM forms WHERE id = $1", [
-        formId,
-      ]);
-      if (formResult.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Form not found",
-        });
-      }
+    const { id } = req.params;
+    const { title, type, event_id, batch_year } = req.body;
 
-      const form = formResult.rows[0];
-
-      // Parse file based on extension
-      let studentData;
-      const ext = path.extname(file.originalname).toLowerCase();
-
-      if (ext === ".csv") {
-        studentData = await parseCSVFile(file.path);
-      } else if (ext === ".xlsx" || ext === ".xls") {
-        studentData = parseExcelFile(file.path);
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: "Unsupported file format",
-        });
-      }
-
-      // Validate student data
-      const { validatedData, errors } = validateStudentData(studentData);
-
-      if (errors.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Validation errors in uploaded file",
-          errors: errors,
-          validCount: validatedData.length,
-          totalCount: studentData.length,
-        });
-      }
-
-      const client = await db.connect();
-
-      try {
-        await client.query("BEGIN");
-
-        // Process each student
-        let addedCount = 0;
-        let skippedCount = 0;
-        const processingErrors = [];
-
-        for (const studentInfo of validatedData) {
-          try {
-            // First, try to find existing student by enrollment number
-            let studentResult = await client.query(
-              `
-            SELECT id FROM students WHERE enrollment_number = $1
-          `,
-              [studentInfo.enrollment_number]
-            );
-
-            let studentId;
-
-            if (studentResult.rows.length > 0) {
-              // Student exists
-              studentId = studentResult.rows[0].id;
-            } else {
-              // Check if we have enough info to find by name and email
-              if (studentInfo.email) {
-                studentResult = await client.query(
-                  `
-                SELECT id FROM students
-                WHERE (college_email = $1 OR personal_email = $1)
-                AND first_name ILIKE $2
-              `,
-                  [studentInfo.email, studentInfo.first_name]
-                );
-
-                if (studentResult.rows.length > 0) {
-                  studentId = studentResult.rows[0].id;
-                }
-              }
-            }
-
-            if (!studentId) {
-              // Create new student record with limited info
-              const insertResult = await client.query(
-                `
-              INSERT INTO students (
-                enrollment_number, first_name, last_name, college_email,
-                department, batch_year, cgpa, backlogs, placement_status
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'eligible')
-              RETURNING id
-            `,
-                [
-                  studentInfo.enrollment_number,
-                  studentInfo.first_name,
-                  studentInfo.last_name || "",
-                  studentInfo.email,
-                  studentInfo.department,
-                  studentInfo.batch_year || new Date().getFullYear(),
-                  studentInfo.cgpa || null,
-                  studentInfo.backlogs || 0,
-                ]
-              );
-
-              studentId = insertResult.rows[0].id;
-            }
-
-            // Add student to form responses (indicating they are registered)
-            await client.query(
-              `
-            INSERT INTO form_responses (form_id, student_id, response_data, status)
-            VALUES ($1, $2, $3, 'registered')
-            ON CONFLICT (form_id, student_id) DO NOTHING
-          `,
-              [formId, studentId, JSON.stringify(studentInfo)]
-            );
-
-            addedCount++;
-          } catch (studentError) {
-            console.error("Error processing student:", studentError);
-            processingErrors.push(
-              `Error processing ${studentInfo.enrollment_number}: ${studentError.message}`
-            );
-            skippedCount++;
-          }
-        }
-
-        // Update form with CSV file path
-        await client.query(
-          `
-        UPDATE forms SET csv_file_url = $1 WHERE id = $2
-      `,
-          [file.path, formId]
-        );
-
-        await client.query("COMMIT");
-
-        // Clean up uploaded file
-        fs.unlinkSync(file.path);
-
-        res.json({
-          success: true,
-          message: "Student data uploaded successfully",
-          summary: {
-            totalRows: studentData.length,
-            addedCount: addedCount,
-            skippedCount: skippedCount,
-            processingErrors: processingErrors,
-          },
-        });
-      } catch (error) {
-        await client.query("ROLLBACK");
-        throw error;
-      } finally {
-        client.release();
-      }
-    } catch (error) {
-      console.error("Error uploading student data:", error);
-
-      // Clean up uploaded file in case of error
-      if (req.file && fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
-
-      res.status(500).json({
+    if (!id || isNaN(id)) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to upload student data",
-        error: error.message,
+        message: "Valid form ID is required",
       });
     }
-  }
-);
 
-// Get all forms
-routes.get("/", async (req, res) => {
-  try {
-    const { page = 1, limit = 10, status, type, event_id } = req.query;
-    const offset = (page - 1) * limit;
+    // Check if form exists
+    const existingForm = await client.query(
+      "SELECT id FROM forms WHERE id = $1",
+      [id]
+    );
+    if (existingForm.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
 
-    let query = `
-      SELECT f.*,
-             e.title as event_title, e.start_datetime as event_date,
-             c.company_name,
-             COUNT(fr.id) as total_responses
-      FROM forms f
-      LEFT JOIN events e ON f.event_id = e.id
-      LEFT JOIN companies c ON f.company_id = c.id
-      LEFT JOIN form_responses fr ON f.id = fr.form_id
-      WHERE 1=1
+    // Build dynamic update query
+    const updates = [];
+    const values = [];
+    let paramCounter = 1;
+
+    if (title !== undefined) {
+      updates.push(`title = $${paramCounter}`);
+      values.push(title);
+      paramCounter++;
+    }
+
+    if (type !== undefined) {
+      const validTypes = [
+        "application",
+        "feedback",
+        "survey",
+        "attendance",
+        "custom",
+      ];
+      if (!validTypes.includes(type)) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message: `Invalid form type. Must be one of: ${validTypes.join(
+            ", "
+          )}`,
+        });
+      }
+      updates.push(`type = $${paramCounter}`);
+      values.push(type);
+      paramCounter++;
+    }
+
+    if (event_id !== undefined) {
+      if (event_id !== null) {
+        const eventCheck = await client.query(
+          "SELECT id FROM events WHERE id = $1",
+          [event_id]
+        );
+        if (eventCheck.rows.length === 0) {
+          await client.query("ROLLBACK");
+          return res.status(400).json({
+            success: false,
+            message: "Invalid event_id. Event does not exist",
+          });
+        }
+      }
+      updates.push(`event_id = $${paramCounter}`);
+      values.push(event_id);
+      paramCounter++;
+    }
+
+    if (batch_year !== undefined) {
+      const currentYear = new Date().getFullYear();
+      if (batch_year < 2020 || batch_year > currentYear + 5) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message: `Invalid batch year. Must be between 2020 and ${
+            currentYear + 5
+          }`,
+        });
+      }
+      updates.push(`batch_year = $${paramCounter}`);
+      values.push(batch_year);
+      paramCounter++;
+    }
+
+    if (updates.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        message: "No fields to update",
+      });
+    }
+
+    values.push(id);
+
+    const updateQuery = `
+      UPDATE forms 
+      SET ${updates.join(", ")}
+      WHERE id = $${paramCounter}
+      RETURNING id, title, type, batch_year, event_id, created_at
     `;
 
-    const params = [];
-    let paramCount = 0;
+    const result = await client.query(updateQuery, values);
 
-    if (status) {
-      paramCount++;
-      query += ` AND f.status = $${paramCount}`;
-      params.push(status);
+    await client.query("COMMIT");
+
+    res.json({
+      success: true,
+      message: "Form updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error updating form:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update form",
+      error: error.message,
+    });
+  } finally {
+    client.release();
+  }
+});
+
+// 3. GET ALL FORMS
+routes.get("/:year", async (req, res) => {
+  try {
+    const { year } = req.params;
+
+    // Validate year parameter
+    if (!year) {
+      return res.status(400).json({
+        success: false,
+        message: "Year parameter is required",
+      });
     }
 
-    if (type) {
-      paramCount++;
-      query += ` AND f.type = $${paramCount}`;
-      params.push(type);
-    }
+    const query = `
+      SELECT 
+        f.id,
+        f.title,
+        f.type,
+        f.batch_year,
+        f.created_at,
+        e.title AS event_title,
+        e.id AS event_id,
+        c.company_name,
+        cp.position_title,
+        COUNT(fr.id) AS total_responses
+      FROM forms f
+      LEFT JOIN events e ON f.event_id = e.id
+      LEFT JOIN companies c ON e.company_id = c.id
+      LEFT JOIN company_positions cp ON e.position_id = cp.id
+      LEFT JOIN form_responses fr ON fr.form_id = f.id
+      WHERE f.batch_year = $1
+      GROUP BY f.id,e.id, e.title, c.company_name, cp.position_title
+      ORDER BY f.created_at DESC
+    `;
 
-    if (event_id) {
-      paramCount++;
-      query += ` AND f.event_id = $${paramCount}`;
-      params.push(event_id);
-    }
-
-    query += ` GROUP BY f.id, e.title, e.start_datetime, c.company_name
-               ORDER BY f.created_at DESC
-               LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
-
-    params.push(limit, offset);
-
-    const result = await db.query(query, params);
-
-    // Get total count
-    let countQuery = `SELECT COUNT(*) FROM forms f WHERE 1=1`;
-    const countParams = [];
-    let countParamCount = 0;
-
-    if (status) {
-      countParamCount++;
-      countQuery += ` AND f.status = $${countParamCount}`;
-      countParams.push(status);
-    }
-
-    if (type) {
-      countParamCount++;
-      countQuery += ` AND f.type = $${countParamCount}`;
-      countParams.push(type);
-    }
-
-    if (event_id) {
-      countParamCount++;
-      countQuery += ` AND f.event_id = $${countParamCount}`;
-      countParams.push(event_id);
-    }
-
-    const countResult = await db.query(countQuery, countParams);
-    const totalCount = parseInt(countResult.rows[0].count);
+    const result = await db.query(query, [year]);
 
     res.json({
       success: true,
       data: result.rows,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalCount / limit),
-        totalCount: totalCount,
-        limit: parseInt(limit),
-      },
     });
   } catch (error) {
     console.error("Error fetching forms:", error);
@@ -490,210 +458,348 @@ routes.get("/", async (req, res) => {
   }
 });
 
-// Get form details
-routes.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+// 4. UPLOAD DATA TO FORM (with detailed report and year validation)
+routes.post("/:id/upload", upload.single("file"), async (req, res) => {
+  const client = await db.connect();
 
-    const result = await db.query(
-      `
-      SELECT f.*,
-             e.title as event_title, e.start_datetime as event_date, e.venue,
-             c.company_name,
-             COUNT(fr.id) as total_responses,
-             COUNT(CASE WHEN fr.status = 'submitted' THEN 1 END) as submitted_responses,
-             COUNT(CASE WHEN fr.status = 'registered' THEN 1 END) as registered_responses
-      FROM forms f
-      LEFT JOIN events e ON f.event_id = e.id
-      LEFT JOIN companies c ON f.company_id = c.id
-      LEFT JOIN form_responses fr ON f.id = fr.form_id
-      WHERE f.id = $1
-      GROUP BY f.id, e.title, e.start_datetime, e.venue, c.company_name
-    `,
-      [id]
+  try {
+    await client.query("BEGIN");
+
+    const { id: formId } = req.params;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    // First, get form details including batch_year
+    const formResult = await client.query(
+      `SELECT id, title, batch_year, type FROM forms WHERE id = $1`,
+      [formId]
     );
 
-    if (result.rows.length === 0) {
+    if (formResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Form not found",
       });
     }
 
-    // Get form targets
-    const targetsResult = await db.query(
-      `
-      SELECT department, batch_year FROM form_targets WHERE form_id = $1
-    `,
-      [id]
+    const form = formResult.rows[0];
+    const formBatchYear = form.batch_year;
+
+    // Parse the uploaded file
+    const data = await parseUploadedFile(file.path, file.mimetype);
+
+    if (data.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No data found in file",
+      });
+    }
+
+    // Detect registration number column
+    const headers = Object.keys(data[0]);
+    const regColumn = detectRegistrationColumn(headers);
+
+    if (!regColumn) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Registration number column not found. Expected columns: registration_number, reg_no etc.",
+      });
+    }
+
+    // Extract and clean registration numbers
+    const registrationNumbers = data
+      .map((row) => row[regColumn])
+      .filter((reg) => reg && reg.toString().trim())
+      .map((reg) => reg.toString().trim());
+
+    // Find duplicates within file
+    const duplicates = [];
+    const seen = new Set();
+    const uniqueRegistrations = [];
+
+    data.forEach((row, index) => {
+      const regNum = row[regColumn]?.toString().trim();
+      if (!regNum) return;
+
+      if (seen.has(regNum)) {
+        duplicates.push({
+          row: index + 2, // +2 for header + 1-based indexing
+          regNumber: regNum,
+          reason: "Duplicate entry in file",
+        });
+      } else {
+        seen.add(regNum);
+        uniqueRegistrations.push(regNum);
+      }
+    });
+
+    // Validate students against database WITH BATCH YEAR CHECK
+    const studentMap = await validateStudentsWithYear(
+      uniqueRegistrations,
+      formBatchYear,
+      client
     );
 
-    const formData = {
-      ...result.rows[0],
-      targets: targetsResult.rows,
+    // Process each row
+    const results = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      const rowNumber = i + 2;
+      const regNum = row[regColumn]?.toString().trim();
+
+      // Case 1: Empty reg number
+      if (!regNum) {
+        results.push({
+          row: rowNumber,
+          regNumber: "",
+          status: "error",
+          reason: "Empty registration number",
+        });
+        continue;
+      }
+
+      // Case 2: Duplicate within file
+      if (duplicates.some((d) => d.row === rowNumber)) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "duplicate",
+          reason: "Duplicate entry in file",
+        });
+        continue;
+      }
+
+      // Case 3: Student validation (includes batch year check)
+      const validationResult = studentMap.get(regNum);
+      if (!validationResult) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "error",
+          reason: "Registration number not found in database",
+        });
+        continue;
+      }
+
+      if (validationResult.error) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "error",
+          reason: validationResult.error,
+        });
+        continue;
+      }
+
+      const student = validationResult.student;
+
+      // Enrich row with student data
+      const enrichedRow = {
+        ...row,
+        student_name: `${student.first_name} ${student.last_name}`,
+        enrollment_number: student.enrollment_number,
+        registration_number: regNum,
+        batch_year: student.batch_year,
+        department: student.department,
+        branch: student.branch,
+      };
+
+      // Try insert
+      try {
+        await client.query(
+          `
+          INSERT INTO form_responses (form_id, student_id, response_data)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (form_id, student_id) 
+          DO UPDATE SET 
+            response_data = EXCLUDED.response_data,
+            uploaded_at = CURRENT_TIMESTAMP
+          `,
+          [formId, student.id, JSON.stringify(enrichedRow)]
+        );
+
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "success",
+          reason: "Inserted/Updated successfully",
+        });
+      } catch (insertError) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "error",
+          reason: "Database insertion failed",
+        });
+      }
+    }
+
+    await client.query("COMMIT");
+
+    // Cleanup
+    fs.unlinkSync(file.path);
+
+    // Summary with additional year info
+    const summary = {
+      total: data.length,
+      successful: results.filter((r) => r.status === "success").length,
+      duplicates: results.filter((r) => r.status === "duplicate").length,
+      invalid: results.filter((r) => r.status === "error").length,
+      form_batch_year: formBatchYear,
+      year_mismatches: results.filter(
+        (r) => r.reason && r.reason.includes("batch year")
+      ).length,
     };
 
+    // Response
     res.json({
       success: true,
-      data: formData,
+      message: `Upload completed for form: ${form.title} (Batch ${formBatchYear})`,
+      summary,
+      details: results,
     });
   } catch (error) {
-    console.error("Error fetching form details:", error);
+    await client.query("ROLLBACK");
+    console.error("Error uploading data:", error);
+
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (e) {
+        console.error("File cleanup failed:", e);
+      }
+    }
+
     res.status(500).json({
       success: false,
-      message: "Failed to fetch form details",
+      message: "Failed to process upload",
       error: error.message,
     });
+  } finally {
+    client.release();
   }
 });
 
-// Get form responses/registrations
-routes.get("/:id/responses", async (req, res) => {
+// 5. GET FORM DATA -- get all responsis
+routes.get("/:id/data", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { page = 1, limit = 50, status } = req.query;
-    const offset = (page - 1) * limit;
+    const { id: formId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
 
-    let query = `
-      SELECT fr.*, s.enrollment_number, s.first_name, s.last_name,
-             s.college_email, s.personal_email, s.department, s.batch_year,
-             s.cgpa, s.backlogs, s.placement_status
+    const query = `
+      SELECT 
+        fr.id,
+        fr.response_data,
+        s.registration_number,
+        s.first_name,
+        s.last_name,
+        s.enrollment_number,
+        fr.uploaded_at
       FROM form_responses fr
       JOIN students s ON fr.student_id = s.id
       WHERE fr.form_id = $1
+      ORDER BY fr.uploaded_at DESC
+      LIMIT $2 OFFSET $3
     `;
 
-    const params = [id];
-    let paramCount = 1;
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM form_responses 
+      WHERE form_id = $1
+    `;
 
-    if (status) {
-      paramCount++;
-      query += ` AND fr.status = ${paramCount}`;
-      params.push(status);
-    }
+    const [dataResult, countResult] = await Promise.all([
+      db.query(query, [formId, limit, offset]),
+      db.query(countQuery, [formId]),
+    ]);
 
-    query += ` ORDER BY fr.uploaded_at DESC LIMIT ${paramCount + 1} OFFSET ${
-      paramCount + 2
-    }`;
-    params.push(limit, offset);
-
-    const result = await db.query(query, params);
-
-    // Get total count
-    let countQuery = `SELECT COUNT(*) FROM form_responses fr WHERE fr.form_id = $1`;
-    const countParams = [id];
-
-    if (status) {
-      countQuery += ` AND fr.status = $2`;
-      countParams.push(status);
-    }
-
-    const countResult = await db.query(countQuery, countParams);
-    const totalCount = parseInt(countResult.rows[0].count);
+    const formattedData = dataResult.rows.map((row) => ({
+      id: row.id,
+      registration_number: row.registration_number,
+      student_name: `${row.first_name} ${row.last_name}`,
+      enrollment_number: row.enrollment_number,
+      uploaded_at: row.uploaded_at,
+      ...row.response_data,
+    }));
 
     res.json({
       success: true,
-      data: result.rows,
+      data: formattedData,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalCount / limit),
-        totalCount: totalCount,
+        total: parseInt(countResult.rows[0].total),
+        page: parseInt(page),
         limit: parseInt(limit),
+        pages: Math.ceil(countResult.rows[0].total / limit),
       },
     });
   } catch (error) {
-    console.error("Error fetching form responses:", error);
+    console.error("Error fetching form data:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch form responses",
-      error: error.message,
+      message: "Failed to fetch form data",
     });
   }
 });
 
-// Update form status
-routes.patch("/:id/status", async (req, res) => {
+// 6. DELETE FORM RESPONSE
+routes.delete("/:formId/responses/:responseId", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const { formId, responseId } = req.params;
 
-    if (!["active", "closed", "draft"].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid status value",
-      });
-    }
+    const query = `
+      DELETE FROM form_responses 
+      WHERE id = $1 AND form_id = $2
+      RETURNING id
+    `;
 
-    const result = await db.query(
-      `
-      UPDATE forms SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id
-    `,
-      [status, id]
-    );
+    const result = await db.query(query, [responseId, formId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Form not found",
+        message: "Response not found",
       });
     }
 
     res.json({
       success: true,
-      message: "Form status updated successfully",
+      message: "Response deleted successfully",
     });
   } catch (error) {
-    console.error("Error updating form status:", error);
+    console.error("Error deleting response:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to update form status",
-      error: error.message,
+      message: "Failed to delete response",
     });
   }
 });
 
-// Delete form
+// 7. DELETE FORM
 routes.delete("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const result = await db.query(
+      "DELETE FROM forms WHERE id = $1 RETURNING id",
+      [req.params.id]
+    );
 
-    const client = await db.connect();
-
-    try {
-      await client.query("BEGIN");
-
-      // Delete form targets
-      await client.query("DELETE FROM form_targets WHERE form_id = $1", [id]);
-
-      // Delete form responses
-      await client.query("DELETE FROM form_responses WHERE form_id = $1", [id]);
-
-      // Delete the form
-      const result = await client.query(
-        "DELETE FROM forms WHERE id = $1 RETURNING id",
-        [id]
-      );
-
-      if (result.rows.length === 0) {
-        await client.query("ROLLBACK");
-        return res.status(404).json({
-          success: false,
-          message: "Form not found",
-        });
-      }
-
-      await client.query("COMMIT");
-
-      res.json({
-        success: true,
-        message: "Form deleted successfully",
-      });
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Form not found" });
     }
+
+    res.json({ success: true, message: "Form deleted successfully" });
   } catch (error) {
     console.error("Error deleting form:", error);
     res.status(500).json({
@@ -704,148 +810,161 @@ routes.delete("/:id", async (req, res) => {
   }
 });
 
-// Export form responses as CSV
-routes.get("/:id/export", async (req, res) => {
+// 8. GET EVENTS FOR FORM CREATION (One form per year per event)
+routes.get("/events/:year", async (req, res) => {
   try {
-    const { id } = req.params;
+    const { year } = req.params;
+    const { include_event } = req.query;
 
-    const result = await db.query(
-      `
-      SELECT fr.*, s.enrollment_number, s.first_name, s.last_name,
-             s.college_email, s.personal_email, s.department, s.batch_year,
-             s.cgpa, s.backlogs, s.placement_status,
-             f.title as form_title
-      FROM form_responses fr
-      JOIN students s ON fr.student_id = s.id
-      JOIN forms f ON fr.form_id = f.id
-      WHERE fr.form_id = $1
-      ORDER BY fr.uploaded_at DESC
-    `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
+    if (!year) {
+      return res.status(400).json({
         success: false,
-        message: "No responses found for this form",
+        message: "Year parameter is required",
       });
     }
 
-    // Convert to CSV format
-    const headers = [
-      "Enrollment Number",
-      "First Name",
-      "Last Name",
-      "College Email",
-      "Personal Email",
-      "Department",
-      "Batch Year",
-      "CGPA",
-      "Backlogs",
-      "Placement Status",
-      "Response Status",
-      "Registration Date",
-    ];
+    if (include_event) {
+      // When editing: Get ONLY the specific event + all unlinked events
+      const query = `
+        SELECT 
+          e.id,
+          e.title,
+          e.event_date,
+          e.event_type,
+          c.company_name,
+          cp.position_title
+        FROM events e
+        INNER JOIN event_batches eb ON eb.event_id = e.id
+        INNER JOIN batches b ON b.id = eb.batch_id
+        LEFT JOIN companies c ON e.company_id = c.id
+        LEFT JOIN company_positions cp ON e.position_id = cp.id
+        LEFT JOIN forms f ON f.event_id = e.id AND f.batch_year = b.year
+        WHERE b.year = $1
+        AND (f.id IS NULL OR e.id = $2)
+        GROUP BY e.id, e.title, e.event_date, e.event_type, c.company_name, cp.position_title
+        ORDER BY 
+          CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
+          e.event_date DESC NULLS LAST
+      `;
 
-    let csv = headers.join(",") + "\n";
+      const result = await db.query(query, [year, include_event]);
 
-    result.rows.forEach((row) => {
-      const csvRow = [
-        row.enrollment_number || "",
-        row.first_name || "",
-        row.last_name || "",
-        row.college_email || "",
-        row.personal_email || "",
-        row.department || "",
-        row.batch_year || "",
-        row.cgpa || "",
-        row.backlogs || "",
-        row.placement_status || "",
-        row.status || "",
-        new Date(row.uploaded_at).toLocaleDateString(),
-      ]
-        .map((field) => `"${field}"`)
-        .join(",");
+      res.json({
+        success: true,
+        data: result.rows,
+        count: result.rows.length,
+      });
+    } else {
+      // When creating new: Only show events without existing forms
+      const query = `
+        SELECT 
+          e.id,
+          e.title,
+          e.event_date,
+          e.event_type,
+          c.company_name,
+          cp.position_title
+        FROM events e
+        INNER JOIN event_batches eb ON eb.event_id = e.id
+        INNER JOIN batches b ON b.id = eb.batch_id
+        LEFT JOIN companies c ON e.company_id = c.id
+        LEFT JOIN company_positions cp ON e.position_id = cp.id
+        LEFT JOIN forms f ON f.event_id = e.id AND f.batch_year = b.year
+        WHERE b.year = $1
+        AND f.id IS NULL
+        GROUP BY e.id, e.title, e.event_date, e.event_type, c.company_name, cp.position_title
+        ORDER BY 
+          CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
+          e.event_date DESC NULLS LAST
+      `;
 
-      csv += csvRow + "\n";
-    });
+      const result = await db.query(query, [year]);
 
-    const formTitle = result.rows[0].form_title || "Form";
-    const filename = `${formTitle.replace(/[^a-zA-Z0-9]/g, "_")}_responses_${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
-
-    res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.send(csv);
+      res.json({
+        success: true,
+        data: result.rows,
+        count: result.rows.length,
+      });
+    }
   } catch (error) {
-    console.error("Error exporting form responses:", error);
+    console.error("Error fetching events:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to export form responses",
+      message: "Failed to fetch events",
       error: error.message,
     });
   }
 });
 
-// Get form statistics
-routes.get("/:id/stats", async (req, res) => {
-  try {
-    const { id } = req.params;
+// ------------------------------------------------------------------------------
+// --------------------------- Think these are not needed ---------------------------
+// ------------------------------------------------------------------------------
 
-    const statsResult = await db.query(
-      `
-      SELECT
-        COUNT(*) as total_responses,
-        COUNT(CASE WHEN status = 'registered' THEN 1 END) as registered_count,
-        COUNT(CASE WHEN status = 'submitted' THEN 1 END) as submitted_count,
-        COUNT(CASE WHEN status = 'reviewed' THEN 1 END) as reviewed_count
-      FROM form_responses
-      WHERE form_id = $1
-    `,
-      [id]
-    );
+// // Helper function to get form eligibility info
+// async function getFormEligibilityInfo(formId, client) {
+//   const query = `
+//     SELECT
+//       f.id,
+//       f.title,
+//       f.batch_year,
+//       f.type,
+//       f.description,
+//       COUNT(fr.id) as total_responses,
+//       COUNT(DISTINCT fr.student_id) as unique_respondents
+//     FROM forms f
+//     LEFT JOIN form_responses fr ON f.id = fr.form_id
+//     WHERE f.id = $1
+//     GROUP BY f.id, f.title, f.batch_year, f.type, f.description
+//   `;
 
-    const departmentStatsResult = await db.query(
-      `
-      SELECT s.department, COUNT(*) as count
-      FROM form_responses fr
-      JOIN students s ON fr.student_id = s.id
-      WHERE fr.form_id = $1
-      GROUP BY s.department
-      ORDER BY count DESC
-    `,
-      [id]
-    );
+//   const result = await client.query(query, [formId]);
+//   return result.rows[0] || null;
+// }
 
-    const batchStatsResult = await db.query(
-      `
-      SELECT s.batch_year, COUNT(*) as count
-      FROM form_responses fr
-      JOIN students s ON fr.student_id = s.id
-      WHERE fr.form_id = $1
-      GROUP BY s.batch_year
-      ORDER BY s.batch_year DESC
-    `,
-      [id]
-    );
+// // Additional endpoint to check form eligibility before upload
+// routes.get("/hello/:id/eligibility", async (req, res) => {
+//   const client = await db.connect();
 
-    res.json({
-      success: true,
-      data: {
-        overall: statsResult.rows[0],
-        byDepartment: departmentStatsResult.rows,
-        byBatch: batchStatsResult.rows,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching form statistics:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch form statistics",
-      error: error.message,
-    });
-  }
-});
+//   try {
+//     const { id: formId } = req.params;
+//     const formInfo = await getFormEligibilityInfo(formId, client);
+
+//     if (!formInfo) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Form not found",
+//       });
+//     }
+
+//     // Get count of eligible students for this batch year
+//     const eligibleStudentsResult = await client.query(
+//       `SELECT COUNT(*) as count FROM students WHERE batch_year = $1 AND placement_status != 'debarred'`,
+//       [formInfo.batch_year]
+//     );
+
+//     res.json({
+//       success: true,
+//       data: {
+//         form: formInfo,
+//         eligible_students_count: parseInt(eligibleStudentsResult.rows[0].count),
+//         batch_year: formInfo.batch_year,
+//         current_responses: formInfo.total_responses,
+//         unique_respondents: formInfo.unique_respondents,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error getting form eligibility:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to get form eligibility info",
+//       error: error.message,
+//     });
+//   } finally {
+//     client.release();
+//   }
+// });
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 module.exports = routes;

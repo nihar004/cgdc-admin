@@ -3,6 +3,7 @@
 import { useState, useEffect, useContext } from "react";
 import {
   Users,
+  User,
   UserCheck,
   UserX,
   Search,
@@ -10,6 +11,8 @@ import {
   Plus,
   Award,
   ArrowUpDown,
+  ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 import axios from "axios";
 import EditStudentModel from "./EditStudentModel";
@@ -29,6 +32,18 @@ const BRANCHES = [
   { value: "CSE", label: "CSE" },
   { value: "ECE", label: "ECE" },
   { value: "ME", label: "ME" },
+];
+
+const CATEGORIES = [
+  { key: "all", label: "All Students", icon: Users },
+  { key: "placed", label: "Placed", icon: UserCheck },
+  { key: "unplaced", label: "Unplaced", icon: UserX },
+  { key: "multiple-offers", label: "Multiple Offers", icon: Award },
+  { key: "higher_studies", label: "Higher Studies", icon: User },
+  { key: "entrepreneurship", label: "Entrepreneurship", icon: User },
+  { key: "debarred", label: "Debarred", icon: UserX },
+  { key: "family_business", label: "Family Business", icon: User },
+  { key: "others", label: "Others", icon: User },
 ];
 
 function StudentManagementContent() {
@@ -139,7 +154,7 @@ function StudentManagementContent() {
         return;
       }
       const response = await axios.get("http://localhost:5000/students", {
-        params: { batch: selectedBatch }, // send batch as query param
+        params: { batch: selectedBatch },
       });
       setStudents(response.data);
     } catch (err) {
@@ -147,7 +162,6 @@ function StudentManagementContent() {
     }
   };
 
-  // Update the useEffect to use the fetchStudents function
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -183,7 +197,6 @@ function StudentManagementContent() {
       (s) => s.current_offer && s.current_offer.package
     );
 
-    // Declare defaults
     let highestPackage = 0;
     let lowestPackage = 0;
     let avgPackage = 0;
@@ -193,18 +206,12 @@ function StudentManagementContent() {
       const packages = validStudents.map(
         (s) => s.current_offer.package / 100000
       );
-      packages.sort((a, b) => a - b); // sort ascending
+      packages.sort((a, b) => a - b);
 
-      // Highest (last element)
       highestPackage = packages[packages.length - 1];
-
-      // Lowest (first element)
       lowestPackage = packages[0];
-
-      // Average
       avgPackage = packages.reduce((acc, p) => acc + p, 0) / packages.length;
 
-      // Median
       const mid = Math.floor(packages.length / 2);
       if (packages.length % 2 === 0) {
         medianPackage = (packages[mid - 1] + packages[mid]) / 2;
@@ -213,8 +220,13 @@ function StudentManagementContent() {
       }
     }
 
+    const interestedStudents = students.filter((s) =>
+      ["placed", "unplaced", "debarred"].includes(s.placement_status)
+    ).length;
+
     return {
       totalStudents,
+      interestedStudents,
       placedStudents,
       unplacedStudents,
       multipleOffersStudents,
@@ -231,53 +243,235 @@ function StudentManagementContent() {
   };
 
   const stats = getStatistics();
-
   const filteredStudents = getFilteredStudents();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold text-gray-800">
-                Student Management
-              </h1>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <button
+                onClick={() => (window.location.href = "/")}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  Student Management Dashboard
+                </h1>
+                <p className="text-gray-600">
+                  Manage and categorize students based on placement status and
+                  college rules
+                </p>
+              </div>
             </div>
-            <p className="text-gray-600 mt-1">
-              Manage and categorize students based on placement status and
-              college rules
-            </p>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Download size={20} />
+                Export Data
+              </button>
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Plus size={20} />
+                Import Data
+              </button>
+              <button
+                onClick={() => setShowUpdateModal(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Plus size={20} />
+                Update Data
+              </button>
+            </div>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
-            >
-              <Download className="h-4 w-4" />
-              <span>Export Data</span>
-            </button>
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Import Data</span>
-            </button>
-            <button
-              onClick={() => setShowUpdateModal(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Update Data</span>
-            </button>
+
+          {/* Enhanced Statistics Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mt-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+              <div className="flex items-center gap-3">
+                <Users className="text-blue-600" size={24} />
+                <div>
+                  <p className="text-blue-600 text-sm font-medium">
+                    Total Students
+                  </p>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {stats.totalStudents}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-300">
+              <div className="flex items-center gap-3">
+                <User className="text-yellow-600" size={24} />
+                <div>
+                  <p className="text-yellow-600 text-sm font-medium">
+                    Total Interested
+                  </p>
+                  <p className="text-2xl font-bold text-yellow-900">
+                    {stats.interestedStudents}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
+              <div className="flex items-center gap-3">
+                <UserCheck className="text-green-600" size={24} />
+                <div>
+                  <p className="text-green-600 text-sm font-medium">Placed</p>
+                  <p className="text-2xl font-bold text-green-900">
+                    {stats.placedStudents}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-red-50 to-rose-50 p-4 rounded-xl border border-red-100">
+              <div className="flex items-center gap-3">
+                <UserX className="text-red-600" size={24} />
+                <div>
+                  <p className="text-red-600 text-sm font-medium">Unplaced</p>
+                  <p className="text-2xl font-bold text-red-900">
+                    {stats.unplacedStudents}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-100 col-span-2">
+              <div className="flex items-center gap-3">
+                <Award className="text-purple-600" size={24} />
+                <div>
+                  <p className="text-purple-600 text-sm font-medium">
+                    Package Statistics
+                  </p>
+                  <p className="text-xl font-bold text-purple-900">
+                    Avg: {stats.avgPackage} LPA
+                  </p>
+                  <div className="flex gap-4 mt-1 text-sm text-purple-800">
+                    <span>High: {stats.highestPackage} LPA</span>
+                    <span>•</span>
+                    <span>Med: {stats.medianPackage} LPA</span>
+                    <span>•</span>
+                    <span>Low: {stats.lowestPackage} LPA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Updated Filters Section - Match CompanyListing style */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Batch {selectedBatch}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                {students.length} students registered
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Category Filter Dropdown */}
+              <div className="relative">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                >
+                  {CATEGORIES.map((category) => (
+                    <option key={category.key} value={category.key}>
+                      {category.label} (
+                      {category.key === "all"
+                        ? stats.totalStudents
+                        : category.key === "multiple-offers"
+                          ? stats.multipleOffersStudents
+                          : category.key === "higher_studies"
+                            ? stats.higher_studiesStudents
+                            : category.key === "entrepreneurship"
+                              ? stats.entrepreneurshipStudents
+                              : category.key === "debarred"
+                                ? stats.debarredStudents
+                                : category.key === "family_business"
+                                  ? stats.familyBusinessStudent
+                                  : category.key === "others"
+                                    ? stats.otherStudent
+                                    : stats[`${category.key}Students`]}
+                      )
+                    </option>
+                  ))}
+                </select>
+                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              </div>
+
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search students..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+                />
+              </div>
+
+              {/* Branch Filter */}
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Branches</option>
+                {BRANCHES.map((branch) => (
+                  <option key={branch.value} value={branch.value}>
+                    {branch.label}
+                  </option>
+                ))}
+              </select>
+
+              {/* Sort Options */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="name">Sort by Name</option>
+                <option value="rollNo">Sort by Roll No</option>
+                <option value="cgpa">Sort by CGPA</option>
+                <option value="package">Sort by Package</option>
+              </select>
+
+              <button
+                onClick={() =>
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                }
+                className="px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center gap-1"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+                <span className="text-sm">
+                  {sortOrder === "asc" ? "ASC" : "DESC"}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Export Modal */}
         {showExportModal && <ExportModal filteredStudents={filteredStudents} />}
 
-        {/* // NEW TODO  */}
         {/* Import Modal */}
         {showImportModal && (
           <ImportModal
@@ -296,7 +490,6 @@ function StudentManagementContent() {
               setUpdateResults(results);
               setShowUpdateModal(false);
               setShowUpdateResultsModal(true);
-              // Refresh students data
               fetchStudents();
             }}
           />
@@ -319,221 +512,11 @@ function StudentManagementContent() {
         {/* Edit Student Modal */}
         {showEditStudentModal && <EditStudentModel />}
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Students
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalStudents}
-                </p>
-              </div>
-              <Users className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Interested
-                </p>
-                <p className="text-sm font-medium text-gray-600">
-                  (for Placement)
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalStudents - 2}
-                </p>
-              </div>
-              <Users className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Placed</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {stats.placedStudents}
-                </p>
-              </div>
-              <UserCheck className="h-8 w-8 text-green-600" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Unplaced</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {stats.unplacedStudents}
-                </p>
-              </div>
-              <UserX className="h-8 w-8 text-red-600" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg CTC</p>
-                <p className="text-xl font-bold text-purple-600">
-                  {stats.avgPackage} LPA
-                </p>
-                <p className="text-xs text-gray-500">
-                  Highest: {stats.highestPackage} LPA
-                </p>
-                <p className="text-xs text-gray-500">
-                  Medium: {stats.medianPackage} LPA
-                </p>
-                <p className="text-xs text-gray-500">
-                  Lowest: {stats.lowestPackage} LPA
-                </p>
-              </div>
-              <Award className="h-8 w-8 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        {/* Category Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">
-                Category:
-              </span>
-              <div className="flex space-x-1">
-                {[
-                  {
-                    key: "all",
-                    label: "All Students",
-                    count: stats.totalStudents,
-                  },
-                  {
-                    key: "placed",
-                    label: "Placed",
-                    count: stats.placedStudents,
-                  },
-                  {
-                    key: "unplaced",
-                    label: "Unplaced",
-                    count: stats.unplacedStudents,
-                  },
-                  {
-                    key: "multiple-offers",
-                    label: "Multiple Offers",
-                    count: stats.multipleOffersStudents,
-                  },
-                  {
-                    key: "higher_studies",
-                    label: "Higher Studies",
-                    count: stats.higher_studiesStudents,
-                  },
-                  {
-                    key: "entrepreneurship",
-                    label: "Entrepreneurship",
-                    count: stats.entrepreneurshipStudents,
-                  },
-                  {
-                    key: "debarred",
-                    label: "Debarred",
-                    count: stats.debarredStudents,
-                  },
-                  {
-                    key: "family_business",
-                    label: "Family Business",
-                    count: stats.familyBusinessStudent,
-                  },
-                  {
-                    key: "others",
-                    label: "Others",
-                    count: stats.otherStudent,
-                  },
-                ].map((category) => (
-                  <button
-                    key={category.key}
-                    onClick={() => setSelectedCategory(category.key)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedCategory === category.key
-                        ? "bg-blue-100 text-blue-700 border border-blue-200"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {category.label} ({category.count})
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Search and Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex-1 min-w-64">
-              <div className="relative">
-                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name, roll number, email, or company..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Branches Filter */}
-            <select
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Branches</option>
-              {BRANCHES.map((branch) => (
-                <option key={branch.value} value={branch.value}>
-                  {branch.label}
-                </option>
-              ))}
-            </select>
-
-            {/* Sort Options */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option key="sort-name" value="name">
-                Sort by Name
-              </option>
-              <option key="sort-rollNo" value="rollNo">
-                Sort by Roll No
-              </option>
-              <option key="sort-cgpa" value="cgpa">
-                Sort by CGPA
-              </option>
-              <option key="sort-package" value="package">
-                Sort by Package
-              </option>
-            </select>
-
-            <button
-              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-1"
-            >
-              <ArrowUpDown className="h-4 w-4" />
-              <span className="text-sm">
-                {sortOrder === "asc" ? "ASC" : "DESC"}
-              </span>
-            </button>
-          </div>
-        </div>
         {/* Students Table */}
         <StudentTable filteredStudents={filteredStudents} />
+
         {/* Summary */}
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-sm text-gray-500 mt-4">
           Showing {filteredStudents.length} of {students.length} students
         </div>
       </div>
@@ -541,7 +524,6 @@ function StudentManagementContent() {
   );
 }
 
-// Wrap the component with StudentProvider
 export default function StudentManagement() {
   return (
     <BatchProvider>

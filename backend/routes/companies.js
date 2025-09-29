@@ -86,7 +86,6 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
         job_type,
         package_range,
         internship_stipend_monthly,
-        selected_students = 0,
         rounds_start_date,
         rounds_end_date,
       } = position;
@@ -105,12 +104,6 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
           !isNaN(internship_stipend_monthly)
             ? parseFloat(internship_stipend_monthly)
             : -1,
-        selected_students:
-          selected_students &&
-          selected_students !== "" &&
-          !isNaN(selected_students)
-            ? parseInt(selected_students)
-            : 0,
         rounds_start_date:
           rounds_start_date?.trim() && rounds_start_date.trim() !== ""
             ? rounds_start_date.trim()
@@ -147,10 +140,10 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
       const positionInsertQuery = `
         INSERT INTO company_positions (
           company_id, position_title, job_type, package_range, 
-          internship_stipend_monthly, selected_students, rounds_start_date, 
+          internship_stipend_monthly, rounds_start_date, 
           rounds_end_date
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
       `;
 
@@ -161,7 +154,6 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
           processedPosition.job_type,
           processedPosition.package_range,
           processedPosition.internship_stipend_monthly,
-          processedPosition.selected_students,
           processedPosition.rounds_start_date,
           processedPosition.rounds_end_date,
         ]);
@@ -223,9 +215,8 @@ async function updatePositionsEfficiently(
         job_type = $3,
         package_range = $4,
         internship_stipend_monthly = $5,
-        selected_students = $6,
-        rounds_start_date = $7,
-        rounds_end_date = $8,
+        rounds_start_date = $6,
+        rounds_end_date = $7,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
@@ -238,7 +229,6 @@ async function updatePositionsEfficiently(
         processedPosition.job_type,
         processedPosition.package_range,
         processedPosition.internship_stipend_monthly,
-        processedPosition.selected_students,
         processedPosition.rounds_start_date,
         processedPosition.rounds_end_date,
       ]);
@@ -256,10 +246,10 @@ async function updatePositionsEfficiently(
     const insertQuery = `
       INSERT INTO company_positions (
         company_id, position_title, job_type, package_range, 
-        internship_stipend_monthly, selected_students, rounds_start_date, 
+        internship_stipend_monthly, rounds_start_date, 
         rounds_end_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
 
@@ -270,7 +260,6 @@ async function updatePositionsEfficiently(
         processedPosition.job_type,
         processedPosition.package_range,
         processedPosition.internship_stipend_monthly,
-        processedPosition.selected_students,
         processedPosition.rounds_start_date,
         processedPosition.rounds_end_date,
       ]);
@@ -306,7 +295,6 @@ function detectPositionChanges(existingPositions, newPositions) {
       "job_type",
       "package_range",
       "internship_stipend_monthly",
-      "selected_students",
       "rounds_start_date",
       "rounds_end_date",
     ];
@@ -349,7 +337,6 @@ function detectPositionChanges(existingPositions, newPositions) {
         "job_type",
         "package_range",
         "internship_stipend_monthly",
-        "selected_students",
         "rounds_start_date",
         "rounds_end_date",
       ];
@@ -400,12 +387,6 @@ function processPositionData(position) {
       !isNaN(position.internship_stipend_monthly)
         ? parseFloat(position.internship_stipend_monthly)
         : -1,
-    selected_students:
-      position.selected_students &&
-      position.selected_students !== "" &&
-      !isNaN(position.selected_students)
-        ? parseInt(position.selected_students)
-        : 0,
     rounds_start_date:
       position.rounds_start_date?.trim() &&
       position.rounds_start_date.trim() !== ""
@@ -469,7 +450,6 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'job_type', cp.job_type,
             'package_range', cp.package_range,
             'internship_stipend_monthly', cp.internship_stipend_monthly,
-            'selected_students', cp.selected_students,
             'rounds_start_date', cp.rounds_start_date,
             'rounds_end_date', cp.rounds_end_date,
             'documents', (
@@ -506,17 +486,8 @@ routes.get("/batch/:batchYear", async (req, res) => {
 
     // Transform the data to calculate only total selected per company
     const companiesWithStats = result.rows.map((company) => {
-      // Calculate total selected students for the company
-      const totalSelected = company.positions
-        ? company.positions.reduce(
-            (sum, position) => sum + (position.selected_students || 0),
-            0
-          )
-        : 0;
-
       return {
         ...company,
-        total_selected: totalSelected,
       };
     });
 

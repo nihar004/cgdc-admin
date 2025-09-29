@@ -71,6 +71,7 @@ function EventCard({
   setSelectedEvent,
   setEditingEvent,
   fetchEvents,
+  onAttendanceClick,
 }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -367,6 +368,13 @@ function EventCard({
                 >
                   <Users className="h-3 w-3 mr-1" />
                   View Attendance
+                </button>
+                <button
+                  onClick={onAttendanceClick}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
+                >
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Mark Attendance
                 </button>
               </div>
 

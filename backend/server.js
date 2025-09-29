@@ -7,6 +7,7 @@ const companies = require("./routes/companies");
 const emails = require("./routes/emails");
 const forms = require("./routes/forms");
 const events = require("./routes/events");
+const round_tracking = require("./routes/round_tracking");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/companies", companies);
 app.use("/emails", emails);
 app.use("/forms", forms);
 app.use("/events", events);
+app.use("/round_tracking", round_tracking);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

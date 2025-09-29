@@ -140,30 +140,24 @@ function HomeContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Career Guidance & Development Cell
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Placement Management System
-              </p>
+              <p className="text-gray-600">Placement Management System</p>
             </div>
 
-            <div className="flex items-end gap-2">
+            <div className="flex items-center gap-3">
               <div className="flex flex-col">
-                <label className="text-xs text-gray-500 mb-1 pl-1">
-                  Academic Batch
-                </label>
                 <select
                   value={selectedBatch || ""}
                   onChange={(e) => setSelectedBatch(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 >
                   <option value="" disabled>
                     Select Batch
@@ -176,127 +170,30 @@ function HomeContent() {
                 </select>
               </div>
 
-              {/* Add New Batch Button */}
               <button
                 onClick={() => setShowAddBatch(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg 
-                         text-sm font-medium transition-all duration-200 flex items-center gap-2
-                         shadow-sm hover:shadow-md active:transform active:scale-95"
-                title="Add New Batch"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
               >
-                <FaPlus className="w-3 h-3" />
-                <span className="hidden sm:inline">Add Batch</span>
+                <FaPlus className="w-4 h-4" />
+                Add Batch
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Add New Batch Modal */}
-      {showAddBatch && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-40 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-100 
-                          transform transition-all duration-300 ease-out scale-100"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Add New Academic Batch
-              </h3>
-              <button
-                onClick={handleCancelAdd}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-                disabled={isAddingBatch}
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Batch Year
-              </label>
-              <input
-                type="text"
-                value={newBatchYear}
-                onChange={(e) => setNewBatchYear(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="e.g., 2022, 2023, 2024"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         transition-all duration-200 bg-gray-50 focus:bg-white"
-                autoFocus
-                disabled={isAddingBatch}
-                maxLength={4}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Enter a 4-digit year (e.g., 2022, 2023)
-              </p>
-            </div>
-
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={handleCancelAdd}
-                disabled={isAddingBatch}
-                className="px-6 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 
-                         hover:bg-gray-200 rounded-lg transition-all duration-200 
-                         hover:shadow-sm active:transform active:scale-95 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddBatch}
-                disabled={!newBatchYear.trim() || isAddingBatch}
-                className="px-6 py-2.5 text-sm font-medium text-white bg-blue-500 
-                         hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed
-                         rounded-lg transition-all duration-200 shadow-sm hover:shadow-md
-                         active:transform active:scale-95 disabled:active:transform-none
-                         flex items-center gap-2 min-w-[110px] justify-center"
-              >
-                {isAddingBatch && (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                )}
-                {isAddingBatch ? "Adding..." : "Add Batch"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Module Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+        {/* Modules Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((module, index) => (
             <Link href={module.link} key={index}>
-              <div
-                className="group bg-white rounded-lg border border-gray-200 p-5 h-36 
-                            hover:shadow-md hover:border-gray-300 transition-all duration-200 
-                            cursor-pointer flex flex-col justify-between"
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between">
+              <div className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
+                <div className="flex items-start justify-between mb-4">
                   <div
-                    className={`${module.color} w-9 h-9 rounded-lg flex items-center 
-                                 justify-center text-white flex-shrink-0`}
+                    className={`${module.color} w-10 h-10 rounded-lg flex items-center justify-center text-white`}
                   >
                     {module.icon}
                   </div>
                   <svg
-                    className="w-4 h-4 text-gray-400 group-hover:text-gray-600 
-                                 transition-colors duration-200"
+                    className="w-5 h-5 text-gray-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -309,24 +206,139 @@ function HomeContent() {
                     />
                   </svg>
                 </div>
-
-                {/* Content */}
-                <div className="mt-3">
-                  <h3
-                    className="font-medium text-gray-900 text-sm mb-1 
-                               group-hover:text-blue-600 transition-colors duration-200"
-                  >
-                    {module.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    {module.description}
-                  </p>
-                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  {module.title}
+                </h3>
+                <p className="text-sm text-gray-600">{module.description}</p>
               </div>
             </Link>
           ))}
         </div>
       </div>
+      {showAddBatch && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 
+                   transform transition-all duration-300 ease-out scale-100 
+                   border border-gray-100/50 backdrop-blur-sm"
+          >
+            {/* Subtle gradient border */}
+            <div
+              className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-indigo-500/20 
+                     rounded-2xl opacity-60 blur-sm"
+            ></div>
+
+            <div className="relative bg-white rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3
+                    className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 
+                         bg-clip-text text-transparent"
+                  >
+                    Add New Academic Batch
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Create a new batch year
+                  </p>
+                </div>
+                <button
+                  onClick={handleCancelAdd}
+                  className="w-10 h-10 rounded-full bg-gray-50 hover:bg-red-50 
+                     flex items-center justify-center transition-all duration-200
+                     hover:scale-110 group disabled:opacity-50"
+                  disabled={isAddingBatch}
+                >
+                  <svg
+                    className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Batch Year
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={newBatchYear}
+                    onChange={(e) => setNewBatchYear(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="e.g., 2022, 2023, 2024"
+                    className="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-base
+                       focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                       transition-all duration-300 bg-gray-50/50 hover:bg-white
+                       placeholder:text-gray-400 disabled:opacity-50 font-medium"
+                    autoFocus
+                    disabled={isAddingBatch}
+                    maxLength={4}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-3 flex items-center gap-1">
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Enter a 4-digit year (e.g., 2022, 2023)
+                </p>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handleCancelAdd}
+                  disabled={isAddingBatch}
+                  className="flex-1 px-6 py-3.5 text-sm font-semibold text-gray-600 
+                     bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 
+                     hover:shadow-md active:transform active:scale-95 
+                     disabled:opacity-50 disabled:hover:scale-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddBatch}
+                  disabled={!newBatchYear.trim() || isAddingBatch}
+                  className="flex-1 px-6 py-3.5 text-sm font-semibold text-white 
+                     bg-gradient-to-r from-blue-600 to-indigo-600
+                     hover:from-blue-700 hover:to-indigo-700 
+                     disabled:from-gray-300 disabled:to-gray-400
+                     disabled:cursor-not-allowed rounded-xl transition-all duration-200 
+                     shadow-lg hover:shadow-xl active:transform active:scale-95 
+                     disabled:active:transform-none flex items-center gap-2 
+                     justify-center relative overflow-hidden group"
+                >
+                  {/* Shimmer effect */}
+                  <div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+                           translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
+                  ></div>
+
+                  {isAddingBatch && (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  )}
+                  {isAddingBatch ? "Adding..." : "Add Batch"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

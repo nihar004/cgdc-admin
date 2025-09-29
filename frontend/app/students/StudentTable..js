@@ -1,4 +1,4 @@
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, ExternalLink, Download } from "lucide-react";
 import { useStudentContext } from "../../context/StudentContext.";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useState } from "react";
@@ -62,6 +62,19 @@ export default function StudentTable({ filteredStudents }) {
     setShowDeleteModal(true);
   };
 
+  const formatPackage = (amount) => {
+    if (amount == null || isNaN(amount)) {
+      return "Not Disclosed";
+    }
+
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(1)} Cr`;
+    } else if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(1)} LPA`;
+    }
+    return `₹${amount.toLocaleString()}`;
+  };
+
   // Update the handleConfirmDelete function
   const handleConfirmDelete = async () => {
     if (!studentToDelete) return;
@@ -123,54 +136,65 @@ export default function StudentTable({ filteredStudents }) {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <input type="checkbox" className="rounded" />
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Academic Info
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Placement Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  BOARD MARKS
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredStudents.map((student) => {
-                return (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input type="checkbox" className="rounded" />
+      <div className="space-y-6 mb-10">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300"
+                    />
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Student Details
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Academic Info
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Contact Details
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Placement Details
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Board Marks
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-50">
+                {filteredStudents.map((student) => (
+                  <tr
+                    key={student.id}
+                    className="hover:bg-slate-50 transition-all duration-200"
+                  >
+                    <td className="px-6 py-5">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300"
+                      />
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
+                    <td className="px-6 py-5">
+                      <div className="flex items-start gap-3">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {formatStudentName(student)}
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-sm font-bold text-gray-900">
+                              {formatStudentName(student)}
+                            </h3>
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs text-gray-500">
                             {student.registration_number}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-400 mt-1">
                             {student.college_email}
                           </div>
                           <div className="text-xs text-gray-400">
@@ -179,91 +203,105 @@ export default function StudentTable({ filteredStudents }) {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="text-sm text-gray-900">
+                    <td className="px-6 py-5">
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium text-gray-900">
                           {student.department} {student.branch}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          CGPA:{" "}
-                          {student.cgpa !== undefined && student.cgpa !== null
-                            ? Number(student.cgpa).toFixed(2)
-                            : "N/A"}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-medium">
+                            CGPA:{" "}
+                            {student.cgpa !== null && student.cgpa !== undefined
+                              ? Number(student.cgpa).toFixed(2)
+                              : "N/A"}
+                          </span>
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-500">
                           Backlogs: {student.backlogs} | Batch:{" "}
                           {student.batch_year}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">+91 {student.phone}</div>
-                      {student.alternate_phone && (
-                        <div className="text-sm">
-                          +91 {student.alternate_phone}
+                    <td className="px-6 py-5">
+                      <div className="space-y-1">
+                        <div className="text-sm text-gray-900">
+                          +91 {student.phone}
                         </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                          student.placement_status
-                        )}`}
-                      >
-                        {student.placement_status.replace("_", " ")}
+                        {student.alternate_phone && (
+                          <div className="text-xs text-gray-500">
+                            +91 {student.alternate_phone}
+                          </div>
+                        )}
                       </div>
-                      {student.current_offer && (
-                        <div className="mt-1 text-sm text-gray-600">
-                          {student.current_offer.company_name}
-                        </div>
-                      )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5">
+                      <div className="space-y-2">
+                        <span
+                          className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                            student.placement_status
+                          )}`}
+                        >
+                          {student.placement_status.replace("_", " ")}
+                        </span>
+                        {student.current_offer && (
+                          <div className="text-xs text-gray-600">
+                            {student.current_offer.company_name}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
                       {student.offers_received?.length > 0 ? (
-                        <div>
-                          <div className="text-sm font-medium">
+                        <div className="space-y-1">
+                          <div className="text-sm font-medium text-gray-900">
                             {student.offers_received.length} Offer(s)
                           </div>
                           {student.offers_received
                             .slice(0, 2)
                             .map((offer, idx) => (
-                              <div
-                                key={`${student.id}-offer-${idx}`}
-                                className="text-xs text-gray-500"
-                              >
+                              <div key={idx} className="text-xs text-gray-500">
                                 {offer.company_name} -{" "}
-                                {(offer.package / 100000).toFixed(1)} LPA
+                                {formatPackage(offer.package)}
                               </div>
                             ))}
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-400">
+                        <span className="text-xs text-gray-400">
                           No offers yet
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        <div>10th: {student.class_10_percentage}%</div>
-                        <div>12th: {student.class_12_percentage}%</div>
+                    <td className="px-6 py-5">
+                      <div className="space-y-1">
+                        <div className="text-xs flex items-center gap-2">
+                          <span className="px-2 py-1 bg-green-50 text-green-700 rounded">
+                            10th: {student.class_10_percentage}%
+                          </span>
+                        </div>
+                        <div className="text-xs flex items-center gap-2">
+                          <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded">
+                            12th: {student.class_12_percentage}%
+                          </span>
+                        </div>
                         {student.drives_skipped > 0 && (
-                          <div className="text-red-500">
+                          <div className="text-xs text-red-500 mt-1">
                             Drives Skipped: {student.drives_skipped}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEditStudent(student)}
-                          className="text-green-600 hover:text-green-800"
+                          className="p-2 text-slate-600 hover:text-amber-800 hover:bg-amber-100 rounded-lg transition-all duration-200"
+                          title="Edit Student"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(student)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                          className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-all duration-200"
                           title="Delete Student"
                         >
                           <Trash className="h-4 w-4" />
@@ -271,21 +309,21 @@ export default function StudentTable({ filteredStudents }) {
                       </div>
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        isOpen={showDeleteModal}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        student={studentToDelete}
-        isDeleting={isDeleting}
-      />
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          student={studentToDelete}
+          isDeleting={isDeleting}
+        />
+      </div>
     </>
   );
 }

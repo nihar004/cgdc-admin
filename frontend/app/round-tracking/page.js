@@ -1,287 +1,334 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Search, Filter, Download, Eye, Users, TrendingDown, TrendingUp, Calendar } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Search, Download, Calendar, ArrowLeft } from "lucide-react";
 
-const RoundTrackingPage = () => {
-  const [selectedCompany, setSelectedCompany] = useState('all');
-  const [selectedRound, setSelectedRound] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+import StatsCards from "./StatsCards";
+import CompanyCard from "./CompanyCard";
 
-  // Sample data for companies and their rounds
-  const companies = [
-    {
-      id: 1,
-      name: 'TCS',
-      totalApplied: 150,
-      currentRound: 3,
-      totalRounds: 4,
-      status: 'ongoing',
-      rounds: [
-        { round: 1, name: 'Online Assessment', applied: 150, appearedForAssessment: 150, qualified: 80 },
-        { round: 2, name: 'Technical Interview', applied: 80, appearedForAssessment: 75, qualified: 45},
-        { round: 3, name: 'HR Interview', applied: 45, appearedForAssessment: 45, qualified: 25},
-        { round: 4, name: 'Final Selection', applied: 25, appearedForAssessment: 24, qualified: 20}
-      ]
-    },
-    { 
-      id: 2,
-      name: 'Infosys',
-      totalApplied: 120,
-      currentRound: 2,
-      totalRounds: 3,
-      status: 'ongoing',
-      rounds: [
-        { round: 1, name: 'Aptitude Test', applied: 120, appearedForAssessment: 110, qualified: 65},
-        { round: 2, name: 'Technical Round', applied: 65, appearedForAssessment: 60, qualified: 35},
-        { round: 3, name: 'HR Round', applied: 35, appearedForAssessment: 35, qualified: 0}
-      ]
-    },
-    {
-      id: 3,
-      name: 'Wipro',
-      totalApplied: 90,
-      currentRound: 4,
-      totalRounds: 4,
-      status: 'completed',
-      rounds: [
-        { round: 1, name: 'Online Test', applied: 90, appearedForAssessment: 90, qualified: 50},
-        { round: 2, name: 'Group Discussion', applied: 50, appearedForAssessment: 50, qualified: 30},
-        { round: 3, name: 'Technical Interview', applied: 30, appearedForAssessment: 30, qualified: 18},
-        { round: 4, name: 'Final Interview', applied: 18, appearedForAssessment: 18, qualified: 15}
-      ]
-    }
-  ];
-
-  const filteredCompanies = companies.filter(company => 
-    (selectedCompany === 'all' || company.name === selectedCompany) &&
-    company.name.toLowerCase().includes(searchTerm.toLowerCase())
+const FilterBar = ({ filters, onFiltersChange }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search companies or positions..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={filters.search}
+              onChange={(e) =>
+                onFiltersChange({ ...filters, search: e.target.value })
+              }
+            />
+          </div>
+        </div>
+        <div className="lg:w-48">
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={filters.status}
+            onChange={(e) =>
+              onFiltersChange({ ...filters, status: e.target.value })
+            }
+          >
+            <option value="all">All Status</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div className="lg:w-48">
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={filters.jobType}
+            onChange={(e) =>
+              onFiltersChange({ ...filters, jobType: e.target.value })
+            }
+          >
+            <option value="all">All Job Types</option>
+            <option value="internship">Internship</option>
+            <option value="full_time">Full Time</option>
+            <option value="internship_plus_ppo">Internship + PPO</option>
+          </select>
+        </div>
+      </div>
+    </div>
   );
+};
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'ongoing': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'upcoming': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+// Mock data
+const MOCK_COMPANIES = [
+  {
+    id: 1,
+    company_name: "Microsoft",
+    logo_url: "https://logo.clearbit.com/microsoft.com",
+    status: "ongoing",
+    positions: [
+      {
+        id: 1,
+        position_title: "Software Development Engineer",
+        job_type: "full_time",
+        package: 4400000,
+        rounds: [
+          {
+            round_number: 1,
+            name: "Online Assessment",
+            status: "completed",
+            total_students: 150,
+            qualified_students: 75,
+            date: "2025-09-20",
+          },
+          {
+            round_number: 2,
+            name: "Technical Interview",
+            status: "ongoing",
+            total_students: 75,
+            qualified_students: 30,
+            date: "2025-09-24",
+          },
+          {
+            round_number: 3,
+            name: "HR Round",
+            status: "upcoming",
+            total_students: 30,
+            qualified_students: 0,
+            date: "2025-09-26",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    company_name: "Google",
+    logo_url: "https://logo.clearbit.com/google.com",
+    status: "upcoming",
+    positions: [
+      {
+        id: 2,
+        position_title: "Software Engineer",
+        job_type: "internship_plus_ppo",
+        package: 3600000,
+        rounds: [
+          {
+            round_number: 1,
+            name: "Coding Test",
+            status: "upcoming",
+            total_students: 200,
+            qualified_students: 0,
+            date: "2025-10-01",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 3,
+    company_name: "Amazon",
+    logo_url: "https://logo.clearbit.com/amazon.com",
+    status: "completed",
+    positions: [
+      {
+        id: 3,
+        position_title: "SDE Intern",
+        job_type: "internship",
+        package: 1200000,
+        rounds: [
+          {
+            round_number: 1,
+            name: "Online Test",
+            status: "completed",
+            total_students: 180,
+            qualified_students: 90,
+            date: "2025-09-15",
+          },
+          {
+            round_number: 2,
+            name: "Technical Interview 1",
+            status: "completed",
+            total_students: 90,
+            qualified_students: 45,
+            date: "2025-09-17",
+          },
+          {
+            round_number: 3,
+            name: "Technical Interview 2",
+            status: "completed",
+            total_students: 45,
+            qualified_students: 20,
+            date: "2025-09-19",
+          },
+          {
+            round_number: 4,
+            name: "HR Interview",
+            status: "completed",
+            total_students: 20,
+            qualified_students: 15,
+            date: "2025-09-20",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// Main Component
+const RoundTrackingPage = () => {
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedCompanies, setExpandedCompanies] = useState(new Set());
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "all",
+    jobType: "all",
+  });
+  const [stats, setStats] = useState({});
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setCompanies(MOCK_COMPANIES);
+
+      // Calculate stats from mock data
+      const stats = {
+        totalApplications: MOCK_COMPANIES.reduce(
+          (sum, company) => sum + company.positions[0].rounds[0].total_students,
+          0
+        ),
+        currentlyQualified: MOCK_COMPANIES.reduce((sum, company) => {
+          const lastRound =
+            company.positions[0].rounds[company.positions[0].rounds.length - 1];
+          return sum + lastRound.qualified_students;
+        }, 0),
+        activeCompanies: MOCK_COMPANIES.filter((c) => c.status === "ongoing")
+          .length,
+        totalPlacements: MOCK_COMPANIES.reduce((sum, company) => {
+          const lastRound =
+            company.positions[0].rounds[company.positions[0].rounds.length - 1];
+          return (
+            sum +
+            (company.status === "completed" ? lastRound.qualified_students : 0)
+          );
+        }, 0),
+      };
+
+      setStats(stats);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getRoundProgress = (currentRound, totalRounds) => {
-    return (currentRound / totalRounds) * 100;
+  const handleCompanyToggle = (companyId) => {
+    const newExpanded = new Set(expandedCompanies);
+    if (newExpanded.has(companyId)) {
+      newExpanded.delete(companyId);
+    } else {
+      newExpanded.add(companyId);
+    }
+    setExpandedCompanies(newExpanded);
   };
+
+  const filteredCompanies = companies.filter((company) => {
+    const matchesSearch =
+      company.company_name
+        .toLowerCase()
+        .includes(filters.search.toLowerCase()) ||
+      company.positions?.some((pos) =>
+        pos.position_title.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    const matchesStatus =
+      filters.status === "all" || company.status === filters.status;
+    const matchesJobType =
+      filters.jobType === "all" ||
+      company.positions?.some((pos) => pos.job_type === filters.jobType);
+
+    return matchesSearch && matchesStatus && matchesJobType;
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading round data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Round Tracking</h1>
-              <p className="mt-2 text-gray-600">Monitor student progress through interview rounds</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <button
+                onClick={() => window.history.back()}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  Round Tracking
+                </h1>
+                <p className="text-gray-600">
+                  Monitor student progress through interview rounds
+                </p>
+              </div>
             </div>
-            <div className="flex space-x-3">
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Download className="h-4 w-4 mr-2" />
+
+            <div className="flex items-center gap-3">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md">
+                <Download className="h-4 w-4" />
                 Export Report
               </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Filters and Search */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search companies..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="sm:w-48">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={selectedCompany}
-                onChange={(e) => setSelectedCompany(e.target.value)}
-              >
-                <option value="all">All Companies</option>
-                {companies.map(company => (
-                  <option key={company.id} value={company.name}>{company.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="sm:w-48">
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={selectedRound}
-                onChange={(e) => setSelectedRound(e.target.value)}
-              >
-                <option value="all">All Rounds</option>
-                <option value="1">Round 1</option>
-                <option value="2">Round 2</option>
-                <option value="3">Round 3</option>
-                <option value="4">Round 4</option>
-              </select>
-            </div>
-          </div>
+          <StatsCards stats={stats} />
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Users className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Applications</p>
-                <p className="text-2xl font-bold text-gray-900">360</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Currently Qualified</p>
-                <p className="text-2xl font-bold text-gray-900">85</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Calendar className="h-8 w-8 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Companies</p>
-                <p className="text-2xl font-bold text-gray-900">2</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Filters */}
+        <FilterBar filters={filters} onFiltersChange={setFilters} />
 
-        {/* Company Round Details */}
-        <div className="space-y-6">
-          {filteredCompanies.map((company) => (
-            <div key={company.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-              {/* Company Header */}
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <h3 className="text-xl font-semibold text-gray-900">{company.name}</h3>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(company.status)}`}>
-                      {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-sm text-gray-600">
-                      Progress: {company.currentRound}/{company.totalRounds} rounds
-                    </div>
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${getRoundProgress(company.currentRound, company.totalRounds)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rounds Table */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Round
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Applied for Assessment
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actually Appeared
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Qualified
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {company.rounds.map((round) => (
-                      <tr key={round.round} className={round.round <= company.currentRound ? '' : 'opacity-50'}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                              round.round < company.currentRound ? 'bg-green-100 text-green-800' :
-                              round.round === company.currentRound ? 'bg-blue-100 text-blue-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {round.round}
-                            </div>
-                            <div className="ml-3">
-                              <div className="text-sm font-medium text-gray-900">{round.name}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {round.applied}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {round.appearedForAssessment}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">
-                          {round.qualified}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-blue-600 hover:text-blue-900 inline-flex items-center">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Company Summary */}
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Total Applied:</span>
-                    <span className="ml-2 font-medium text-gray-900">{company.totalApplied}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Currently Qualified:</span>
-                    <span className="ml-2 font-medium text-green-600">
-                      {company.rounds[company.currentRound - 1]?.qualified || 0}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Overall Success Rate:</span>
-                    <span className="ml-2 font-medium text-blue-600">
-                      {((company.rounds[company.currentRound - 1]?.qualified || 0) / company.totalApplied * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
+        {/* Companies List */}
+        <div className="space-y-4">
+          {filteredCompanies.length > 0 ? (
+            filteredCompanies.map((company) => (
+              <CompanyCard
+                key={company.id}
+                company={company}
+                onToggle={handleCompanyToggle}
+                isExpanded={expandedCompanies.has(company.id)}
+              />
+            ))
+          ) : (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Companies Found
+              </h3>
+              <p className="text-gray-600">
+                {filters.search ||
+                filters.status !== "all" ||
+                filters.jobType !== "all"
+                  ? "Try adjusting your filters to see more results."
+                  : "No companies have scheduled rounds yet."}
+              </p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

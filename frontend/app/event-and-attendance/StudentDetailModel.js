@@ -1,4 +1,5 @@
 import { XCircle, CheckCircle, AlertCircle, Clock, User } from "lucide-react";
+import * as XLSX from "xlsx";
 
 function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
   const getAttendanceStatusIcon = (status) => {
@@ -30,6 +31,51 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
         return `${baseClasses} bg-blue-100 text-blue-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  const handleExport = () => {
+    try {
+      // Prepare data for export - only attendance related information
+      const exportData = selectedEvent.students.map((student) => ({
+        "Student Name": student.name,
+        "Registration Number": student.registrationNumber,
+        "Enrollment Number": student.enrollmentNumber,
+        Department: student.department,
+        "Batch Year": student.batchYear,
+        Status:
+          student.status.charAt(0).toUpperCase() + student.status.slice(1),
+        "Check-in Time": student.checkInTime || "-",
+        Reason: student.reasonForChange || "NULL",
+      }));
+
+      // Create worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+
+      // Set column widths
+      ws["!cols"] = [
+        { wch: 25 }, // Student Name
+        { wch: 15 }, // Registration Number
+        { wch: 15 }, // Enrollment Number
+        { wch: 20 }, // Department
+        { wch: 10 }, // Batch Year
+        { wch: 10 }, // Status
+        { wch: 15 }, // Check-in Time
+        { wch: 30 }, // Reason
+      ];
+
+      // Create workbook and add the sheet
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+
+      // Generate filename with current date
+      const fileName = `attendance_${new Date().toLocaleDateString().replace(/\//g, "-")}.xlsx`;
+
+      // Save file
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      alert("Failed to export attendance data");
     }
   };
 
@@ -194,6 +240,9 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Check-in Time
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Reason for Change
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -240,6 +289,19 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                       {student.checkInTime || "-"}
                     </div>
                   </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm">
+                      {student.reasonForChange ? (
+                        <span className="text-blue-600 font-medium">
+                          {student.reasonForChange}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 italic">
+                          Not excused
+                        </span>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -255,7 +317,10 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
             {registeredCount > 0 && ` • Registered: ${registeredCount}`}
           </div>
           <div className="flex space-x-3">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            <button
+              onClick={handleExport}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
               Export Attendance
             </button>
             <button

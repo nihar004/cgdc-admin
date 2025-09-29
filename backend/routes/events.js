@@ -10,58 +10,68 @@ routes.get("/batch/:batch_year", async (req, res) => {
 
     const query = `
       SELECT 
-        e.id,
-        c.id as company_id,
-        cp.id as position_id,
-        e.title,
-        e.event_type,
-        e.event_date,
-        e.start_time,
-        e.end_time,
-        e.venue,
-        e.mode,
-        e.is_mandatory,
-        e.status as event_status,
-        e.is_placement_event,
-        e.target_specializations,
-        e.speaker_details,
-        c.company_name,
-        c.allowed_specializations,
-        cp.job_type,
-        cp.position_title,
-        cp.package_range,
-        cp.internship_stipend_monthly,
-        COALESCE(array_agg(DISTINCT b.year) FILTER (WHERE b.id IS NOT NULL), '{}') AS target_academic_years,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'student_id', s.id,
-              'name', CONCAT(s.first_name, ' ', s.last_name),
-              'registration_number', s.registration_number,
-              'enrollment_number', s.enrollment_number,
-              'department', CONCAT(s.department, ' ', s.branch),
-              'batch_year', s.batch_year,
-              'attendance_status', COALESCE(ea.status, 'not specified'),
-              'check_in_time', ea.check_in_time
-            )
-          ) FILTER (WHERE s.id IS NOT NULL), 
-          '[]'::json
-        ) AS attendance_data
-      FROM events e
-      LEFT JOIN companies c ON e.company_id = c.id
-      LEFT JOIN company_positions cp ON e.position_id = cp.id
-      LEFT JOIN event_batches eb ON e.id = eb.event_id
-      LEFT JOIN batches b ON eb.batch_id = b.id
-      LEFT JOIN event_attendance ea ON e.id = ea.event_id
-      LEFT JOIN students s ON ea.student_id = s.id AND s.batch_year = $1
-      WHERE EXISTS (
-        SELECT 1 FROM event_batches eb2 
-        JOIN batches b2 ON eb2.batch_id = b2.id 
-        WHERE eb2.event_id = e.id AND b2.year = $1
-      )
-      GROUP BY e.id,c.id,cp.id, c.company_name, c.allowed_specializations,
-               cp.job_type, cp.position_title, cp.package_range, cp.internship_stipend_monthly
-      ORDER BY e.event_date DESC, e.start_time DESC
+      e.id,
+      c.id as company_id,
+      cp.id as position_id,
+      e.title,
+      e.event_type,
+      e.event_date,
+      e.start_time,
+      e.end_time,
+      e.venue,
+      e.mode,
+      e.is_mandatory,
+      e.status as event_status,
+      e.is_placement_event,
+      e.target_specializations,
+      e.speaker_details,
+      c.company_name,
+      c.allowed_specializations,
+      cp.job_type,
+      cp.position_title,
+      cp.package_range,
+      cp.internship_stipend_monthly,
+      COALESCE(array_agg(DISTINCT b.year) FILTER (WHERE b.id IS NOT NULL), '{}') AS target_academic_years,
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object(
+          'student_id', s.id,
+          'name', CONCAT(s.first_name, ' ', s.last_name),
+          'registration_number', s.registration_number,
+          'enrollment_number', s.enrollment_number,
+          'department', CONCAT(s.department, ' ', s.branch),
+          'batch_year', s.batch_year,
+          'attendance_status', COALESCE(ea.status, 'absent'),
+          'marked_at', ea.marked_at,
+          'reason_for_change', ea.reason_for_change
+        )) FILTER (WHERE s.id IS NOT NULL),
+        '[]'::json
+      ) AS attendance_data
+  FROM events e
+  LEFT JOIN companies c ON e.company_id = c.id
+  LEFT JOIN company_positions cp ON e.position_id = cp.id
+  LEFT JOIN event_batches eb ON e.id = eb.event_id
+  LEFT JOIN batches b ON eb.batch_id = b.id
+  LEFT JOIN (
+      SELECT DISTINCT ON (event_id, student_id)
+          event_id, 
+          student_id, 
+          status, 
+          marked_at,
+          reason_for_change
+      FROM event_attendance
+  ) ea ON e.id = ea.event_id
+  LEFT JOIN students s ON s.id = ea.student_id AND s.batch_year = $1
+  WHERE EXISTS (
+      SELECT 1 
+      FROM event_batches eb2 
+      JOIN batches b2 ON eb2.batch_id = b2.id 
+      WHERE eb2.event_id = e.id AND b2.year = $1
+  )
+  GROUP BY 
+      e.id, c.id, cp.id, c.company_name, c.allowed_specializations,
+      cp.job_type, cp.position_title, cp.package_range, cp.internship_stipend_monthly
+  ORDER BY e.event_date DESC, e.start_time DESC;
+
     `;
 
     const result = await db.query(query, [batch_year]);
@@ -130,13 +140,14 @@ routes.get("/batch/:batch_year", async (req, res) => {
           department: student.department,
           batchYear: student.batch_year,
           status: student.attendance_status,
-          checkInTime: student.check_in_time
-            ? new Date(student.check_in_time).toLocaleTimeString("en-US", {
+          checkInTime: student.marked_at
+            ? new Date(student.marked_at).toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
               })
             : null,
+          reasonForChange: student.reason_for_change || null,
         })),
       };
     });
@@ -444,7 +455,6 @@ routes.put("/:id", async (req, res) => {
         targetAcademicYears: targetAcademicYears || [],
       },
     };
-    console.log("📤 Sending response:", response);
 
     res.json(response);
   } catch (error) {
@@ -504,46 +514,131 @@ routes.delete("/:id", async (req, res) => {
   }
 });
 
-// --------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------
+// GET STUDENTS WHO RESPONDED TO EVENT FORMS (For Attendance)
+routes.get("/:eventId/responses", async (req, res) => {
+  try {
+    const { eventId } = req.params;
 
-// HAVE TO TEST IT MORE TODO REMOVE MAYBE
-// Update event status
+    if (!eventId || isNaN(eventId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid event ID is required",
+      });
+    }
+
+    // Get essential student info for attendance marking
+    const query = `
+      SELECT DISTINCT
+        s.id,
+        s.registration_number,
+        s.enrollment_number,
+        s.first_name,
+        s.last_name,
+        s.department,
+        s.batch_year
+      FROM students s
+      INNER JOIN form_responses fr ON fr.student_id = s.id
+      INNER JOIN forms f ON f.id = fr.form_id
+      WHERE f.event_id = $1
+      ORDER BY s.batch_year, s.department, s.first_name, s.last_name
+    `;
+
+    const result = await db.query(query, [eventId]);
+
+    res.json({
+      success: true,
+      data: {
+        students: result.rows,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching event responses:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch event responses",
+      error: error.message,
+    });
+  }
+});
+
+// Update event status with business rules
 routes.put("/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Validate status
-    const validStatuses = ["upcoming", "ongoing", "completed", "cancelled"];
+    // Allowed statuses
+    const validStatuses = ["upcoming", "ongoing", "completed"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+        message: "Invalid status. Must be one of: upcoming, ongoing, completed",
       });
     }
 
-    const updateQuery = `
-      UPDATE events 
-      SET status = $1, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2
-      RETURNING *
+    // Fetch event with calculated fields
+    const eventQuery = `
+      SELECT 
+        id, title, event_date, start_time, end_time, status,
+        CURRENT_TIMESTAMP >= (event_date + start_time)::timestamp AS can_mark_ongoing,
+        CURRENT_TIMESTAMP >= (event_date + end_time)::timestamp AS can_mark_completed
+      FROM events 
+      WHERE id = $1
     `;
+    const eventResult = await db.query(eventQuery, [id]);
 
-    const result = await db.query(updateQuery, [status, id]);
-
-    if (result.rows.length === 0) {
+    if (eventResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Event not found",
       });
     }
 
+    const event = eventResult.rows[0];
+
+    // Business rules for transitions
+    if (event.status === "completed") {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot change status of a completed event",
+      });
+    }
+
+    if (status === "ongoing" && !event.can_mark_ongoing) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot mark event as ongoing before its start time",
+      });
+    }
+
+    if (status === "completed" && !event.can_mark_completed) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot mark event as completed before its end time",
+      });
+    }
+
+    // Enforce forward-only flow
+    const order = { upcoming: 1, ongoing: 2, completed: 3 };
+    if (order[status] < order[event.status]) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid transition: cannot move from ${event.status} back to ${status}`,
+      });
+    }
+
+    // Update status
+    const updateQuery = `
+      UPDATE events 
+      SET status = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2 
+      RETURNING id, title, status, updated_at
+    `;
+    const result = await db.query(updateQuery, [status, id]);
+
     res.json({
       success: true,
-      message: "Event status updated successfully",
+      message: `Event status updated to ${status}`,
       data: result.rows[0],
     });
   } catch (error) {
@@ -556,51 +651,219 @@ routes.put("/:id/status", async (req, res) => {
   }
 });
 
-// NOT IN USE TODO REMOVE MAYBE
-// Get event by ID with full details
-routes.get("/:id", async (req, res) => {
+// POST /api/events/:id/attendance
+routes.post("/:id/attendance", async (req, res) => {
+  const client = await db.connect();
   try {
-    const { id } = req.params;
+    await client.query("BEGIN");
 
-    const query = `
-      SELECT 
-        e.*,
-        c.company_name,
-        cp.job_type,
-        cp.position_title,
-        cp.package_range,
-        cp.internship_stipend_monthly,
-        COALESCE(array_agg(DISTINCT b.year) FILTER (WHERE b.id IS NOT NULL), '{}') AS target_academic_years
-      FROM events e
-      LEFT JOIN companies c ON e.company_id = c.id
-      LEFT JOIN company_positions cp ON e.position_id = cp.id
-      LEFT JOIN event_batches eb ON e.id = eb.event_id
-      LEFT JOIN batches b ON eb.batch_id = b.id
-      WHERE e.id = $1
-      GROUP BY e.id, c.company_name, cp.job_type, cp.position_title, cp.package_range, cp.internship_stipend_monthly
-    `;
+    const { id: eventId } = req.params;
+    const { registration_numbers, status = "present" } = req.body;
 
-    const result = await db.query(query, [id]);
+    if (!registration_numbers || registration_numbers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No registration numbers provided",
+      });
+    }
 
-    if (result.rows.length === 0) {
+    const validStatuses = ["present", "absent", "late"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+      });
+    }
+
+    // Check event status
+    const eventResult = await client.query(
+      `SELECT id, title, status FROM events WHERE id = $1`,
+      [eventId]
+    );
+
+    if (eventResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Event not found",
       });
     }
 
-    res.json({
+    const event = eventResult.rows[0];
+    if (event.status !== "ongoing") {
+      return res.status(400).json({
+        success: false,
+        message: "Attendance can only be taken for ongoing events",
+      });
+    }
+
+    // Fetch matching students
+    const studentResult = await client.query(
+      `SELECT id, registration_number 
+       FROM students 
+       WHERE registration_number = ANY($1)`,
+      [registration_numbers]
+    );
+
+    if (studentResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid students found for provided registration numbers",
+      });
+    }
+
+    const studentMap = new Map(
+      studentResult.rows.map((s) => [s.registration_number, s.id])
+    );
+
+    const successful = [];
+    const errors = [];
+
+    // Insert or update attendance
+    for (const reg of registration_numbers) {
+      const studentId = studentMap.get(reg);
+
+      if (!studentId) {
+        errors.push({
+          regNumber: reg,
+          reason: "Student not found",
+        });
+        continue;
+      }
+
+      try {
+        const result = await client.query(
+          `INSERT INTO event_attendance (event_id, student_id, status, marked_at)
+           VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+           ON CONFLICT (event_id, student_id)
+           DO UPDATE SET 
+             status = EXCLUDED.status,
+             marked_at = CURRENT_TIMESTAMP
+           RETURNING id, student_id, status, marked_at`,
+          [eventId, studentId, status]
+        );
+
+        successful.push({
+          regNumber: reg,
+          data: result.rows[0],
+        });
+      } catch (err) {
+        console.error(`Failed to record attendance for ${reg}:`, err);
+        errors.push({
+          regNumber: reg,
+          reason: "Database insertion failed",
+        });
+      }
+    }
+
+    await client.query("COMMIT");
+
+    const response = {
       success: true,
-      data: result.rows[0],
-    });
+      message: "Attendance processed",
+      summary: {
+        total: registration_numbers.length,
+        marked: successful.length,
+        failed: errors.length,
+      },
+      successful,
+      errors,
+    };
+
+    res.json(response);
   } catch (error) {
-    console.error("Error fetching event:", error);
+    await client.query("ROLLBACK");
+    console.error("Error marking attendance:", error);
+    console.error("Stack trace:", error.stack);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch event",
+      message: "Failed to mark attendance",
       error: error.message,
     });
+  } finally {
+    client.release();
   }
 });
+
+// PUT /:eventId/attendance
+routes.put("/:eventId/attendance", async (req, res) => {
+  const client = await db.connect();
+
+  try {
+    const { eventId } = req.params;
+    const { records } = req.body;
+
+    if (!records || !Array.isArray(records) || records.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No attendance records provided" });
+    }
+
+    // Check event status
+    const eventRes = await client.query(
+      "SELECT status FROM events WHERE id = $1",
+      [eventId]
+    );
+
+    if (eventRes.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
+    }
+    const eventStatus = eventRes.rows[0].status;
+
+    const updated = [];
+    const errors = [];
+
+    for (const record of records) {
+      const { studentId, status, reasonForChange } = record;
+
+      try {
+        // Fixed query with explicit type casting
+        const updateRes = await client.query(
+          `
+          UPDATE event_attendance
+          SET 
+            status = $1,
+            reason_for_change = CASE 
+              WHEN $2::text IS NOT NULL THEN $2::text 
+              ELSE reason_for_change 
+            END,
+            marked_at = CURRENT_TIMESTAMP
+          WHERE event_id = $3 AND student_id = $4
+          RETURNING *;
+          `,
+          [status, reasonForChange || null, eventId, studentId]
+        );
+
+        if (updateRes.rows.length === 0) {
+          errors.push({ studentId, reason: "Attendance record not found" });
+        } else {
+          updated.push(updateRes.rows[0]);
+        }
+      } catch (err) {
+        errors.push({ studentId, reason: "Database update failed" });
+      }
+    }
+
+    const response = {
+      success: true,
+      updatedCount: updated.length,
+      errorsCount: errors.length,
+      updated,
+      errors,
+    };
+
+    res.json(response);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating attendance" });
+  } finally {
+    client.release();
+  }
+});
+
+// --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
 
 module.exports = routes;
