@@ -2,15 +2,21 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react"; // Import icons
+import { useAuth } from "@/context/AuthContext";
 
 export default function CGDCAuth() {
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
     confirmPassword: "",
     name: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -19,15 +25,22 @@ export default function CGDCAuth() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your authentication logic here
-    console.log("Form submitted:", formData);
-  };
+    setError("");
+    setLoading(true);
 
-  const handleGoogleAuth = () => {
-    // Add your Google authentication logic here
-    console.log("Google auth initiated");
+    if (isLogin) {
+      const result = await login(formData.username, formData.password);
+      if (!result.success) {
+        setError(result.message);
+      }
+    } else {
+      // Handle signup if needed
+      setError("Signup not implemented");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -114,7 +127,7 @@ export default function CGDCAuth() {
               </div>
 
               {/* Form */}
-              <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {!isLogin && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -138,8 +151,8 @@ export default function CGDCAuth() {
                   </label>
                   <input
                     type="email"
-                    name="email"
-                    value={formData.email}
+                    name="username"
+                    value={formData.username}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                     placeholder="Enter your email"
@@ -147,19 +160,37 @@ export default function CGDCAuth() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="password"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                    placeholder="Enter your password"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <EyeOff size={20} className="text-gray-400" />
+                      ) : (
+                        <Eye size={20} className="text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {!isLogin && (
@@ -200,13 +231,24 @@ export default function CGDCAuth() {
                 )}
 
                 <button
-                  type="button"
+                  type="submit"
+                  disabled={loading}
                   onClick={handleSubmit}
                   className="w-full bg-gradient-to-r from-slate-800 to-gray-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-slate-900 hover:to-gray-700 transition-all duration-200 transform hover:scale-[1.02] focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                  {isLogin ? "Sign In" : "Create Account"}
+                  {loading
+                    ? "Please wait..."
+                    : isLogin
+                      ? "Sign In"
+                      : "Create Account"}
                 </button>
-              </div>
+              </form>
+
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
 
               {/* Footer */}
               <p className="text-center text-sm text-gray-600 mt-6">

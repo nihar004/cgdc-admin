@@ -34,7 +34,6 @@ const CompanyFormModal = ({
   const [formData, setFormData] = useState({
     company_name: editData?.company_name ?? "",
     company_description: editData?.company_description ?? "",
-    company_type: editData?.company_type ?? "tech",
     sector: editData?.sector ?? "",
     is_marquee: editData?.is_marquee ?? false,
     website_url: editData?.website_url ?? "",
@@ -55,6 +54,7 @@ const CompanyFormModal = ({
     positions: (editData?.positions ?? []).map((position) => ({
       position_title: position?.position_title ?? "",
       job_type: position?.job_type ?? "full_time",
+      company_type: position?.company_type ?? "tech", // Add here instead
       package_range: position?.package_range ?? 0,
       internship_stipend_monthly: position?.internship_stipend_monthly ?? -1,
       selected_students: position?.selected_students ?? -1,
@@ -128,6 +128,7 @@ const CompanyFormModal = ({
         {
           position_title: "",
           job_type: "full_time",
+          company_type: "tech", // Add here instead
           package_range: 0,
           internship_stipend_monthly: 0,
           selected_students: 0,
@@ -642,20 +643,6 @@ const CompanyFormModal = ({
                   </p>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Company Type *
-                </label>
-                <select
-                  name="company_type"
-                  value={formData.company_type}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
-                >
-                  <option value="tech">Tech</option>
-                  <option value="nontech">Non-Tech</option>
-                </select>
-              </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   Company Description
@@ -994,6 +981,26 @@ const CompanyFormModal = ({
                   </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">
+                      Position Type*
+                    </label>
+                    <select
+                      required
+                      value={position.company_type}
+                      onChange={(e) =>
+                        updatePosition(
+                          positionIndex,
+                          "company_type",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      <option value="tech">Tech</option>
+                      <option value="nontech">Non-Tech</option>
+                    </select>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">
                       Position Title*

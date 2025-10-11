@@ -11,7 +11,6 @@ export default function ExportCompanyModal({ companies, onClose }) {
     { key: "company_name", label: "Company Name", category: "Basic Info" },
     { key: "company_type", label: "Company Type", category: "Basic Info" },
     { key: "sector", label: "Sector", category: "Basic Info" },
-    { key: "ps_type", label: "PS Type", category: "Basic Info" },
     {
       key: "company_description",
       label: "Description",

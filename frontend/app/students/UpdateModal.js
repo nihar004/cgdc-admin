@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { Upload, X, Download, FileText } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useStudentContext } from "../../context/StudentContext."; // Adjust the import based on your file structure
+import { useStudentContext } from "../../context/StudentContext"; // Adjust the import based on your file structure
 
 const UpdateModal = ({ onClose, onUpdateComplete }) => {
   const [file, setFile] = useState(null);

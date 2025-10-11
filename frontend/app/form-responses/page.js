@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useBatchContext, BatchProvider } from "../../context/BatchContext";
+import { useBatchContext } from "../../context/BatchContext";
 import {
   Plus,
   Upload,
@@ -482,13 +482,4 @@ const FormManagementSystem = () => {
   );
 };
 
-// Wrap component with batch context
-const FormManagementPage = () => {
-  return (
-    <BatchProvider>
-      <FormManagementSystem />
-    </BatchProvider>
-  );
-};
-
-export default FormManagementPage;
+export default FormManagementSystem;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Search, Download, Calendar, ArrowLeft } from "lucide-react";
+import axios from "axios";
 
 import StatsCards from "./StatsCards";
 import CompanyCard from "./CompanyCard";
@@ -57,133 +58,17 @@ const FilterBar = ({ filters, onFiltersChange }) => {
   );
 };
 
-// Mock data
-const MOCK_COMPANIES = [
-  {
-    id: 1,
-    company_name: "Microsoft",
-    logo_url: "https://logo.clearbit.com/microsoft.com",
-    status: "ongoing",
-    positions: [
-      {
-        id: 1,
-        position_title: "Software Development Engineer",
-        job_type: "full_time",
-        package: 4400000,
-        rounds: [
-          {
-            round_number: 1,
-            name: "Online Assessment",
-            status: "completed",
-            total_students: 150,
-            qualified_students: 75,
-            date: "2025-09-20",
-          },
-          {
-            round_number: 2,
-            name: "Technical Interview",
-            status: "ongoing",
-            total_students: 75,
-            qualified_students: 30,
-            date: "2025-09-24",
-          },
-          {
-            round_number: 3,
-            name: "HR Round",
-            status: "upcoming",
-            total_students: 30,
-            qualified_students: 0,
-            date: "2025-09-26",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    company_name: "Google",
-    logo_url: "https://logo.clearbit.com/google.com",
-    status: "upcoming",
-    positions: [
-      {
-        id: 2,
-        position_title: "Software Engineer",
-        job_type: "internship_plus_ppo",
-        package: 3600000,
-        rounds: [
-          {
-            round_number: 1,
-            name: "Coding Test",
-            status: "upcoming",
-            total_students: 200,
-            qualified_students: 0,
-            date: "2025-10-01",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 3,
-    company_name: "Amazon",
-    logo_url: "https://logo.clearbit.com/amazon.com",
-    status: "completed",
-    positions: [
-      {
-        id: 3,
-        position_title: "SDE Intern",
-        job_type: "internship",
-        package: 1200000,
-        rounds: [
-          {
-            round_number: 1,
-            name: "Online Test",
-            status: "completed",
-            total_students: 180,
-            qualified_students: 90,
-            date: "2025-09-15",
-          },
-          {
-            round_number: 2,
-            name: "Technical Interview 1",
-            status: "completed",
-            total_students: 90,
-            qualified_students: 45,
-            date: "2025-09-17",
-          },
-          {
-            round_number: 3,
-            name: "Technical Interview 2",
-            status: "completed",
-            total_students: 45,
-            qualified_students: 20,
-            date: "2025-09-19",
-          },
-          {
-            round_number: 4,
-            name: "HR Interview",
-            status: "completed",
-            total_students: 20,
-            qualified_students: 15,
-            date: "2025-09-20",
-          },
-        ],
-      },
-    ],
-  },
-];
-
 // Main Component
 const RoundTrackingPage = () => {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [expandedCompanies, setExpandedCompanies] = useState(new Set());
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
     jobType: "all",
   });
-  const [stats, setStats] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -192,40 +77,74 @@ const RoundTrackingPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { data } = await axios.get(
+        "http://localhost:5000/round_tracking/companies/2022"
+      );
 
-      setCompanies(MOCK_COMPANIES);
+      const transformedCompanies = data.companies.map((company) => ({
+        id: company.id,
+        company_name: company.company_name,
+        is_marquee: company.is_marquee,
+        sector: company.sector,
+        total_applications: company.total_applications,
+        positions: company.positions.map((position) => ({
+          id: position.id,
+          position_title: position.position_title,
+          job_type: position.job_type,
+          package_range: position.package_range,
+          internship_stipend_monthly: position.internship_stipend_monthly,
+          selected_students: position.selected_students,
+          events: position.events.map((event) => ({
+            id: event.id,
+            title: event.title,
+            event_date: event.event_date,
+            venue: event.venue,
+            status: event.status,
+            eligible_count: event.eligible_count,
+            applied_count: event.applied_count,
+            attended_count: event.attended_count,
+            qualified_count: event.qualified_count,
+            description: event.description,
+            round_type: event.round_type,
+          })),
+        })),
+      }));
 
-      // Calculate stats from mock data
-      const stats = {
-        totalApplications: MOCK_COMPANIES.reduce(
-          (sum, company) => sum + company.positions[0].rounds[0].total_students,
-          0
-        ),
-        currentlyQualified: MOCK_COMPANIES.reduce((sum, company) => {
-          const lastRound =
-            company.positions[0].rounds[company.positions[0].rounds.length - 1];
-          return sum + lastRound.qualified_students;
-        }, 0),
-        activeCompanies: MOCK_COMPANIES.filter((c) => c.status === "ongoing")
-          .length,
-        totalPlacements: MOCK_COMPANIES.reduce((sum, company) => {
-          const lastRound =
-            company.positions[0].rounds[company.positions[0].rounds.length - 1];
-          return (
-            sum +
-            (company.status === "completed" ? lastRound.qualified_students : 0)
-          );
-        }, 0),
-      };
-
-      setStats(stats);
+      setCompanies(transformedCompanies);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to calculate company status based on position events
+  const calculateCompanyStatus = (positions) => {
+    let hasUpcoming = false;
+    let hasOngoing = false;
+    let hasCompleted = false;
+
+    positions.forEach((position) => {
+      position.events.forEach((event) => {
+        switch (event.status) {
+          case "upcoming":
+            hasUpcoming = true;
+            break;
+          case "ongoing":
+            hasOngoing = true;
+            break;
+          case "completed":
+            hasCompleted = true;
+            break;
+        }
+      });
+    });
+
+    if (hasOngoing) return "ongoing";
+    if (hasUpcoming) return "upcoming";
+    if (hasCompleted) return "completed";
+    return "upcoming"; // default status
   };
 
   const handleCompanyToggle = (companyId) => {
@@ -266,6 +185,25 @@ const RoundTrackingPage = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md w-full">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">
+            Error Loading Data
+          </h3>
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={fetchData}
+            className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto p-6">
@@ -297,7 +235,7 @@ const RoundTrackingPage = () => {
             </div>
           </div>
 
-          <StatsCards stats={stats} />
+          <StatsCards />
         </div>
 
         {/* Filters */}

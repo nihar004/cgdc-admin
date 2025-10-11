@@ -17,10 +17,8 @@ import {
   Building2,
   Star,
   FileText,
-  Tag,
   AtSign,
   UserCheck,
-  Target,
   CheckCircle,
 } from "lucide-react";
 import { useCompaniesContext } from "../../context/CompaniesContext";
@@ -99,21 +97,6 @@ export function CompanyDetailModal() {
                       <StatusIcon size={12} className="mr-1" />
                       {statusConfig[status]?.label || "Upcoming"}
                     </span>
-
-                    {/* PS Type Badge */}
-                    {selectedCompany.ps_type && (
-                      <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                        <Target size={14} />
-                        <span>{selectedCompany.ps_type}</span>
-                      </div>
-                    )}
-
-                    {selectedCompany.company_type && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        <Tag size={12} className="mr-1" />
-                        {selectedCompany.company_type.toUpperCase()}
-                      </span>
-                    )}
 
                     {selectedCompany.sector && (
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
@@ -243,6 +226,11 @@ export function CompanyDetailModal() {
 
                             {/* Status and Job Type Badges */}
                             <div className="flex items-center gap-2 mb-3">
+                              {/* Add company_type badge */}
+                              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                {position.company_type?.toUpperCase()}
+                              </span>
+
                               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                                 {position.job_type
                                   ?.replace("_", " ")

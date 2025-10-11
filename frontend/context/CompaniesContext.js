@@ -76,11 +76,11 @@ export function CompaniesProvider({ children }) {
         .includes(searchTerm.toLowerCase()) ||
       company.sector?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Type filter
+    // Check company_type from positions
     const matchesType =
-      typeFilter === "all" || company.company_type === typeFilter;
+      typeFilter === "all" ||
+      company.positions?.some((pos) => pos.company_type === typeFilter);
 
-    // Sector filter
     const matchesSector =
       sectorFilter === "all" || company.sector === sectorFilter;
 

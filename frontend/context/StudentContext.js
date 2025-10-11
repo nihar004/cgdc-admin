@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { useBatchContext } from "./BatchContext";
 
 const StudentContext = createContext();
 
@@ -12,6 +12,7 @@ export const StudentProvider = ({ children }) => {
   const [showEditStudentModal, setShowEditStudentModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const { selectedBatch } = useBatchContext();
 
   const [studentFormData, setStudentFormData] = useState({
     enrollment_number: "",
@@ -60,13 +61,22 @@ export const StudentProvider = ({ children }) => {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/students");
+      if (!selectedBatch) {
+        console.warn("No batch selected!");
+        return;
+      }
+      const response = await axios.get("http://localhost:5000/students", {
+        params: { batch: selectedBatch },
+      });
       setStudents(response.data);
-    } catch (error) {
-      toast.error("Error fetching students data");
-      console.error("Error fetching students:", error);
+    } catch (err) {
+      console.error("Error fetching students:", err);
     }
   };
+
+  useEffect(() => {
+    fetchStudents();
+  }, [selectedBatch]);
 
   return (
     <StudentContext.Provider

@@ -19,7 +19,7 @@ import * as XLSX from "xlsx";
 import EventCard from "./EventCard";
 import StudentDetailModel from "./StudentDetailModel";
 import PaginationBar from "./PaginationBar";
-import { useBatchContext, BatchProvider } from "../../context/BatchContext";
+import { useBatchContext } from "../../context/BatchContext";
 import CreateEvent from "./CreateEvent";
 import MarkAttendanceModal from "./MarkAttendanceModal";
 
@@ -579,10 +579,4 @@ const EventAttendancePage = () => {
   );
 };
 
-const EventAttendanceLayout = () => (
-  <BatchProvider>
-    <EventAttendancePage />
-  </BatchProvider>
-);
-
-export default EventAttendanceLayout;
+export default EventAttendancePage;

@@ -59,12 +59,6 @@ export default function CompanyCardView({
                       Marquee
                     </span>
                   )}
-                  {company.ps_type && (
-                    <div className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full text-xs border border-blue-200">
-                      <Target size={14} />
-                      <span>{company.ps_type}</span>
-                    </div>
-                  )}
                   {company.glassdoor_rating && (
                     <div className="flex items-center gap-1 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
                       <Star size={12} className="text-amber-500 fill-current" />
@@ -98,17 +92,6 @@ export default function CompanyCardView({
                 )}
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </span>
-
-              {company.company_type && (
-                <span
-                  className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${
-                    companyTypeColors[company.company_type.toLowerCase()] ||
-                    "bg-slate-50 text-slate-700 border-slate-200"
-                  }`}
-                >
-                  {company.company_type.toUpperCase()}
-                </span>
-              )}
 
               {company.sector && (
                 <span className="bg-white text-slate-600 px-3 py-1 rounded-full text-xs font-medium border border-slate-200">
@@ -309,6 +292,14 @@ export default function CompanyCardView({
                           {position.position_title}
                         </h5>
                         <div className="flex items-center gap-2">
+                          {/* Add company type badge */}
+                          <span
+                            className={`text-xs px-2.5 py-1 rounded-full ${
+                              companyTypeColors[position.company_type]
+                            }`}
+                          >
+                            {position.company_type?.toUpperCase()}
+                          </span>
                           <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-medium">
                             {position.job_type?.replace("_", " ").toUpperCase()}
                           </span>

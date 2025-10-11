@@ -5,27 +5,28 @@ import { useState } from "react";
 import {
   FaUserGraduate,
   FaBuilding,
-  FaComments,
   FaChartBar,
   FaPlus,
+  FaEnvelope,
+  FaTable,
 } from "react-icons/fa";
 import { MdEventAvailable, MdTrackChanges } from "react-icons/md";
 import { BiGitPullRequest } from "react-icons/bi";
-import { StudentProvider } from "../context/StudentContext.";
-import { BatchProvider, useBatchContext } from "../context/BatchContext";
+import { StudentProvider } from "../context/StudentContext";
+import { useBatchContext } from "../context/BatchContext";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext"; // Import useAuth
 
 export default function Home() {
   return (
-    <BatchProvider>
-      <StudentProvider>
-        <HomeContent />
-      </StudentProvider>
-    </BatchProvider>
+    <StudentProvider>
+      <HomeContent />
+    </StudentProvider>
   );
 }
 
 function HomeContent() {
+  const { user, logout } = useAuth(); // Add this line at the top of HomeContent
   const { selectedBatch, setSelectedBatch, batches, reloadBatches } =
     useBatchContext();
   const [showAddBatch, setShowAddBatch] = useState(false);
@@ -102,13 +103,15 @@ function HomeContent() {
       link: "/company-listing",
       color: "bg-green-500",
     },
+
     {
-      title: "Communication Hub",
-      description: "Send emails, create forms, and manage notifications",
-      icon: <FaComments className="w-5 h-5" />,
-      link: "/communication",
-      color: "bg-purple-500",
+      title: "Events & Attendance",
+      description: "Manage placement events and track attendance",
+      icon: <MdEventAvailable className="w-5 h-5" />,
+      link: "/event-and-attendance",
+      color: "bg-red-500",
     },
+
     {
       title: "Round Tracking",
       description: "Monitor selection rounds and candidate progress",
@@ -117,11 +120,20 @@ function HomeContent() {
       color: "bg-orange-500",
     },
     {
-      title: "Events & Attendance",
-      description: "Manage placement events and track attendance",
-      icon: <MdEventAvailable className="w-5 h-5" />,
-      link: "/event-and-attendance",
-      color: "bg-red-500",
+      title: "Form Management",
+      description:
+        "Collect and manage student submissions through structured data forms (CSV/Excel)",
+      icon: <FaTable className="w-5 h-5" />,
+      link: "/form-responses",
+      color: "bg-teal-500",
+    },
+    {
+      title: "Email Management",
+      description:
+        "Create, manage, and send official placement communications using templates",
+      icon: <FaEnvelope className="w-5 h-5" />,
+      link: "/email-management",
+      color: "bg-pink-500",
     },
     {
       title: "Analytics Dashboard",
@@ -142,7 +154,7 @@ function HomeContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header Section */}
+        {/* Updated Header Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
@@ -152,40 +164,78 @@ function HomeContent() {
               <p className="text-gray-600">Placement Management System</p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col">
-                <select
-                  value={selectedBatch || ""}
-                  onChange={(e) => setSelectedBatch(e.target.value)}
-                  className="px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                >
-                  <option value="" disabled>
-                    Select Batch
-                  </option>
-                  {batches.map((batch, index) => (
-                    <option key={index} value={batch.year}>
-                      {batch.year}
+            <div className="flex items-center gap-4">
+              {/* Batch Selection */}
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col">
+                  <select
+                    value={selectedBatch || ""}
+                    onChange={(e) => setSelectedBatch(e.target.value)}
+                    className="px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  >
+                    <option value="" disabled>
+                      Select Batch
                     </option>
-                  ))}
-                </select>
+                    {batches.map((batch, index) => (
+                      <option key={index} value={batch.year}>
+                        {batch.year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => setShowAddBatch(true)}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  <FaPlus className="w-4 h-4" />
+                  Add Batch
+                </button>
               </div>
 
-              <button
-                onClick={() => setShowAddBatch(true)}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <FaPlus className="w-4 h-4" />
-                Add Batch
-              </button>
+              {/* User Profile & Logout */}
+              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+                <div className="flex flex-col items-end">
+                  <span className="text-sm font-medium text-gray-900">
+                    {user?.name || user?.username}
+                  </span>
+                  <span className="text-xs text-gray-500">Administrator</span>
+                </div>
+                <div className="relative group">
+                  <button
+                    onClick={logout}
+                    className="p-2 rounded-lg hover:bg-red-50 group-hover:text-red-600 transition-all duration-200"
+                    title="Logout"
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-500 group-hover:text-red-600 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                  </button>
+                  <div className="absolute right-0 top-full mt-1 scale-0 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform transition-all duration-200">
+                    <div className="bg-red-50 text-red-600 text-xs font-medium py-1 px-2 rounded whitespace-nowrap">
+                      Logout
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
         {/* Modules Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((module, index) => (
             <Link href={module.link} key={index}>
-              <div className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
+              <div className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-md transition-all duration-200 h-full flex flex-col">
                 <div className="flex items-start justify-between mb-4">
                   <div
                     className={`${module.color} w-10 h-10 rounded-lg flex items-center justify-center text-white`}
@@ -209,7 +259,9 @@ function HomeContent() {
                 <h3 className="font-semibold text-gray-900 mb-2">
                   {module.title}
                 </h3>
-                <p className="text-sm text-gray-600">{module.description}</p>
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {module.description}
+                </p>
               </div>
             </Link>
           ))}

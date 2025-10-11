@@ -1,7 +1,7 @@
 import { Plus, Edit, X } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
-import { useStudentContext } from "../../context/StudentContext.";
+import { useStudentContext } from "../../context/StudentContext";
 import toast from "react-hot-toast";
 
 export default function EditStudentModel() {

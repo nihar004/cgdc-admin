@@ -1,6 +1,6 @@
 import { Download, X, Check, Minus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useStudentContext } from "../../context/StudentContext.";
+import { useStudentContext } from "../../context/StudentContext";
 import * as XLSX from "xlsx";
 
 export default function ExportModal({ filteredStudents }) {

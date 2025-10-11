@@ -1,5 +1,5 @@
-import { Edit, Trash, ExternalLink, Download } from "lucide-react";
-import { useStudentContext } from "../../context/StudentContext.";
+import { Edit, Trash } from "lucide-react";
+import { useStudentContext } from "../../context/StudentContext";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useState } from "react";
 import axios from "axios";

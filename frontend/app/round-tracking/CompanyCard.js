@@ -2,43 +2,56 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight, Calendar } from "lucide-react";
 import RoundsTable from "./RoundsTable";
 
+const formatPackage = (amount) => {
+  if (amount == null || isNaN(amount)) {
+    return "Not Disclosed";
+  }
+
+  if (amount >= 10000000) {
+    return `₹ ${(amount / 10000000).toFixed(1)} Cr`;
+  } else if (amount >= 100000) {
+    return `₹ ${(amount / 100000).toFixed(1)} LPA`;
+  }
+  return `₹ ${amount.toLocaleString()}`;
+};
+
 const CompanyCard = ({ company, onToggle, isExpanded }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case "ongoing":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-50 text-blue-700 border-blue-200";
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "upcoming":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-slate-50 text-slate-700 border-slate-200";
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
       <div
-        className="px-6 py-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+        className="px-5 py-3 bg-gradient-to-r from-slate-50 to-white cursor-pointer hover:from-slate-100 hover:to-slate-50 transition-colors"
         onClick={() => onToggle(company.id)}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {isExpanded ? (
-              <ChevronDown size={20} />
+              <ChevronDown size={18} className="text-slate-600" />
             ) : (
-              <ChevronRight size={20} />
+              <ChevronRight size={18} className="text-slate-600" />
             )}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">
+              <h3 className="text-base font-semibold text-slate-900">
                 {company.company_name}
               </h3>
-              <p className="text-sm text-gray-600">
-                {company.positions?.length || 0} active positions
+              <p className="text-xs text-slate-500 mt-0.5">
+                {company.positions?.length || 0} positions
               </p>
             </div>
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(company.status)}`}
+              className={`px-2.5 py-0.5 rounded-md text-xs font-medium border ${getStatusColor(company.status)}`}
             >
               {company.status?.charAt(0).toUpperCase() +
                 company.status?.slice(1)}
@@ -46,8 +59,8 @@ const CompanyCard = ({ company, onToggle, isExpanded }) => {
           </div>
           <div className="flex items-center space-x-4">
             <div className="text-right">
-              <p className="text-sm text-gray-600">Total Applications</p>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className="text-xs text-slate-500">Applications</p>
+              <p className="text-base font-semibold text-slate-900">
                 {company.total_applications || 0}
               </p>
             </div>
@@ -56,7 +69,7 @@ const CompanyCard = ({ company, onToggle, isExpanded }) => {
       </div>
 
       {isExpanded && (
-        <div className="border-t border-gray-200">
+        <div className="border-t border-slate-200">
           {company.positions?.map((position) => (
             <PositionSection
               key={position.id}
@@ -71,33 +84,63 @@ const CompanyCard = ({ company, onToggle, isExpanded }) => {
 };
 
 const PositionSection = ({ position, companyName }) => {
-  const [showResults, setShowResults] = useState(false);
+  const renderPackageInfo = () => {
+    switch (position.job_type) {
+      case "internship":
+        return position.internship_stipend_monthly > 0 ? (
+          <span className="text-xs text-slate-600">
+            {formatPackage(position.internship_stipend_monthly)}/month
+          </span>
+        ) : (
+          <span className="text-xs text-slate-600">Stipend not disclosed</span>
+        );
+
+      case "full_time":
+        return (
+          <span className="text-xs text-slate-600">
+            {formatPackage(position.package_range)}
+          </span>
+        );
+
+      case "internship_plus_ppo":
+        return (
+          <>
+            <span className="text-xs text-slate-600">
+              {position.internship_stipend_monthly > 0
+                ? `${formatPackage(position.internship_stipend_monthly)}/month stipend`
+                : "Stipend not disclosed"}
+            </span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs text-slate-600">
+              PPO: {formatPackage(position.package_range)}
+            </span>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="border-b border-gray-100 last:border-b-0">
-      <div className="px-6 py-4 bg-blue-50">
+    <div className="border-b border-slate-100 last:border-b-0">
+      <div className="px-5 py-3 bg-blue-50/50">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-lg font-medium text-gray-900">
+            <h4 className="text-sm font-semibold text-slate-900">
               {position.position_title}
             </h4>
-            <div className="flex items-center space-x-4 mt-1">
-              <span className="text-sm text-gray-600">
-                Package: ₹{position.package_range}L
+            <div className="flex items-center space-x-3 mt-1">
+              {renderPackageInfo()}
+              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs text-slate-600">
+                {position.job_type?.replace(/_/g, " ").toUpperCase()}
               </span>
-              <span className="text-sm text-gray-600">
-                Type: {position.job_type}
-              </span>
-              {position.internship_stipend_monthly > 0 && (
-                <span className="text-sm text-gray-600">
-                  Stipend: ₹{position.internship_stipend_monthly}/month
-                </span>
-              )}
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">Selected</p>
-            <p className="text-lg font-semibold text-green-600">
+            <p className="text-xs text-slate-500">Selected</p>
+            <p className="text-base font-semibold text-emerald-600">
               {position.selected_students || 0}
             </p>
           </div>
@@ -112,9 +155,9 @@ const PositionSection = ({ position, companyName }) => {
           positionTitle={position.position_title}
         />
       ) : (
-        <div className="px-6 py-8 text-center text-gray-500">
-          <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
-          <p>No rounds scheduled for this position yet</p>
+        <div className="px-5 py-6 text-center text-slate-500">
+          <Calendar size={32} className="mx-auto mb-2 text-slate-300" />
+          <p className="text-sm">No rounds scheduled yet</p>
         </div>
       )}
     </div>

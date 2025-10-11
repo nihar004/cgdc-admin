@@ -17,7 +17,6 @@ import {
   CompaniesProvider,
   useCompaniesContext,
 } from "../../context/CompaniesContext";
-import { BatchProvider } from "../../context/BatchContext";
 import CompanyCardView from "./CompanyCardView";
 import { CompanyDetailModal } from "./CompanyDetailModal";
 import { CompanyTableView } from "./CompanyTableView";
@@ -455,13 +454,10 @@ const CompanyListing = () => {
   );
 };
 
-// Update the wrapped component to include BatchProvider
 const WrappedCompanyListing = () => (
-  <BatchProvider>
-    <CompaniesProvider>
-      <CompanyListing />
-    </CompaniesProvider>
-  </BatchProvider>
+  <CompaniesProvider>
+    <CompanyListing />
+  </CompaniesProvider>
 );
 
 export default WrappedCompanyListing;

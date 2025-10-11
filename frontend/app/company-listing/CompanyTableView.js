@@ -190,24 +190,6 @@ export function CompanyTableView({
                         {/* Type & Sector */}
                         <td className="px-4 py-5">
                           <div className="space-y-2">
-                            {/* Flex row for badges */}
-                            <div className="flex items-center gap-2 font-semibold text-xs">
-                              {/* PS Type */}
-                              {company.ps_type && (
-                                <div className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                                  <Target size={12} />
-                                  <span>{company.ps_type}</span>
-                                </div>
-                              )}
-
-                              {/* Company Type */}
-                              <span
-                                className={`items-center px-3 py-1 rounded ${companyTypeColors[company.company_type]}`}
-                              >
-                                {company.company_type?.toUpperCase()}
-                              </span>
-                            </div>
-
                             {/* Sector */}
                             {company.sector && (
                               <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded w-fit">
@@ -472,6 +454,17 @@ export function CompanyTableView({
                                           {position.position_title}
                                         </h5>
                                         <div className="flex items-center gap-3 mt-1">
+                                          {/* Add company type badge */}
+                                          <span
+                                            className={`text-xs px-2 py-1 rounded-full ${
+                                              companyTypeColors[
+                                                position.company_type
+                                              ]
+                                            }`}
+                                          >
+                                            {position.company_type?.toUpperCase()}
+                                          </span>
+
                                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                                             {position.job_type
                                               ?.replace("_", " ")

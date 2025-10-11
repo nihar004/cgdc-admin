@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useStudentContext } from "../../context/StudentContext."; // Adjust the import based on your file structure
+import { useStudentContext } from "../../context/StudentContext"; // Adjust the import based on your file structure
 
 const ImportModal = ({ onClose, onImportComplete }) => {
   const [file, setFile] = useState(null);

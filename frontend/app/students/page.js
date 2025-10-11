@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState } from "react";
 import {
   Users,
   User,
@@ -12,21 +12,19 @@ import {
   Award,
   ArrowUpDown,
   ArrowLeft,
-  RefreshCw,
 } from "lucide-react";
-import axios from "axios";
 import EditStudentModel from "./EditStudentModel";
 import ExportModal from "./ExportModal";
 import {
   StudentProvider,
   useStudentContext,
-} from "../../context/StudentContext.";
-import StudentTable from "./StudentTable.";
+} from "../../context/StudentContext";
+import StudentTable from "./StudentTable";
 import ImportModal from "./ImportModal";
 import ImportResultsModal from "./ImportResultsModal";
 import UpdateModal from "./UpdateModal";
 import UpdateResultsModal from "./UpdateResultsModal";
-import { BatchProvider, useBatchContext } from "../../context/BatchContext";
+import { useBatchContext } from "../../context/BatchContext";
 
 const BRANCHES = [
   { value: "CSE", label: "CSE" },
@@ -146,25 +144,6 @@ function StudentManagementContent() {
 
     return filtered;
   };
-
-  const fetchStudents = async () => {
-    try {
-      if (!selectedBatch) {
-        console.warn("No batch selected!");
-        return;
-      }
-      const response = await axios.get("http://localhost:5000/students", {
-        params: { batch: selectedBatch },
-      });
-      setStudents(response.data);
-    } catch (err) {
-      console.error("Error fetching students:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchStudents();
-  }, []);
 
   const getStatistics = () => {
     const totalStudents = students.length;
@@ -490,7 +469,6 @@ function StudentManagementContent() {
               setUpdateResults(results);
               setShowUpdateModal(false);
               setShowUpdateResultsModal(true);
-              fetchStudents();
             }}
           />
         )}
@@ -526,10 +504,8 @@ function StudentManagementContent() {
 
 export default function StudentManagement() {
   return (
-    <BatchProvider>
-      <StudentProvider>
-        <StudentManagementContent />
-      </StudentProvider>
-    </BatchProvider>
+    <StudentProvider>
+      <StudentManagementContent />
+    </StudentProvider>
   );
 }
