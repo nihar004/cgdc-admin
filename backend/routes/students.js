@@ -35,13 +35,14 @@ const upload = multer({
 routes.get("/", async (req, res) => {
   const { batch } = req.query; // e.g. ?batch=2024
   try {
-    let query = "SELECT * FROM students";
-    const values = [];
-
-    if (batch) {
-      query += " WHERE batch_year = $1";
-      values.push(batch);
+    if (!batch) {
+      return res.status(400).json({
+        error: "Batch year is required in query parameters (e.g. ?batch=2024)",
+      });
     }
+
+    const query = "SELECT * FROM students WHERE batch_year = $1";
+    const values = [batch];
 
     const result = await db.query(query, values);
     res.json(result.rows);
