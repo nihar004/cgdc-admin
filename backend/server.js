@@ -1,25 +1,78 @@
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
+require("dotenv").config();
+
+const {
+  isAuthenticated,
+  login,
+  logout,
+  getCurrentUser,
+} = require("./middleware/auth");
 
 const students = require("./routes/students");
 const batches = require("./routes/batches");
 const companies = require("./routes/companies");
-const emails = require("./routes/emails");
 const forms = require("./routes/forms");
 const events = require("./routes/events");
 const round_tracking = require("./routes/round_tracking");
+const emails = require("./routes/emails");
 
 const app = express();
 
-app.use(cors());
+// CORS configuration - IMPORTANT: credentials must be true for sessions
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
-app.use("/students", students);
-app.use("/batches", batches);
-app.use("/companies", companies);
-app.use("/emails", emails);
-app.use("/forms", forms);
-app.use("/events", events);
-app.use("/round_tracking", round_tracking);
+
+// Session middleware - MUST be before routes
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 12 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
+
+// ============ PUBLIC ROUTES (No Authentication) ============
+app.post("/auth/login", login);
+
+// ============ AUTHENTICATED ROUTES ============
+app.post("/auth/logout", isAuthenticated, logout);
+app.get("/auth/me", isAuthenticated, getCurrentUser);
+
+// ============ PROTECTED ROUTES ============
+// All routes below require authentication
+
+app.use("/students", isAuthenticated, students);
+app.use("/batches", isAuthenticated, batches);
+app.use("/companies", isAuthenticated, companies);
+app.use("/emails", isAuthenticated, emails);
+app.use("/forms", isAuthenticated, forms);
+app.use("/events", isAuthenticated, events);
+app.use("/round_tracking", isAuthenticated, round_tracking);
+app.use("/emails", isAuthenticated, emails);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Route not found" });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error("Server error:", err);
+  res.status(500).json({ success: false, message: "Internal server error" });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

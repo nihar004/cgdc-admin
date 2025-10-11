@@ -84,6 +84,7 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
       const {
         position_title,
         job_type,
+        company_type, // Add this
         package_range,
         internship_stipend_monthly,
         rounds_start_date,
@@ -94,6 +95,7 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
       const processedPosition = {
         position_title: position_title?.trim() || null,
         job_type: job_type || "full_time",
+        company_type: company_type || "tech", // Add default
         package_range:
           package_range && package_range !== "" && !isNaN(package_range)
             ? parseFloat(package_range)
@@ -139,11 +141,11 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
       // Insert position
       const positionInsertQuery = `
         INSERT INTO company_positions (
-          company_id, position_title, job_type, package_range, 
-          internship_stipend_monthly, rounds_start_date, 
-          rounds_end_date
+          company_id, position_title, job_type, company_type,
+          package_range, internship_stipend_monthly, 
+          rounds_start_date, rounds_end_date
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `;
 
@@ -152,6 +154,7 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
           companyId,
           processedPosition.position_title,
           processedPosition.job_type,
+          processedPosition.company_type,
           processedPosition.package_range,
           processedPosition.internship_stipend_monthly,
           processedPosition.rounds_start_date,
@@ -213,10 +216,11 @@ async function updatePositionsEfficiently(
       UPDATE company_positions SET
         position_title = $2,
         job_type = $3,
-        package_range = $4,
-        internship_stipend_monthly = $5,
-        rounds_start_date = $6,
-        rounds_end_date = $7,
+        company_type = $4,
+        package_range = $5,
+        internship_stipend_monthly = $6,
+        rounds_start_date = $7,
+        rounds_end_date = $8,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
@@ -227,6 +231,7 @@ async function updatePositionsEfficiently(
         position.id,
         processedPosition.position_title,
         processedPosition.job_type,
+        processedPosition.company_type,
         processedPosition.package_range,
         processedPosition.internship_stipend_monthly,
         processedPosition.rounds_start_date,
@@ -245,11 +250,11 @@ async function updatePositionsEfficiently(
 
     const insertQuery = `
       INSERT INTO company_positions (
-        company_id, position_title, job_type, package_range, 
-        internship_stipend_monthly, rounds_start_date, 
-        rounds_end_date
+        company_id, position_title, job_type, company_type, 
+        package_range, internship_stipend_monthly, 
+        rounds_start_date, rounds_end_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `;
 
@@ -258,6 +263,7 @@ async function updatePositionsEfficiently(
         companyId,
         processedPosition.position_title,
         processedPosition.job_type,
+        processedPosition.company_type,
         processedPosition.package_range,
         processedPosition.internship_stipend_monthly,
         processedPosition.rounds_start_date,
@@ -375,6 +381,7 @@ function processPositionData(position) {
   const processedPosition = {
     position_title: position.position_title?.trim() || null,
     job_type: position.job_type || "full_time",
+    company_type: position.company_type || "tech",
     package_range:
       position.package_range &&
       position.package_range !== "" &&
@@ -448,6 +455,7 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'id', cp.id,
             'position_title', cp.position_title,
             'job_type', cp.job_type,
+            'company_type', cp.company_type,
             'package_range', cp.package_range,
             'internship_stipend_monthly', cp.internship_stipend_monthly,
             'rounds_start_date', cp.rounds_start_date,
@@ -465,7 +473,7 @@ routes.get("/batch/:batchYear", async (req, res) => {
                   'original_filename', pd.original_filename,
                   'download_url', CONCAT('${req.protocol}://${req.get(
       "host"
-    )}/hello/documents/', REPLACE(pd.document_path, 'cgdc-docs/documents/', ''))
+    )}/companies/documents/', REPLACE(pd.document_path, 'cgdc-docs/documents/', ''))
                 ) ORDER BY pd.display_order, pd.uploaded_at
               )
               FROM position_documents pd 
@@ -504,7 +512,6 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
   const {
     company_name,
     company_description,
-    company_type,
     sector,
     is_marquee = false,
     website_url,
@@ -539,7 +546,6 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
   // Convert empty strings to null for optional fields and set defaults
   const processedData = {
     company_description: company_description?.trim() || null,
-    company_type: company_type?.trim() || "tech",
     sector: sector || "Others*",
     website_url: website_url?.trim() || null,
     linkedin_url: linkedin_url?.trim() || null,
@@ -577,19 +583,18 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
     // Insert company
     const companyInsertQuery = `
       INSERT INTO companies (
-        company_name, company_description, company_type, sector, is_marquee,
+        company_name, company_description, sector, is_marquee,
         website_url, linkedin_url, primary_hr_name, primary_hr_designation,
         primary_hr_email, primary_hr_phone, scheduled_visit, actual_arrival,
         glassdoor_rating, work_locations, min_cgpa, max_backlogs, bond_required,
         allowed_specializations, account_owner
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       RETURNING *
     `;
 
     const companyValues = [
       company_name.trim(),
       processedData.company_description,
-      processedData.company_type,
       processedData.sector,
       is_marquee,
       processedData.website_url,
@@ -648,7 +653,6 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
   const {
     company_name,
     company_description,
-    company_type,
     sector,
     is_marquee,
     website_url,
@@ -675,7 +679,6 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
   const processedData = {
     company_name: company_name?.trim() || null,
     company_description: company_description?.trim() || null,
-    company_type: company_type?.trim() || null,
     sector: sector || null,
     is_marquee: is_marquee,
     website_url: website_url?.trim() || null,
@@ -728,23 +731,22 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
       UPDATE companies SET
         company_name = $2,
         company_description = $3,
-        company_type = $4,
-        sector = $5,
-        is_marquee = $6,
-        website_url = $7,
-        linkedin_url = $8,
-        primary_hr_name = $9,
-        primary_hr_designation = $10,
-        primary_hr_email = $11,
-        primary_hr_phone = $12,
-        scheduled_visit = $13,
-        actual_arrival = $14,
-        glassdoor_rating = $15,
-        work_locations = $16,
-        min_cgpa = $17,
-        max_backlogs = $18,
-        bond_required = $19,
-        account_owner = $20,
+        sector = $4,
+        is_marquee = $5,
+        website_url = $6,
+        linkedin_url = $7,
+        primary_hr_name = $8,
+        primary_hr_designation = $9,
+        primary_hr_email = $10,
+        primary_hr_phone = $11,
+        scheduled_visit = $12,
+        actual_arrival = $13,
+        glassdoor_rating = $14,
+        work_locations = $15,
+        min_cgpa = $16,
+        max_backlogs = $17,
+        bond_required = $18,
+        account_owner = $19,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
@@ -754,7 +756,6 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
       id,
       processedData.company_name,
       processedData.company_description,
-      processedData.company_type,
       processedData.sector,
       processedData.is_marquee,
       processedData.website_url,

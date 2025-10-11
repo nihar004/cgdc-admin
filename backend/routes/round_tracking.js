@@ -2,7 +2,7 @@ const express = require("express");
 const routes = express.Router();
 const db = require("../db");
 
-// GET /api/round-tracking/companies/:year
+// GET /round-tracking/companies/:year
 routes.get("/companies/:year", async (req, res) => {
   const { year } = req.params;
 
@@ -11,7 +11,6 @@ routes.get("/companies/:year", async (req, res) => {
       SELECT 
         c.id AS company_id,
         c.company_name,
-        c.company_type,
         c.is_marquee,
         c.sector,
         cp.id AS position_id,
@@ -52,7 +51,6 @@ routes.get("/companies/:year", async (req, res) => {
         companiesMap.set(row.company_id, {
           id: row.company_id,
           company_name: row.company_name,
-          company_type: row.company_type,
           is_marquee: row.is_marquee,
           sector: row.sector,
           positions: new Map(),
@@ -133,7 +131,7 @@ routes.get("/companies/:year", async (req, res) => {
   }
 });
 
-// GET /api/round-tracking/stats
+// GET /round-tracking/stats
 routes.get("/stats", async (req, res) => {
   try {
     const statsQuery = `
@@ -145,7 +143,7 @@ routes.get("/stats", async (req, res) => {
         
         (SELECT COUNT(DISTINCT srr.student_id) 
          FROM student_round_results srr 
-         WHERE srr.result_status = 'qualified') as currently_qualified,
+         WHERE srr.result_status = 'selected') as currently_qualified,
         
         (SELECT COUNT(DISTINCT c.id) 
          FROM companies c 
@@ -178,11 +176,12 @@ routes.get("/stats", async (req, res) => {
   }
 });
 
-// GET /api/round-tracking/events/:eventId/students
+// GET /round-tracking/events/:eventId/students
 routes.get("/events/:eventId/students", async (req, res) => {
   try {
     const { eventId } = req.params;
-    const { status = "all" } = req.query; // all, applied, attended, qualified
+    // const { status = "all" } = req.query; // all, applied, attended, qualified
+    const { status = "applied" } = req.query;
 
     let whereConditions = ["e.id = ?"];
     let params = [eventId];
@@ -309,7 +308,7 @@ routes.post("/events/:eventId/results", async (req, res) => {
       const countsQuery = `
         SELECT 
           COUNT(*) as total_attended,
-          COUNT(CASE WHEN result_status = 'qualified' THEN 1 END) as qualified_count
+          COUNT(CASE WHEN result_status = 'selected' THEN 1 END) as qualified_count
         FROM student_round_results srr
         JOIN event_attendance ea ON srr.student_id = ea.student_id AND srr.event_id = ea.event_id
         WHERE srr.event_id = ? AND ea.status = 'present'
@@ -352,8 +351,8 @@ routes.get("/events/:eventId/details", async (req, res) => {
         c.company_name,
         COUNT(DISTINCT ea_present.student_id) as attended_count,
         COUNT(DISTINCT fr.student_id) as applied_count,
-        COUNT(DISTINCT CASE WHEN srr.result_status = 'qualified' THEN srr.student_id END) as qualified_count,
-        COUNT(DISTINCT CASE WHEN srr.result_status = 'not_qualified' THEN srr.student_id END) as not_qualified_count
+        COUNT(DISTINCT CASE WHEN srr.result_status = 'selected' THEN srr.student_id END) as qualified_count,
+        COUNT(DISTINCT CASE WHEN srr.result_status = 'rejected' THEN srr.student_id END) as not_qualified_count
       FROM events e
       LEFT JOIN company_positions cp ON e.position_id = cp.id
       LEFT JOIN companies c ON cp.company_id = c.id

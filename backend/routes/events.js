@@ -177,9 +177,9 @@ routes.post("/", async (req, res) => {
     const {
       title,
       eventType,
-      date, // Changed from startDatetime
-      startTime, // New field
-      endTime, // New field
+      date,
+      startTime,
+      endTime,
       venue,
       mode,
       isPlacementEvent,
@@ -191,7 +191,7 @@ routes.post("/", async (req, res) => {
       speakerDetails,
     } = req.body;
 
-    // 🔹 Validation
+    // Basic validation
     if (!title || !eventType) {
       return res.status(400).json({
         success: false,
@@ -206,14 +206,46 @@ routes.post("/", async (req, res) => {
       });
     }
 
-    if (
-      !Array.isArray(targetSpecializations) ||
-      targetSpecializations.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one target specialization/branch must be specified.",
-      });
+    let finalTargetSpecializations = targetSpecializations;
+
+    // For company events, fetch specializations from company
+    if (isPlacementEvent && companyId) {
+      const companyResult = await client.query(
+        "SELECT allowed_specializations FROM companies WHERE id = $1",
+        [companyId]
+      );
+
+      if (companyResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Company not found",
+        });
+      }
+
+      finalTargetSpecializations =
+        companyResult.rows[0].allowed_specializations;
+
+      if (
+        !finalTargetSpecializations ||
+        finalTargetSpecializations.length === 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Company has no specified target specializations",
+        });
+      }
+    } else {
+      // For non-company events, validate provided specializations
+      if (
+        !Array.isArray(targetSpecializations) ||
+        targetSpecializations.length === 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "At least one target specialization/branch must be specified for non-company events.",
+        });
+      }
     }
 
     if (isPlacementEvent && (!companyId || !positionId)) {
@@ -223,7 +255,7 @@ routes.post("/", async (req, res) => {
       });
     }
 
-    // 🔹 Insert event
+    // Insert event with final specializations
     const insertEventQuery = `
       INSERT INTO events (
         title, 
@@ -249,18 +281,16 @@ routes.post("/", async (req, res) => {
     const eventValues = [
       title,
       eventType,
-      date,
-      startTime,
-      endTime,
+      date || null, // Handle empty date
+      startTime || null, // Handle empty start time
+      endTime || null, // Handle empty end time
       venue?.trim() || null,
       mode || null,
       isPlacementEvent || false,
       isMandatory || false,
       isPlacementEvent ? companyId : null,
       isPlacementEvent ? positionId : null,
-      !isPlacementEvent && targetSpecializations?.length > 0
-        ? targetSpecializations
-        : null,
+      !isPlacementEvent ? finalTargetSpecializations : null,
       speakerDetails &&
       Object.values(speakerDetails).some((val) => val && val.toString().trim())
         ? speakerDetails
@@ -270,7 +300,7 @@ routes.post("/", async (req, res) => {
     const eventResult = await client.query(insertEventQuery, eventValues);
     const eventId = eventResult.rows[0].id;
 
-    // 🔹 Insert event-batch relationships (optimized)
+    // Insert batch relationships (unchanged)
     const batchResult = await client.query(
       `SELECT id FROM batches WHERE year = ANY($1::int[])`,
       [targetAcademicYears.map(Number)]
@@ -283,7 +313,6 @@ routes.post("/", async (req, res) => {
     const values = batchResult.rows
       .map((b) => `(${eventId}, ${b.id})`)
       .join(",");
-
     await client.query(
       `INSERT INTO event_batches (event_id, batch_id) VALUES ${values}`
     );
@@ -296,6 +325,7 @@ routes.post("/", async (req, res) => {
       data: {
         ...eventResult.rows[0],
         targetAcademicYears,
+        targetSpecializations: finalTargetSpecializations,
       },
     });
   } catch (error) {
@@ -401,9 +431,9 @@ routes.put("/:id", async (req, res) => {
     const eventValues = [
       title,
       eventType,
-      date,
-      startTime,
-      endTime,
+      date || null, // Handle empty date
+      startTime || null, // Handle empty start time
+      endTime || null, // Handle empty end time
       venue?.trim() || null,
       mode || null,
       isPlacementEvent || false,
@@ -867,3 +897,9 @@ routes.put("/:eventId/attendance", async (req, res) => {
 // --------------------------------------------------------------------------------------------------
 
 module.exports = routes;
+
+const isValidDate = (dateString) => {
+  if (!dateString) return true;
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date) && dateString.includes("-");
+};

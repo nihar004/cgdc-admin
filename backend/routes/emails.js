@@ -1,9 +1,59 @@
 const express = require("express");
+const routes = express.Router();
 const nodemailer = require("nodemailer");
-const schedule = require("node-schedule");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const fsPromises = require("fs").promises;
 const db = require("../db");
 
-const routes = express.Router();
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, "../uploads/email-attachments");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 5,
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "image/jpeg",
+      "image/png",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Invalid file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG"
+        ),
+        false
+      );
+    }
+  },
+});
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -13,548 +63,482 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Email templates
-const EMAIL_TEMPLATES = {
-  company_notification: {
-    subject: "🏢 {company_name} - Campus Recruitment Opportunity",
-    body: `Dear Student,
-
-We are excited to announce that {company_name} is visiting our campus for recruitment!
-
-📅 Event Date: {event_date}
-📍 Venue: {venue}
-⏰ Time: {time}
-
-Company Details:
-- Website: {company_website}
-- Sector: {company_sector}
-- Type: {company_type}
-
-Eligibility Criteria:
-- Minimum CGPA: {min_cgpa}
-- Maximum Backlogs: {max_backlogs}
-- Eligible Departments: {departments}
-
-{additional_details}
-
-Please ensure you meet the eligibility criteria before applying.
-
-Best regards,
-Placement Cell`,
-  },
-  event_notification: {
-    subject: "📅 Important Event: {event_title}",
-    body: `Dear Student,
-
-You are invited to attend: {event_title}
-
-📅 Date: {event_date}
-📍 Venue: {venue}
-⏰ Time: {time}
-👤 Speaker: {speaker}
-
-Event Description:
-{event_description}
-
-{additional_details}
-
-Please mark your calendar and attend on time.
-
-Best regards,
-Placement Cell`,
-  },
-  interview_schedule: {
-    subject: "📋 Interview Schedule - {company_name}",
-    body: `Dear Student,
-
-Your interview with {company_name} has been scheduled.
-
-Interview Details:
-📅 Date: {interview_date}
-⏰ Time: {interview_time}
-📍 Venue: {venue}
-💼 Position: {position}
-
-Please arrive 15 minutes before your scheduled time.
-
-Required Documents:
-- Resume
-- All academic certificates
-- Photo ID
-
-{additional_instructions}
-
-Best of luck!
-
-Placement Cell`,
-  },
-  general: {
-    subject: "📢 Important Notice from Placement Cell",
-    body: `Dear Student,
-
-{message_content}
-
-For any queries, please contact the placement cell.
-
-Best regards,
-Placement Cell`,
-  },
-};
-
-// Get eligible students based on criteria
-async function getEligibleStudents(criteria = {}) {
+// Helper function to safely parse attachments
+function parseAttachments(attachmentData) {
+  if (!attachmentData) return [];
+  if (Array.isArray(attachmentData)) return attachmentData;
   try {
-    let query = `
-      SELECT DISTINCT s.id, s.first_name, s.last_name, s.college_email, s.personal_email, 
-             s.department, s.batch_year, s.cgpa, s.backlogs, s.placement_status
-      FROM students s
-      WHERE s.placement_status IN ('eligible', 'placed')
-    `;
-
-    const params = [];
-    let paramCount = 0;
-
-    // Department filter
-    if (criteria.departments && criteria.departments.length > 0) {
-      paramCount++;
-      query += ` AND s.department = ANY($${paramCount})`;
-      params.push(criteria.departments);
-    }
-
-    // Batch year filter
-    if (criteria.batch_years && criteria.batch_years.length > 0) {
-      paramCount++;
-      query += ` AND s.batch_year = ANY($${paramCount})`;
-      params.push(criteria.batch_years);
-    }
-
-    // CGPA filter
-    if (criteria.min_cgpa) {
-      paramCount++;
-      query += ` AND s.cgpa >= $${paramCount}`;
-      params.push(criteria.min_cgpa);
-    }
-
-    // Backlogs filter
-    if (criteria.max_backlogs !== undefined) {
-      paramCount++;
-      query += ` AND s.backlogs <= $${paramCount}`;
-      params.push(criteria.max_backlogs);
-    }
-
-    // Placement status filter
-    if (criteria.placement_status) {
-      paramCount++;
-      query += ` AND s.placement_status = $${paramCount}`;
-      params.push(criteria.placement_status);
-    }
-
-    const result = await db.query(query, params);
-    return result.rows;
-  } catch (error) {
-    console.error("Error fetching eligible students:", error);
-    throw error;
+    return JSON.parse(attachmentData);
+  } catch (err) {
+    console.error("Error parsing attachments:", err);
+    return [];
   }
 }
 
-// Send individual email
-async function sendEmail(to, subject, body, attachments = []) {
-  try {
-    const mailOptions = {
-      from: `"CGDC " <${process.env.EMAIL_USER}>`,
-      to: to,
-      subject: subject,
-      text: body,
-      html: body.replace(/\n/g, "<br>"),
-      attachments: attachments,
-    };
+// ==================== EMAIL TEMPLATES ====================
 
-    const info = await transporter.sendMail(mailOptions);
-    return { success: true, messageId: info.messageId };
+// GET /api/email-templates - Get all templates
+routes.get("/email-templates", async (req, res) => {
+  console.log("\n📋 Fetching all email templates grouped by category...");
+  try {
+    const result = await db.query(`
+      SELECT 
+        category,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id', id,
+            'template_name', template_name,
+            'subject', subject,
+            'body', body,
+            'sender_email', sender_email,
+            'cc_emails', cc_emails,
+            'attachments', attachments,
+            'created_at', created_at
+          ) ORDER BY created_at DESC
+        ) AS templates
+      FROM email_templates
+      GROUP BY category
+      ORDER BY category;
+    `);
+
+    console.log(
+      `✅ Successfully fetched ${result.rows.length} category groups`
+    );
+    res.json({
+      success: true,
+      groupedTemplates: result.rows,
+    });
   } catch (error) {
-    console.error("Email send error:", error);
-    return { success: false, error: error.message };
+    console.error("❌ Error fetching templates:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch templates",
+    });
   }
-}
+});
 
-// Process email template
-function processEmailTemplate(template, data) {
-  let processedSubject = template.subject;
-  let processedBody = template.body;
-
-  // Replace placeholders in subject and body
-  Object.keys(data).forEach((key) => {
-    const placeholder = `{${key}}`;
-    processedSubject = processedSubject.replace(
-      new RegExp(placeholder, "g"),
-      data[key] || ""
-    );
-    processedBody = processedBody.replace(
-      new RegExp(placeholder, "g"),
-      data[key] || ""
-    );
-  });
-
-  return {
-    subject: processedSubject,
-    body: processedBody,
-  };
-}
-
-// Create email campaign
-routes.post("/campaigns", async (req, res) => {
-  try {
-    const {
-      title,
-      email_type,
-      template_data = {},
-      recipient_criteria = {},
-      additional_emails = [],
-      scheduled_at,
-      event_id,
-      custom_subject,
-      custom_body,
-    } = req.body;
-
-    const client = await db.connect();
-
+// POST /api/email-templates - Create new template with attachments
+routes.post(
+  "/email-templates",
+  upload.array("attachments", 5),
+  async (req, res) => {
+    console.log("\n📝 Creating new email template...");
     try {
-      await client.query("BEGIN");
+      const {
+        template_name,
+        subject,
+        body,
+        category,
+        sender_email,
+        cc_emails,
+      } = req.body;
+      console.log("Template Details:", {
+        name: template_name,
+        subject,
+        category,
+        sender: sender_email,
+        cc: cc_emails,
+        bodyLength: body?.length,
+      });
 
-      // Get email template and process it
-      let emailContent;
-      if (custom_subject && custom_body) {
-        emailContent = {
-          subject: custom_subject,
-          body: custom_body,
-        };
-      } else {
-        const template = EMAIL_TEMPLATES[email_type] || EMAIL_TEMPLATES.general;
-        emailContent = processEmailTemplate(template, template_data);
+      if (req.files) {
+        console.log(
+          "📎 Attachments received:",
+          req.files.map((f) => ({
+            name: f.originalname,
+            size: `${(f.size / 1024).toFixed(2)}KB`,
+            type: f.mimetype,
+          }))
+        );
       }
 
-      // Get eligible students
-      const eligibleStudents = await getEligibleStudents(recipient_criteria);
-      const totalRecipients =
-        eligibleStudents.length + additional_emails.length;
+      if (!template_name || !subject || !body) {
+        console.log("❌ Validation failed: Missing required fields");
+        if (req.files) {
+          for (const file of req.files) {
+            console.log(`🗑️ Cleaning up file: ${file.originalname}`);
+            await fsPromises.unlink(file.path);
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          error: "Template name, subject, and body are required",
+        });
+      }
 
-      // Create campaign record
-      const campaignResult = await client.query(
-        `
-        INSERT INTO email_campaigns (
-  title, subject, body_template, email_type, event_id, scheduled_at,
-  total_recipients, status, created_by, recipient_criteria, additional_emails
-) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id
+      const attachments = req.files
+        ? req.files.map((file) => ({
+            filename: file.originalname,
+            filepath: file.path,
+            mimetype: file.mimetype,
+          }))
+        : [];
 
-      `,
+      console.log(
+        `💾 Saving template with ${attachments.length} attachments...`
+      );
+      const result = await db.query(
+        `INSERT INTO email_templates 
+         (template_name, subject, body, category, attachments, sender_email, cc_emails)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING *`,
         [
-          title,
-          emailContent.subject,
-          emailContent.body,
-          email_type,
-          event_id || null,
-          scheduled_at || null,
-          totalRecipients,
-          scheduled_at ? "scheduled" : "sending",
-          req.user?.id || 1, // Assuming user ID from auth middleware
+          template_name,
+          subject,
+          body,
+          category,
+          attachments.length > 0 ? JSON.stringify(attachments) : null,
+          sender_email || null,
+          cc_emails
+            ? Array.isArray(cc_emails)
+              ? cc_emails
+              : JSON.parse(cc_emails)
+            : null,
         ]
       );
 
-      const campaignId = campaignResult.rows[0].id;
-
-      if (scheduled_at) {
-        const date = new Date(scheduled_at);
-
-        schedule.scheduleJob(date, () => {
-          console.log(`Running scheduled campaign: ${campaignId} at ${date}`);
-          sendScheduledCampaign(campaignId, emailContent);
-        });
-      } else {
-        // immediate send
-        sendCampaignEmails(
-          campaignId,
-          eligibleStudents,
-          additionalEmails,
-          emailContent
-        );
-      }
+      console.log(
+        "✅ Template created successfully with ID:",
+        result.rows[0].id
+      );
+      res.status(201).json({
+        success: true,
+        template: result.rows[0],
+        message: "Template created successfully",
+      });
     } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
-  } catch (error) {
-    console.error("Error creating email campaign:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to create email campaign",
-      error: error.message,
-    });
-  }
-});
+      console.error("\n❌ Error creating template:", error);
+      console.error("Stack:", error.stack);
 
-// Send campaign emails
-async function sendCampaignEmails(
-  campaignId,
-  eligibleStudents,
-  additionalEmails,
-  emailContent
-) {
-  let successCount = 0;
-  let failureCount = 0;
-
-  try {
-    // Update campaign status
-    await db.query(
-      `
-      UPDATE email_campaigns 
-      SET status = 'sending', sent_at = NOW() 
-      WHERE id = $1
-    `,
-      [campaignId]
-    );
-
-    // Send to eligible students
-    for (const student of eligibleStudents) {
-      const email = student.college_email || student.personal_email;
-      if (email) {
-        const personalizedContent = {
-          subject: emailContent.subject.replace(
-            "{student_name}",
-            `${student.first_name} ${student.last_name}`
-          ),
-          body: emailContent.body.replace(
-            "{student_name}",
-            `${student.first_name} ${student.last_name}`
-          ),
-        };
-
-        const result = await sendEmail(
-          email,
-          personalizedContent.subject,
-          personalizedContent.body
-        );
-        if (result.success) {
-          successCount++;
-        } else {
-          failureCount++;
+      if (req.files) {
+        for (const file of req.files) {
+          try {
+            console.log(`🗑️ Cleaning up file on error: ${file.originalname}`);
+            await fsPromises.unlink(file.path);
+          } catch (err) {
+            console.error("Error deleting file:", err);
+          }
         }
       }
 
-      // Small delay to avoid overwhelming the SMTP server
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      res.status(500).json({
+        success: false,
+        error: "Failed to create template",
+      });
     }
+  }
+);
 
-    // Send to additional emails
-    for (const email of additionalEmails) {
-      const result = await sendEmail(
-        email,
-        emailContent.subject,
-        emailContent.body
-      );
-      if (result.success) {
-        successCount++;
-      } else {
-        failureCount++;
+// PUT /api/email-templates/:id - Update template with attachments
+routes.put(
+  "/email-templates/:id",
+  upload.array("attachments", 5),
+  async (req, res) => {
+    console.log("\n📝 Updating email template...");
+    try {
+      const { id } = req.params;
+      console.log(`Template ID: ${id}`);
+
+      const {
+        template_name,
+        subject,
+        body,
+        category,
+        sender_email,
+        cc_emails,
+        keep_existing_attachments,
+        removed_attachments,
+      } = req.body;
+
+      console.log("Update Details:", {
+        name: template_name,
+        subject,
+        category,
+        bodyLength: body?.length,
+        keepAttachments: keep_existing_attachments,
+      });
+
+      if (req.files) {
+        console.log(
+          "📎 New attachments:",
+          req.files.map((f) => ({
+            name: f.originalname,
+            size: `${(f.size / 1024).toFixed(2)}KB`,
+            type: f.mimetype,
+          }))
+        );
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      if (!template_name || !subject || !body) {
+        if (req.files) {
+          for (const file of req.files) {
+            await fsPromises.unlink(file.path);
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          error: "Template name, subject, and body are required",
+        });
+      }
+
+      // Get existing template
+      const existingTemplate = await db.query(
+        "SELECT attachments FROM email_templates WHERE id = $1",
+        [id]
+      );
+
+      if (existingTemplate.rows.length === 0) {
+        if (req.files) {
+          for (const file of req.files) {
+            await fsPromises.unlink(file.path);
+          }
+        }
+        return res.status(404).json({
+          success: false,
+          error: "Template not found",
+        });
+      }
+
+      // Parse existing attachments
+      let finalAttachments = parseAttachments(
+        existingTemplate.rows[0].attachments
+      );
+
+      // Handle removed attachments
+      if (removed_attachments) {
+        try {
+          // Safety check: ensure it's a valid string before parsing
+          let removedList = [];
+          if (
+            typeof removed_attachments === "string" &&
+            removed_attachments.trim() !== ""
+          ) {
+            removedList = JSON.parse(removed_attachments);
+          } else if (Array.isArray(removed_attachments)) {
+            removedList = removed_attachments;
+          }
+
+          console.log(`Removing ${removedList.length} attachments...`);
+
+          for (const filename of removedList) {
+            const attachment = finalAttachments.find(
+              (a) => a.filename === filename
+            );
+            if (attachment) {
+              try {
+                console.log(`Deleting file: ${filename}`);
+                await fsPromises.unlink(attachment.filepath);
+              } catch (err) {
+                console.error(`Error deleting file ${filename}:`, err);
+              }
+            }
+          }
+
+          // Remove from final attachments list
+          finalAttachments = finalAttachments.filter(
+            (a) => !removedList.includes(a.filename)
+          );
+        } catch (err) {
+          console.error("Error processing removed attachments:", err);
+        }
+      }
+
+      // If not keeping existing attachments, delete all remaining old files
+      // Only delete if explicitly NOT keeping attachments AND we're not adding new ones
+      if (
+        !keep_existing_attachments &&
+        finalAttachments.length > 0 &&
+        !req.files?.length
+      ) {
+        console.log(
+          `Deleting ${finalAttachments.length} existing attachments...`
+        );
+        for (const attachment of finalAttachments) {
+          try {
+            console.log(`Deleting file: ${attachment.filename}`);
+            await fsPromises.unlink(attachment.filepath);
+          } catch (err) {
+            console.error(
+              `Error deleting attachment ${attachment.filename}:`,
+              err
+            );
+          }
+        }
+        finalAttachments = [];
+      }
+
+      // Add new attachments
+      if (req.files) {
+        const newAttachments = req.files.map((file) => ({
+          filename: file.originalname,
+          filepath: file.path,
+          mimetype: file.mimetype,
+        }));
+        finalAttachments = [...finalAttachments, ...newAttachments];
+      }
+
+      console.log(
+        `💾 Updating template with ${finalAttachments.length} attachments...`
+      );
+
+      const result = await db.query(
+        `
+        UPDATE email_templates 
+        SET template_name = $1, subject = $2, body = $3, category = $4, 
+            attachments = $5, sender_email = $6, cc_emails = $7
+        WHERE id = $8
+        RETURNING *
+      `,
+        [
+          template_name,
+          subject,
+          body,
+          category || "general",
+          finalAttachments.length > 0 ? JSON.stringify(finalAttachments) : null,
+          sender_email || null,
+          cc_emails
+            ? Array.isArray(cc_emails)
+              ? cc_emails
+              : JSON.parse(cc_emails)
+            : null,
+          id,
+        ]
+      );
+
+      console.log("✅ Template updated successfully");
+      res.json({
+        success: true,
+        template: result.rows[0],
+        message: "Template updated successfully",
+      });
+    } catch (error) {
+      console.error("\n❌ Error updating template:", error);
+      console.error("Stack:", error.stack);
+      if (req.files) {
+        for (const file of req.files) {
+          try {
+            await fsPromises.unlink(file.path);
+          } catch (err) {
+            console.error("Error deleting file:", err);
+          }
+        }
+      }
+      res.status(500).json({
+        success: false,
+        error: "Failed to update template",
+      });
     }
-
-    // Update campaign with results
-    await db.query(
-      `
-      UPDATE email_campaigns 
-      SET status = 'completed', successful_sends = $1, failed_sends = $2
-      WHERE id = $3
-    `,
-      [successCount, failureCount, campaignId]
-    );
-  } catch (error) {
-    console.error("Error sending campaign emails:", error);
-
-    await db.query(
-      `
-      UPDATE email_campaigns 
-      SET status = 'failed', successful_sends = $1, failed_sends = $2
-      WHERE id = $3
-    `,
-      [successCount, failureCount, campaignId]
-    );
   }
-}
+);
 
-// Send scheduled campaign
-async function sendScheduledCampaign(campaignId) {
-  const res = await db.query("SELECT * FROM email_campaigns WHERE id = $1", [
-    campaignId,
-  ]);
-  if (!res.rows.length) return;
-  const campaign = res.rows[0];
-  const recipientCriteria = campaign.recipient_criteria || {};
-  const additionalEmails = campaign.additional_emails || [];
-  const eligibleStudents = await getEligibleStudents(recipientCriteria);
-  const emailContent = {
-    subject: campaign.subject,
-    body: campaign.body_template,
-  };
-  await sendCampaignEmails(
-    campaignId,
-    eligibleStudents,
-    additionalEmails,
-    emailContent
-  );
-}
-
-// Get all campaigns
-routes.get("/campaigns", async (req, res) => {
-  try {
-    const { page = 1, limit = 10, status, email_type } = req.query;
-    const offset = (page - 1) * limit;
-
-    let query = `
-      SELECT ec.*, e.title as event_title, e.start_datetime as event_date
-      FROM email_campaigns ec
-      LEFT JOIN events e ON ec.event_id = e.id
-      WHERE 1=1
-    `;
-
-    const params = [];
-    let paramCount = 0;
-
-    if (status) {
-      paramCount++;
-      query += ` AND ec.status = $${paramCount}`;
-      params.push(status);
-    }
-
-    if (email_type) {
-      paramCount++;
-      query += ` AND ec.email_type = $${paramCount}`;
-      params.push(email_type);
-    }
-
-    query += ` ORDER BY ec.created_at DESC LIMIT $${paramCount + 1} OFFSET $${
-      paramCount + 2
-    }`;
-    params.push(limit, offset);
-
-    const result = await db.query(query, params);
-
-    // Get total count
-    const countQuery = `
-      SELECT COUNT(*) FROM email_campaigns ec
-      WHERE 1=1
-      ${status ? `AND ec.status = '${status}'` : ""}
-      ${email_type ? `AND ec.email_type = '${email_type}'` : ""}
-    `;
-
-    const countResult = await db.query(countQuery);
-    const totalCount = parseInt(countResult.rows[0].count);
-
-    res.json({
-      success: true,
-      data: result.rows,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalCount / limit),
-        totalCount: totalCount,
-        limit: parseInt(limit),
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch campaigns",
-      error: error.message,
-    });
-  }
-});
-
-// Get campaign details
-routes.get("/campaigns/:id", async (req, res) => {
+// DELETE /api/email-templates/:id - Delete template
+routes.delete("/email-templates/:id", async (req, res) => {
+  console.log("\n🗑️ Deleting email template...");
   try {
     const { id } = req.params;
+    console.log(`Template ID: ${id}`);
 
-    const result = await db.query(
-      `
-      SELECT ec.*, e.title as event_title, e.start_datetime as event_date,
-             e.venue, e.description as event_description
-      FROM email_campaigns ec
-      LEFT JOIN events e ON ec.event_id = e.id
-      WHERE ec.id = $1
-    `,
+    const template = await db.query(
+      "SELECT attachments FROM email_templates WHERE id = $1",
       [id]
     );
 
-    if (result.rows.length === 0) {
+    if (template.rows.length === 0) {
+      console.log("❌ Template not found");
       return res.status(404).json({
         success: false,
-        message: "Campaign not found",
+        error: "Template not found",
       });
     }
 
+    // Delete associated files
+    if (template.rows[0].attachments) {
+      const attachments = parseAttachments(template.rows[0].attachments);
+      console.log(`Found ${attachments.length} attachments to delete`);
+
+      for (const attachment of attachments) {
+        try {
+          console.log(`Deleting file: ${attachment.filename}`);
+          await fsPromises.unlink(attachment.filepath);
+        } catch (err) {
+          console.error(
+            `Error deleting attachment ${attachment.filename}:`,
+            err
+          );
+        }
+      }
+    }
+
+    const result = await db.query(
+      "DELETE FROM email_templates WHERE id = $1 RETURNING id",
+      [id]
+    );
+
+    console.log("✅ Template deleted successfully");
     res.json({
       success: true,
-      data: result.rows[0],
+      message: "Template deleted successfully",
     });
   } catch (error) {
-    console.error("Error fetching campaign details:", error);
+    console.error("\n❌ Error deleting template:", error);
+    console.error("Stack:", error.stack);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch campaign details",
-      error: error.message,
+      error: "Failed to delete template",
     });
   }
 });
 
-// Get email templates
-routes.get("/templates", (req, res) => {
-  res.json({
-    success: true,
-    data: EMAIL_TEMPLATES,
-  });
-});
+// ==================== EMAIL logs ====================
 
-// Get eligible students count for criteria
-routes.post("/eligible-count", async (req, res) => {
+// GET /api/email-logs - Get all logs with pagination
+routes.get("/email-logs", async (req, res) => {
   try {
-    const { recipient_criteria = {} } = req.body;
-    const eligibleStudents = await getEligibleStudents(recipient_criteria);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    const result = await db.query(
+      `
+      SELECT ec.*, e.title as event_title
+      FROM email_logs ec
+      LEFT JOIN events e ON ec.event_id = e.id
+      ORDER BY ec.created_at DESC
+      LIMIT $1 OFFSET $2
+    `,
+      [limit, offset]
+    );
+
+    const countResult = await db.query("SELECT COUNT(*) FROM email_logs");
+    const total = parseInt(countResult.rows[0].count);
 
     res.json({
       success: true,
-      count: eligibleStudents.length,
-      students: eligibleStudents.map((s) => ({
-        id: s.id,
-        name: `${s.first_name} ${s.last_name}`,
-        email: s.college_email || s.personal_email,
-        department: s.department,
-        batch_year: s.batch_year,
-        cgpa: s.cgpa,
-        backlogs: s.backlogs,
-      })),
+      logs: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error("Error fetching eligible students count:", error);
+    console.error("Error fetching logs:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch eligible students count",
-      error: error.message,
+      error: "Failed to fetch logs",
     });
   }
 });
 
-// Delete campaign
-routes.delete("/campaigns/:id", async (req, res) => {
+// DELETE /api/email-logs/:id - Delete campaign
+routes.delete("/email-logs/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
     const result = await db.query(
       `
-      DELETE FROM email_campaigns WHERE id = $1 RETURNING id
+      DELETE FROM email_logs WHERE id = $1 RETURNING id
     `,
       [id]
     );
@@ -562,7 +546,7 @@ routes.delete("/campaigns/:id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Campaign not found",
+        error: "Campaign not found",
       });
     }
 
@@ -574,35 +558,900 @@ routes.delete("/campaigns/:id", async (req, res) => {
     console.error("Error deleting campaign:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to delete campaign",
-      error: error.message,
+      error: "Failed to delete campaign",
     });
   }
 });
 
-// Get active events for dropdown
-routes.get("/active-events", async (req, res) => {
+//====================================================================================================================================
+
+// Helper function to replace variables in text
+function replaceVariables(text, studentData) {
+  if (!text || !studentData) return text;
+
+  return text
+    .replace(/{first_name}/g, studentData.first_name || "")
+    .replace(/{last_name}/g, studentData.last_name || "")
+    .replace(
+      /{full_name}/g,
+      `${studentData.first_name || ""} ${studentData.last_name || ""}`.trim()
+    )
+    .replace(/{enrollment_number}/g, studentData.enrollment_number || "")
+    .replace(/{department}/g, studentData.department || "")
+    .replace(/{branch}/g, studentData.branch || "")
+    .replace(/{cgpa}/g, studentData.cgpa || "")
+    .replace(/{batch_year}/g, studentData.batch_year || "");
+}
+
+// Helper function to build student query based on filters
+function buildStudentQuery(filter) {
+  let query = `
+    SELECT id, college_email, personal_email, first_name, last_name, 
+           enrollment_number, department, branch, cgpa, batch_year
+    FROM students 
+    WHERE college_email IS NOT NULL AND college_email != ''
+  `;
+  const params = [];
+
+  if (filter.department && filter.department.length > 0) {
+    params.push(filter.department);
+    query += ` AND department = ANY($${params.length})`;
+  }
+
+  if (filter.batch_year) {
+    params.push(filter.batch_year);
+    query += ` AND batch_year = $${params.length}`;
+  }
+
+  if (filter.min_cgpa) {
+    params.push(filter.min_cgpa);
+    query += ` AND cgpa >= $${params.length}`;
+  }
+
+  if (filter.max_cgpa) {
+    params.push(filter.max_cgpa);
+    query += ` AND cgpa <= $${params.length}`;
+  }
+
+  if (filter.placement_status) {
+    params.push(filter.placement_status);
+    query += ` AND placement_status = $${params.length}`;
+  }
+
+  if (filter.gender) {
+    params.push(filter.gender);
+    query += ` AND gender = $${params.length}`;
+  }
+
+  return { query, params };
+}
+
+// Helper function to get attachments for email
+async function getEmailAttachments(
+  attachmentData,
+  position_id = null,
+  excludedAttachments = []
+) {
+  const attachments = [];
+
+  if (attachmentData) {
+    try {
+      const templateAttachments =
+        typeof attachmentData === "string"
+          ? JSON.parse(attachmentData)
+          : attachmentData;
+      for (const attachment of templateAttachments) {
+        // Skip excluded attachments
+        if (excludedAttachments.includes(attachment.filename)) {
+          console.log(
+            `⏭️ Skipping excluded attachment: ${attachment.filename}`
+          );
+          continue;
+        }
+        try {
+          const fileContent = await fsPromises.readFile(attachment.filepath);
+          attachments.push({
+            filename: attachment.filename,
+            content: fileContent,
+            contentType: attachment.mimetype,
+          });
+        } catch (err) {
+          console.error(
+            `Error reading template attachment ${attachment.filename}:`,
+            err
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error parsing template attachments:", err);
+    }
+  }
+
+  // Add position documents if position_id is provided
+  if (position_id) {
+    try {
+      const docsResult = await db.query(
+        `SELECT document_path, document_title, file_type 
+         FROM position_documents 
+         WHERE position_id = $1 AND is_active = TRUE 
+         ORDER BY display_order`,
+        [position_id]
+      );
+
+      for (const doc of docsResult.rows) {
+        try {
+          const fileContent = await fsPromises.readFile(doc.document_path);
+          attachments.push({
+            filename: doc.document_title,
+            content: fileContent,
+            contentType: getMimeType(doc.file_type),
+          });
+        } catch (err) {
+          console.error(
+            `Error reading position document ${doc.document_title}:`,
+            err
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching position documents:", err);
+    }
+  }
+
+  return attachments;
+}
+
+// Helper function to determine MIME type
+function getMimeType(fileType) {
+  const mimeTypes = {
+    pdf: "application/pdf",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    xls: "application/vnd.ms-excel",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+  };
+  return mimeTypes[fileType.toLowerCase()] || "application/octet-stream";
+}
+
+// Helper function to send bulk emails with attachments
+async function sendBulkEmails(
+  students,
+  subject,
+  body,
+  attachments = [],
+  cc_emails = [],
+  bcc_emails = []
+) {
+  console.log("\n📧 Starting bulk email send...");
+  console.log(`📋 Total recipients: ${students.length}`);
+  console.log(`📎 Attachments: ${attachments.length}`);
+  console.log(`👥 CC Recipients: ${cc_emails?.length || 0}`);
+  console.log(`🕶️ BCC Recipients: ${bcc_emails?.length || 0}`);
+
+  const results = {
+    successful: 0,
+    failed: 0,
+    errors: [],
+  };
+
+  for (const student of students) {
+    try {
+      const personalizedSubject = replaceVariables(subject, student);
+      const personalizedBody = replaceVariables(body, student);
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: student.college_email,
+        subject: personalizedSubject,
+        html: personalizedBody,
+      };
+
+      // Add CC only if exists
+      if (cc_emails && cc_emails.length > 0) {
+        mailOptions.cc = cc_emails;
+      }
+
+      // Add BCC only if exists
+      if (bcc_emails && bcc_emails.length > 0) {
+        mailOptions.bcc = bcc_emails;
+      }
+
+      // Add attachments only if exists
+      if (attachments.length > 0) {
+        mailOptions.attachments = attachments;
+      }
+
+      console.log("Sending email with options:", {
+        to: student.college_email,
+        cc: mailOptions.cc,
+        bcc: mailOptions.bcc,
+        attachments: attachments.length,
+      });
+
+      await transporter.sendMail(mailOptions);
+
+      results.successful++;
+      console.log(`✅ Email sent successfully to ${student.college_email}`);
+    } catch (error) {
+      results.failed++;
+      results.errors.push({
+        email: student.college_email,
+        error: error.message,
+      });
+      console.error(
+        `❌ Failed to send email to ${student.college_email}:`,
+        error.message
+      );
+    }
+  }
+
+  // Add summary logs
+  console.log("\n📊 Email Campaign Results:");
+  console.log(`✅ Successful: ${results.successful}`);
+  console.log(`❌ Failed: ${results.failed}`);
+  console.log(`👥 CC Recipients: ${cc_emails?.length || 0}`);
+  console.log(`🕶️ BCC Recipients: ${bcc_emails?.length || 0}`);
+
+  return results;
+}
+
+// // POST /api/email-logs/send - Send new email campaign
+routes.post(
+  "/email-logs/send",
+  upload.array("manual_attachments", 5),
+  async (req, res) => {
+    console.log("\n🚀 Starting new email campaign...");
+
+    try {
+      const {
+        title,
+        subject,
+        body,
+        sender_email,
+        recipient_filter,
+        recipient_emails,
+        cc_emails,
+        bcc_emails,
+        event_id,
+        position_id,
+        template_id,
+      } = req.body;
+
+      // Add after parsing other data:
+      const excluded_template_attachments = req.body
+        .excluded_template_attachments
+        ? JSON.parse(req.body.excluded_template_attachments)
+        : [];
+
+      // Parse CC and BCC emails
+      const parsedCcEmails = cc_emails ? JSON.parse(cc_emails) : [];
+      const parsedBccEmails = bcc_emails ? JSON.parse(bcc_emails) : [];
+
+      console.log(`📑 Campaign: ${title}`);
+      console.log(`👤 Sender: ${sender_email}`);
+
+      if (req.files) {
+        console.log(
+          "📎 Manual attachments received:",
+          req.files.map((f) => ({
+            name: f.originalname,
+            size: `${(f.size / 1024).toFixed(2)}KB`,
+          }))
+        );
+      }
+
+      if (!title || !subject || !body) {
+        // Clean up uploaded files
+        if (req.files) {
+          for (const file of req.files) {
+            await fsPromises.unlink(file.path);
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          error: "Title, subject, and body are required",
+        });
+      }
+
+      // Add after const checks
+      if (!sender_email) {
+        return res.status(400).json({
+          success: false,
+          error: "Sender email is required",
+        });
+      }
+
+      let students = [];
+      let finalRecipientEmails = [];
+      let attachments = [];
+
+      // Get template attachments if template_id is provided
+      if (template_id) {
+        const templateResult = await db.query(
+          "SELECT attachments FROM email_templates WHERE id = $1",
+          [template_id]
+        );
+        if (
+          templateResult.rows.length > 0 &&
+          templateResult.rows[0].attachments
+        ) {
+          attachments = await getEmailAttachments(
+            templateResult.rows[0].attachments,
+            position_id,
+            excluded_template_attachments // ADD THIS LINE
+          );
+        }
+      } else if (position_id) {
+        // Get only position documents if no template
+        attachments = await getEmailAttachments(null, position_id);
+      }
+
+      // Add manual attachments
+      if (req.files && req.files.length > 0) {
+        console.log(`📎 Adding ${req.files.length} manual attachments...`);
+        for (const file of req.files) {
+          try {
+            const fileContent = await fsPromises.readFile(file.path);
+            attachments.push({
+              filename: file.originalname,
+              content: fileContent,
+              contentType: file.mimetype,
+            });
+          } catch (err) {
+            console.error(
+              `Error reading manual attachment ${file.originalname}:`,
+              err
+            );
+          }
+        }
+      }
+
+      // Parse recipient_filter if it's a string
+      let parsedRecipientFilter = recipient_filter;
+      if (typeof recipient_filter === "string") {
+        try {
+          parsedRecipientFilter = JSON.parse(recipient_filter);
+        } catch (err) {
+          console.error("Error parsing recipient_filter:", err);
+        }
+      }
+
+      // Parse recipient_emails if it's a string
+      let parsedRecipientEmails = recipient_emails;
+      if (typeof recipient_emails === "string") {
+        try {
+          parsedRecipientEmails = JSON.parse(recipient_emails);
+        } catch (err) {
+          console.error("Error parsing recipient_emails:", err);
+        }
+      }
+
+      // Get recipients based on filter or manual emails
+      if (
+        parsedRecipientFilter &&
+        Object.keys(parsedRecipientFilter).length > 0
+      ) {
+        console.log("🎯 Using recipient filter:", parsedRecipientFilter);
+        const { query, params } = buildStudentQuery(parsedRecipientFilter);
+        const result = await db.query(query, params);
+        students = result.rows;
+        finalRecipientEmails = students.map((s) => s.college_email);
+      } else if (parsedRecipientEmails && parsedRecipientEmails.length > 0) {
+        console.log(
+          `📋 Using manual recipient list (${parsedRecipientEmails.length} emails)`
+        );
+        students = parsedRecipientEmails.map((email) => ({
+          college_email: email,
+          first_name: "",
+          last_name: "",
+          enrollment_number: "",
+          department: "",
+          branch: "",
+          cgpa: "",
+          batch_year: "",
+        }));
+        finalRecipientEmails = parsedRecipientEmails;
+      } else {
+        // Clean up uploaded files
+        if (req.files) {
+          for (const file of req.files) {
+            await fsPromises.unlink(file.path);
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          error: "Either recipient_filter or recipient_emails is required",
+        });
+      }
+
+      if (finalRecipientEmails.length === 0) {
+        // Clean up uploaded files
+        if (req.files) {
+          for (const file of req.files) {
+            await fsPromises.unlink(file.path);
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          error: "No recipients found",
+        });
+      }
+
+      console.log(`\n📊 Found ${finalRecipientEmails.length} recipients`);
+      console.log(`📎 Total attachments: ${attachments.length}`);
+
+      // Send emails
+      const emailResults = await sendBulkEmails(
+        students,
+        subject,
+        body,
+        attachments,
+        parsedCcEmails,
+        parsedBccEmails
+      );
+
+      // Save campaign to database
+      const campaignResult = await db.query(
+        `INSERT INTO email_logs 
+       (title, subject, body, recipient_filter, recipient_emails, sender_email, 
+        cc_emails, bcc_emails, sent_at, total_recipients, event_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9, $10)
+       RETURNING *`,
+        [
+          title,
+          subject,
+          body,
+          parsedRecipientFilter ? JSON.stringify(parsedRecipientFilter) : null,
+          finalRecipientEmails,
+          sender_email,
+          parsedCcEmails,
+          parsedBccEmails,
+          finalRecipientEmails.length,
+          event_id || null,
+        ]
+      );
+
+      // Clean up manual attachment files after sending
+      if (req.files) {
+        for (const file of req.files) {
+          try {
+            await fsPromises.unlink(file.path);
+            console.log(
+              `🗑️ Cleaned up manual attachment: ${file.originalname}`
+            );
+          } catch (err) {
+            console.error(
+              `Error deleting manual attachment ${file.originalname}:`,
+              err
+            );
+          }
+        }
+      }
+
+      console.log("✅ Campaign completed successfully");
+
+      res.json({
+        success: true,
+        campaign: campaignResult.rows[0],
+        emailResults,
+        message: `Email sent successfully to ${emailResults.successful} of ${finalRecipientEmails.length} recipients`,
+      });
+    } catch (error) {
+      console.error("\n❌ Campaign failed:", error.message);
+      console.error("Stack:", error.stack);
+
+      // Clean up uploaded files on error
+      if (req.files) {
+        for (const file of req.files) {
+          try {
+            await fsPromises.unlink(file.path);
+          } catch (err) {
+            console.error("Error deleting file:", err);
+          }
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to send email campaign",
+      });
+    }
+  }
+);
+
+// POST /api/email-logs/preview - Preview email with sample data
+routes.post("/email-logs/preview", async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT id, title, start_datetime, venue, event_type, company_id
-      FROM events 
-      WHERE status IN ('upcoming', 'ongoing') 
-      AND start_datetime >= NOW()
-      ORDER BY start_datetime ASC
-    `);
+    const { subject, body, sample_student_id, template_id, position_id } =
+      req.body;
+
+    if (!subject || !body) {
+      return res.status(400).json({
+        success: false,
+        error: "Subject and body are required",
+      });
+    }
+
+    let sampleStudent;
+
+    if (sample_student_id) {
+      const result = await db.query(
+        `
+        SELECT first_name, last_name, enrollment_number, department, 
+               branch, cgpa, batch_year
+        FROM students WHERE id = $1
+      `,
+        [sample_student_id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: "Student not found",
+        });
+      }
+
+      sampleStudent = result.rows[0];
+    } else {
+      sampleStudent = {
+        first_name: "John",
+        last_name: "Doe",
+        enrollment_number: "2021A7PS001G",
+        department: "Computer Science",
+        branch: "CSE",
+        cgpa: "8.50",
+        batch_year: 2021,
+      };
+    }
+
+    const previewSubject = replaceVariables(subject, sampleStudent);
+    const previewBody = replaceVariables(body, sampleStudent);
+
+    // Get attachment info for preview
+    let attachmentInfo = [];
+    if (template_id) {
+      const templateResult = await db.query(
+        "SELECT attachments FROM email_templates WHERE id = $1",
+        [template_id]
+      );
+      if (
+        templateResult.rows.length > 0 &&
+        templateResult.rows[0].attachments
+      ) {
+        const templateAttachments =
+          typeof templateResult.rows[0].attachments === "string"
+            ? JSON.parse(templateResult.rows[0].attachments)
+            : templateResult.rows[0].attachments;
+        attachmentInfo.push(
+          ...templateAttachments.map((a) => ({
+            name: a.filename,
+            type: "template",
+          }))
+        );
+      }
+    }
+
+    if (position_id) {
+      const docsResult = await db.query(
+        `SELECT document_title FROM position_documents 
+         WHERE position_id = $1 AND is_active = TRUE`,
+        [position_id]
+      );
+      attachmentInfo.push(
+        ...docsResult.rows.map((d) => ({
+          name: d.document_title,
+          type: "position_document",
+        }))
+      );
+    }
 
     res.json({
       success: true,
-      data: result.rows,
+      preview: {
+        subject: previewSubject,
+        body: previewBody,
+        sample_data: sampleStudent,
+        attachments: attachmentInfo,
+      },
     });
   } catch (error) {
-    console.error("Error fetching active events:", error);
+    console.error("Error previewing email:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch active events",
-      error: error.message,
+      error: "Failed to preview email",
     });
   }
+});
+
+// POST /api/email-logs/send/event/:eventId - Send to event participants
+routes.post("/email-logs/send/event/:eventId", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const {
+      title,
+      subject,
+      body,
+      sender_email,
+      recipient_type = "registered",
+      position_id,
+      template_id,
+    } = req.body;
+
+    if (!title || !subject || !body) {
+      return res.status(400).json({
+        success: false,
+        error: "Title, subject, and body are required",
+      });
+    }
+
+    // Get attachments
+    let attachments = [];
+    if (template_id) {
+      const templateResult = await db.query(
+        "SELECT attachments FROM email_templates WHERE id = $1",
+        [template_id]
+      );
+      if (
+        templateResult.rows.length > 0 &&
+        templateResult.rows[0].attachments
+      ) {
+        attachments = await getEmailAttachments(
+          templateResult.rows[0].attachments,
+          position_id
+        );
+      }
+    } else if (position_id) {
+      attachments = await getEmailAttachments(null, position_id);
+    }
+
+    // Build query based on recipient type
+    let studentQuery;
+
+    if (recipient_type === "registered") {
+      studentQuery = `
+        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+               s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
+        FROM students s
+        INNER JOIN student_round_results srr ON s.id = srr.student_id
+        WHERE srr.event_id = $1 AND s.college_email IS NOT NULL
+      `;
+    } else if (recipient_type === "attended") {
+      studentQuery = `
+        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+               s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
+        FROM students s
+        INNER JOIN event_attendance ea ON s.id = ea.student_id
+        WHERE ea.event_id = $1 AND ea.status = 'present' AND s.college_email IS NOT NULL
+      `;
+    } else if (recipient_type === "absent") {
+      studentQuery = `
+        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+               s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
+        FROM students s
+        INNER JOIN event_attendance ea ON s.id = ea.student_id
+        WHERE ea.event_id = $1 AND ea.status = 'absent' AND s.college_email IS NOT NULL
+      `;
+    } else if (recipient_type === "selected") {
+      studentQuery = `
+        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+               s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
+        FROM students s
+        INNER JOIN student_round_results srr ON s.id = srr.student_id
+        WHERE srr.event_id = $1 AND srr.result_status = 'selected' 
+              AND s.college_email IS NOT NULL
+      `;
+    } else {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Invalid recipient_type. Use: registered, attended, absent, or selected",
+      });
+    }
+
+    const result = await db.query(studentQuery, [eventId]);
+    const students = result.rows;
+
+    if (students.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: `No ${recipient_type} students found for this event`,
+      });
+    }
+
+    const emailResults = await sendBulkEmails(
+      students,
+      subject,
+      body,
+      attachments
+    );
+
+    const recipientEmails = students.map((s) => s.college_email);
+    const campaignResult = await db.query(
+      `
+      INSERT INTO email_logs 
+      (title, subject, body, recipient_emails, sender_email, 
+       sent_at, total_recipients, event_id)
+      VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7)
+      RETURNING *
+    `,
+      [
+        title,
+        subject,
+        body,
+        recipientEmails,
+        sender_email,
+        students.length,
+        eventId,
+      ]
+    );
+
+    res.json({
+      success: true,
+      campaign: campaignResult.rows[0],
+      emailResults,
+      message: `Email sent to ${emailResults.successful} of ${students.length} ${recipient_type} students`,
+    });
+  } catch (error) {
+    console.error("Error sending event email:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to send email to event participants",
+    });
+  }
+});
+
+// POST /api/email-logs/send/students - Send to filtered students
+routes.post("/email-logs/send/students", async (req, res) => {
+  try {
+    const {
+      title,
+      subject,
+      body,
+      sender_email,
+      student_ids,
+      position_id,
+      template_id,
+    } = req.body;
+
+    if (!title || !subject || !body) {
+      return res.status(400).json({
+        success: false,
+        error: "Title, subject, and body are required",
+      });
+    }
+
+    if (!student_ids || student_ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "student_ids array is required",
+      });
+    }
+
+    // Fetch students by IDs
+    const result = await db.query(
+      `
+      SELECT id, college_email, first_name, last_name, enrollment_number, 
+             department, branch, cgpa, batch_year
+      FROM students 
+      WHERE id = ANY($1) AND college_email IS NOT NULL
+    `,
+      [student_ids]
+    );
+
+    const students = result.rows;
+
+    if (students.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "No valid students found with provided IDs",
+      });
+    }
+
+    // Get attachments from template and position documents
+    let attachments = [];
+
+    if (template_id) {
+      const templateResult = await db.query(
+        "SELECT attachments FROM email_templates WHERE id = $1",
+        [template_id]
+      );
+      if (
+        templateResult.rows.length > 0 &&
+        templateResult.rows[0].attachments
+      ) {
+        const templateAttachments =
+          typeof templateResult.rows[0].attachments === "string"
+            ? JSON.parse(templateResult.rows[0].attachments)
+            : templateResult.rows[0].attachments;
+        for (const attachment of templateAttachments) {
+          try {
+            const fileContent = await fsPromises.readFile(attachment.filepath);
+            attachments.push({
+              filename: attachment.filename,
+              content: fileContent,
+              contentType: attachment.mimetype,
+            });
+          } catch (err) {
+            console.error(`Error reading template attachment:`, err);
+          }
+        }
+      }
+    }
+
+    if (position_id) {
+      const docsResult = await db.query(
+        `SELECT document_path, document_title, file_type 
+         FROM position_documents 
+         WHERE position_id = $1 AND is_active = TRUE 
+         ORDER BY display_order`,
+        [position_id]
+      );
+
+      for (const doc of docsResult.rows) {
+        try {
+          const fileContent = await fsPromises.readFile(doc.document_path);
+          attachments.push({
+            filename: doc.document_title,
+            content: fileContent,
+            contentType: getMimeType(doc.file_type),
+          });
+        } catch (err) {
+          console.error(`Error reading position document:`, err);
+        }
+      }
+    }
+
+    // Send emails
+    const emailResults = await sendBulkEmails(
+      students,
+      subject,
+      body,
+      attachments
+    );
+
+    // Save campaign
+    const recipientEmails = students.map((s) => s.college_email);
+    const campaignResult = await db.query(
+      `
+      INSERT INTO email_logs 
+      (title, subject, body, recipient_emails, sender_email, 
+       sent_at, total_recipients)
+      VALUES ($1, $2, $3, $4, $5, NOW(), $6)
+      RETURNING *
+    `,
+      [title, subject, body, recipientEmails, sender_email, students.length]
+    );
+
+    res.json({
+      success: true,
+      campaign: campaignResult.rows[0],
+      emailResults,
+      message: `Email sent to ${emailResults.successful} of ${students.length} students`,
+    });
+  } catch (error) {
+    console.error("Error sending student email:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to send email to students",
+    });
+  }
+});
+
+// Error handling middleware
+routes.use((error, req, res, next) => {
+  console.error("Error in email routes:", error);
+  if (error instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      error: `File upload error: ${error.message}`,
+    });
+  }
+  res.status(500).json({
+    success: false,
+    error: error.message || "Internal server error",
+  });
 });
 
 module.exports = routes;
