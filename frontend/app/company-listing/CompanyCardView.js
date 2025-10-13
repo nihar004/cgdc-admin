@@ -31,8 +31,13 @@ export default function CompanyCardView({
   companyTypeColors,
   onEditClick,
 }) {
-  const { formatPackage, setSelectedCompany, getCompanyStatus } =
-    useCompaniesContext();
+  const {
+    formatPackage,
+    setSelectedCompany,
+    getCompanyStatus,
+    setShowEligibilityModal,
+    setSelectedCompanyForEligibility,
+  } = useCompaniesContext();
   // Individual expand state for this specific card
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -483,6 +488,16 @@ export default function CompanyCardView({
               title="View Details"
             >
               <Eye size={16} />
+            </button>
+            <button
+              onClick={() => {
+                setSelectedCompanyForEligibility(company);
+                setShowEligibilityModal(true);
+              }}
+              className="p-2 text-slate-500 hover:text-green-800 hover:bg-green-100 rounded-lg transition-all duration-200"
+              title="Manage Eligible Students"
+            >
+              <Users size={16} />
             </button>
             <button
               onClick={() => onEditClick(company)}

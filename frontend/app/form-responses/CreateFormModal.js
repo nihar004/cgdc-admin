@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   X,
   FileText,
@@ -48,11 +49,8 @@ const CreateFormModal = ({
               ? `http://localhost:5000/forms/events/${selectedBatch}?include_event=${formData.event_id}`
               : `http://localhost:5000/forms/events/${selectedBatch}`;
 
-          const response = await fetch(url);
-          if (!response.ok) throw new Error("Failed to fetch events");
-          const data = await response.json();
-          console.log("Events updated:", data.data); // Debug log
-          setEvents(data.data || []);
+          const response = await axios.get(url);
+          setEvents(response.data.data || []);
         } catch (error) {
           console.error("Error fetching events:", error);
         }
@@ -92,29 +90,19 @@ const CreateFormModal = ({
         ? `http://localhost:5000/forms/${initialFormData.id}`
         : "http://localhost:5000/forms";
 
-      const response = await fetch(url, {
-        method: isEditing ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.message || `Failed to ${isEditing ? "update" : "create"} form`
-        );
-      }
+      const response = isEditing
+        ? await axios.put(url, payload)
+        : await axios.post(url, payload);
 
       // Only refresh forms list
       await fetchForms();
       setShowCreateForm(false);
     } catch (err) {
-      setError(
-        err.message || `Failed to ${isEditing ? "update" : "create"} form`
-      );
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        `Failed to ${isEditing ? "update" : "create"} form`;
+      setError(errorMessage);
       console.error(`Error ${isEditing ? "updating" : "creating"} form:`, err);
     } finally {
       setSubmitting(false);

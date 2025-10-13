@@ -13,11 +13,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 
-const ModernUploadModal = ({
-  selectedForm,
-  setShowUploadModal,
-  fetchForms,
-}) => {
+const UploadModal = ({ selectedForm, setShowUploadModal, fetchForms }) => {
   const [file, setFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -139,7 +135,15 @@ const ModernUploadModal = ({
       if (fetchForms) fetchForms();
     } catch (err) {
       setUploadStatus(null);
-      setError(err.response?.data?.message || "Failed to upload file");
+      // NEW: Check for eligibility snapshot missing
+      if (err.response?.data?.requiresAction === "create_eligibility") {
+        setError(
+          `${err.response.data.message}\n\nPlease go to Company Management and create the eligibility snapshot first.`
+        );
+      } else {
+        setError(err.response?.data?.message || "Failed to upload file");
+      }
+
       console.error("Upload error:", err);
     } finally {
       setUploading(false);
@@ -480,9 +484,19 @@ const ModernUploadModal = ({
                         </div>
                       </div>
                     )}
+                    {uploadStatus.summary?.eligibility_failures > 0 && (
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4 text-center">
+                        <div className="text-3xl font-bold text-purple-700 mb-1">
+                          {uploadStatus.summary.eligibility_failures}
+                        </div>
+                        <div className="text-sm font-medium text-purple-600">
+                          Eligibility Failures
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Batch Year Info */}
+                  {/* Batch Year Info
                   {uploadStatus.summary?.form_batch_year && (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-2">
@@ -502,6 +516,51 @@ const ModernUploadModal = ({
                             {uploadStatus.summary.year_mismatches} records were
                             rejected due to batch year mismatch.
                           </span>
+                        )}
+                      </div>
+                    </div>
+                  )} */}
+                  {/* Batch Year Info */}
+                  {uploadStatus.summary?.form_batch_year && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <BarChart3 className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium text-blue-800">
+                          Form Information
+                        </span>
+                      </div>
+                      <div className="text-sm text-blue-700 space-y-2">
+                        <div>
+                          This form is configured for{" "}
+                          <strong>
+                            Batch {uploadStatus.summary.form_batch_year}
+                          </strong>{" "}
+                          students only.
+                        </div>
+
+                        {/* Year Mismatch Info */}
+                        {uploadStatus.summary.year_mismatches > 0 && (
+                          <div className="text-purple-700">
+                            ⚠ {uploadStatus.summary.year_mismatches} records
+                            were rejected due to batch year mismatch.
+                          </div>
+                        )}
+
+                        {/* Eligibility Status */}
+                        {uploadStatus.summary.has_company_eligibility && (
+                          <div className="text-green-700 font-medium">
+                            ✓ Company eligibility verified for all uploaded
+                            students
+                          </div>
+                        )}
+
+                        {/* Eligibility Failures */}
+                        {uploadStatus.summary.eligibility_failures > 0 && (
+                          <div className="text-red-700 font-medium">
+                            ✗ {uploadStatus.summary.eligibility_failures}{" "}
+                            students failed eligibility criteria for this
+                            company
+                          </div>
                         )}
                       </div>
                     </div>
@@ -675,4 +734,4 @@ const ModernUploadModal = ({
   );
 };
 
-export default ModernUploadModal;
+export default UploadModal;

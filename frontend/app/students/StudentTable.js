@@ -11,7 +11,7 @@ export default function StudentTable({ filteredStudents }) {
     setEditingStudent,
     setStudentFormData,
     setShowEditStudentModal,
-    fetchStudents, // Add this from context
+    fetchStudents,
   } = useStudentContext();
 
   // State for delete confirmation modal

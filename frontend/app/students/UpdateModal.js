@@ -8,7 +8,7 @@ const UpdateModal = ({ onClose, onUpdateComplete }) => {
   const [file, setFile] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const { fetchStudents } = useStudentContext(); // Access fetchStudents from context
+  const { fetchStudents } = useStudentContext();
 
   const handleDrag = (e) => {
     e.preventDefault();

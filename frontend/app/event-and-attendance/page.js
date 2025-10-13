@@ -94,6 +94,10 @@ const EventAttendancePage = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("Selected batch:", selectedBatch);
+  }, []);
+
   // Filter and paginate events locally
   const filterAndPaginateEvents = (eventsToFilter = allEvents, page = 1) => {
     let filteredEvents = [...eventsToFilter];
@@ -556,7 +560,6 @@ const EventAttendancePage = () => {
                 setEditingEvent(null);
               }}
               onEventCreated={handleEventSaved}
-              selectedBatch={selectedBatch}
               isEditing={!!editingEvent}
               eventData={editingEvent}
             />

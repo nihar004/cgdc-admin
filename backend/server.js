@@ -17,6 +17,7 @@ const forms = require("./routes/forms");
 const events = require("./routes/events");
 const round_tracking = require("./routes/round_tracking");
 const emails = require("./routes/emails");
+const eligibility = require("./routes/eligibility");
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use("/forms", isAuthenticated, forms);
 app.use("/events", isAuthenticated, events);
 app.use("/round_tracking", isAuthenticated, round_tracking);
 app.use("/emails", isAuthenticated, emails);
+app.use("/eligibility", isAuthenticated, eligibility);
 
 // 404 handler
 app.use((req, res) => {

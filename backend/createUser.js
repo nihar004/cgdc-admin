@@ -3,7 +3,7 @@
 // e.g., node createUser.js admin admin123 admin@college.edu admin
 
 const bcrypt = require("bcrypt");
-const pool = require("./db");
+const db = require("./db");
 require("dotenv").config();
 
 async function createUser(username, password, email, role) {
@@ -13,7 +13,7 @@ async function createUser(username, password, email, role) {
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     // Insert user into database
-    const result = await pool.query(
+    const result = await db.query(
       `INSERT INTO users (username, password_hash, email, role, is_active) 
              VALUES ($1, $2, $3, $4, TRUE) 
              RETURNING id, username, email, role, created_at`,
@@ -38,7 +38,7 @@ async function createUser(username, password, email, role) {
       console.error("❌ Error creating user:", error.message);
     }
   } finally {
-    await pool.end();
+    await db.end();
   }
 }
 

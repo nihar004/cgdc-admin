@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Calendar,
@@ -13,12 +13,12 @@ import {
   CheckCircle,
   GraduationCap,
 } from "lucide-react";
+import { useBatchContext } from "../../context/BatchContext";
 
 // Update the initial form state to handle backend data format
 function CreateEvent({
   onBack,
   onEventCreated,
-  selectedBatch,
   isEditing = false,
   eventData = null,
 }) {
@@ -100,6 +100,7 @@ function CreateEvent({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState("");
+  const { selectedBatch } = useBatchContext();
 
   // Event types for different categories
   const companyEventTypes = [
@@ -133,7 +134,7 @@ function CreateEvent({
   // Fetch data on component mount
   useEffect(() => {
     if (selectedBatch) {
-      fetchCompaniesWithPositions(selectedBatch);
+      fetchCompaniesWithPositions();
     }
     fetchBatches();
   }, [selectedBatch]);
@@ -184,10 +185,10 @@ function CreateEvent({
     // eslint-disable-next-line
   }, [isEditing, formData.companyId, companiesWithPositions]);
 
-  const fetchCompaniesWithPositions = async (batchYear) => {
+  const fetchCompaniesWithPositions = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/companies/with-active-positions/${batchYear}`
+        `http://localhost:5000/companies/with-active-positions/${selectedBatch}`
       );
       if (response.data.success) {
         setCompaniesWithPositions(response.data.data);

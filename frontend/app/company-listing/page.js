@@ -22,6 +22,7 @@ import { CompanyDetailModal } from "./CompanyDetailModal";
 import { CompanyTableView } from "./CompanyTableView";
 import CompanyFormModal from "./CompanyFormModal";
 import ExportCompanyModal from "./ExportCompanyModal";
+import EligibleStudentsManager from "./EligibleStudentsManager";
 
 const CompanyListing = () => {
   const [viewMode, setViewMode] = useState("table"); // table or cards
@@ -46,6 +47,10 @@ const CompanyListing = () => {
     setShowFormModal,
     editingCompany,
     setEditingCompany,
+    showEligibilityModal,
+    setShowEligibilityModal,
+    selectedCompanyForEligibility,
+    setSelectedCompanyForEligibility,
   } = useCompaniesContext();
 
   const [showExportModal, setShowExportModal] = useState(false);
@@ -447,6 +452,18 @@ const CompanyListing = () => {
           <ExportCompanyModal
             companies={filteredCompanies}
             onClose={() => setShowExportModal(false)}
+          />
+        )}
+
+        {/* Eligible Students Manager Modal */}
+        {showEligibilityModal && selectedCompanyForEligibility && (
+          <EligibleStudentsManager
+            companyId={selectedCompanyForEligibility.id}
+            batchYear={selectedBatch}
+            onClose={() => {
+              setShowEligibilityModal(false);
+              setSelectedCompanyForEligibility(null);
+            }}
           />
         )}
       </div>

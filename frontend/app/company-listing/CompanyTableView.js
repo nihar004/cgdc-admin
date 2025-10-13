@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Edit,
   Trash2,
@@ -21,7 +21,6 @@ import {
   RefreshCw,
   Search,
   UserCheck,
-  Target,
   Users,
   CheckCircle,
 } from "lucide-react";
@@ -55,6 +54,8 @@ export function CompanyTableView({
     deleteType,
     isDeleting,
     setItemToDelete,
+    setShowEligibilityModal,
+    setSelectedCompanyForEligibility,
   } = useCompaniesContext();
 
   const [expandedRows, setExpandedRows] = useState(new Set());
@@ -106,25 +107,25 @@ export function CompanyTableView({
             <table className="w-full">
               <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-[25%]">
                     Company Details
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-[8%]">
                     Type & Sector
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-[12%]">
                     Positions
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-[15%]">
                     Requirements
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-[15%]">
                     Schedule & Status
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-[15%]">
                     Applications
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider w-[10%]">
                     Actions
                   </th>
                 </tr>
@@ -138,7 +139,7 @@ export function CompanyTableView({
                     <React.Fragment key={company.id}>
                       <tr className="hover:bg-slate-50 transition-all duration-200">
                         {/* Company Details */}
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 w-1/4">
                           <div className="flex items-start gap-3">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
@@ -188,11 +189,11 @@ export function CompanyTableView({
                         </td>
 
                         {/* Type & Sector */}
-                        <td className="px-4 py-5">
-                          <div className="space-y-2">
+                        <td className="px-4 py-5 w-[8%]">
+                          <div className="space-y-1">
                             {/* Sector */}
                             {company.sector && (
-                              <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded w-fit">
+                              <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md text-center">
                                 {company.sector}
                               </div>
                             )}
@@ -200,7 +201,7 @@ export function CompanyTableView({
                         </td>
 
                         {/* Positions Summary */}
-                        <td className="px-4 py-5">
+                        <td className="px-4 py-5 w-[12%]">
                           <div className="space-y-1">
                             <div className="text-sm font-medium text-gray-900">
                               {company.positions?.length || 0} Position
@@ -288,7 +289,7 @@ export function CompanyTableView({
                         </td>
 
                         {/* Schedule & Status */}
-                        <td className="px-6 py-5">
+                        <td className="px-4 py-5 w-[15%]">
                           <div className="space-y-2">
                             <span
                               className={`inline-flex px-2.5 py-1 text-xs font-medium rounded ${statusColors[status]}`}
@@ -320,39 +321,59 @@ export function CompanyTableView({
                         </td>
 
                         {/* Applications */}
-                        <td className="px-1 py-5">
-                          <div className="space-y-2 flex flex-col items-center">
-                            <div className="flex items-center gap-1 mb-2">
-                              <UserCheck
-                                size={14}
-                                className="text-emerald-500"
-                              />
-                              <span className="font-medium text-xs text-gray-500">
-                                {company.total_eligible_students || 0} Eligible
-                                Students
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs ">
-                              <div className="text-center bg-blue-50 rounded p-2 w-full">
-                                <div className="font-bold text-blue-600">
-                                  {/* {company.total_applications_count || 0} */}
-                                  {/* TODO */}
-                                </div>
-                                <div className="text-blue-500">Registered</div>
+                        <td className="px-4 py-5 w-[15%]">
+                          <div className="space-y-3">
+                            {company.total_eligible === -1 ? (
+                              <div
+                                onClick={() => {
+                                  setSelectedCompanyForEligibility(company);
+                                  setShowEligibilityModal(true);
+                                }}
+                                className="flex flex-col items-center gap-2 cursor-pointer hover:opacity-75 transition-opacity"
+                              >
+                                <Users size={14} className="text-red-500" />
+                                <span className="text-xs text-red-400 text-center font-medium">
+                                  Set Eligible Students First
+                                </span>
                               </div>
-                              <div className="text-center bg-green-50 rounded p-2 w-full">
-                                <div className="font-bold text-green-600">
-                                  {company.total_selected || 0}
+                            ) : (
+                              <>
+                                <div className="flex items-center justify-center gap-2">
+                                  <UserCheck
+                                    size={14}
+                                    className="text-emerald-500"
+                                  />
+                                  <span className="font-medium text-xs text-gray-500">
+                                    {company.total_eligible || 0} Eligible
+                                    Students
+                                  </span>
                                 </div>
-                                <div className="text-green-500">Selected</div>
-                              </div>
-                            </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="text-center bg-blue-50 rounded-lg p-2">
+                                    <div className="font-bold text-blue-600 text-xs">
+                                      {company.total_applications_count || 0}
+                                    </div>
+                                    <div className="text-blue-500 text-[11px]">
+                                      Registered
+                                    </div>
+                                  </div>
+                                  <div className="text-center bg-green-50 rounded-lg p-2">
+                                    <div className="font-bold text-green-600 text-xs">
+                                      {company.total_selected || 0}
+                                    </div>
+                                    <div className="text-green-500 text-[11px] truncate">
+                                      Selected
+                                    </div>
+                                  </div>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </td>
 
                         {/* Actions */}
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-2">
+                        <td className="px-4 py-5 w-[10%]">
+                          <div className="flex items-center justify-end gap-1">
                             {/* External Links */}
                             <div className="flex items-center gap-2">
                               {/* External Links */}
@@ -408,7 +429,16 @@ export function CompanyTableView({
                               >
                                 <Eye size={16} />
                               </button>
-                              {/* TODO  */}
+                              <button
+                                onClick={() => {
+                                  setSelectedCompanyForEligibility(company);
+                                  setShowEligibilityModal(true);
+                                }}
+                                className="p-2 text-green-600 hover:text-green-800 hover:bg-green-100 rounded-lg transition-all duration-200"
+                                title="Manage Eligible Students"
+                              >
+                                <Users size={16} />
+                              </button>
                               <button
                                 onClick={() => onEditClick(company)}
                                 className="p-2 text-slate-600 hover:text-amber-800 hover:bg-amber-100 rounded-lg transition-all duration-200"
@@ -416,6 +446,7 @@ export function CompanyTableView({
                               >
                                 <Edit size={16} />
                               </button>
+
                               <button
                                 onClick={() =>
                                   handleDeleteClick(company, "company")
@@ -738,6 +769,7 @@ export function CompanyTableView({
           )}
         </div>
       </div>
+
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={showDeleteModal}

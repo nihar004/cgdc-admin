@@ -450,6 +450,7 @@ routes.get("/batch/:batchYear", async (req, res) => {
         c.*,
         cb.batch_id,
         b.year as batch_year,
+        COALESCE(ce.total_eligible_count, -1) as total_eligible,
         JSON_AGG(
           JSON_BUILD_OBJECT(
             'id', cp.id,
@@ -485,8 +486,9 @@ routes.get("/batch/:batchYear", async (req, res) => {
       JOIN company_batches cb ON c.id = cb.company_id
       LEFT JOIN batches b ON cb.batch_id = b.id
       LEFT JOIN company_positions cp ON c.id = cp.company_id
+      LEFT JOIN company_eligibility ce ON c.id = ce.company_id AND cb.batch_id = ce.batch_id
       WHERE cb.batch_id = $1
-      GROUP BY c.id, cb.batch_id, b.year
+      GROUP BY c.id, cb.batch_id, b.year, ce.total_eligible_count
       ORDER BY c.scheduled_visit DESC
     `;
 
@@ -1193,6 +1195,10 @@ routes.delete("/documents/:documentId", async (req, res) => {
 routes.get("/with-active-positions/:batchYear", async (req, res) => {
   try {
     const { batchYear } = req.params;
+
+    if (!batchYear || isNaN(batchYear)) {
+      return res.status(400).json({ error: "Invalid batch year" });
+    }
 
     const query = `
       SELECT 

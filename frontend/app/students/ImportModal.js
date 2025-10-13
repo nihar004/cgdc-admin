@@ -16,7 +16,7 @@ const ImportModal = ({ onClose, onImportComplete }) => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const { fetchStudents } = useStudentContext(); // Access fetchStudents from context
+  const { fetchStudents } = useStudentContext();
 
   const handleDrag = (e) => {
     e.preventDefault();

@@ -22,6 +22,9 @@ export function CompaniesProvider({ children }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
+  const [showEligibilityModal, setShowEligibilityModal] = useState(false);
+  const [selectedCompanyForEligibility, setSelectedCompanyForEligibility] =
+    useState(null);
 
   const formatPackage = (amount) => {
     if (amount == null || isNaN(amount)) {
@@ -128,7 +131,7 @@ export function CompaniesProvider({ children }) {
     if (selectedBatch) {
       fetchCompanies();
     }
-  }, [selectedBatch]);
+  }, [selectedBatch, showEligibilityModal]);
 
   // Delete company
   const handleDeleteCompany = async (companyId) => {
@@ -249,6 +252,10 @@ export function CompaniesProvider({ children }) {
         setShowFormModal,
         editingCompany,
         setEditingCompany,
+        showEligibilityModal,
+        setShowEligibilityModal,
+        selectedCompanyForEligibility,
+        setSelectedCompanyForEligibility,
       }}
     >
       {children}
