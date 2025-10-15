@@ -1,53 +1,40 @@
+import { useState, useEffect } from "react";
 import { FileText } from "lucide-react";
+import axios from "axios";
 
 const ResultUploadModal = ({
   eventId,
   onClose,
   companyName,
   positionTitle,
+  onResultsUpdated,
 }) => {
-  const [uploadMethod, setUploadMethod] = useState("manual"); // 'manual' or 'file'
+  const [uploadMethod, setUploadMethod] = useState("manual");
   const [students, setStudents] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState(new Set());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
-    // Fetch students who attended this event
     fetchEventStudents();
   }, [eventId]);
 
   const fetchEventStudents = async () => {
     try {
-      // API call to get students who attended this event
-      // const response = await fetch(`/api/events/${eventId}/students`);
-      // const data = await response.json();
-      // setStudents(data);
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:5000/round-tracking/events/${eventId}/students?status=attended`
+      );
 
-      // Mock data for now
-      setStudents([
-        {
-          id: 1,
-          name: "John Doe",
-          enrollment: "2021A7PS001",
-          cgpa: 8.5,
-          current_status: "attended",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          enrollment: "2021A7PS002",
-          cgpa: 9.0,
-          current_status: "attended",
-        },
-        {
-          id: 3,
-          name: "Mike Johnson",
-          enrollment: "2021A7PS003",
-          cgpa: 7.8,
-          current_status: "attended",
-        },
-      ]);
+      if (response.data.success) {
+        setStudents(response.data.students);
+      }
     } catch (error) {
       console.error("Error fetching students:", error);
+      setError("Failed to load students");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,24 +48,55 @@ const ResultUploadModal = ({
     setSelectedStudents(newSelected);
   };
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const csvData = e.target.result;
+        const response = await axios.post(
+          `http://localhost:5000/round-tracking/events/${eventId}/upload-csv`,
+          { csvData }
+        );
+
+        if (response.data.success) {
+          onResultsUpdated?.();
+          onClose();
+        }
+      } catch (error) {
+        setError(error.response?.data?.message || "Failed to process CSV");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleSubmit = async () => {
     try {
-      // API call to update round results
-      const payload = {
-        eventId,
-        qualifiedStudentIds: Array.from(selectedStudents),
-      };
+      setLoading(true);
+      setError(null);
 
-      // await fetch(`/api/events/${eventId}/results`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload)
-      // });
+      const qualifiedRegistrationNumbers = students
+        .filter((student) => selectedStudents.has(student.id))
+        .map((student) => student.registration_number);
 
-      console.log("Submitting results:", payload);
-      onClose();
+      const response = await axios.post(
+        `http://localhost:5000/round-tracking/events/${eventId}/results`,
+        {
+          qualifiedRegistrationNumbers,
+          method: "manual",
+        }
+      );
+
+      if (response.data.success) {
+        onResultsUpdated?.();
+        onClose();
+      }
     } catch (error) {
-      console.error("Error updating results:", error);
+      setError(error.response?.data?.message || "Failed to update results");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -206,6 +224,7 @@ const ResultUploadModal = ({
                       type="file"
                       accept=".csv"
                       className="sr-only"
+                      onChange={handleFileUpload}
                     />
                   </label>
                   <p className="mt-2 text-xs text-gray-500">
@@ -216,6 +235,18 @@ const ResultUploadModal = ({
             </div>
           )}
         </div>
+
+        {error && (
+          <div className="px-6 py-2 text-red-600 bg-red-50 text-sm">
+            {error}
+          </div>
+        )}
+
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        )}
 
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between">
           <div className="text-sm text-gray-600">

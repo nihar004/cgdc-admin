@@ -68,6 +68,154 @@ const detectRegistrationColumn = (headers) => {
 };
 
 // 1. CREATE NEW FORM
+// routes.post("/", async (req, res) => {
+//   const client = await db.connect();
+
+//   try {
+//     await client.query("BEGIN");
+
+//     const { title, type, event_id, batch_year } = req.body;
+
+//     // 1️ Validate required fields
+//     if (!title || !type || !batch_year) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Title, type, and batch_year are required fields",
+//       });
+//     }
+
+//     // 2 Validate form type
+//     const validTypes = [
+//       "application",
+//       "feedback",
+//       "survey",
+//       "attendance",
+//       "custom",
+//     ];
+//     if (!validTypes.includes(type)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Invalid form type. Must be one of: ${validTypes.join(", ")}`,
+//       });
+//     }
+
+//     // 3️ Validate batch year
+//     const currentYear = new Date().getFullYear();
+//     if (batch_year < 2020 || batch_year > currentYear + 5) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Invalid batch year. Must be between 2020 and ${
+//           currentYear + 5
+//         }`,
+//       });
+//     }
+
+//     // 4️ Validate event_id and ensure it's linked to the batch year
+//     if (event_id) {
+//       const eventCheck = await client.query(
+//         `
+//         SELECT e.id
+//         FROM events e
+//         INNER JOIN event_batches eb ON eb.event_id = e.id
+//         INNER JOIN batches b ON b.id = eb.batch_id
+//         WHERE e.id = $1 AND b.year = $2
+//       `,
+//         [event_id, batch_year]
+//       );
+
+//       if (eventCheck.rows.length === 0) {
+//         await client.query("ROLLBACK");
+//         return res.status(400).json({
+//           success: false,
+//           message: `Invalid event_id or the event is not available for batch year ${batch_year}`,
+//         });
+//       }
+
+//       // 5️ Ensure one form per event per batch year
+//       const formExists = await client.query(
+//         "SELECT id FROM forms WHERE event_id = $1 AND batch_year = $2",
+//         [event_id, batch_year]
+//       );
+
+//       if (formExists.rows.length > 0) {
+//         await client.query("ROLLBACK");
+//         return res.status(400).json({
+//           success: false,
+//           message: "A form already exists for this event and batch year",
+//         });
+//       }
+//     }
+
+//     // 6️ Insert new form
+//     const insertQuery = `
+//       INSERT INTO forms (
+//         title,
+//         type,
+//         event_id,
+//         batch_year,
+//         created_at
+//       )
+//       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+//       RETURNING id, title, type, event_id, batch_year, created_at
+//     `;
+//     const result = await client.query(insertQuery, [
+//       title,
+//       type,
+//       event_id || null,
+//       batch_year,
+//     ]);
+
+//     const newForm = result.rows[0];
+
+//     // 7 Fetch full details with joins
+//     const detailQuery = `
+//       SELECT
+//         f.id,
+//         f.title,
+//         f.type,
+//         f.batch_year,
+//         f.created_at,
+//         e.title AS event_title,
+//         e.event_date,
+//         c.company_name,
+//         cp.position_title,
+//         0 AS total_responses
+//       FROM forms f
+//       LEFT JOIN events e ON f.event_id = e.id
+//       LEFT JOIN companies c ON e.company_id = c.id
+//       LEFT JOIN company_positions cp ON e.position_id = cp.id
+//       WHERE f.id = $1
+//     `;
+//     const detailResult = await client.query(detailQuery, [newForm.id]);
+
+//     await client.query("COMMIT");
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Form created successfully",
+//       data: detailResult.rows[0],
+//     });
+//   } catch (error) {
+//     await client.query("ROLLBACK");
+//     console.error("Error creating form:", error);
+
+//     if (error.code === "23505") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "A form with this title already exists for this batch year",
+//       });
+//     }
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to create form",
+//       error: error.message,
+//     });
+//   } finally {
+//     client.release();
+//   }
+// });
+// 1. CREATE NEW FORM
 routes.post("/", async (req, res) => {
   const client = await db.connect();
 
@@ -114,7 +262,7 @@ routes.post("/", async (req, res) => {
     if (event_id) {
       const eventCheck = await client.query(
         `
-        SELECT e.id
+        SELECT e.id, e.position_ids
         FROM events e
         INNER JOIN event_batches eb ON eb.event_id = e.id
         INNER JOIN batches b ON b.id = eb.batch_id
@@ -128,6 +276,17 @@ routes.post("/", async (req, res) => {
         return res.status(400).json({
           success: false,
           message: `Invalid event_id or the event is not available for batch year ${batch_year}`,
+        });
+      }
+
+      // Validate event has positions
+      const positionIds = eventCheck.rows[0].position_ids || [];
+      if (positionIds.length === 0) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message:
+            "Event has no positions associated. Please add positions to the event first.",
         });
       }
 
@@ -177,13 +336,20 @@ routes.post("/", async (req, res) => {
         f.created_at,
         e.title AS event_title,
         e.event_date,
+        e.position_ids,
         c.company_name,
-        cp.position_title,
+        CASE 
+          WHEN array_length(e.position_ids, 1) = 1 THEN 
+            (SELECT position_title FROM company_positions WHERE id = e.position_ids[1])
+          WHEN array_length(e.position_ids, 1) > 1 THEN 
+            'Multiple Positions'
+          ELSE 
+            NULL
+        END as position_info,
         0 AS total_responses
       FROM forms f
       LEFT JOIN events e ON f.event_id = e.id
       LEFT JOIN companies c ON e.company_id = c.id
-      LEFT JOIN company_positions cp ON e.position_id = cp.id
       WHERE f.id = $1
     `;
     const detailResult = await client.query(detailQuery, [newForm.id]);
@@ -235,7 +401,7 @@ routes.put("/:id", async (req, res) => {
 
     // Check if form exists
     const existingForm = await client.query(
-      "SELECT id FROM forms WHERE id = $1",
+      "SELECT id, event_id FROM forms WHERE id = $1",
       [id]
     );
     if (existingForm.rows.length === 0) {
@@ -281,16 +447,46 @@ routes.put("/:id", async (req, res) => {
 
     if (event_id !== undefined) {
       if (event_id !== null) {
+        // Validate event exists and has positions
         const eventCheck = await client.query(
-          "SELECT id FROM events WHERE id = $1",
+          "SELECT id, position_ids FROM events WHERE id = $1",
           [event_id]
         );
+
         if (eventCheck.rows.length === 0) {
           await client.query("ROLLBACK");
           return res.status(400).json({
             success: false,
             message: "Invalid event_id. Event does not exist",
           });
+        }
+
+        const positionIds = eventCheck.rows[0].position_ids || [];
+
+        if (positionIds.length === 0) {
+          await client.query("ROLLBACK");
+          return res.status(400).json({
+            success: false,
+            message:
+              "Event has no positions associated. Please add positions to the event first.",
+          });
+        }
+
+        // If changing event_id, check if form has responses
+        if (existingForm.rows[0].event_id !== event_id) {
+          const responseCount = await client.query(
+            "SELECT COUNT(*) as count FROM form_responses WHERE form_id = $1",
+            [id]
+          );
+
+          if (parseInt(responseCount.rows[0].count) > 0) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({
+              success: false,
+              message:
+                "Cannot change event for a form that already has responses. Please delete all responses first.",
+            });
+          }
         }
       }
       updates.push(`event_id = $${paramCounter}`);
@@ -354,6 +550,56 @@ routes.put("/:id", async (req, res) => {
 });
 
 // 3. GET ALL FORMS
+// routes.get("/:year", async (req, res) => {
+//   try {
+//     const { year } = req.params;
+
+//     // Validate year parameter
+//     if (!year) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Year parameter is required",
+//       });
+//     }
+
+//     const query = `
+//       SELECT
+//         f.id,
+//         f.title,
+//         f.type,
+//         f.batch_year,
+//         f.created_at,
+//         e.title AS event_title,
+//         e.id AS event_id,
+//         c.company_name,
+//         cp.position_title,
+//         COUNT(fr.id) AS total_responses
+//       FROM forms f
+//       LEFT JOIN events e ON f.event_id = e.id
+//       LEFT JOIN companies c ON e.company_id = c.id
+//       LEFT JOIN company_positions cp ON e.position_id = cp.id
+//       LEFT JOIN form_responses fr ON fr.form_id = f.id
+//       WHERE f.batch_year = $1
+//       GROUP BY f.id,e.id, e.title, c.company_name, cp.position_title
+//       ORDER BY f.created_at DESC
+//     `;
+
+//     const result = await db.query(query, [year]);
+
+//     res.json({
+//       success: true,
+//       data: result.rows,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching forms:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch forms",
+//       error: error.message,
+//     });
+//   }
+// });
+// 3. GET ALL FORMS
 routes.get("/:year", async (req, res) => {
   try {
     const { year } = req.params;
@@ -375,16 +621,23 @@ routes.get("/:year", async (req, res) => {
         f.created_at,
         e.title AS event_title,
         e.id AS event_id,
+        e.position_ids,
         c.company_name,
-        cp.position_title,
+        CASE 
+          WHEN array_length(e.position_ids, 1) = 1 THEN 
+            (SELECT position_title FROM company_positions WHERE id = e.position_ids[1])
+          WHEN array_length(e.position_ids, 1) > 1 THEN 
+            'Multiple Positions'
+          ELSE 
+            NULL
+        END as position_info,
         COUNT(fr.id) AS total_responses
       FROM forms f
       LEFT JOIN events e ON f.event_id = e.id
       LEFT JOIN companies c ON e.company_id = c.id
-      LEFT JOIN company_positions cp ON e.position_id = cp.id
       LEFT JOIN form_responses fr ON fr.form_id = f.id
       WHERE f.batch_year = $1
-      GROUP BY f.id,e.id, e.title, c.company_name, cp.position_title
+      GROUP BY f.id, e.id, e.title, e.position_ids, c.company_name
       ORDER BY f.created_at DESC
     `;
 
@@ -401,6 +654,647 @@ routes.get("/:year", async (req, res) => {
       message: "Failed to fetch forms",
       error: error.message,
     });
+  }
+});
+
+// 4. Upload route with proper company_id fetching
+// routes.post("/:id/upload", upload.single("file"), async (req, res) => {
+//   const client = await db.connect();
+
+//   try {
+//     await client.query("BEGIN");
+
+//     const { id: formId } = req.params;
+//     const file = req.file;
+
+//     if (!file) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No file uploaded",
+//       });
+//     }
+
+//     // Get form details including batch_year AND event_id
+//     const formResult = await client.query(
+//       `SELECT id, title, batch_year, type, event_id FROM forms WHERE id = $1`,
+//       [formId]
+//     );
+
+//     if (formResult.rows.length === 0) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Form not found",
+//       });
+//     }
+
+//     const form = formResult.rows[0];
+//     const formBatchYear = form.batch_year;
+
+//     // FIXED: Get company_id through event (this was missing event_id check)
+//     let companyId = null;
+//     if (form.event_id) {
+//       const eventQuery = `
+//         SELECT e.company_id, e.position_id
+//         FROM events e
+//         WHERE e.id = $1
+//       `;
+//       const eventResult = await client.query(eventQuery, [form.event_id]);
+
+//       if (eventResult.rows.length > 0 && eventResult.rows[0].company_id) {
+//         companyId = eventResult.rows[0].company_id;
+//       }
+//     }
+
+//     // Check eligibility snapshot exists if company is linked
+//     if (companyId) {
+//       const batchQuery = `SELECT id FROM batches WHERE year = $1`;
+//       const batchResult = await client.query(batchQuery, [formBatchYear]);
+
+//       if (batchResult.rows.length === 0) {
+//         return res.status(400).json({
+//           success: false,
+//           message: `Batch ${formBatchYear} not found in database`,
+//         });
+//       }
+
+//       const batchId = batchResult.rows[0].id;
+
+//       const eligibilityCheck = `
+//         SELECT id, eligible_student_ids, ineligible_student_ids
+//         FROM company_eligibility
+//         WHERE company_id = $1 AND batch_id = $2
+//       `;
+//       const eligibilityResult = await client.query(eligibilityCheck, [
+//         companyId,
+//         batchId,
+//       ]);
+
+//       if (eligibilityResult.rows.length === 0) {
+//         return res.status(400).json({
+//           success: false,
+//           message: `Eligibility snapshot not created for this company and batch. Please create company eligibility before uploading form data.`,
+//           requiresAction: "create_eligibility",
+//           companyId: companyId,
+//           batchYear: formBatchYear,
+//         });
+//       }
+//     }
+
+//     // Parse the uploaded file
+//     const data = await parseUploadedFile(file.path, file.mimetype);
+
+//     if (data.length === 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No data found in file",
+//       });
+//     }
+
+//     // Detect registration number column
+//     const headers = Object.keys(data[0]);
+//     const regColumn = detectRegistrationColumn(headers);
+
+//     if (!regColumn) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Registration number column not found. Expected columns: registration_number, reg_no etc.",
+//       });
+//     }
+
+//     // Extract and clean registration numbers
+//     const registrationNumbers = data
+//       .map((row) => row[regColumn])
+//       .filter((reg) => reg && reg.toString().trim())
+//       .map((reg) => reg.toString().trim());
+
+//     // Find duplicates within file
+//     const duplicates = [];
+//     const seen = new Set();
+//     const uniqueRegistrations = [];
+
+//     data.forEach((row, index) => {
+//       const regNum = row[regColumn]?.toString().trim();
+//       if (!regNum) return;
+
+//       if (seen.has(regNum)) {
+//         duplicates.push({
+//           row: index + 2,
+//           regNumber: regNum,
+//           reason: "Duplicate entry in file",
+//         });
+//       } else {
+//         seen.add(regNum);
+//         uniqueRegistrations.push(regNum);
+//       }
+//     });
+
+//     // FIXED: Pass companyId to validateStudents
+//     const studentMap = await validateStudents(
+//       uniqueRegistrations,
+//       formBatchYear,
+//       companyId,
+//       client
+//     );
+
+//     // Process each row (rest of code remains same)
+//     const results = [];
+
+//     for (let i = 0; i < data.length; i++) {
+//       const row = data[i];
+//       const rowNumber = i + 2;
+//       const regNum = row[regColumn]?.toString().trim();
+
+//       if (!regNum) {
+//         results.push({
+//           row: rowNumber,
+//           regNumber: "",
+//           status: "error",
+//           reason: "Empty registration number",
+//         });
+//         continue;
+//       }
+
+//       if (duplicates.some((d) => d.row === rowNumber)) {
+//         results.push({
+//           row: rowNumber,
+//           regNumber: regNum,
+//           status: "duplicate",
+//           reason: "Duplicate entry in file",
+//         });
+//         continue;
+//       }
+
+//       const validationResult = studentMap.get(regNum);
+//       if (!validationResult) {
+//         results.push({
+//           row: rowNumber,
+//           regNumber: regNum,
+//           status: "error",
+//           reason: "Registration number not found in database",
+//         });
+//         continue;
+//       }
+
+//       if (validationResult.error) {
+//         results.push({
+//           row: rowNumber,
+//           regNumber: regNum,
+//           status: "error",
+//           reason: validationResult.error,
+//         });
+//         continue;
+//       }
+
+//       const student = validationResult.student;
+
+//       const enrichedRow = {
+//         ...row,
+//         student_name: `${student.first_name} ${student.last_name}`,
+//         enrollment_number: student.enrollment_number,
+//         registration_number: regNum,
+//         batch_year: student.batch_year,
+//         department: student.department,
+//         branch: student.branch,
+//       };
+
+//       try {
+//         await client.query(
+//           `
+//           INSERT INTO form_responses (form_id, student_id, response_data)
+//           VALUES ($1, $2, $3)
+//           ON CONFLICT (form_id, student_id)
+//           DO UPDATE SET
+//             response_data = EXCLUDED.response_data,
+//             uploaded_at = CURRENT_TIMESTAMP
+//           `,
+//           [formId, student.id, JSON.stringify(enrichedRow)]
+//         );
+
+//         results.push({
+//           row: rowNumber,
+//           regNumber: regNum,
+//           status: "success",
+//           reason: "Inserted/Updated successfully",
+//         });
+//       } catch (insertError) {
+//         results.push({
+//           row: rowNumber,
+//           regNumber: regNum,
+//           status: "error",
+//           reason: "Database insertion failed",
+//         });
+//       }
+//     }
+
+//     await client.query("COMMIT");
+//     fs.unlinkSync(file.path);
+
+//     const summary = {
+//       total: data.length,
+//       successful: results.filter((r) => r.status === "success").length,
+//       duplicates: results.filter((r) => r.status === "duplicate").length,
+//       invalid: results.filter((r) => r.status === "error").length,
+//       form_batch_year: formBatchYear,
+//       year_mismatches: results.filter(
+//         (r) => r.reason && r.reason.includes("batch year")
+//       ).length,
+//       eligibility_failures: results.filter(
+//         (r) => r.reason && r.reason.includes("not eligible")
+//       ).length,
+//       has_company_eligibility: companyId !== null,
+//     };
+
+//     res.json({
+//       success: true,
+//       message: `Upload completed for form: ${form.title} (Batch ${formBatchYear})`,
+//       summary,
+//       details: results,
+//     });
+//   } catch (error) {
+//     await client.query("ROLLBACK");
+//     console.error("Error uploading data:", error);
+
+//     if (req.file) {
+//       try {
+//         fs.unlinkSync(req.file.path);
+//       } catch (e) {
+//         console.error("File cleanup failed:", e);
+//       }
+//     }
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to process upload",
+//       error: error.message,
+//     });
+//   } finally {
+//     client.release();
+//   }
+// });
+// 4. Upload route with proper company_id fetching
+routes.post("/:id/upload", upload.single("file"), async (req, res) => {
+  const client = await db.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const { id: formId } = req.params;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    // Get form details including batch_year AND event_id
+    const formResult = await client.query(
+      `SELECT id, title, batch_year, type, event_id FROM forms WHERE id = $1`,
+      [formId]
+    );
+
+    if (formResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    const form = formResult.rows[0];
+    const formBatchYear = form.batch_year;
+
+    // Get event positions and company_id
+    let eventPositions = [];
+    let autoAssignPositionId = null;
+    let companyId = null;
+
+    if (form.event_id) {
+      const eventQuery = `
+        SELECT e.position_ids, e.company_id 
+        FROM events e 
+        WHERE e.id = $1
+      `;
+      const eventResult = await client.query(eventQuery, [form.event_id]);
+
+      if (eventResult.rows.length > 0) {
+        eventPositions = eventResult.rows[0].position_ids || [];
+        companyId = eventResult.rows[0].company_id;
+
+        // Auto-assign if only one position
+        if (eventPositions.length === 1) {
+          autoAssignPositionId = eventPositions[0];
+        }
+      }
+    }
+
+    // Check eligibility snapshot exists if company is linked
+    if (companyId) {
+      const batchQuery = `SELECT id FROM batches WHERE year = $1`;
+      const batchResult = await client.query(batchQuery, [formBatchYear]);
+
+      if (batchResult.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Batch ${formBatchYear} not found in database`,
+        });
+      }
+
+      const batchId = batchResult.rows[0].id;
+
+      const eligibilityCheck = `
+        SELECT id, eligible_student_ids, ineligible_student_ids 
+        FROM company_eligibility 
+        WHERE company_id = $1 AND batch_id = $2
+      `;
+      const eligibilityResult = await client.query(eligibilityCheck, [
+        companyId,
+        batchId,
+      ]);
+
+      if (eligibilityResult.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Eligibility snapshot not created for this company and batch. Please create company eligibility before uploading form data.`,
+          requiresAction: "create_eligibility",
+          companyId: companyId,
+          batchYear: formBatchYear,
+        });
+      }
+    }
+
+    // Parse the uploaded file
+    const data = await parseUploadedFile(file.path, file.mimetype);
+
+    if (data.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No data found in file",
+      });
+    }
+
+    // Detect registration number column
+    const headers = Object.keys(data[0]);
+    const regColumn = detectRegistrationColumn(headers);
+
+    if (!regColumn) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Registration number column not found. Expected columns: registration_number, reg_no etc.",
+      });
+    }
+
+    // Check for position_title column if multiple positions
+    if (eventPositions.length > 1) {
+      const hasPositionColumn = headers.some((h) =>
+        h
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .match(/position[_-]?(title|name)?/)
+      );
+
+      if (!hasPositionColumn) {
+        const availablePositions = await client.query(
+          `SELECT id, position_title FROM company_positions WHERE id = ANY($1)`,
+          [eventPositions]
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Event has multiple positions. CSV must contain 'position_title' column to specify which position each student applied for.",
+          availablePositions: availablePositions.rows,
+        });
+      }
+    }
+
+    // Extract and clean registration numbers
+    const registrationNumbers = data
+      .map((row) => row[regColumn])
+      .filter((reg) => reg && reg.toString().trim())
+      .map((reg) => reg.toString().trim());
+
+    // Find duplicates within file
+    const duplicates = [];
+    const seen = new Set();
+    const uniqueRegistrations = [];
+
+    data.forEach((row, index) => {
+      const regNum = row[regColumn]?.toString().trim();
+      if (!regNum) return;
+
+      if (seen.has(regNum)) {
+        duplicates.push({
+          row: index + 2,
+          regNumber: regNum,
+          reason: "Duplicate entry in file",
+        });
+      } else {
+        seen.add(regNum);
+        uniqueRegistrations.push(regNum);
+      }
+    });
+
+    // Validate students
+    const studentMap = await validateStudents(
+      uniqueRegistrations,
+      formBatchYear,
+      companyId,
+      client
+    );
+
+    // Detect position_title column for multi-position events
+    let positionTitleColumn = null;
+    if (eventPositions.length > 1) {
+      positionTitleColumn = headers.find((h) =>
+        h
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .match(/position[_-]?(title|name)?/)
+      );
+    }
+
+    // Process each row
+    const results = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      const rowNumber = i + 2;
+      const regNum = row[regColumn]?.toString().trim();
+
+      if (!regNum) {
+        results.push({
+          row: rowNumber,
+          regNumber: "",
+          status: "error",
+          reason: "Empty registration number",
+        });
+        continue;
+      }
+
+      if (duplicates.some((d) => d.row === rowNumber)) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "duplicate",
+          reason: "Duplicate entry in file",
+        });
+        continue;
+      }
+
+      const validationResult = studentMap.get(regNum);
+      if (!validationResult) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "error",
+          reason: "Registration number not found in database",
+        });
+        continue;
+      }
+
+      if (validationResult.error) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "error",
+          reason: validationResult.error,
+        });
+        continue;
+      }
+
+      const student = validationResult.student;
+
+      // Handle position_id
+      let positionIdForResponse = null;
+
+      if (autoAssignPositionId) {
+        // Single position - auto assign
+        positionIdForResponse = autoAssignPositionId;
+      } else if (eventPositions.length > 1) {
+        // Multiple positions - get from CSV
+        const positionTitle = row[positionTitleColumn]?.toString().trim();
+
+        if (!positionTitle) {
+          results.push({
+            row: rowNumber,
+            regNumber: regNum,
+            status: "error",
+            reason: "Missing position_title for multi-position event",
+          });
+          continue;
+        }
+
+        // Match position title to position_id
+        const positionMatch = await client.query(
+          `SELECT id FROM company_positions 
+           WHERE id = ANY($1) 
+           AND LOWER(position_title) = LOWER($2)`,
+          [eventPositions, positionTitle]
+        );
+
+        if (positionMatch.rows.length === 0) {
+          results.push({
+            row: rowNumber,
+            regNumber: regNum,
+            status: "error",
+            reason: `Invalid position_title: '${positionTitle}'. Not found in event's available positions.`,
+          });
+          continue;
+        }
+
+        positionIdForResponse = positionMatch.rows[0].id;
+      }
+
+      const enrichedRow = {
+        ...row,
+        student_name: `${student.first_name} ${student.last_name}`,
+        enrollment_number: student.enrollment_number,
+        registration_number: regNum,
+        batch_year: student.batch_year,
+        department: student.department,
+        branch: student.branch,
+        position_id: positionIdForResponse, // Always include position_id
+      };
+
+      try {
+        await client.query(
+          `
+          INSERT INTO form_responses (form_id, student_id, response_data)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (form_id, student_id) 
+          DO UPDATE SET 
+            response_data = EXCLUDED.response_data,
+            uploaded_at = CURRENT_TIMESTAMP
+          `,
+          [formId, student.id, JSON.stringify(enrichedRow)]
+        );
+
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "success",
+          reason: "Inserted/Updated successfully",
+        });
+      } catch (insertError) {
+        results.push({
+          row: rowNumber,
+          regNumber: regNum,
+          status: "error",
+          reason: "Database insertion failed",
+        });
+      }
+    }
+
+    await client.query("COMMIT");
+    fs.unlinkSync(file.path);
+
+    const summary = {
+      total: data.length,
+      successful: results.filter((r) => r.status === "success").length,
+      duplicates: results.filter((r) => r.status === "duplicate").length,
+      invalid: results.filter((r) => r.status === "error").length,
+      form_batch_year: formBatchYear,
+      year_mismatches: results.filter(
+        (r) => r.reason && r.reason.includes("batch year")
+      ).length,
+      eligibility_failures: results.filter(
+        (r) => r.reason && r.reason.includes("not eligible")
+      ).length,
+      position_errors: results.filter(
+        (r) => r.reason && r.reason.includes("position")
+      ).length,
+      has_company_eligibility: companyId !== null,
+      event_has_multiple_positions: eventPositions.length > 1,
+    };
+
+    res.json({
+      success: true,
+      message: `Upload completed for form: ${form.title} (Batch ${formBatchYear})`,
+      summary,
+      details: results,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error uploading data:", error);
+
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (e) {
+        console.error("File cleanup failed:", e);
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to process upload",
+      error: error.message,
+    });
+  } finally {
+    client.release();
   }
 });
 
@@ -548,17 +1442,25 @@ routes.get("/events/:year", async (req, res) => {
           e.title,
           e.event_date,
           e.event_type,
+          e.position_ids,
           c.company_name,
-          cp.position_title
+          CASE 
+            WHEN array_length(e.position_ids, 1) = 1 THEN 
+              (SELECT position_title FROM company_positions WHERE id = e.position_ids[1])
+            WHEN array_length(e.position_ids, 1) > 1 THEN 
+              array_length(e.position_ids, 1) || ' Positions'
+            ELSE 
+              NULL
+          END as position_info
         FROM events e
         INNER JOIN event_batches eb ON eb.event_id = e.id
         INNER JOIN batches b ON b.id = eb.batch_id
         LEFT JOIN companies c ON e.company_id = c.id
-        LEFT JOIN company_positions cp ON e.position_id = cp.id
         LEFT JOIN forms f ON f.event_id = e.id AND f.batch_year = b.year
         WHERE b.year = $1
         AND (f.id IS NULL OR e.id = $2)
-        GROUP BY e.id, e.title, e.event_date, e.event_type, c.company_name, cp.position_title
+        AND array_length(e.position_ids, 1) > 0
+        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name
         ORDER BY
           CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
           e.event_date DESC NULLS LAST
@@ -579,17 +1481,25 @@ routes.get("/events/:year", async (req, res) => {
           e.title,
           e.event_date,
           e.event_type,
+          e.position_ids,
           c.company_name,
-          cp.position_title
+          CASE 
+            WHEN array_length(e.position_ids, 1) = 1 THEN 
+              (SELECT position_title FROM company_positions WHERE id = e.position_ids[1])
+            WHEN array_length(e.position_ids, 1) > 1 THEN 
+              array_length(e.position_ids, 1) || ' Positions'
+            ELSE 
+              NULL
+          END as position_info
         FROM events e
         INNER JOIN event_batches eb ON eb.event_id = e.id
         INNER JOIN batches b ON b.id = eb.batch_id
         LEFT JOIN companies c ON e.company_id = c.id
-        LEFT JOIN company_positions cp ON e.position_id = cp.id
         LEFT JOIN forms f ON f.event_id = e.id AND f.batch_year = b.year
         WHERE b.year = $1
         AND f.id IS NULL
-        GROUP BY e.id, e.title, e.event_date, e.event_type, c.company_name, cp.position_title
+        AND array_length(e.position_ids, 1) > 0
+        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name
         ORDER BY
           CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
           e.event_date DESC NULLS LAST
@@ -613,283 +1523,7 @@ routes.get("/events/:year", async (req, res) => {
   }
 });
 
-// FIXED: Upload route with proper company_id fetching
-routes.post("/:id/upload", upload.single("file"), async (req, res) => {
-  const client = await db.connect();
-
-  try {
-    await client.query("BEGIN");
-
-    const { id: formId } = req.params;
-    const file = req.file;
-
-    if (!file) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded",
-      });
-    }
-
-    // Get form details including batch_year AND event_id
-    const formResult = await client.query(
-      `SELECT id, title, batch_year, type, event_id FROM forms WHERE id = $1`,
-      [formId]
-    );
-
-    if (formResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Form not found",
-      });
-    }
-
-    const form = formResult.rows[0];
-    const formBatchYear = form.batch_year;
-
-    // FIXED: Get company_id through event (this was missing event_id check)
-    let companyId = null;
-    if (form.event_id) {
-      const eventQuery = `
-        SELECT e.company_id, e.position_id 
-        FROM events e 
-        WHERE e.id = $1
-      `;
-      const eventResult = await client.query(eventQuery, [form.event_id]);
-
-      if (eventResult.rows.length > 0 && eventResult.rows[0].company_id) {
-        companyId = eventResult.rows[0].company_id;
-      }
-    }
-
-    // Check eligibility snapshot exists if company is linked
-    if (companyId) {
-      const batchQuery = `SELECT id FROM batches WHERE year = $1`;
-      const batchResult = await client.query(batchQuery, [formBatchYear]);
-
-      if (batchResult.rows.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Batch ${formBatchYear} not found in database`,
-        });
-      }
-
-      const batchId = batchResult.rows[0].id;
-
-      const eligibilityCheck = `
-        SELECT id, eligible_student_ids, ineligible_student_ids 
-        FROM company_eligibility 
-        WHERE company_id = $1 AND batch_id = $2
-      `;
-      const eligibilityResult = await client.query(eligibilityCheck, [
-        companyId,
-        batchId,
-      ]);
-
-      if (eligibilityResult.rows.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Eligibility snapshot not created for this company and batch. Please create company eligibility before uploading form data.`,
-          requiresAction: "create_eligibility",
-          companyId: companyId,
-          batchYear: formBatchYear,
-        });
-      }
-    }
-
-    // Parse the uploaded file
-    const data = await parseUploadedFile(file.path, file.mimetype);
-
-    if (data.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No data found in file",
-      });
-    }
-
-    // Detect registration number column
-    const headers = Object.keys(data[0]);
-    const regColumn = detectRegistrationColumn(headers);
-
-    if (!regColumn) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Registration number column not found. Expected columns: registration_number, reg_no etc.",
-      });
-    }
-
-    // Extract and clean registration numbers
-    const registrationNumbers = data
-      .map((row) => row[regColumn])
-      .filter((reg) => reg && reg.toString().trim())
-      .map((reg) => reg.toString().trim());
-
-    // Find duplicates within file
-    const duplicates = [];
-    const seen = new Set();
-    const uniqueRegistrations = [];
-
-    data.forEach((row, index) => {
-      const regNum = row[regColumn]?.toString().trim();
-      if (!regNum) return;
-
-      if (seen.has(regNum)) {
-        duplicates.push({
-          row: index + 2,
-          regNumber: regNum,
-          reason: "Duplicate entry in file",
-        });
-      } else {
-        seen.add(regNum);
-        uniqueRegistrations.push(regNum);
-      }
-    });
-
-    // FIXED: Pass companyId to validateStudents
-    const studentMap = await validateStudents(
-      uniqueRegistrations,
-      formBatchYear,
-      companyId,
-      client
-    );
-
-    // Process each row (rest of code remains same)
-    const results = [];
-
-    for (let i = 0; i < data.length; i++) {
-      const row = data[i];
-      const rowNumber = i + 2;
-      const regNum = row[regColumn]?.toString().trim();
-
-      if (!regNum) {
-        results.push({
-          row: rowNumber,
-          regNumber: "",
-          status: "error",
-          reason: "Empty registration number",
-        });
-        continue;
-      }
-
-      if (duplicates.some((d) => d.row === rowNumber)) {
-        results.push({
-          row: rowNumber,
-          regNumber: regNum,
-          status: "duplicate",
-          reason: "Duplicate entry in file",
-        });
-        continue;
-      }
-
-      const validationResult = studentMap.get(regNum);
-      if (!validationResult) {
-        results.push({
-          row: rowNumber,
-          regNumber: regNum,
-          status: "error",
-          reason: "Registration number not found in database",
-        });
-        continue;
-      }
-
-      if (validationResult.error) {
-        results.push({
-          row: rowNumber,
-          regNumber: regNum,
-          status: "error",
-          reason: validationResult.error,
-        });
-        continue;
-      }
-
-      const student = validationResult.student;
-
-      const enrichedRow = {
-        ...row,
-        student_name: `${student.first_name} ${student.last_name}`,
-        enrollment_number: student.enrollment_number,
-        registration_number: regNum,
-        batch_year: student.batch_year,
-        department: student.department,
-        branch: student.branch,
-      };
-
-      try {
-        await client.query(
-          `
-          INSERT INTO form_responses (form_id, student_id, response_data)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (form_id, student_id) 
-          DO UPDATE SET 
-            response_data = EXCLUDED.response_data,
-            uploaded_at = CURRENT_TIMESTAMP
-          `,
-          [formId, student.id, JSON.stringify(enrichedRow)]
-        );
-
-        results.push({
-          row: rowNumber,
-          regNumber: regNum,
-          status: "success",
-          reason: "Inserted/Updated successfully",
-        });
-      } catch (insertError) {
-        results.push({
-          row: rowNumber,
-          regNumber: regNum,
-          status: "error",
-          reason: "Database insertion failed",
-        });
-      }
-    }
-
-    await client.query("COMMIT");
-    fs.unlinkSync(file.path);
-
-    const summary = {
-      total: data.length,
-      successful: results.filter((r) => r.status === "success").length,
-      duplicates: results.filter((r) => r.status === "duplicate").length,
-      invalid: results.filter((r) => r.status === "error").length,
-      form_batch_year: formBatchYear,
-      year_mismatches: results.filter(
-        (r) => r.reason && r.reason.includes("batch year")
-      ).length,
-      eligibility_failures: results.filter(
-        (r) => r.reason && r.reason.includes("not eligible")
-      ).length,
-      has_company_eligibility: companyId !== null,
-    };
-
-    res.json({
-      success: true,
-      message: `Upload completed for form: ${form.title} (Batch ${formBatchYear})`,
-      summary,
-      details: results,
-    });
-  } catch (error) {
-    await client.query("ROLLBACK");
-    console.error("Error uploading data:", error);
-
-    if (req.file) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (e) {
-        console.error("File cleanup failed:", e);
-      }
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to process upload",
-      error: error.message,
-    });
-  } finally {
-    client.release();
-  }
-});
-
-// FIXED: validateStudents function with better logging
+// validateStudents function with better logging
 async function validateStudents(
   registrationNumbers,
   formBatchYear,

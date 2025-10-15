@@ -11,7 +11,6 @@ import {
   FaTable,
 } from "react-icons/fa";
 import { MdEventAvailable, MdTrackChanges } from "react-icons/md";
-import { BiGitPullRequest } from "react-icons/bi";
 import { StudentProvider } from "../context/StudentContext";
 import { useBatchContext } from "../context/BatchContext";
 import axios from "axios";
@@ -135,20 +134,20 @@ function HomeContent() {
       link: "/email-management",
       color: "bg-pink-500",
     },
-    {
-      title: "Analytics Dashboard",
-      description: "View placement statistics and comprehensive insights",
-      icon: <FaChartBar className="w-5 h-5" />,
-      link: "/analytics",
-      color: "bg-indigo-500",
-    },
-    {
-      title: "Penalty Management",
-      description: "Manage student penalties, rules and handle appeals",
-      icon: <BiGitPullRequest className="w-5 h-5" />,
-      link: "/penalty-management",
-      color: "bg-yellow-500",
-    },
+    // {
+    //   title: "Analytics Dashboard",
+    //   description: "View placement statistics and comprehensive insights",
+    //   icon: <FaChartBar className="w-5 h-5" />,
+    //   link: "/analytics",
+    //   color: "bg-indigo-500",
+    // },
+    // {
+    //   title: "Penalty Management",
+    //   description: "Manage student penalties, rules and handle appeals",
+    //   icon: <BiGitPullRequest className="w-5 h-5" />,
+    //   link: "/penalty-management",
+    //   color: "bg-yellow-500",
+    // },
   ];
 
   return (

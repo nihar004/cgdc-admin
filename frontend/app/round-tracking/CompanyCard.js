@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ChevronDown, ChevronRight, Calendar } from "lucide-react";
 import RoundsTable from "./RoundsTable";
 
@@ -15,7 +14,7 @@ const formatPackage = (amount) => {
   return `₹ ${amount.toLocaleString()}`;
 };
 
-const CompanyCard = ({ company, onToggle, isExpanded }) => {
+const CompanyCard = ({ company, onToggle, isExpanded, onUpdate }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case "ongoing":
@@ -75,6 +74,7 @@ const CompanyCard = ({ company, onToggle, isExpanded }) => {
               key={position.id}
               position={position}
               companyName={company.company_name}
+              onUpdate={onUpdate}
             />
           ))}
         </div>
@@ -83,7 +83,7 @@ const CompanyCard = ({ company, onToggle, isExpanded }) => {
   );
 };
 
-const PositionSection = ({ position, companyName }) => {
+const PositionSection = ({ position, companyName, onUpdate }) => {
   const renderPackageInfo = () => {
     switch (position.job_type) {
       case "internship":
@@ -153,6 +153,7 @@ const PositionSection = ({ position, companyName }) => {
           positionId={position.id}
           companyName={companyName}
           positionTitle={position.position_title}
+          onUpdate={onUpdate}
         />
       ) : (
         <div className="px-5 py-6 text-center text-slate-500">

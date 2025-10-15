@@ -61,9 +61,9 @@ function CreateEvent({
           companyId: eventData.company_id
             ? eventData.company_id.toString()
             : "",
-          positionId: eventData.position_id
-            ? eventData.position_id.toString()
-            : "",
+          positionIds: eventData.position_ids
+            ? eventData.position_ids.map(String)
+            : [],
           targetSpecializations: parseSpecializations(
             eventData.targetSpecializations
           ),
@@ -72,6 +72,7 @@ function CreateEvent({
             speaker: "",
             designation: "",
           },
+          roundType: eventData.roundType || "",
         }
       : {
           eventCategory: "",
@@ -84,13 +85,14 @@ function CreateEvent({
           mode: "offline",
           isMandatory: false,
           companyId: "",
-          positionId: "",
+          positionIds: [],
           targetSpecializations: [],
           targetAcademicYears: [],
           speakerDetails: {
             speaker: "",
             designation: "",
           },
+          roundType: "",
         }
   );
 
@@ -163,12 +165,12 @@ function CreateEvent({
       setSelectedCompanyPositions(selectedCompany?.positions || []);
       // Only reset positionId when companyId changes by user (not on initial load)
       if (!isEditing) {
-        setFormData((prev) => ({ ...prev, positionId: "" }));
+        setFormData((prev) => ({ ...prev, positionIds: [] }));
       }
     } else {
       setSelectedCompanyPositions([]);
       if (!isEditing) {
-        setFormData((prev) => ({ ...prev, positionId: "" }));
+        setFormData((prev) => ({ ...prev, positionIds: [] }));
       }
     }
     // eslint-disable-next-line
@@ -229,7 +231,7 @@ function CreateEvent({
         [name]: value,
         eventType: "other", // Always set to "other" when changing category
         companyId: "",
-        positionId: "",
+        positionIds: [],
       }));
     } else {
       setFormData((prev) => ({
@@ -292,8 +294,13 @@ function CreateEvent({
 
     // Company event validation
     if (formData.eventCategory === "company_event") {
-      if (!formData.companyId) newErrors.companyId = "Company is required";
-      if (!formData.positionId) newErrors.positionId = "Position is required";
+      if (!isEditing) {
+        // ADD THIS CHECK
+        if (!formData.companyId) newErrors.companyId = "Company is required";
+        if (!formData.positionIds || formData.positionIds.length === 0)
+          newErrors.positionIds = "At least one position must be selected";
+      }
+      if (!formData.roundType) newErrors.roundType = "Round type is required";
     }
 
     setErrors(newErrors);
@@ -334,9 +341,17 @@ function CreateEvent({
           formData.eventCategory === "company_event"
             ? formData.companyId
             : null,
-        positionId:
+        // positionId:
+        //   formData.eventCategory === "company_event"
+        //     ? formData.positionId
+        //     : null,
+        positionIds:
           formData.eventCategory === "company_event"
-            ? formData.positionId
+            ? formData.positionIds.map(Number)
+            : null,
+        roundType:
+          formData.eventCategory === "company_event"
+            ? formData.roundType
             : null,
         targetSpecializations: formData.targetSpecializations,
         targetAcademicYears: formData.targetAcademicYears.map(Number),
@@ -522,6 +537,7 @@ function CreateEvent({
                   name="companyId"
                   value={formData.companyId}
                   onChange={handleInputChange}
+                  disabled={isEditing}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ${
                     errors.companyId ? "border-red-300" : "border-gray-300"
                   }`}
@@ -542,34 +558,66 @@ function CreateEvent({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Position *
+                  Position(s) *
                 </label>
-                <select
-                  name="positionId"
-                  value={formData.positionId}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ${
-                    errors.positionId ? "border-red-300" : "border-gray-300"
-                  }`}
-                  disabled={!formData.companyId}
-                >
-                  <option value="">Select position</option>
+                <div className="space-y-2">
                   {selectedCompanyPositions.map((position) => (
-                    <option
+                    <label
                       key={position.position_id}
-                      value={position.position_id}
+                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50"
                     >
-                      {position.position_title}
-                    </option>
+                      <input
+                        type="checkbox"
+                        checked={formData.positionIds.includes(
+                          position.position_id.toString()
+                        )}
+                        onChange={() =>
+                          handleMultiSelectChange(
+                            "positionIds",
+                            position.position_id.toString()
+                          )
+                        }
+                        disabled={isEditing}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">
+                        {position.position_title}
+                      </span>
+                    </label>
                   ))}
-                </select>
-                {errors.positionId && (
+                </div>
+                {errors.positionIds && (
                   <p className="mt-1 text-sm text-red-600">
-                    {errors.positionId}
+                    {errors.positionIds}
                   </p>
                 )}
+                {selectedCompanyPositions.length === 0 &&
+                  formData.companyId && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      No positions available for this company
+                    </p>
+                  )}
               </div>
-
+              {isEditing && formData.eventCategory === "company_event" && (
+                <div className="md:col-span-2 mt-4">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-start text-amber-800">
+                      <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium mb-1">
+                          Company, Positions and Round Type are locked
+                        </p>
+                        <p>
+                          Cannot modify company, positions or round type for
+                          existing placement events to maintain round sequence
+                          integrity. If you need to change these, please delete
+                          this event and create a new one.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               {formData.eventCategory === "company_event" && selectedBatch && (
                 <div className="md:col-span-2">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -634,6 +682,30 @@ function CreateEvent({
                     </option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Round Type *
+                </label>
+                <select
+                  name="roundType"
+                  value={formData.roundType}
+                  onChange={handleInputChange}
+                  disabled={
+                    isEditing && formData.eventCategory === "company_event"
+                  }
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                >
+                  <option value="">Select round type</option>
+                  <option value="first">First Round</option>
+                  <option value="middle">Middle Round</option>
+                  <option value="last">Last Round</option>
+                </select>
+                {errors.roundType && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.roundType}
+                  </p>
+                )}
               </div>
 
               <div>

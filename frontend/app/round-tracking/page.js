@@ -69,46 +69,41 @@ const RoundTrackingPage = () => {
     status: "all",
     jobType: "all",
   });
+  const [currentBatch, setCurrentBatch] = useState(new Date().getFullYear());
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentBatch]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        "http://localhost:5000/round_tracking/companies/2022"
+        `http://localhost:5000/round-tracking/companies/${currentBatch}`
       );
 
-      const transformedCompanies = data.companies.map((company) => ({
-        id: company.id,
-        company_name: company.company_name,
-        is_marquee: company.is_marquee,
-        sector: company.sector,
-        total_applications: company.total_applications,
-        positions: company.positions.map((position) => ({
-          id: position.id,
-          position_title: position.position_title,
-          job_type: position.job_type,
-          package_range: position.package_range,
-          internship_stipend_monthly: position.internship_stipend_monthly,
-          selected_students: position.selected_students,
+      if (!data.success) {
+        throw new Error(data.message || "Failed to fetch companies");
+      }
+
+      const transformedCompanies = data.companies.map((company) => {
+        const positions = company.positions.map((position) => ({
+          ...position,
           events: position.events.map((event) => ({
-            id: event.id,
-            title: event.title,
-            event_date: event.event_date,
-            venue: event.venue,
-            status: event.status,
-            eligible_count: event.eligible_count,
-            applied_count: event.applied_count,
-            attended_count: event.attended_count,
-            qualified_count: event.qualified_count,
-            description: event.description,
-            round_type: event.round_type,
+            ...event,
+            event_date: new Date(event.event_date),
           })),
-        })),
-      }));
+        }));
+
+        // Calculate company status based on position events
+        const status = calculateCompanyStatus(positions);
+
+        return {
+          ...company,
+          positions,
+          status,
+        };
+      });
 
       setCompanies(transformedCompanies);
     } catch (error) {
@@ -119,32 +114,34 @@ const RoundTrackingPage = () => {
     }
   };
 
-  // Helper function to calculate company status based on position events
+  // Improved company status calculation
   const calculateCompanyStatus = (positions) => {
-    let hasUpcoming = false;
-    let hasOngoing = false;
-    let hasCompleted = false;
+    const now = new Date();
+    let status = "upcoming";
 
-    positions.forEach((position) => {
-      position.events.forEach((event) => {
-        switch (event.status) {
-          case "upcoming":
-            hasUpcoming = true;
-            break;
-          case "ongoing":
-            hasOngoing = true;
-            break;
-          case "completed":
-            hasCompleted = true;
-            break;
+    for (const position of positions) {
+      for (const event of position.events) {
+        const eventDate = new Date(event.event_date);
+
+        // Check if any event is happening today
+        if (eventDate.toDateString() === now.toDateString()) {
+          return "ongoing";
         }
-      });
-    });
 
-    if (hasOngoing) return "ongoing";
-    if (hasUpcoming) return "upcoming";
-    if (hasCompleted) return "completed";
-    return "upcoming"; // default status
+        // Event is in the past
+        if (eventDate < now) {
+          status = "completed";
+          continue;
+        }
+
+        // Event is in the future but we already found a completed event
+        if (eventDate > now && status !== "completed") {
+          status = "upcoming";
+        }
+      }
+    }
+
+    return status;
   };
 
   const handleCompanyToggle = (companyId) => {
@@ -233,6 +230,24 @@ const RoundTrackingPage = () => {
                 Export Report
               </button>
             </div>
+          </div>
+
+          <div className="mt-4">
+            {/* Add batch selector */}
+            <select
+              value={currentBatch}
+              onChange={(e) => setCurrentBatch(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {[...Array(5)].map((_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    Batch {year}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <StatsCards />

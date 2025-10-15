@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import axios from "axios";
 import {
   Eye,
   Upload,
@@ -12,25 +13,25 @@ import {
 } from "lucide-react";
 import ResultUploadModal from "./ResultUploadModal";
 
-const RoundsTable = ({ events, positionId, companyName, positionTitle }) => {
-  const [selectedStudents, setSelectedStudents] = useState({});
+const RoundsTable = ({
+  events,
+  positionId,
+  companyName,
+  positionTitle,
+  onUpdate,
+}) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const handleQualifiedToggle = (eventId, studentId) => {
-    setSelectedStudents((prev) => ({
-      ...prev,
-      [eventId]: {
-        ...prev[eventId],
-        [studentId]: !prev[eventId]?.[studentId],
-      },
-    }));
-  };
+  const [loading, setLoading] = useState(false);
 
   const handleBulkUpload = (eventId) => {
     setSelectedEvent(eventId);
     setShowUploadModal(true);
   };
+
+  const handleResultsUpdated = useCallback(() => {
+    onUpdate?.();
+  }, [onUpdate]);
 
   const getEventStatusIcon = (event) => {
     if (event.status === "completed")
@@ -222,6 +223,7 @@ const RoundsTable = ({ events, positionId, companyName, positionTitle }) => {
           onClose={() => setShowUploadModal(false)}
           companyName={companyName}
           positionTitle={positionTitle}
+          onResultsUpdated={handleResultsUpdated}
         />
       )}
     </>

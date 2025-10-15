@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, Calendar, CheckCircle, Users } from "lucide-react";
 import axios from "axios";
+import { useBatchContext } from "../../context/BatchContext";
 
 const StatsCards = () => {
   const [stats, setStats] = useState({
@@ -12,12 +13,13 @@ const StatsCards = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { selectedBatch } = useBatchContext();
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:5000/round_tracking/stats"
+          `http://localhost:5000/round_tracking/stats/${selectedBatch}`
         );
         setStats(data);
       } catch (err) {

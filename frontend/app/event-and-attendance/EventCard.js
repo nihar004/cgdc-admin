@@ -3,7 +3,6 @@ import {
   Calendar,
   Clock,
   MapPin,
-  Eye,
   Users,
   Building2,
   GraduationCap,
@@ -219,6 +218,12 @@ function EventCard({
                   >
                     {eventTypeConfig.label}
                   </span>
+                  {event.roundType && event.type === "company_round" && (
+                    <p className="text-sm text-gray-600 capitalize">
+                      Round:{" "}
+                      <span className="font-medium">{event.roundType}</span>
+                    </p>
+                  )}
                   {event.isMandatory && (
                     <Star className="h-4 w-4 text-amber-500 fill-current flex-shrink-0" />
                   )}
@@ -229,30 +234,21 @@ function EventCard({
                     {event.company}
                   </p>
                 )}
-
-                {(event.positionTitle || event.jobType) && (
-                  <div className="flex items-center flex-wrap gap-2 mt-2">
-                    {event.positionTitle && (
-                      <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                        {event.positionTitle}
-                      </span>
-                    )}
-                    {event.jobType && (
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          getJobTypeConfig(event.jobType).color
-                        }`}
-                      >
-                        {getJobTypeConfig(event.jobType).label}
-                      </span>
-                    )}
-                    {renderCompensation(
-                      event.jobType,
-                      event.packageRange,
-                      event.stipend
-                    )}
-                  </div>
-                )}
+                {event.position_ids &&
+                  event.position_ids.length > 0 &&
+                  event.type === "company_round" && (
+                    <div className="flex items-center flex-wrap gap-2 mt-2">
+                      <span className="text-sm text-gray-500">Positions:</span>
+                      {event.position_ids.map((posId) => (
+                        <span
+                          key={posId}
+                          className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full"
+                        >
+                          Position {posId}
+                        </span>
+                      ))}
+                    </div>
+                  )}
               </div>
             </div>
 

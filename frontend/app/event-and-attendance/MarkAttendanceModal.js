@@ -14,7 +14,7 @@ import {
 import axios from "axios";
 
 const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
-  const [loading, setLoading] = useState(true); // Set to true initially
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState({});
@@ -29,12 +29,12 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
     late: 0,
     notMarked: 0,
   });
-  const [eventStatus, setEventStatus] = useState(event?.status || "upcoming"); // Add new state for event status
+  const [eventStatus, setEventStatus] = useState(event?.status || "upcoming");
+  const [positionDetails, setPositionDetails] = useState([]);
+  const [roundInfo, setRoundInfo] = useState(null);
 
-  // Remove mockEvent and use the actual event prop
   const eventData = event;
 
-  // Helper function to get event timing status
   const getEventStatus = () => {
     if (!eventData?.date || !eventData?.time || !eventData?.endTime) {
       return "no_time";
@@ -56,7 +56,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
     return "upcoming";
   };
 
-  // Convert 12-hour time to 24-hour format
   const convertTo24Hour = (time12h) => {
     const [time, modifier] = time12h.split(" ");
     let [hours, minutes] = time.split(":");
@@ -75,22 +74,39 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
   const canMarkAttendance = eventStatus === "ongoing";
   const isEditMode = eventStatus === "completed";
 
-  // Add function to fetch students data
   const fetchStudentData = async () => {
+    if (!event?.id) {
+      console.error("No event ID provided");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
+
+      const queryParams =
+        event.position_ids && event.position_ids.length > 0
+          ? `?positionIds=${event.position_ids.join(",")}`
+          : "";
+
       const response = await axios.get(
-        `http://localhost:5000/events/${event.id}/responses`
+        `http://localhost:5000/events/${event.id}/eligibleStudents${queryParams}`
       );
 
       if (response.data.success) {
         const studentData = response.data.data.students || [];
         setStudents(studentData);
 
-        // Initialize attendance based on event.attendance
+        if (response.data.data.roundNumber) {
+          setRoundInfo({
+            roundNumber: response.data.data.roundNumber,
+            filteredByPositions: response.data.data.filteredByPositions,
+            totalCount: response.data.data.totalCount,
+          });
+        }
+
         const initialAttendance = {};
 
-        // First set all students as absent
         studentData.forEach((student) => {
           initialAttendance[student.id] = {
             status: "absent",
@@ -99,14 +115,13 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
           };
         });
 
-        // Then update with existing attendance if available
         if (event.attendance && event.attendance.length > 0) {
           event.attendance.forEach((record) => {
             if (initialAttendance[record.studentId]) {
               initialAttendance[record.studentId] = {
                 status: record.status,
                 check_in_time: record.checkInTime,
-                reason_for_change: null,
+                reason_for_change: record.reason_for_change || null,
               };
             }
           });
@@ -116,19 +131,37 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
       }
     } catch (error) {
       console.error("Error fetching student data:", error);
+      alert(
+        error.response?.data?.message || "Failed to fetch eligible students"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Update useEffect to fetch data when modal opens
+  const fetchPositionDetails = async () => {
+    if (!event?.id || !event?.position_ids || event.position_ids.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/events/positions/by-ids?ids=${event.position_ids.join(",")}`
+      );
+
+      if (response.data.success) {
+        setPositionDetails(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching position details:", error);
+    }
+  };
+
   useEffect(() => {
     if (event?.id) {
-      // Set event status
       setEventStatus(event.status || "upcoming");
-
-      // Fetch student data and initialize attendance
       fetchStudentData();
+      fetchPositionDetails();
     }
   }, [event?.id]);
 
@@ -151,22 +184,33 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
     setStats(newStats);
   }, [attendance, students]);
 
-  // NEW
   const handleSave = async () => {
+    if (!event?.id) {
+      alert("Event ID is missing");
+      return;
+    }
+
     try {
       setSaving(true);
 
       if (isEditMode) {
-        // Handle edit mode - use PUT endpoint
         const records = [];
 
         Object.entries(attendance).forEach(([studentId, record]) => {
-          records.push({
-            studentId: parseInt(studentId),
-            status: record.status,
-            reasonForChange: record.reason_for_change,
-          });
+          if (record.reason_for_change) {
+            records.push({
+              studentId: parseInt(studentId),
+              status: record.status,
+              reasonForChange: record.reason_for_change,
+            });
+          }
         });
+
+        if (records.length === 0) {
+          alert("No changes to save");
+          setSaving(false);
+          return;
+        }
 
         const response = await axios.put(
           `http://localhost:5000/events/${event.id}/attendance`,
@@ -190,73 +234,61 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
           }
         }
       } else {
-        // Handle initial marking mode - use existing POST endpoint logic
-        const presentStudents = [];
-        const lateStudents = [];
-        const absentStudents = [];
+        const statusGroups = {
+          present: [],
+          late: [],
+          absent: [],
+        };
 
         Object.entries(attendance).forEach(([studentId, record]) => {
           const student = students.find((s) => s.id === parseInt(studentId));
-          if (!student) return;
+          if (!student || !student.registration_number) return;
 
-          switch (record.status) {
-            case "present":
-              presentStudents.push(student.registration_number);
-              break;
-            case "late":
-              lateStudents.push(student.registration_number);
-              break;
-            case "absent":
-              absentStudents.push(student.registration_number);
-              break;
+          if (statusGroups[record.status]) {
+            statusGroups[record.status].push(student.registration_number);
           }
         });
 
-        // Make API calls for each status type
         const apiCalls = [];
 
-        if (presentStudents.length > 0) {
-          apiCalls.push(
-            axios.post(`http://localhost:5000/events/${event.id}/attendance`, {
-              registration_numbers: presentStudents,
-              status: "present",
-            })
-          );
+        Object.entries(statusGroups).forEach(([status, regNumbers]) => {
+          if (regNumbers.length > 0) {
+            apiCalls.push(
+              axios.post(
+                `http://localhost:5000/events/${event.id}/attendance`,
+                {
+                  registration_numbers: regNumbers,
+                  status: status,
+                }
+              )
+            );
+          }
+        });
+
+        if (apiCalls.length === 0) {
+          alert("No attendance to mark");
+          setSaving(false);
+          return;
         }
 
-        if (lateStudents.length > 0) {
-          apiCalls.push(
-            axios.post(`http://localhost:5000/events/${event.id}/attendance`, {
-              registration_numbers: lateStudents,
-              status: "late",
-            })
-          );
-        }
-
-        if (absentStudents.length > 0) {
-          apiCalls.push(
-            axios.post(`http://localhost:5000/events/${event.id}/attendance`, {
-              registration_numbers: absentStudents,
-              status: "absent",
-            })
-          );
-        }
-
-        // Wait for all API calls to complete
         const results = await Promise.all(apiCalls);
 
-        // Process results
         let totalMarked = 0;
         let totalErrors = 0;
+        let allErrors = [];
 
         results.forEach((response) => {
           if (response.data.success) {
             totalMarked += response.data.summary.marked;
             totalErrors += response.data.summary.failed;
+            if (response.data.errors) {
+              allErrors = [...allErrors, ...response.data.errors];
+            }
           }
         });
 
         if (totalErrors > 0) {
+          console.log("Marking errors:", allErrors);
           alert(
             `Marked ${totalMarked} students successfully. ${totalErrors} errors occurred.`
           );
@@ -274,7 +306,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
       setSaving(false);
     }
   };
-  // NEW
+
   const confirmChangeWithReason = () => {
     if (!reasonForChange.trim()) {
       alert("Please provide a reason for this change");
@@ -285,7 +317,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
       setAttendance((prev) => ({
         ...prev,
         [pendingChange.studentId]: {
-          ...prev[pendingChange.studentId], // Keep existing data
+          ...prev[pendingChange.studentId],
           status: pendingChange.status,
           check_in_time:
             pendingChange.status === "present"
@@ -301,14 +333,11 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
     setPendingChange(null);
   };
 
-  // new
   const handleAttendanceUpdate = (studentId, status) => {
     if (isEditMode) {
-      // For completed events, require a reason for any change
       setPendingChange({ studentId, status });
       setShowReasonModal(true);
     } else if (canMarkAttendance) {
-      // For ongoing events, allow direct updates
       setAttendance((prev) => ({
         ...prev,
         [studentId]: {
@@ -367,8 +396,26 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
   const statusInfo = getStatusMessage();
 
-  // Add function to update event status
+  // const updateEventStatus = async (newStatus) => {
+  //   try {
+  //     const response = await axios.put(
+  //       `http://localhost:5000/events/${event.id}/status`,
+  //       { status: newStatus }
+  //     );
+
+  //     if (response.data.success) {
+  //       setEventStatus(newStatus);
+  //     }
+  //   } catch (error) {
+  //     alert(error.response?.data?.message || "Failed to update event status");
+  //   }
+  // };
   const updateEventStatus = async (newStatus) => {
+    if (!event?.id) {
+      alert("Event ID is missing");
+      return;
+    }
+
     try {
       const response = await axios.put(
         `http://localhost:5000/events/${event.id}/status`,
@@ -379,6 +426,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
         setEventStatus(newStatus);
       }
     } catch (error) {
+      console.error("Status update error:", error);
       alert(error.response?.data?.message || "Failed to update event status");
     }
   };
@@ -388,7 +436,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
         <div className="min-h-full w-full p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-6xl mx-auto my-8">
-            {/* Header */}
             <div className="bg-slate-900 px-6 py-5 text-white rounded-t-xl relative">
               <button
                 onClick={onClose}
@@ -414,6 +461,27 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                       {eventData?.positionTitle &&
                         ` • ${eventData?.positionTitle}`}
                     </p>
+                    {eventData?.type === "company_round" &&
+                      eventData?.roundNumber && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="px-2 py-1 bg-blue-500/20 text-blue-200 rounded">
+                            Round {eventData.roundNumber}
+                          </span>
+                          {eventData?.roundType && (
+                            <span className="text-slate-300">
+                              {eventData.roundType}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    {positionDetails.length > 0 && (
+                      <div className="text-slate-300 text-sm mt-2">
+                        <span className="font-medium">Positions: </span>
+                        {positionDetails
+                          .map((p) => p.position_title)
+                          .join(", ")}
+                      </div>
+                    )}
                     <div className="text-slate-400 text-sm flex items-center gap-4">
                       <span>
                         {eventData?.date &&
@@ -428,7 +496,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                 </div>
               </div>
 
-              {/* Status Controls */}
               <div className="flex items-center gap-2 mt-4">
                 <button
                   onClick={() => updateEventStatus("ongoing")}
@@ -455,7 +522,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
               </div>
             </div>
 
-            {/* Status Message */}
             <div
               className={`mx-6 mt-6 p-4 rounded-lg border ${statusInfo.color} flex items-start gap-3`}
             >
@@ -463,7 +529,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
               <p className="text-sm font-medium flex-1">{statusInfo.message}</p>
             </div>
 
-            {/* Default Warning */}
             <div className="mx-6 mt-4 p-4 rounded-lg bg-orange-50 border border-orange-200 flex items-start gap-3">
               <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5" />
               <div className="text-sm text-orange-700">
@@ -475,7 +540,28 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
               </div>
             </div>
 
-            {/* Stats */}
+            {roundInfo && eventData?.type === "company_round" && (
+              <div className="mx-6 mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <div className="text-sm text-blue-700">
+                  <p className="font-medium mb-2">Round Information</p>
+                  <div className="space-y-1">
+                    <p>• Round Number: {roundInfo.roundNumber}</p>
+                    <p>• Eligible Students: {roundInfo.totalCount}</p>
+                    {roundInfo.roundNumber === 1 ? (
+                      <p>
+                        • Source: Students who applied via registration forms
+                      </p>
+                    ) : (
+                      <p>
+                        • Source: Students selected from Round{" "}
+                        {roundInfo.roundNumber - 1}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-5 gap-4 p-6 bg-slate-50 border-y border-slate-200 mt-6">
               <StatCard title="Total" value={stats.total} />
               <StatCard title="Present" value={stats.present} color="green" />
@@ -488,7 +574,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
               />
             </div>
 
-            {/* Search */}
             <div className="p-6 border-b border-slate-200">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
@@ -502,8 +587,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
               </div>
             </div>
 
-            {/* Student List */}
-            {/* Student List */}
             <div className="p-6">
               {!canMarkAttendance && !isEditMode ? (
                 <div className="flex items-center justify-center py-16">
@@ -534,7 +617,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                     />
                   ))}
 
-                  {/* Save Button - Show for both ongoing and completed events */}
                   {(canMarkAttendance || isEditMode) && (
                     <div className="mt-8 pt-6 border-t border-slate-200">
                       <button
@@ -558,7 +640,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
         </div>
       </div>
 
-      {/* Reason Modal */}
       {showReasonModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-60 overflow-y-auto">
           <div className="min-h-full w-full p-4 flex items-center justify-center">
@@ -606,7 +687,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
   );
 };
 
-// Helper Components
 const StatCard = ({ title, value, color = "blue" }) => {
   const colorClasses = {
     green: "text-green-600 bg-green-50 border-green-200",
