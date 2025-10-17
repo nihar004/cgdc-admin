@@ -1,9 +1,10 @@
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Briefcase } from "lucide-react";
 import { useStudentContext } from "../../context/StudentContext";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import ManualOffersModal from "./ManualOffersModal";
 
 export default function StudentTable({ filteredStudents }) {
   const {
@@ -18,6 +19,10 @@ export default function StudentTable({ filteredStudents }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // State for manual offers modal
+  const [showOffersModal, setShowOffersModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const handleEditStudent = (student) => {
     setEditingStudent(student);
@@ -60,6 +65,17 @@ export default function StudentTable({ filteredStudents }) {
   const handleDeleteClick = (student) => {
     setStudentToDelete(student);
     setShowDeleteModal(true);
+  };
+
+  // Handle manage offers button click
+  const handleManageOffers = (student) => {
+    setSelectedStudent(student);
+    setShowOffersModal(true);
+  };
+
+  // Handle offers modal close and refresh
+  const handleOffersSuccess = () => {
+    fetchStudents(); // Refresh student data
   };
 
   const formatPackage = (amount) => {
@@ -293,6 +309,13 @@ export default function StudentTable({ filteredStudents }) {
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
                         <button
+                          onClick={() => handleManageOffers(student)}
+                          className="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100 rounded-lg transition-all duration-200"
+                          title="Manage Offers"
+                        >
+                          <Briefcase className="h-4 w-4" />
+                        </button>
+                        <button
                           onClick={() => handleEditStudent(student)}
                           className="p-2 text-slate-600 hover:text-amber-800 hover:bg-amber-100 rounded-lg transition-all duration-200"
                           title="Edit Student"
@@ -322,6 +345,14 @@ export default function StudentTable({ filteredStudents }) {
           onConfirm={handleConfirmDelete}
           student={studentToDelete}
           isDeleting={isDeleting}
+        />
+
+        {/* Manual Offers Modal */}
+        <ManualOffersModal
+          isOpen={showOffersModal}
+          onClose={() => setShowOffersModal(false)}
+          student={selectedStudent}
+          onSuccess={handleOffersSuccess}
         />
       </div>
     </>

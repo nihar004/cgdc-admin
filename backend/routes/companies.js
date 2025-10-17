@@ -178,11 +178,112 @@ async function updatePositionsEfficiently(
   existingPositions,
   newPositions
 ) {
-  const changes = detectPositionChanges(existingPositions, newPositions);
   const updatedPositions = [];
 
-  // Delete positions
-  for (const positionId of changes.toDelete) {
+  // Create a map of existing positions by BOTH id and position_title
+  const existingMapById = new Map(
+    existingPositions.map((pos) => [pos.id, pos])
+  );
+  const existingMapByTitle = new Map(
+    existingPositions.map((pos) => [pos.position_title, pos])
+  );
+
+  // Track which existing position IDs are being kept
+  const processedIds = new Set();
+
+  // Step 1: Process each position from the request
+  for (const position of newPositions) {
+    let existingPosition = null;
+
+    // Try to match by ID first
+    if (position.id && existingMapById.has(position.id)) {
+      existingPosition = existingMapById.get(position.id);
+    }
+    // If no ID or ID doesn't match, try to match by position_title
+    else if (
+      position.position_title &&
+      existingMapByTitle.has(position.position_title)
+    ) {
+      existingPosition = existingMapByTitle.get(position.position_title);
+    }
+
+    if (existingPosition) {
+      // UPDATE existing position
+      processedIds.add(existingPosition.id);
+
+      const processedPosition = processPositionData(position);
+
+      const updateQuery = `
+        UPDATE company_positions SET
+          position_title = $2,
+          job_type = $3,
+          company_type = $4,
+          package_range = $5,
+          internship_stipend_monthly = $6,
+          rounds_start_date = $7,
+          rounds_end_date = $8,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1 AND company_id = $9
+        RETURNING *
+      `;
+
+      try {
+        const result = await client.query(updateQuery, [
+          existingPosition.id, // Use the existing position's ID
+          processedPosition.position_title,
+          processedPosition.job_type,
+          processedPosition.company_type,
+          processedPosition.package_range,
+          processedPosition.internship_stipend_monthly,
+          processedPosition.rounds_start_date,
+          processedPosition.rounds_end_date,
+          companyId,
+        ]);
+
+        updatedPositions.push(result.rows[0]);
+      } catch (err) {
+        console.error(`Error updating position ${existingPosition.id}:`, err);
+        throw err;
+      }
+    } else {
+      // CREATE new position (no match found)
+      const processedPosition = processPositionData(position);
+
+      const insertQuery = `
+        INSERT INTO company_positions (
+          company_id, position_title, job_type, company_type, 
+          package_range, internship_stipend_monthly, 
+          rounds_start_date, rounds_end_date
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `;
+
+      try {
+        const result = await client.query(insertQuery, [
+          companyId,
+          processedPosition.position_title,
+          processedPosition.job_type,
+          processedPosition.company_type,
+          processedPosition.package_range,
+          processedPosition.internship_stipend_monthly,
+          processedPosition.rounds_start_date,
+          processedPosition.rounds_end_date,
+        ]);
+        updatedPositions.push(result.rows[0]);
+      } catch (err) {
+        console.error("Error inserting new position:", err);
+        throw err;
+      }
+    }
+  }
+
+  // Step 2: DELETE positions that were not in the request
+  const positionIdsToDelete = existingPositions
+    .map((pos) => pos.id)
+    .filter((id) => !processedIds.has(id));
+
+  for (const positionId of positionIdsToDelete) {
     // First delete associated documents and their files
     const documentsQuery =
       "SELECT * FROM position_documents WHERE position_id = $1";
@@ -199,181 +300,16 @@ async function updatePositionsEfficiently(
 
     // Delete the position (cascade will handle documents table)
     try {
-      await client.query("DELETE FROM company_positions WHERE id = $1", [
-        positionId,
-      ]);
+      await client.query(
+        "DELETE FROM company_positions WHERE id = $1 AND company_id = $2",
+        [positionId, companyId]
+      );
     } catch (err) {
       console.error(`Error deleting position ${positionId}:`, err);
       throw err;
     }
   }
-
-  // Update existing positions
-  for (const position of changes.toUpdate) {
-    const processedPosition = processPositionData(position);
-
-    const updateQuery = `
-      UPDATE company_positions SET
-        position_title = $2,
-        job_type = $3,
-        company_type = $4,
-        package_range = $5,
-        internship_stipend_monthly = $6,
-        rounds_start_date = $7,
-        rounds_end_date = $8,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1
-      RETURNING *
-    `;
-
-    try {
-      const result = await client.query(updateQuery, [
-        position.id,
-        processedPosition.position_title,
-        processedPosition.job_type,
-        processedPosition.company_type,
-        processedPosition.package_range,
-        processedPosition.internship_stipend_monthly,
-        processedPosition.rounds_start_date,
-        processedPosition.rounds_end_date,
-      ]);
-      updatedPositions.push(result.rows[0]);
-    } catch (err) {
-      console.error(`Error updating position ${position.id}:`, err);
-      throw err;
-    }
-  }
-
-  // Create new positions
-  for (const position of changes.toCreate) {
-    const processedPosition = processPositionData(position);
-
-    const insertQuery = `
-      INSERT INTO company_positions (
-        company_id, position_title, job_type, company_type, 
-        package_range, internship_stipend_monthly, 
-        rounds_start_date, rounds_end_date
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
-    `;
-
-    try {
-      const result = await client.query(insertQuery, [
-        companyId,
-        processedPosition.position_title,
-        processedPosition.job_type,
-        processedPosition.company_type,
-        processedPosition.package_range,
-        processedPosition.internship_stipend_monthly,
-        processedPosition.rounds_start_date,
-        processedPosition.rounds_end_date,
-      ]);
-      updatedPositions.push(result.rows[0]);
-    } catch (err) {
-      console.error("Error inserting new position:", err);
-      throw err;
-    }
-  }
-
   return updatedPositions;
-}
-
-// Helper function to compare positions and detect changes
-function detectPositionChanges(existingPositions, newPositions) {
-  const changes = {
-    toUpdate: [],
-    toDelete: [],
-    toCreate: [],
-  };
-
-  // Special case: single position update (no id in new, one existing)
-  if (
-    existingPositions.length === 1 &&
-    newPositions.length === 1 &&
-    !newPositions[0].id
-  ) {
-    // Compare fields
-    const existing = existingPositions[0];
-    const newPos = newPositions[0];
-    const fieldsToCheck = [
-      "position_title",
-      "job_type",
-      "package_range",
-      "internship_stipend_monthly",
-      "rounds_start_date",
-      "rounds_end_date",
-    ];
-    let hasChanges = false;
-    for (const field of fieldsToCheck) {
-      if (
-        (existing[field] != null &&
-          newPos[field] != null &&
-          existing[field].toString() !== newPos[field].toString()) ||
-        (existing[field] == null && newPos[field] != null) ||
-        (existing[field] != null && newPos[field] == null)
-      ) {
-        hasChanges = true;
-        break;
-      }
-    }
-    if (hasChanges) {
-      changes.toUpdate.push({ ...newPos, id: existing.id });
-    }
-    return changes;
-  }
-
-  // General case: match by id
-  const existingMap = new Map(existingPositions.map((pos) => [pos.id, pos]));
-  const newMap = new Map();
-
-  newPositions.forEach((newPos, index) => {
-    if (newPos.id) {
-      newMap.set(newPos.id, { ...newPos, originalIndex: index });
-    } else {
-      changes.toCreate.push({ ...newPos, originalIndex: index });
-    }
-  });
-
-  existingPositions.forEach((existing) => {
-    if (newMap.has(existing.id)) {
-      const updated = newMap.get(existing.id);
-      const fieldsToCheck = [
-        "position_title",
-        "job_type",
-        "package_range",
-        "internship_stipend_monthly",
-        "rounds_start_date",
-        "rounds_end_date",
-      ];
-      let hasChanges = false;
-      for (const field of fieldsToCheck) {
-        if (
-          (existing[field] != null &&
-            updated[field] != null &&
-            existing[field].toString() !== updated[field].toString()) ||
-          (existing[field] == null && updated[field] != null) ||
-          (existing[field] != null && updated[field] == null)
-        ) {
-          hasChanges = true;
-          break;
-        }
-      }
-      if (hasChanges) {
-        changes.toUpdate.push(updated);
-      }
-    } else {
-      changes.toDelete.push(existing.id);
-    }
-  });
-
-  newMap.forEach((newPos, id) => {
-    if (!existingMap.has(id)) {
-      changes.toCreate.push(newPos);
-    }
-  });
-
-  return changes;
 }
 
 // Helper function to process position data
@@ -433,7 +369,6 @@ function processPositionData(position) {
 // **************************************************
 
 // GET all companies for a specific batch with positions, documents
-// TODO :: add application coutn and selected count
 routes.get("/batch/:batchYear", async (req, res) => {
   const { batchYear } = req.params;
 
@@ -451,6 +386,16 @@ routes.get("/batch/:batchYear", async (req, res) => {
         cb.batch_id,
         b.year as batch_year,
         COALESCE(ce.total_eligible_count, -1) as total_eligible,
+        -- Count total registered students for this company across all positions
+        (
+          SELECT COUNT(DISTINCT fr.student_id)
+          FROM form_responses fr
+          INNER JOIN forms f ON fr.form_id = f.id
+          INNER JOIN company_positions cp_inner ON (fr.response_data->>'position_id')::INTEGER = cp_inner.id
+          WHERE cp_inner.company_id = c.id 
+            AND f.batch_year = $1
+            AND f.type = 'application'
+        ) as total_registered,
         JSON_AGG(
           JSON_BUILD_OBJECT(
             'id', cp.id,
@@ -461,6 +406,24 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'internship_stipend_monthly', cp.internship_stipend_monthly,
             'rounds_start_date', cp.rounds_start_date,
             'rounds_end_date', cp.rounds_end_date,
+            -- Count selected students from final round results
+            'selected_students', (
+              SELECT COUNT(DISTINCT srr.student_id)
+              FROM student_round_results srr
+              INNER JOIN events e ON srr.event_id = e.id
+              WHERE e.position_ids @> ARRAY[cp.id]
+                AND e.round_type = 'last'
+                AND srr.result_status = 'selected'
+            ),
+            -- Count registered students for this specific position
+            'registered_students', (
+              SELECT COUNT(DISTINCT fr.student_id)
+              FROM form_responses fr
+              INNER JOIN forms f ON fr.form_id = f.id
+              WHERE (fr.response_data->>'position_id')::INTEGER = cp.id
+                AND f.batch_year = $1
+                AND f.type = 'application'
+            ),
             'documents', (
               SELECT JSON_AGG(
                 JSON_BUILD_OBJECT(
@@ -483,21 +446,29 @@ routes.get("/batch/:batchYear", async (req, res) => {
           )
         ) FILTER (WHERE cp.id IS NOT NULL) as positions
       FROM companies c
-      JOIN company_batches cb ON c.id = cb.company_id
+      INNER JOIN company_batches cb ON c.id = cb.company_id
       LEFT JOIN batches b ON cb.batch_id = b.id
       LEFT JOIN company_positions cp ON c.id = cp.company_id
       LEFT JOIN company_eligibility ce ON c.id = ce.company_id AND cb.batch_id = ce.batch_id
-      WHERE cb.batch_id = $1
+      WHERE cb.batch_id = $2
       GROUP BY c.id, cb.batch_id, b.year, ce.total_eligible_count
-      ORDER BY c.scheduled_visit DESC
+      ORDER BY c.scheduled_visit DESC NULLS LAST, c.company_name
     `;
 
-    const result = await db.query(query, [batchId]);
+    const result = await db.query(query, [parseInt(batchYear), batchId]);
 
-    // Transform the data to calculate only total selected per company
+    // Calculate total selected students across all positions for each company
     const companiesWithStats = result.rows.map((company) => {
+      const totalSelected = company.positions
+        ? company.positions.reduce(
+            (sum, pos) => sum + (pos.selected_students || 0),
+            0
+          )
+        : 0;
+
       return {
         ...company,
+        total_selected: totalSelected,
       };
     });
 
@@ -1191,7 +1162,7 @@ routes.delete("/documents/:documentId", async (req, res) => {
 
 // ************ End of Document Endpoints ************
 // ***************************************************
-
+// GET companies with active positions for a specific batch year
 routes.get("/with-active-positions/:batchYear", async (req, res) => {
   try {
     const { batchYear } = req.params;
@@ -1206,15 +1177,21 @@ routes.get("/with-active-positions/:batchYear", async (req, res) => {
           c.company_name,
           p.id AS position_id,
           p.position_title,
-          p.is_active,
           p.job_type,
-          b.year
+          b.year AS batch_year
       FROM companies c
       JOIN company_positions p ON c.id = p.company_id
       JOIN company_batches cb ON c.id = cb.company_id
       JOIN batches b ON cb.batch_id = b.id
-      WHERE p.is_active = true
-        AND b.year = $1
+      WHERE b.year = $1
+        -- Exclude positions that already have a "last" round event
+        AND NOT EXISTS (
+          SELECT 1 
+          FROM events e
+          WHERE e.company_id = c.id
+            AND e.round_type = 'last'
+            AND p.id = ANY(e.position_ids)
+        )
       ORDER BY c.company_name, p.position_title;
     `;
 
@@ -1231,6 +1208,7 @@ routes.get("/with-active-positions/:batchYear", async (req, res) => {
           positions: [],
         };
       }
+
       companies[row.company_id].positions.push({
         position_id: row.position_id,
         position_title: row.position_title,

@@ -29,11 +29,9 @@ const CompanyListing = () => {
   const {
     selectedCompany,
     selectedBatch,
-    typeFilter,
     sectorFilter,
     companies,
     fetchCompanies,
-    setTypeFilter,
     setSectorFilter,
     searchTerm,
     setSearchTerm,
@@ -286,17 +284,6 @@ const CompanyListing = () => {
                 />
               </div>
 
-              {/* Type Filter */}
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Types</option>
-                <option value="tech">Tech</option>
-                <option value="nontech">Non-Tech</option>
-              </select>
-
               {/* Sector Filter */}
               <select
                 value={sectorFilter}
@@ -364,7 +351,6 @@ const CompanyListing = () => {
 
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     {searchTerm ||
-                    typeFilter !== "all" ||
                     sectorFilter !== "all" ||
                     specializationFilter !== "all"
                       ? "No companies match your filters"
@@ -373,7 +359,6 @@ const CompanyListing = () => {
 
                   <p className="text-gray-500 mb-6">
                     {searchTerm ||
-                    typeFilter !== "all" ||
                     sectorFilter !== "all" ||
                     specializationFilter !== "all" ? (
                       <span className="flex items-center justify-center gap-2">
@@ -390,7 +375,6 @@ const CompanyListing = () => {
 
                   {/* Update the condition for showing Add/Reset buttons */}
                   {!searchTerm &&
-                    typeFilter === "all" &&
                     sectorFilter === "all" &&
                     specializationFilter === "all" && (
                       <button
@@ -403,14 +387,12 @@ const CompanyListing = () => {
                     )}
 
                   {(searchTerm ||
-                    typeFilter !== "all" ||
                     sectorFilter !== "all" ||
                     specializationFilter !== "all") && (
                     <div className="flex items-center justify-center gap-4">
                       <button
                         onClick={() => {
                           setSearchTerm("");
-                          setTypeFilter("all");
                           setSectorFilter("all");
                           setSpecializationFilter("all"); // Add this line
                         }}

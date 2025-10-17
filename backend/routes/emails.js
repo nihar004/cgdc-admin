@@ -752,12 +752,11 @@ function buildStudentQuery(filter) {
   // Placement status filter
   if (filter.placement_status) {
     if (filter.placement_status === "unplaced") {
-      params.push("placed");
-      query += ` AND placement_status != $${params.length}`;
+      params.push("unplaced");
     } else if (filter.placement_status === "placed") {
       params.push("placed");
-      query += ` AND placement_status = $${params.length}`;
     }
+    query += ` AND placement_status = $${params.length}`;
   }
 
   query += ` ORDER BY batch_year DESC, department ASC`;

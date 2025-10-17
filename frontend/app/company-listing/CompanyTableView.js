@@ -351,7 +351,7 @@ export function CompanyTableView({
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="text-center bg-blue-50 rounded-lg p-2">
                                     <div className="font-bold text-blue-600 text-xs">
-                                      {company.total_applications_count || 0}
+                                      {company.total_registered || 0}
                                     </div>
                                     <div className="text-blue-500 text-[11px]">
                                       Registered
@@ -611,7 +611,7 @@ export function CompanyTableView({
                                           </span>
                                         </div>
                                         <div className="text-sm font-semibold text-blue-800 mt-1">
-                                          {position.applications_count || 0}
+                                          {position.registered_students || 0}
                                         </div>
                                       </div>
 

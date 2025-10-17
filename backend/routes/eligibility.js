@@ -6,6 +6,8 @@ const {
   isStudentEligible,
   getCompanyEligibility,
   getCompanyEligibilityWithStudents,
+  manuallyAddEligibleStudent,
+  removeManuallyAddedStudent,
 } = require("../services/eligibilityService");
 
 /**
@@ -272,5 +274,72 @@ routes.put("/:companyId/:batchYear/students/:studentId", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+/**
+ * PUT /api/eligibility/manual/:companyId/:batchYear/students/:studentId
+ * Add or remove a manually added student
+ * Body: { action: "add" | "remove", reason?: "string" }
+ */
+routes.put(
+  "/manual/:companyId/:batchYear/students/:studentId",
+  async (req, res) => {
+    try {
+      const { companyId, batchYear, studentId } = req.params;
+      const { action, reason } = req.body;
+
+      if (!action || !["add", "remove"].includes(action)) {
+        return res.status(400).json({
+          error: "Action is required and must be 'add' or 'remove'.",
+        });
+      }
+
+      // Get batchId using helper
+      const batchId = await getBatchIdFromYear(batchYear);
+
+      let result;
+
+      if (action === "add") {
+        if (!reason || reason.trim().length === 0) {
+          return res.status(400).json({
+            error: "Reason is required for manual eligibility override.",
+          });
+        }
+
+        result = await manuallyAddEligibleStudent(
+          db,
+          parseInt(companyId),
+          batchId,
+          parseInt(studentId),
+          reason
+        );
+      } else {
+        // action === "remove"
+        result = await removeManuallyAddedStudent(
+          db,
+          parseInt(companyId),
+          batchId,
+          parseInt(studentId)
+        );
+      }
+
+      if (!result.success) {
+        return res.status(400).json({
+          error: result.message,
+        });
+      }
+
+      res.json({
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
+    } catch (error) {
+      console.error("Error in manual eligibility route:", error);
+      res.status(500).json({
+        error: error.message || "Internal server error.",
+      });
+    }
+  }
+);
 
 module.exports = routes;

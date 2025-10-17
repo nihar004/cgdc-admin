@@ -1,119 +1,106 @@
-"use client";
 import { useState, useEffect } from "react";
-import { TrendingUp, Calendar, CheckCircle, Users } from "lucide-react";
+import { Users, CheckCircle, Building2, TrendingUp } from "lucide-react";
 import axios from "axios";
 import { useBatchContext } from "../../context/BatchContext";
 
 const StatsCards = () => {
   const [stats, setStats] = useState({
     totalApplications: 0,
-    currentlyQualified: 0,
     activeCompanies: 0,
     totalPlacements: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { selectedBatch } = useBatchContext();
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data } = await axios.get(
-          `http://localhost:5000/round_tracking/stats/${selectedBatch}`
-        );
-        setStats(data);
-      } catch (err) {
-        console.error("Error fetching stats:", err);
-        setError(err.response?.data?.message || err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
   }, []);
 
+  const fetchStats = async () => {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:5000/round-tracking/stats/${selectedBatch}`
+      );
+      setStats({
+        totalApplications: data.totalApplications || 0,
+        activeCompanies: data.activeCompanies || 0,
+        totalPlacements: data.totalPlacements || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statCards = [
+    {
+      title: "Total Applications",
+      value: stats.totalApplications,
+      icon: Users,
+      color: "blue",
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
+      textColor: "text-blue-900",
+    },
+    {
+      title: "Active Companies",
+      value: stats.activeCompanies,
+      icon: Building2,
+      color: "purple",
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
+      textColor: "text-purple-900",
+    },
+    {
+      title: "Total Placements",
+      value: stats.totalPlacements,
+      icon: CheckCircle,
+      color: "emerald",
+      bgColor: "bg-emerald-50",
+      iconColor: "text-emerald-600",
+      textColor: "text-emerald-900",
+    },
+  ];
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-slate-50 animate-pulse p-4 rounded-xl border border-slate-100"
-          >
-            <div className="h-6 bg-slate-200 rounded w-24 mb-2"></div>
-            <div className="h-8 bg-slate-200 rounded w-16"></div>
-          </div>
+            className="bg-gray-50 rounded-lg p-4 h-24 animate-pulse"
+          ></div>
         ))}
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mt-6">
-        <p className="text-sm">Failed to load statistics: {error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
-        <div className="flex items-center gap-3">
-          <Users className="text-blue-600" size={24} />
-          <div>
-            <p className="text-blue-600 text-sm font-medium">
-              Total Applications
-            </p>
-            <p className="text-2xl font-bold text-blue-900">
-              {stats.totalApplications}
-            </p>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      {statCards.map((stat, index) => {
+        const Icon = stat.icon;
+        return (
+          <div
+            key={index}
+            className={`${stat.bgColor} rounded-lg p-4 hover:shadow-md transition-shadow`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  {stat.title}
+                </p>
+                <p className={`text-2xl font-bold ${stat.textColor} mt-1`}>
+                  {stat.value.toLocaleString()}
+                </p>
+              </div>
+              <div className={`${stat.bgColor} rounded-full p-3`}>
+                <Icon className={`h-6 w-6 ${stat.iconColor}`} />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
-        <div className="flex items-center gap-3">
-          <TrendingUp className="text-green-600" size={24} />
-          <div>
-            <p className="text-green-600 text-sm font-medium">
-              Currently Qualified
-            </p>
-            <p className="text-2xl font-bold text-green-900">
-              {stats.currentlyQualified}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-100">
-        <div className="flex items-center gap-3">
-          <Calendar className="text-purple-600" size={24} />
-          <div>
-            <p className="text-purple-600 text-sm font-medium">
-              Active Companies
-            </p>
-            <p className="text-2xl font-bold text-purple-900">
-              {stats.activeCompanies}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl border border-orange-100">
-        <div className="flex items-center gap-3">
-          <CheckCircle className="text-orange-600" size={24} />
-          <div>
-            <p className="text-orange-600 text-sm font-medium">
-              Total Placements
-            </p>
-            <p className="text-2xl font-bold text-orange-900">
-              {stats.totalPlacements}
-            </p>
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };

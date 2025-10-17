@@ -14,7 +14,9 @@ import {
   Plus,
   Trash2,
   X,
+  Info,
 } from "lucide-react";
+import { toast } from "react-toastify";
 // START DONE
 
 // Add this helper function at the top of your file, before the component
@@ -541,13 +543,16 @@ const CompanyFormModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast.error("Please fix the validation errors");
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       // Create a new object with processed data
       const processedData = {
         ...formData,
@@ -583,16 +588,15 @@ const CompanyFormModal = ({
         await handleDocumentUploadsForNew(companyData, formData);
       }
 
+      toast.success(
+        editData
+          ? "Company updated successfully"
+          : "Company created successfully"
+      );
       onSuccess(companyData);
       onClose();
     } catch (error) {
-      console.error("Error saving company:", error);
-      setErrors({
-        submit:
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to save company",
-      });
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -1004,6 +1008,17 @@ const CompanyFormModal = ({
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">
                       Position Title*
+                      {editData && (
+                        <div className="inline-block ml-2 group relative">
+                          <Info size={14} className="inline text-blue-500" />
+                          <div className="hidden group-hover:block absolute left-0 top-6 w-64 p-2 bg-neutral-800 text-white text-xs rounded shadow-lg z-20">
+                            Position titles cannot be edited to maintain data
+                            consistency across rounds and applications. To
+                            modify, please delete this position and create a new
+                            one.
+                          </div>
+                        </div>
+                      )}
                     </label>
                     <input
                       required
@@ -1016,8 +1031,19 @@ const CompanyFormModal = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      disabled={!!editData}
+                      className={`w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        editData
+                          ? "bg-neutral-100 cursor-not-allowed opacity-75"
+                          : "bg-white"
+                      }`}
                     />
+                    {editData && (
+                      <p className="mt-1 text-xs text-neutral-600 bg-neutral-100 px-2 py-1 rounded">
+                        💡 To change position title, delete this position and
+                        create a new one
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">
@@ -1048,12 +1074,12 @@ const CompanyFormModal = ({
                     position.job_type === "internship_plus_ppo") && (
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-1">
-                        Package Range (LPA)*
+                        Package Range *
                       </label>
                       <input
                         type="number"
                         min="-1"
-                        max="99999999"
+                        max="999999999"
                         value={position.package_range}
                         onChange={(e) =>
                           updatePosition(
@@ -1114,7 +1140,7 @@ const CompanyFormModal = ({
                     </label>
                     <input
                       type="number"
-                      min="0"
+                      min="-1"
                       value={position.selected_students}
                       onChange={(e) =>
                         updatePosition(

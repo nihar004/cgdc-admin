@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AlertTriangle, X, Trash2, Briefcase, Building2 } from "lucide-react";
 import { useCompaniesContext } from "../../context/CompaniesContext";
+import { toast } from "react-toastify";
 
 const DeleteConfirmationModal = ({
   isOpen,
@@ -30,10 +31,19 @@ const DeleteConfirmationModal = ({
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid) {
-      handleDeleteConfirm();
+      try {
+        await handleDeleteConfirm();
+        toast.success(
+          `${type === "company" ? "Company" : "Position"} deleted successfully`
+        );
+      } catch (error) {
+        toast.error(`Failed to delete ${type}`);
+      }
+    } else {
+      toast.error("Please type the confirmation text correctly");
     }
   };
 

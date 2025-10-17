@@ -12,7 +12,126 @@ import {
   Calculator,
   Eye,
   EyeOff,
+  UserPlus,
+  FileText,
 } from "lucide-react";
+import { toast } from "react-toastify";
+
+// Manual Override Modal Component
+function ManualOverrideModal({
+  student,
+  companyId,
+  batchYear,
+  onClose,
+  onSuccess,
+}) {
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!reason.trim()) {
+      toast.error("Please provide a reason for manual override");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await axios.put(
+        `http://localhost:5000/eligibility/manual/${companyId}/${batchYear}/students/${student.id}`,
+        { action: "add", reason: reason.trim() }
+      );
+      toast.success("Student manually added to eligible list");
+      onSuccess();
+      onClose();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.error || "Failed to add student manually"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]">
+      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <UserPlus className="h-5 w-5 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Manual Override
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="h-5 w-5 text-gray-400" />
+          </button>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4">
+          <p className="text-sm text-blue-900 font-medium mb-1">
+            {student.first_name} {student.last_name}
+          </p>
+          <p className="text-xs text-blue-700">
+            Registration: {student.registration_number} | CGPA:{" "}
+            {parseFloat(student.cgpa).toFixed(2)}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Reason for Manual Override <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Explain why this student should be manually added (e.g., special skills, extenuating circumstances, faculty recommendation...)"
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This reason will be recorded and displayed in the student list
+            </p>
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !reason.trim()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg transition-colors font-medium text-sm"
+            >
+              {submitting ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4" />
+                  Add Student
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   const [activeTab, setActiveTab] = useState("eligible");
@@ -20,11 +139,11 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [calculating, setCalculating] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [briefInfo, setBriefInfo] = useState(null);
+  const [showManualOverride, setShowManualOverride] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
     fetchEligibilityBrief();
@@ -40,7 +159,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
       setBriefInfo(data);
     } catch (err) {
       if (err.response?.status === 404) {
-        // No eligibility record found - show calculate option
         setEligibilityData(null);
         setBriefInfo(null);
       } else {
@@ -76,22 +194,18 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   const handleCalculateEligibility = async () => {
     try {
       setCalculating(true);
-      setError(null);
-
       const { data } = await axios.post(
         `http://localhost:5000/eligibility/${companyId}/${batchYear}/calculate`
       );
 
-      setSuccessMessage(
+      toast.success(
         `Eligibility calculated: ${data.eligible_count} eligible, ${data.ineligible_count} ineligible`
       );
-
-      // Refresh the data
       await fetchEligibilityBrief();
-      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to calculate eligibility");
-      console.error("Error calculating eligibility:", err);
+      toast.error(
+        err.response?.data?.error || "Failed to calculate eligibility"
+      );
     } finally {
       setCalculating(false);
     }
@@ -100,43 +214,54 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   const handleAddViaDreamCompany = async (studentId) => {
     try {
       setActionLoading(studentId);
-      setErrorMessage(null);
-
-      const { data } = await axios.put(
+      await axios.put(
         `http://localhost:5000/eligibility/${companyId}/${batchYear}/students/${studentId}`,
         { action: "add" }
       );
 
-      setSuccessMessage("Student added via dream company");
+      toast.success("Student added via dream company");
       await fetchEligibilityDetails();
-      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      setErrorMessage(err.response?.data?.error || "Failed to add student");
-      console.error("Error adding student:", err);
+      toast.error(err.response?.data?.error || "Failed to add student");
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleRemoveFromEligible = async (studentId) => {
+  const handleRemoveFromEligible = async (studentId, isManualOverride) => {
     try {
       setActionLoading(studentId);
-      setErrorMessage(null);
 
-      const { data } = await axios.put(
-        `http://localhost:5000/eligibility/${companyId}/${batchYear}/students/${studentId}`,
-        { action: "remove" }
-      );
+      if (isManualOverride) {
+        // For manual override students, use the manual endpoint with remove action
+        await axios.put(
+          `http://localhost:5000/eligibility/manual/${companyId}/${batchYear}/students/${studentId}`,
+          { action: "remove" }
+        );
+      } else {
+        // For dream company students, use the existing endpoint
+        await axios.put(
+          `http://localhost:5000/eligibility/${companyId}/${batchYear}/students/${studentId}`,
+          { action: "remove" }
+        );
+      }
 
-      setSuccessMessage("Student removed from dream company");
+      toast.success("Student removed from eligibility list");
       await fetchEligibilityDetails();
-      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      setErrorMessage(err.response?.data?.error || "Failed to remove student");
-      console.error("Error removing student:", err);
+      toast.error(err.response?.data?.error || "Failed to remove student");
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleManualOverrideClick = (student) => {
+    setSelectedStudent(student);
+    setShowManualOverride(true);
+  };
+
+  const handleManualOverrideSuccess = async () => {
+    await fetchEligibilityDetails();
   };
 
   if (loading && !briefInfo && !eligibilityData) {
@@ -182,7 +307,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
     );
   }
 
-  // No eligibility record exists - show calculate option
   if (!briefInfo && !eligibilityData && !loading) {
     return (
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
@@ -203,13 +327,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
               <X className="h-6 w-6 text-gray-400" />
             </button>
           </div>
-
-          {successMessage && (
-            <div className="bg-green-50 border border-green-100 rounded-lg px-4 py-3 mb-4 flex items-center gap-2 text-sm text-green-700">
-              <CheckCircle className="h-5 w-5" />
-              {successMessage}
-            </div>
-          )}
 
           <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 mb-6">
             <div className="flex items-start gap-3">
@@ -232,10 +349,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                     Placement status and upgrade opportunities will be
                     considered
                   </li>
-                  <li>
-                    You can manually add ineligible students via dream company
-                    later
-                  </li>
+                  <li>You can manually add ineligible students later</li>
                 </ul>
               </div>
             </div>
@@ -271,7 +385,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
     );
   }
 
-  // Show brief overview if details are not loaded
   if (briefInfo && !showDetails) {
     return (
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
@@ -293,14 +406,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
             </button>
           </div>
 
-          {successMessage && (
-            <div className="bg-green-50 border border-green-100 rounded-lg px-4 py-3 mb-4 flex items-center gap-2 text-sm text-green-700">
-              <CheckCircle className="h-5 w-5" />
-              {successMessage}
-            </div>
-          )}
-
-          {/* Statistics Cards */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -342,7 +447,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
             </div>
           </div>
 
-          {/* Eligibility Criteria */}
           {briefInfo.eligibility_criteria && (
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
               <h3 className="text-sm font-semibold text-gray-900 mb-3">
@@ -388,14 +492,12 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
             </div>
           )}
 
-          {/* Last Updated */}
           {briefInfo.updated_at && (
             <div className="text-xs text-gray-500 mb-6">
               Last updated: {new Date(briefInfo.updated_at).toLocaleString()}
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
@@ -426,362 +528,383 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
     );
   }
 
-  // Show full details view
   const eligibleStudents = eligibilityData?.eligible_students || [];
   const ineligibleStudents = eligibilityData?.ineligible_students || [];
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
+    <>
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+          <div className="flex items-center justify-between p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Manage Eligible Students
+              </h2>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Manage Eligible Students
-            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setShowDetails(false);
+                  setEligibilityData(null);
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
+              >
+                <EyeOff className="h-4 w-4" />
+                Hide Details
+              </button>
+              <button
+                onClick={onClose}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-6 w-6 text-gray-400" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex gap-0 px-6 border-b border-gray-100 bg-gray-50">
             <button
-              onClick={() => {
-                setShowDetails(false);
-                setEligibilityData(null);
-              }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
+              onClick={() => setActiveTab("eligible")}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === "eligible"
+                  ? "text-blue-600 border-blue-600"
+                  : "text-gray-600 border-transparent hover:text-gray-900"
+              }`}
             >
-              <EyeOff className="h-4 w-4" />
-              Hide Details
+              Eligible ({eligibleStudents.length})
             </button>
             <button
-              onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => setActiveTab("ineligible")}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === "ineligible"
+                  ? "text-blue-600 border-blue-600"
+                  : "text-gray-600 border-transparent hover:text-gray-900"
+              }`}
             >
-              <X className="h-6 w-6 text-gray-400" />
+              Ineligible ({ineligibleStudents.length})
             </button>
           </div>
-        </div>
 
-        {/* Messages */}
-        {successMessage && (
-          <div className="bg-green-50 border-b border-green-100 px-6 py-3 flex items-center gap-2 text-sm text-green-700">
-            <CheckCircle className="h-5 w-5" />
-            {successMessage}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="bg-red-50 border-b border-red-100 px-6 py-3 flex items-center gap-2 text-sm text-red-700">
-            <XCircle className="h-5 w-5" />
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="flex gap-0 px-6 border-b border-gray-100 bg-gray-50">
-          <button
-            onClick={() => setActiveTab("eligible")}
-            className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
-              activeTab === "eligible"
-                ? "text-blue-600 border-blue-600"
-                : "text-gray-600 border-transparent hover:text-gray-900"
-            }`}
-          >
-            Eligible ({eligibleStudents.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("ineligible")}
-            className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
-              activeTab === "ineligible"
-                ? "text-blue-600 border-blue-600"
-                : "text-gray-600 border-transparent hover:text-gray-900"
-            }`}
-          >
-            Ineligible ({ineligibleStudents.length})
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto">
-          {activeTab === "eligible" && (
-            <div>
-              {eligibleStudents.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                  <p className="text-gray-500">No eligible students yet</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-100">
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Registration
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Name
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Enrollment
-                        </th>
-
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Branch
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          CGPA
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Backlogs
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Academics
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Dream Company
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {eligibleStudents.map((student) => (
-                        <tr
-                          key={student.id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">
-                            {student.registration_number}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {student.first_name} {student.last_name}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">
-                            {student.enrollment_number}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">
-                            {student.department} {student.branch}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                            {parseFloat(student.cgpa).toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {student.backlogs}
-                          </td>
-
-                          <td className="px-4 py-3">
-                            <div className="space-y-1">
-                              <div className="text-xs">
-                                <span className="text-gray-500">10th:</span>
-                                <span className="ml-1 text-gray-900">
-                                  {student.class_10_percentage}%
-                                </span>
-                              </div>
-                              <div className="text-xs">
-                                <span className="text-gray-500">12th:</span>
-                                <span className="ml-1 text-gray-900">
-                                  {student.class_12_percentage}%
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="px-4 py-3">
-                            {student.used_dream_company ? (
-                              <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-medium">
-                                <CheckCircle className="h-3 w-3" />
-                                Used
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 text-xs">-</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            {student.used_dream_company && (
-                              <button
-                                onClick={() =>
-                                  handleRemoveFromEligible(student.id)
-                                }
-                                disabled={actionLoading === student.id}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white text-xs rounded-lg transition-colors font-medium"
-                              >
-                                {actionLoading === student.id ? (
-                                  <RefreshCw className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-3 w-3" />
-                                )}
-                                Remove
-                              </button>
-                            )}
-                          </td>
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === "eligible" && (
+              <div>
+                {eligibleStudents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                    <p className="text-gray-500">No eligible students yet</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-100">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Registration
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Name
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Enrollment
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Branch
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            CGPA
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Backlogs
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Academics
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Status
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Action
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "ineligible" && (
-            <div>
-              {ineligibleStudents.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                  <p className="text-gray-500">All students are eligible</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-100">
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Registration
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Name
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Enrollment
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Branch
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          CGPA
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Backlogs
-                        </th>
-
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Academics
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Dream Company
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {ineligibleStudents.map((student) => (
-                        <tr
-                          key={student.id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">
-                            {student.registration_number}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {student.first_name} {student.last_name}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">
-                            {student.enrollment_number}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">
-                            {student.department} {student.branch}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                            {parseFloat(student.cgpa).toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {student.backlogs}
-                          </td>
-
-                          <td className="px-4 py-3">
-                            <div className="space-y-1">
-                              <div className="text-xs">
-                                <span className="text-gray-500">10th:</span>
-                                <span className="ml-1 text-gray-900">
-                                  {student.class_10_percentage}%
-                                </span>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {eligibleStudents.map((student) => (
+                          <tr
+                            key={student.id}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">
+                              {student.registration_number}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {student.first_name} {student.last_name}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {student.enrollment_number}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {student.department} {student.branch}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                              {parseFloat(student.cgpa).toFixed(2)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {student.backlogs}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="space-y-1">
+                                <div className="text-xs">
+                                  <span className="text-gray-500">10th:</span>
+                                  <span className="ml-1 text-gray-900">
+                                    {student.class_10_percentage}%
+                                  </span>
+                                </div>
+                                <div className="text-xs">
+                                  <span className="text-gray-500">12th:</span>
+                                  <span className="ml-1 text-gray-900">
+                                    {student.class_12_percentage}%
+                                  </span>
+                                </div>
                               </div>
-                              <div className="text-xs">
-                                <span className="text-gray-500">12th:</span>
-                                <span className="ml-1 text-gray-900">
-                                  {student.class_12_percentage}%
+                            </td>
+                            <td className="px-4 py-3">
+                              {student.manual_override_reason ? (
+                                <div className="max-w-xs">
+                                  <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium mb-1">
+                                    <FileText className="h-3 w-3" />
+                                    Manual Override
+                                  </span>
+                                  <p className="text-xs text-gray-600 italic line-clamp-2">
+                                    "{student.manual_override_reason}"
+                                  </p>
+                                </div>
+                              ) : student.used_dream_company ? (
+                                <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-medium">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Dream Company
                                 </span>
-                              </div>
-                            </div>
-                          </td>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Auto Eligible
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              {(student.used_dream_company ||
+                                student.manual_override_reason) && (
+                                <button
+                                  onClick={() =>
+                                    handleRemoveFromEligible(
+                                      student.id,
+                                      !!student.manual_override_reason
+                                    )
+                                  }
+                                  disabled={actionLoading === student.id}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white text-xs rounded-lg transition-colors font-medium"
+                                >
+                                  {actionLoading === student.id ? (
+                                    <RefreshCw className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-3 w-3" />
+                                  )}
+                                  Remove
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
 
-                          <td className="px-4 py-3">
-                            {student.used_dream_company ? (
-                              <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium">
-                                <XCircle className="h-3 w-3" />
-                                Already Used
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2.5 py-1 rounded-lg text-xs font-medium">
-                                <CheckCircle className="h-3 w-3" />
-                                Available
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            {!student.used_dream_company && (
-                              <button
-                                onClick={() =>
-                                  handleAddViaDreamCompany(student.id)
-                                }
-                                disabled={actionLoading === student.id}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-xs rounded-lg transition-colors font-medium"
-                              >
-                                {actionLoading === student.id ? (
-                                  <RefreshCw className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Plus className="h-3 w-3" />
-                                )}
-                                Add via Dream
-                              </button>
-                            )}
-                          </td>
+            {activeTab === "ineligible" && (
+              <div>
+                {ineligibleStudents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                    <p className="text-gray-500">All students are eligible</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-100">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Registration
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Name
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Enrollment
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Branch
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            CGPA
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Backlogs
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Academics
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Dream Status
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Actions
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {ineligibleStudents.map((student) => (
+                          <tr
+                            key={student.id}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">
+                              {student.registration_number}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {student.first_name} {student.last_name}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {student.enrollment_number}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {student.department} {student.branch}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                              {parseFloat(student.cgpa).toFixed(2)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {student.backlogs}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="space-y-1">
+                                <div className="text-xs">
+                                  <span className="text-gray-500">10th:</span>
+                                  <span className="ml-1 text-gray-900">
+                                    {student.class_10_percentage}%
+                                  </span>
+                                </div>
+                                <div className="text-xs">
+                                  <span className="text-gray-500">12th:</span>
+                                  <span className="ml-1 text-gray-900">
+                                    {student.class_12_percentage}%
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              {student.used_dream_company ? (
+                                <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                  <XCircle className="h-3 w-3" />
+                                  Already Used
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Available
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-2">
+                                {!student.used_dream_company && (
+                                  <button
+                                    onClick={() =>
+                                      handleAddViaDreamCompany(student.id)
+                                    }
+                                    disabled={actionLoading === student.id}
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium"
+                                    title="Add via Dream Company"
+                                  >
+                                    {actionLoading === student.id ? (
+                                      <RefreshCw className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Plus className="h-3 w-3" />
+                                    )}
+                                    Dream
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() =>
+                                    handleManualOverrideClick(student)
+                                  }
+                                  disabled={actionLoading === student.id}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium"
+                                  title="Manual Override with Reason"
+                                >
+                                  <UserPlus className="h-3 w-3" />
+                                  Manual
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-100 p-4 bg-gray-50">
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <div className="flex items-center gap-6">
-              <span>
-                <strong className="text-gray-900">
-                  {eligibleStudents.length}
-                </strong>{" "}
-                Eligible
-              </span>
-              <span>
-                <strong className="text-gray-900">
-                  {ineligibleStudents.length}
-                </strong>{" "}
-                Ineligible
-              </span>
-              <span>
-                <strong className="text-gray-900">
-                  {eligibilityData?.dream_company_usage_count || 0}
-                </strong>{" "}
-                Dream Company Used
-              </span>
+          <div className="border-t border-gray-100 p-4 bg-gray-50">
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center gap-6">
+                <span>
+                  <strong className="text-gray-900">
+                    {eligibleStudents.length}
+                  </strong>{" "}
+                  Eligible
+                </span>
+                <span>
+                  <strong className="text-gray-900">
+                    {ineligibleStudents.length}
+                  </strong>{" "}
+                  Ineligible
+                </span>
+                <span>
+                  <strong className="text-gray-900">
+                    {eligibilityData?.dream_company_usage_count || 0}
+                  </strong>{" "}
+                  Dream Company Used
+                </span>
+              </div>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors font-medium"
+              >
+                Close
+              </button>
             </div>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors font-medium"
-            >
-              Close
-            </button>
           </div>
         </div>
       </div>
-    </div>
+
+      {showManualOverride && selectedStudent && (
+        <ManualOverrideModal
+          student={selectedStudent}
+          companyId={companyId}
+          batchYear={batchYear}
+          onClose={() => {
+            setShowManualOverride(false);
+            setSelectedStudent(null);
+          }}
+          onSuccess={handleManualOverrideSuccess}
+        />
+      )}
+    </>
   );
 }
 

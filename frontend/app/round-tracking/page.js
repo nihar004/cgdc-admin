@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, Download, Calendar, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import { useBatchContext } from "../../context/BatchContext";
 
 import StatsCards from "./StatsCards";
 import CompanyCard from "./CompanyCard";
@@ -64,44 +65,69 @@ const RoundTrackingPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedCompanies, setExpandedCompanies] = useState(new Set());
+  const { selectedBatch } = useBatchContext();
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
     jobType: "all",
   });
-  const [currentBatch, setCurrentBatch] = useState(new Date().getFullYear());
 
   useEffect(() => {
     fetchData();
-  }, [currentBatch]);
+  }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      // Fixed: Use hyphen instead of underscore
       const { data } = await axios.get(
-        `http://localhost:5000/round-tracking/companies/${currentBatch}`
+        `http://localhost:5000/round-tracking/companies/${selectedBatch}`
       );
 
-      if (!data.success) {
-        throw new Error(data.message || "Failed to fetch companies");
-      }
-
       const transformedCompanies = data.companies.map((company) => {
-        const positions = company.positions.map((position) => ({
-          ...position,
-          events: position.events.map((event) => ({
-            ...event,
-            event_date: new Date(event.event_date),
-          })),
-        }));
-
-        // Calculate company status based on position events
-        const status = calculateCompanyStatus(positions);
+        // Calculate total applications for this company
+        const totalApplications = company.positions.reduce((sum, position) => {
+          const firstRoundEvent = position.events.find(
+            (e) => e.round_number === 1
+          );
+          return sum + (firstRoundEvent?.applied_count || 0);
+        }, 0);
 
         return {
-          ...company,
-          positions,
-          status,
+          id: company.id,
+          company_name: company.company_name,
+          is_marquee: company.is_marquee,
+          sector: company.sector,
+          total_applications: totalApplications,
+          // Calculate company status from position events
+          status: calculateCompanyStatus(company.positions),
+          positions: company.positions.map((position) => ({
+            id: position.id,
+            position_title: position.position_title,
+            job_type: position.job_type,
+            package_range: position.package_range,
+            internship_stipend_monthly: position.internship_stipend_monthly,
+            // Backend uses final_selected_count
+            selected_students: position.final_selected_count || 0,
+            events: position.events.map((event) => ({
+              id: event.id,
+              title: event.title,
+              event_date: event.event_date,
+              start_time: event.start_time,
+              end_time: event.end_time,
+              venue: event.venue,
+              mode: event.mode,
+              status: event.status,
+              round_number: event.round_number,
+              eligible_count: event.eligible_count,
+              applied_count: event.applied_count,
+              attended_count: event.attended_count,
+              qualified_count: event.qualified_count,
+              // Add defaults for fields that may not exist
+              description: event.description || "",
+              round_type: event.mode || "offline", // Use mode as round_type
+            })),
+          })),
         };
       });
 
@@ -114,34 +140,32 @@ const RoundTrackingPage = () => {
     }
   };
 
-  // Improved company status calculation
+  // Helper function to calculate company status based on position events
   const calculateCompanyStatus = (positions) => {
-    const now = new Date();
-    let status = "upcoming";
+    let hasUpcoming = false;
+    let hasOngoing = false;
+    let hasCompleted = false;
 
-    for (const position of positions) {
-      for (const event of position.events) {
-        const eventDate = new Date(event.event_date);
-
-        // Check if any event is happening today
-        if (eventDate.toDateString() === now.toDateString()) {
-          return "ongoing";
+    positions.forEach((position) => {
+      position.events.forEach((event) => {
+        switch (event.status) {
+          case "upcoming":
+            hasUpcoming = true;
+            break;
+          case "ongoing":
+            hasOngoing = true;
+            break;
+          case "completed":
+            hasCompleted = true;
+            break;
         }
+      });
+    });
 
-        // Event is in the past
-        if (eventDate < now) {
-          status = "completed";
-          continue;
-        }
-
-        // Event is in the future but we already found a completed event
-        if (eventDate > now && status !== "completed") {
-          status = "upcoming";
-        }
-      }
-    }
-
-    return status;
+    if (hasOngoing) return "ongoing";
+    if (hasUpcoming) return "upcoming";
+    if (hasCompleted) return "completed";
+    return "upcoming"; // default status
   };
 
   const handleCompanyToggle = (companyId) => {
@@ -223,31 +247,6 @@ const RoundTrackingPage = () => {
                 </p>
               </div>
             </div>
-
-            <div className="flex items-center gap-3">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md">
-                <Download className="h-4 w-4" />
-                Export Report
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            {/* Add batch selector */}
-            <select
-              value={currentBatch}
-              onChange={(e) => setCurrentBatch(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {[...Array(5)].map((_, i) => {
-                const year = new Date().getFullYear() - i;
-                return (
-                  <option key={year} value={year}>
-                    Batch {year}
-                  </option>
-                );
-              })}
-            </select>
           </div>
 
           <StatsCards />
@@ -265,6 +264,7 @@ const RoundTrackingPage = () => {
                 company={company}
                 onToggle={handleCompanyToggle}
                 isExpanded={expandedCompanies.has(company.id)}
+                onUpdate={() => fetchData()}
               />
             ))
           ) : (

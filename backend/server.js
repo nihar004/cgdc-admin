@@ -18,6 +18,7 @@ const events = require("./routes/events");
 const round_tracking = require("./routes/round_tracking");
 const emails = require("./routes/emails");
 const eligibility = require("./routes/eligibility");
+const offers = require("./routes/offers");
 
 const app = express();
 
@@ -61,9 +62,10 @@ app.use("/companies", isAuthenticated, companies);
 app.use("/emails", isAuthenticated, emails);
 app.use("/forms", isAuthenticated, forms);
 app.use("/events", isAuthenticated, events);
-app.use("/round_tracking", isAuthenticated, round_tracking);
+app.use("/round-tracking", isAuthenticated, round_tracking);
 app.use("/emails", isAuthenticated, emails);
 app.use("/eligibility", isAuthenticated, eligibility);
+app.use("/offers", isAuthenticated, offers);
 
 // 404 handler
 app.use((req, res) => {

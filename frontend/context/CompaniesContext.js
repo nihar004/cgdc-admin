@@ -12,7 +12,6 @@ export function CompaniesProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
   const [sectorFilter, setSectorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
   const [specializationFilter, setSpecializationFilter] = useState("all");
@@ -79,11 +78,6 @@ export function CompaniesProvider({ children }) {
         .includes(searchTerm.toLowerCase()) ||
       company.sector?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Check company_type from positions
-    const matchesType =
-      typeFilter === "all" ||
-      company.positions?.some((pos) => pos.company_type === typeFilter);
-
     const matchesSector =
       sectorFilter === "all" || company.sector === sectorFilter;
 
@@ -103,11 +97,7 @@ export function CompaniesProvider({ children }) {
           .every((spec) => company.allowed_specializations.includes(spec)));
 
     return (
-      matchesSearch &&
-      matchesType &&
-      matchesSector &&
-      matchesStatus &&
-      matchesSpecialization
+      matchesSearch && matchesSector && matchesStatus && matchesSpecialization
     );
   });
 
@@ -227,8 +217,6 @@ export function CompaniesProvider({ children }) {
         selectedBatch,
         searchTerm,
         setSearchTerm,
-        typeFilter,
-        setTypeFilter,
         sectorFilter,
         setSectorFilter,
         filteredCompanies,

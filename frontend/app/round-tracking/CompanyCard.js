@@ -74,6 +74,7 @@ const CompanyCard = ({ company, onToggle, isExpanded, onUpdate }) => {
               key={position.id}
               position={position}
               companyName={company.company_name}
+              companyId={company.id}
               onUpdate={onUpdate}
             />
           ))}
@@ -83,7 +84,7 @@ const CompanyCard = ({ company, onToggle, isExpanded, onUpdate }) => {
   );
 };
 
-const PositionSection = ({ position, companyName, onUpdate }) => {
+const PositionSection = ({ position, companyName, companyId, onUpdate }) => {
   const renderPackageInfo = () => {
     switch (position.job_type) {
       case "internship":
@@ -152,6 +153,7 @@ const PositionSection = ({ position, companyName, onUpdate }) => {
           events={position.events}
           positionId={position.id}
           companyName={companyName}
+          companyId={companyId}
           positionTitle={position.position_title}
           onUpdate={onUpdate}
         />
