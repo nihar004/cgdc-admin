@@ -2,6 +2,7 @@
 
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const BatchContext = createContext();
 
@@ -22,7 +23,7 @@ export function BatchProvider({ children }) {
     const controller = new AbortController();
     async function fetchBatches() {
       try {
-        const res = await axios.get("http://localhost:5000/batches", {
+        const res = await axios.get(`${backendUrl}/batches`, {
           signal: controller.signal,
         });
         const fetchedBatches = res.data;
@@ -58,7 +59,7 @@ export function BatchProvider({ children }) {
 
   const reloadBatches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/batches");
+      const res = await axios.get(`${backendUrl}/batches`);
       const fetchedBatches = res.data;
       setBatches(fetchedBatches);
 

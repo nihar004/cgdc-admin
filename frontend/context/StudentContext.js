@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useBatchContext } from "./BatchContext";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const StudentContext = createContext();
 
@@ -65,7 +66,7 @@ export const StudentProvider = ({ children }) => {
         console.warn("No batch selected!");
         return;
       }
-      const response = await axios.get("http://localhost:5000/students", {
+      const response = await axios.get(`${backendUrl}/students`, {
         params: { batch: selectedBatch },
       });
       setStudents(response.data);

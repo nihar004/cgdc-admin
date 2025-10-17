@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Users, CheckCircle, Building2, TrendingUp } from "lucide-react";
+import { Users, CheckCircle, Building2 } from "lucide-react";
 import axios from "axios";
 import { useBatchContext } from "../../context/BatchContext";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const StatsCards = () => {
   const [stats, setStats] = useState({
@@ -19,7 +20,7 @@ const StatsCards = () => {
   const fetchStats = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:5000/round-tracking/stats/${selectedBatch}`
+        `${backendUrl}/round-tracking/stats/${selectedBatch}`
       );
       setStats({
         totalApplications: data.totalApplications || 0,

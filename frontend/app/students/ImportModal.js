@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useStudentContext } from "../../context/StudentContext"; // Adjust the import based on your file structure
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ImportModal = ({ onClose, onImportComplete }) => {
   const [file, setFile] = useState(null);
@@ -53,7 +54,7 @@ const ImportModal = ({ onClose, onImportComplete }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/students/import",
+        `${backendUrl}/students/import`,
         formData,
         {
           headers: {
@@ -87,12 +88,9 @@ const ImportModal = ({ onClose, onImportComplete }) => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/students/template",
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await axios.get(`${backendUrl}/students/template`, {
+        responseType: "blob",
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");

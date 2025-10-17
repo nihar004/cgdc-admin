@@ -10,6 +10,7 @@ import {
   Info,
 } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ResultUploadModal = ({
   eventId,
@@ -49,7 +50,7 @@ const ResultUploadModal = ({
       }
 
       const response = await axios.get(
-        `http://localhost:5000/round-tracking/events/${eventId}/students?${queryParams}`
+        `${backendUrl}/round-tracking/events/${eventId}/students?${queryParams}`
       );
 
       if (response.data.success) {
@@ -123,7 +124,7 @@ const ResultUploadModal = ({
       formData.append("file", selectedFile);
 
       const response = await axios.post(
-        `http://localhost:5000/round-tracking/events/${eventId}/upload-results`,
+        `${backendUrl}/round-tracking/events/${eventId}/upload-results`,
         formData,
         {
           headers: {
@@ -187,7 +188,7 @@ const ResultUploadModal = ({
       }
 
       const response = await axios.post(
-        `http://localhost:5000/round-tracking/events/${eventId}/results`,
+        `${backendUrl}/round-tracking/events/${eventId}/results`,
         payload
       );
 

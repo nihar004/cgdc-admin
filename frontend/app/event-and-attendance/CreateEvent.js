@@ -14,6 +14,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { useBatchContext } from "../../context/BatchContext";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // Update the initial form state to handle backend data format
 function CreateEvent({
@@ -190,7 +191,7 @@ function CreateEvent({
   const fetchCompaniesWithPositions = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/companies/with-active-positions/${selectedBatch}`
+        `${backendUrl}/companies/with-active-positions/${selectedBatch}`
       );
       if (response.data.success) {
         setCompaniesWithPositions(response.data.data);
@@ -202,7 +203,7 @@ function CreateEvent({
 
   const fetchBatches = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/batches");
+      const response = await axios.get(`${backendUrl}/batches`);
       if (response.data) {
         const years = response.data.map((batch) => batch.year.toString());
         setAcademicYears(years.sort());
@@ -363,7 +364,7 @@ function CreateEvent({
       };
 
       const response = await axios[isEditing ? "put" : "post"](
-        `http://localhost:5000/events${isEditing ? `/${eventData.id}` : ""}`,
+        `${backendUrl}/events${isEditing ? `/${eventData.id}` : ""}`,
         eventPayload
       );
 

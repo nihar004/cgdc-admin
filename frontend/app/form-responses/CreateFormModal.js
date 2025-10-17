@@ -10,6 +10,7 @@ import {
   Briefcase,
   AlertCircle,
 } from "lucide-react";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const CreateFormModal = ({
   setShowCreateForm,
@@ -46,8 +47,8 @@ const CreateFormModal = ({
           // Add include_event parameter when in edit mode
           const url =
             isEditing && formData.event_id
-              ? `http://localhost:5000/forms/events/${selectedBatch}?include_event=${formData.event_id}`
-              : `http://localhost:5000/forms/events/${selectedBatch}`;
+              ? `${backendUrl}/forms/events/${selectedBatch}?include_event=${formData.event_id}`
+              : `${backendUrl}/forms/events/${selectedBatch}`;
 
           const response = await axios.get(url);
           setEvents(response.data.data || []);
@@ -87,8 +88,8 @@ const CreateFormModal = ({
       };
 
       const url = isEditing
-        ? `http://localhost:5000/forms/${initialFormData.id}`
-        : "http://localhost:5000/forms";
+        ? `${backendUrl}/forms/${initialFormData.id}`
+        : `${backendUrl}/forms`;
 
       const response = isEditing
         ? await axios.put(url, payload)

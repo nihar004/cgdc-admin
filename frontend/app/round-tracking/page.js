@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Download, Calendar, ArrowLeft } from "lucide-react";
+import { Search, Calendar, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useBatchContext } from "../../context/BatchContext";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 import StatsCards from "./StatsCards";
 import CompanyCard from "./CompanyCard";
@@ -81,7 +82,7 @@ const RoundTrackingPage = () => {
       setLoading(true);
       // Fixed: Use hyphen instead of underscore
       const { data } = await axios.get(
-        `http://localhost:5000/round-tracking/companies/${selectedBatch}`
+        `${backendUrl}/round-tracking/companies/${selectedBatch}`
       );
 
       const transformedCompanies = data.companies.map((company) => {

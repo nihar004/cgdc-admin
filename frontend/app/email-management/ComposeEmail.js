@@ -1,16 +1,21 @@
 import { useState, useRef, useMemo, useEffect } from "react";
-import { Send, X, FileText, Paperclip } from "lucide-react";
+import { Send, X, FileText, Paperclip, Users } from "lucide-react";
 import { useEmail } from "../../context/EmailContext";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useSearchParams } from "next/navigation";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ComposeEmail = () => {
-  const { templates, sendLogs, loading } = useEmail();
+  const { templates, sendLogs, sendEmailToFilteredStudents, loading } =
+    useEmail();
+  const searchParams = useSearchParams();
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [manualAttachments, setManualAttachments] = useState([]);
   const [removedTemplateAttachments, setRemovedTemplateAttachments] = useState(
     []
   );
+  const [emailData, setEmailData] = useState(null); // Add this line
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -62,7 +67,7 @@ const ComposeEmail = () => {
   useEffect(() => {
     const fetchBatches = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/batches");
+        const { data } = await axios.get(`${backendUrl}/batches`);
         if (Array.isArray(data)) {
           const years = data.map((b) => b.year);
           setAvailableBatches(years);
@@ -78,6 +83,47 @@ const ComposeEmail = () => {
 
     fetchBatches();
   }, []);
+
+  // Update the useEffect that handles company email data
+  useEffect(() => {
+    if (searchParams.get("from") === "company") {
+      const storedData = sessionStorage.getItem("emailData");
+      if (storedData) {
+        const data = JSON.parse(storedData);
+
+        // Pre-fill the form with company data
+        setFormData((prev) => ({
+          ...prev,
+          title: `${data.companyName} - ${
+            data.targetType === "dream"
+              ? "Dream Company Opportunity"
+              : "Placement Information"
+          }`,
+          subject: `Important: ${data.companyName} Update`,
+          sendType: "student_ids",
+          // Check if student_ids exists before joining
+          student_ids: data.student_ids ? data.student_ids.join(",") : "",
+          // Clear other filter options
+          branch: [],
+          batch_year: [],
+          placement_status: "",
+        }));
+
+        // Add info banner about recipients
+        // Add info banner about recipients including emails
+        setEmailData({
+          companyName: data.companyName,
+          studentCount: data.total_count || 0,
+          targetType: data.targetType,
+          studentEmails: data.students?.map((s) => s.college_email) || [], // Extract emails from students
+          students: data.students || [], // Keep full student objects
+        });
+
+        // Clear storage
+        sessionStorage.removeItem("emailData");
+      }
+    }
+  }, [searchParams]);
 
   const handleUseTemplate = (template) => {
     let parsedCcEmails = "";
@@ -168,6 +214,129 @@ const ComposeEmail = () => {
     return getTemplateAttachments().length + manualAttachments.length;
   };
 
+  // const handleSend = async () => {
+  //   if (!formData.title || !formData.subject || !formData.body) {
+  //     toast.error("Please fill title, subject, and body");
+  //     return;
+  //   }
+
+  //   if (!formData.to_emails) {
+  //     toast.error("Please enter at least one 'To' email address");
+  //     return;
+  //   }
+
+  //   const formDataToSend = new FormData();
+  //   formDataToSend.append("title", formData.title);
+  //   formDataToSend.append("subject", formData.subject);
+  //   formDataToSend.append("body", formData.body);
+  //   formDataToSend.append("sender_email", formData.sender_email);
+
+  //   const toEmails = formData.to_emails
+  //     .split(",")
+  //     .map((e) => e.trim())
+  //     .filter((e) => e);
+  //   formDataToSend.append("to_emails", JSON.stringify(toEmails));
+
+  //   if (selectedTemplate) {
+  //     formDataToSend.append("template_id", selectedTemplate.id);
+  //     if (removedTemplateAttachments.length > 0) {
+  //       formDataToSend.append(
+  //         "excluded_template_attachments",
+  //         JSON.stringify(removedTemplateAttachments)
+  //       );
+  //     }
+  //   }
+
+  //   manualAttachments.forEach((file) => {
+  //     formDataToSend.append("manual_attachments", file);
+  //   });
+
+  //   if (formData.sendType === "filter") {
+  //     const filters = {};
+  //     if (formData.branch.length > 0) {
+  //       filters.branch = formData.branch;
+  //     }
+  //     if (formData.batch_year.length > 0) {
+  //       filters.batch_year = formData.batch_year;
+  //     }
+  //     if (formData.placement_status) {
+  //       filters.placement_status = formData.placement_status;
+  //     }
+  //     formDataToSend.append("recipient_filter", JSON.stringify(filters));
+  //   } else if (formData.sendType === "manual") {
+  //     const emails = formData.recipient_emails
+  //       .split(",")
+  //       .map((e) => e.trim())
+  //       .filter((e) => e);
+  //     if (emails.length === 0) {
+  //       toast.error("Please enter at least one email address");
+  //       return;
+  //     }
+  //     formDataToSend.append("recipient_emails", JSON.stringify(emails));
+  //   } else if (formData.sendType === "student_ids") {
+  //     const studentIds = formData.student_ids
+  //       .split(",")
+  //       .map((id) => parseInt(id.trim()))
+  //       .filter((id) => !isNaN(id));
+
+  //     formDataToSend.append("student_ids", JSON.stringify(studentIds));
+  //   }
+
+  //   if (formData.cc_emails) {
+  //     const ccEmails = formData.cc_emails
+  //       .split(",")
+  //       .map((e) => e.trim())
+  //       .filter((e) => e);
+  //     formDataToSend.append("cc_emails", JSON.stringify(ccEmails));
+  //   }
+
+  //   // Add message tracking fields if provided
+  //   if (formData.message_id) {
+  //     formDataToSend.append("message_id", formData.message_id);
+  //   }
+  //   if (formData.parent_message_id) {
+  //     formDataToSend.append("parent_message_id", formData.parent_message_id);
+  //   }
+
+  //   const sendPromise = sendLogs(formDataToSend);
+
+  //   toast.promise(sendPromise, {
+  //     loading: "Sending email...",
+  //     success: (result) => {
+  //       if (result.success) {
+  //         // Reset form
+  //         setFormData({
+  //           title: "",
+  //           subject: "",
+  //           body: "",
+  //           sender_email: "",
+  //           to_emails: "",
+  //           sendType: "filter",
+  //           branch: [],
+  //           batch_year: [],
+  //           placement_status: "",
+  //           recipient_emails: "",
+  //           student_ids: "",
+  //           event_id: "",
+  //           recipient_type: "registered",
+  //           cc_emails: "",
+  //           message_id: "",
+  //           parent_message_id: "",
+  //         });
+  //         setSelectedTemplate(null);
+  //         setManualAttachments([]);
+  //         setRemovedTemplateAttachments([]);
+
+  //         return `Email sent successfully! (${
+  //           result.data.emailResults?.successful || 0
+  //         } sent, ${result.data.emailResults?.failed || 0} failed)`;
+  //       }
+  //       throw new Error(result.message);
+  //     },
+  //     error: (err) => `Failed to send email: ${err.message}`,
+  //   });
+  // };
+
   const handleSend = async () => {
     if (!formData.title || !formData.subject || !formData.body) {
       toast.error("Please fill title, subject, and body");
@@ -179,16 +348,82 @@ const ComposeEmail = () => {
       return;
     }
 
+    // Parse to_emails once (used by both paths)
+    const toEmails = formData.to_emails
+      .split(",")
+      .map((e) => e.trim())
+      .filter((e) => e);
+
+    // SPECIAL HANDLING FOR STUDENT_IDS (Company flow)
+    if (formData.sendType === "student_ids") {
+      const studentIds = formData.student_ids
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id));
+
+      if (studentIds.length === 0) {
+        toast.error("No valid student IDs found");
+        return;
+      }
+
+      const payload = {
+        title: formData.title,
+        subject: formData.subject,
+        body: formData.body,
+        sender_email: formData.sender_email,
+        to_emails: toEmails,
+        cc_emails: formData.cc_emails
+          ? formData.cc_emails
+              .split(",")
+              .map((e) => e.trim())
+              .filter((e) => e)
+          : [],
+        student_ids: studentIds,
+        message_id: formData.message_id || "",
+        parent_message_id: formData.parent_message_id || "",
+        position_id: formData.position_id || null, // Add this if you have position_id in formData
+        recipient_type: formData.recipient_type || "registered", // Add this
+      };
+
+      // Add template info if applicable
+      if (selectedTemplate) {
+        payload.template_id = selectedTemplate.id;
+        if (removedTemplateAttachments.length > 0) {
+          payload.excluded_template_attachments = removedTemplateAttachments;
+        }
+      }
+
+      // Add manual attachments
+      if (manualAttachments.length > 0) {
+        payload.manual_attachments = manualAttachments;
+      }
+
+      // Use sendEmailToFilteredStudents
+      const sendPromise = sendEmailToFilteredStudents(payload);
+
+      toast.promise(sendPromise, {
+        loading: "Sending email...",
+        success: (result) => {
+          if (result.success) {
+            resetForm();
+            return `Email sent successfully! (${
+              result.data?.emailResults?.successful || 0
+            } sent, ${result.data?.emailResults?.failed || 0} failed)`;
+          }
+          throw new Error(result.message);
+        },
+        error: (err) => `Failed to send email: ${err.message}`,
+      });
+
+      return; // Exit early for student_ids flow
+    }
+
+    // NORMAL FLOW (filter and manual)
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("subject", formData.subject);
     formDataToSend.append("body", formData.body);
     formDataToSend.append("sender_email", formData.sender_email);
-
-    const toEmails = formData.to_emails
-      .split(",")
-      .map((e) => e.trim())
-      .filter((e) => e);
     formDataToSend.append("to_emails", JSON.stringify(toEmails));
 
     if (selectedTemplate) {
@@ -251,37 +486,40 @@ const ComposeEmail = () => {
       loading: "Sending email...",
       success: (result) => {
         if (result.success) {
-          // Reset form
-          setFormData({
-            title: "",
-            subject: "",
-            body: "",
-            sender_email: "",
-            to_emails: "",
-            sendType: "filter",
-            branch: [],
-            batch_year: [],
-            placement_status: "",
-            recipient_emails: "",
-            student_ids: "",
-            event_id: "",
-            recipient_type: "registered",
-            cc_emails: "",
-            message_id: "",
-            parent_message_id: "",
-          });
-          setSelectedTemplate(null);
-          setManualAttachments([]);
-          setRemovedTemplateAttachments([]);
-
+          resetForm();
           return `Email sent successfully! (${
-            result.data.emailResults?.successful || 0
-          } sent, ${result.data.emailResults?.failed || 0} failed)`;
+            result.data?.emailResults?.successful || 0
+          } sent, ${result.data?.emailResults?.failed || 0} failed)`;
         }
         throw new Error(result.message);
       },
       error: (err) => `Failed to send email: ${err.message}`,
     });
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      subject: "",
+      body: "",
+      sender_email: "",
+      to_emails: "",
+      sendType: "filter",
+      branch: [],
+      batch_year: [],
+      placement_status: "",
+      recipient_emails: "",
+      student_ids: "",
+      event_id: "",
+      recipient_type: "registered",
+      cc_emails: "",
+      message_id: "",
+      parent_message_id: "",
+    });
+    setSelectedTemplate(null);
+    setManualAttachments([]);
+    setRemovedTemplateAttachments([]);
+    setEmailData(null);
   };
 
   return (
@@ -614,182 +852,228 @@ const ComposeEmail = () => {
           </div>
         </div>
 
-        {/* Recipients */}
+        {/* Recipients Section */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
             Send To
           </label>
-          <div className="flex flex-wrap gap-4 mb-4">
-            {["filter", "manual"].map((type) => (
-              <label key={type} className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  value={type}
-                  checked={formData.sendType === type}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sendType: e.target.value })
-                  }
-                  className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm font-medium text-gray-700 capitalize">
-                  {type === "filter" ? "Filter Students" : "Manual Emails"}
-                </span>
-              </label>
-            ))}
-          </div>
-
-          {formData.sendType === "filter" && (
-            <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Branch
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableBranches.map((branch) => (
-                    <button
-                      key={branch}
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          branch: prev.branch.includes(branch)
-                            ? prev.branch.filter((b) => b !== branch)
-                            : [...prev.branch, branch],
-                        }));
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        formData.branch.includes(branch)
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      {branch}
-                    </button>
-                  ))}
-                </div>
-                {formData.branch.length > 0 && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <p className="text-sm text-gray-600">
-                      Selected: {formData.branch.join(", ")}
-                    </p>
-                    <button
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, branch: [] }))
-                      }
-                      className="text-xs text-red-600 hover:text-red-700"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Batch Year
-                  </label>
-                  <div className="space-y-3">
-                    {availableBatches.length > 0 ? (
-                      <>
-                        <div className="flex flex-wrap gap-2">
-                          {availableBatches.map((year) => (
-                            <button
-                              key={year}
-                              type="button"
-                              onClick={() => {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  batch_year: prev.batch_year.includes(year)
-                                    ? prev.batch_year.filter((y) => y !== year)
-                                    : [...prev.batch_year, year],
-                                }));
-                              }}
-                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                formData.batch_year.includes(year)
-                                  ? "bg-blue-600 text-white"
-                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                              }`}
-                            >
-                              {year}
-                            </button>
-                          ))}
-                        </div>
-                        {formData.batch_year.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm text-gray-600">
-                              Selected: {formData.batch_year.sort().join(", ")}
-                            </p>
-                            <button
-                              onClick={() =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  batch_year: [],
-                                }))
-                              }
-                              className="text-xs text-red-600 hover:text-red-700"
-                            >
-                              Clear all
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        No batch years available
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Placement Status
-                  </label>
-                  <select
-                    value={formData.placement_status}
+          {/* Only show radio buttons if not coming from company page */}
+          {searchParams.get("from") !== "company" && (
+            <div className="flex flex-wrap gap-4 mb-4">
+              {["filter", "manual", "student_ids"].map((type) => (
+                <label key={type} className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    value={type}
+                    checked={formData.sendType === type}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        placement_status: e.target.value,
-                      })
+                      setFormData({ ...formData, sendType: e.target.value })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                  >
-                    <option value="">All</option>
-                    <option value="placed">Placed</option>
-                    <option value="unplaced">Unplaced</option>
-                  </select>
+                    className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm font-medium text-gray-700">
+                    {type === "filter"
+                      ? "Filter Students"
+                      : type === "manual"
+                        ? "Manual Emails"
+                        : "Selected Students"}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+          {/* Only show filters if sendType is filter and not coming from company */}
+          {formData.sendType === "filter" &&
+            searchParams.get("from") !== "company" && (
+              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Branch
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {availableBranches.map((branch) => (
+                      <button
+                        key={branch}
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            branch: prev.branch.includes(branch)
+                              ? prev.branch.filter((b) => b !== branch)
+                              : [...prev.branch, branch],
+                          }));
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          formData.branch.includes(branch)
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        {branch}
+                      </button>
+                    ))}
+                  </div>
+                  {formData.branch.length > 0 && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <p className="text-sm text-gray-600">
+                        Selected: {formData.branch.join(", ")}
+                      </p>
+                      <button
+                        onClick={() =>
+                          setFormData((prev) => ({ ...prev, branch: [] }))
+                        }
+                        className="text-xs text-red-600 hover:text-red-700"
+                      >
+                        Clear all
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Batch Year
+                    </label>
+                    <div className="space-y-3">
+                      {availableBatches.length > 0 ? (
+                        <>
+                          <div className="flex flex-wrap gap-2">
+                            {availableBatches.map((year) => (
+                              <button
+                                key={year}
+                                type="button"
+                                onClick={() => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    batch_year: prev.batch_year.includes(year)
+                                      ? prev.batch_year.filter(
+                                          (y) => y !== year
+                                        )
+                                      : [...prev.batch_year, year],
+                                  }));
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                  formData.batch_year.includes(year)
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                }`}
+                              >
+                                {year}
+                              </button>
+                            ))}
+                          </div>
+                          {formData.batch_year.length > 0 && (
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm text-gray-600">
+                                Selected:{" "}
+                                {formData.batch_year.sort().join(", ")}
+                              </p>
+                              <button
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    batch_year: [],
+                                  }))
+                                }
+                                className="text-xs text-red-600 hover:text-red-700"
+                              >
+                                Clear all
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No batch years available
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Placement Status
+                    </label>
+                    <select
+                      value={formData.placement_status}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          placement_status: e.target.value,
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    >
+                      <option value="">All</option>
+                      <option value="placed">Placed</option>
+                      <option value="unplaced">Unplaced</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          {/* Only show manual input if sendType is manual and not coming from company */}
+          {formData.sendType === "manual" &&
+            searchParams.get("from") !== "company" && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Addresses (comma-separated)
+                </label>
+                <textarea
+                  value={formData.recipient_emails}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      recipient_emails: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 h-24"
+                  placeholder="student1@college.edu, student2@college.edu"
+                />
+              </div>
+            )}
+          {/* Always show selected students info when coming from company */}
+          {(formData.sendType === "student_ids" ||
+            searchParams.get("from") === "company") &&
+            emailData && (
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <h4 className="font-medium text-blue-900">
+                      {emailData.companyName}
+                    </h4>
+                    <p className="text-sm text-blue-700">
+                      Sending to {emailData.studentCount}{" "}
+                      {emailData.targetType === "dream"
+                        ? "dream company eligible"
+                        : "eligible"}{" "}
+                      students
+                    </p>
+                  </div>
+                </div>
 
-          {formData.sendType === "manual" && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Addresses (comma-separated)
-              </label>
-              <textarea
-                value={formData.recipient_emails}
-                onChange={(e) =>
-                  setFormData({ ...formData, recipient_emails: e.target.value })
-                }
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 h-24"
-                placeholder="student1@college.edu, student2@college.edu"
-              />
-            </div>
-          )}
+                {/* Student Emails List - Comma Separated */}
+                {emailData.studentEmails &&
+                  emailData.studentEmails.length > 0 && (
+                    <div className="mt-3 bg-white rounded-lg p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-900 mb-2">
+                        Recipients ({emailData.studentEmails.length}):
+                      </p>
+                      <div className="max-h-32 overflow-y-auto">
+                        <p className="text-xs text-gray-700 break-words">
+                          {emailData.studentEmails.join(", ")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+              </div>
+            )}
         </div>
 
         {/* Message Tracking (Optional Follow-up Fields) */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-4">
-          {/* <h4 className="text-sm font-semibold text-blue-900">
-            Message Tracking (Optional - for follow-up emails)
-          </h4>
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-            ⚠️ For threading: use similar subject line (add "Re:" prefix)
-          </span> */}
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-blue-900">
               Message Tracking (Optional - for follow-up emails)

@@ -15,6 +15,7 @@ import {
   Search,
 } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ViewResultsModal = ({
   eventId,
@@ -49,7 +50,7 @@ const ViewResultsModal = ({
     try {
       const queryParams = positionId ? `?positionId=${positionId}` : "";
       const { data } = await axios.get(
-        `http://localhost:5000/round-tracking/events/${eventId}/details${queryParams}`
+        `${backendUrl}/round-tracking/events/${eventId}/details${queryParams}`
       );
 
       if (data.success) {
@@ -73,7 +74,7 @@ const ViewResultsModal = ({
       }
 
       const { data } = await axios.get(
-        `http://localhost:5000/round-tracking/events/${eventId}/students?${queryParams}`
+        `${backendUrl}/round-tracking/events/${eventId}/students?${queryParams}`
       );
 
       if (data.success) {
@@ -138,7 +139,7 @@ const ViewResultsModal = ({
         .map((student) => student.registration_number);
 
       const response = await axios.post(
-        `http://localhost:5000/round-tracking/events/${eventId}/results`,
+        `${backendUrl}/round-tracking/events/${eventId}/results`,
         {
           qualifiedRegistrationNumbers,
           method: "manual",

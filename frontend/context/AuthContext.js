@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter, usePathname } from "next/navigation";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const AuthContext = createContext({});
 
@@ -12,7 +13,7 @@ export function AuthProvider({ children }) {
   const pathname = usePathname();
 
   // Configure axios defaults
-  axios.defaults.baseURL = "http://localhost:5000";
+  axios.defaults.baseURL = backendUrl;
   axios.defaults.withCredentials = true;
 
   useEffect(() => {

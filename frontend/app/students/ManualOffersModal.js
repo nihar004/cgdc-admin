@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
   const [offers, setOffers] = useState([]);
@@ -83,14 +84,14 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       }
 
       const response = await axios.post(
-        `http://localhost:5000/offers/students/${student.id}/offers/manual`,
+        `${backendUrl}/offers/students/${student.id}/offers/manual`,
         payload
       );
 
       toast.success(response.data.message);
 
       const updatedStudent = await axios.get(
-        `http://localhost:5000/offers/students/${student.id}`
+        `${backendUrl}/offers/students/${student.id}`
       );
       setOffers(updatedStudent.data.offers_received || []);
 
@@ -140,13 +141,13 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     setIsLoading(true);
     try {
       await axios.delete(
-        `http://localhost:5000/offers/students/${student.id}/offers/manual/${offer.offer_id}`
+        `${backendUrl}/offers/students/${student.id}/offers/manual/${offer.offer_id}`
       );
 
       toast.success("Offer deleted successfully");
 
       const updatedStudent = await axios.get(
-        `http://localhost:5000/offers/students/${student.id}`
+        `${backendUrl}/offers/students/${student.id}`
       );
       setOffers(updatedStudent.data.offers_received || []);
       setCurrentOffer(updatedStudent.data.current_offer || null);
@@ -164,7 +165,7 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `http://localhost:5000/offers/students/${student.id}/offers/current`,
+        `${backendUrl}/offers/students/${student.id}/offers/current`,
         {
           offer_id: offerId,
           acceptance_date: new Date().toISOString().split("T")[0],
@@ -174,7 +175,7 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       toast.success("Offer accepted successfully");
 
       const updatedStudent = await axios.get(
-        `http://localhost:5000/offers/students/${student.id}`
+        `${backendUrl}/offers/students/${student.id}`
       );
       setOffers(updatedStudent.data.offers_received || []);
       setCurrentOffer(updatedStudent.data.current_offer || null);

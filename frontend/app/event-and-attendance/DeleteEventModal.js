@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AlertTriangle, X, Trash2, Calendar, Users } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const DeleteEventModal = ({
   isOpen,
@@ -30,9 +31,7 @@ const DeleteEventModal = ({
     if (!isValid) return;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:5000/events/${event.id}`
-      );
+      const response = await axios.delete(`${backendUrl}/events/${event.id}`);
       if (response.data.success) {
         onEventDeleted();
         onClose();

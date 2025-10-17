@@ -5,6 +5,7 @@ import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ManualOffersModal from "./ManualOffersModal";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function StudentTable({ filteredStudents }) {
   const {
@@ -97,9 +98,7 @@ export default function StudentTable({ filteredStudents }) {
 
     setIsDeleting(true);
     try {
-      await axios.delete(
-        `http://localhost:5000/students/${studentToDelete.id}`
-      );
+      await axios.delete(`${backendUrl}/students/${studentToDelete.id}`);
 
       // Close modal and reset state
       setShowDeleteModal(false);

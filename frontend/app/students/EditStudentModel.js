@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useStudentContext } from "../../context/StudentContext";
 import toast from "react-hot-toast";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function EditStudentModel() {
   const {
@@ -138,7 +139,7 @@ export default function EditStudentModel() {
       };
 
       const response = await axios.put(
-        `http://localhost:5000/students/update/${editingStudent.id}`,
+        `${backendUrl}/students/update/${editingStudent.id}`,
         studentToUpdate
       );
 

@@ -16,6 +16,7 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "react-toastify";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // Manual Override Modal Component
 function ManualOverrideModal({
@@ -38,7 +39,7 @@ function ManualOverrideModal({
     try {
       setSubmitting(true);
       await axios.put(
-        `http://localhost:5000/eligibility/manual/${companyId}/${batchYear}/students/${student.id}`,
+        `${backendUrl}/eligibility/manual/${companyId}/${batchYear}/students/${student.id}`,
         { action: "add", reason: reason.trim() }
       );
       toast.success("Student manually added to eligible list");
@@ -154,7 +155,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
       setLoading(true);
       setError(null);
       const { data } = await axios.get(
-        `http://localhost:5000/eligibility/${companyId}/${batchYear}`
+        `${backendUrl}/eligibility/${companyId}/${batchYear}`
       );
       setBriefInfo(data);
     } catch (err) {
@@ -177,7 +178,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
       setLoading(true);
       setError(null);
       const { data } = await axios.get(
-        `http://localhost:5000/eligibility/${companyId}/${batchYear}/details`
+        `${backendUrl}/eligibility/${companyId}/${batchYear}/details`
       );
       setEligibilityData(data);
       setShowDetails(true);
@@ -195,7 +196,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
     try {
       setCalculating(true);
       const { data } = await axios.post(
-        `http://localhost:5000/eligibility/${companyId}/${batchYear}/calculate`
+        `${backendUrl}/eligibility/${companyId}/${batchYear}/calculate`
       );
 
       toast.success(
@@ -215,7 +216,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
     try {
       setActionLoading(studentId);
       await axios.put(
-        `http://localhost:5000/eligibility/${companyId}/${batchYear}/students/${studentId}`,
+        `${backendUrl}/eligibility/${companyId}/${batchYear}/students/${studentId}`,
         { action: "add" }
       );
 
@@ -235,13 +236,13 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
       if (isManualOverride) {
         // For manual override students, use the manual endpoint with remove action
         await axios.put(
-          `http://localhost:5000/eligibility/manual/${companyId}/${batchYear}/students/${studentId}`,
+          `${backendUrl}/eligibility/manual/${companyId}/${batchYear}/students/${studentId}`,
           { action: "remove" }
         );
       } else {
         // For dream company students, use the existing endpoint
         await axios.put(
-          `http://localhost:5000/eligibility/${companyId}/${batchYear}/students/${studentId}`,
+          `${backendUrl}/eligibility/${companyId}/${batchYear}/students/${studentId}`,
           { action: "remove" }
         );
       }

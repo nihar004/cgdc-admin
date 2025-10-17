@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useBatchContext } from "./BatchContext";
 import { toast } from "react-hot-toast";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const CompaniesContext = createContext();
 
@@ -43,7 +44,7 @@ export function CompaniesProvider({ children }) {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:5000/companies/batch/${selectedBatch}`
+        `${backendUrl}/companies/batch/${selectedBatch}`
       );
       setCompanies(response.data);
       setError(null);
@@ -127,7 +128,7 @@ export function CompaniesProvider({ children }) {
   const handleDeleteCompany = async (companyId) => {
     try {
       await axios.delete(
-        `http://localhost:5000/companies/${companyId}/batch/${selectedBatch}`
+        `${backendUrl}/companies/${companyId}/batch/${selectedBatch}`
       );
 
       // Optimistic update
@@ -156,9 +157,7 @@ export function CompaniesProvider({ children }) {
   // Delete position
   const handleDeletePosition = async (positionId) => {
     try {
-      await axios.delete(
-        `http://localhost:5000/companies/position/${positionId}`
-      );
+      await axios.delete(`${backendUrl}/companies/position/${positionId}`);
       // Show success toast
       toast.success("Position deleted successfully!", {
         duration: 4000,

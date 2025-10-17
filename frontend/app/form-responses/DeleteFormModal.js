@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AlertTriangle, X, Trash2, FileText, Users } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted }) => {
   const [confirmationText, setConfirmationText] = useState("");
@@ -26,7 +27,7 @@ const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted }) => {
 
     try {
       setIsDeleting(true);
-      await axios.delete(`http://localhost:5000/forms/${form.id}`);
+      await axios.delete(`${backendUrl}/forms/${form.id}`);
       onFormDeleted();
       onClose();
     } catch (error) {

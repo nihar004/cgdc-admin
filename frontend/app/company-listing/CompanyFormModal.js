@@ -17,7 +17,7 @@ import {
   Info,
 } from "lucide-react";
 import { toast } from "react-toastify";
-// START DONE
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // Add this helper function at the top of your file, before the component
 const formatDateForInput = (dateString) => {
@@ -377,7 +377,7 @@ const CompanyFormModal = ({
 
       try {
         const existingDocsResponse = await axios.get(
-          `http://localhost:5000/companies/position/${position.id}/documents`
+          `${backendUrl}/companies/position/${position.id}/documents`
         );
         console.log("Existing documents fetched:", existingDocsResponse.data);
 
@@ -393,9 +393,7 @@ const CompanyFormModal = ({
           for (const docId of documentChanges.toDelete) {
             try {
               console.log(`Deleting document ${docId}`);
-              await axios.delete(
-                `http://localhost:5000/companies/documents/${docId}`
-              );
+              await axios.delete(`${backendUrl}/companies/documents/${docId}`);
               console.log(`✅ Deleted document ${docId}`);
             } catch (deleteError) {
               console.error(
@@ -437,7 +435,7 @@ const CompanyFormModal = ({
           if (hasValidDocs) {
             console.log("Uploading new documents...");
             const uploadResponse = await axios.post(
-              `http://localhost:5000/companies/batch/${batchYear}/position/${position.id}/documents`,
+              `${backendUrl}/companies/batch/${batchYear}/position/${position.id}/documents`,
               formDataForUpload,
               { headers: { "Content-Type": "multipart/form-data" } }
             );
@@ -452,14 +450,11 @@ const CompanyFormModal = ({
           for (const doc of documentChanges.toUpdate) {
             try {
               console.log("Updating metadata for document:", doc.id);
-              await axios.put(
-                `http://localhost:5000/companies/documents/${doc.id}`,
-                {
-                  document_title: doc.document_title,
-                  document_type: doc.document_type,
-                  display_order: doc.display_order,
-                }
-              );
+              await axios.put(`${backendUrl}/companies/documents/${doc.id}`, {
+                document_title: doc.document_title,
+                document_type: doc.document_type,
+                display_order: doc.display_order,
+              });
               console.log(`✅ Updated metadata for document ${doc.id}`);
             } catch (updateError) {
               console.error(
@@ -525,7 +520,7 @@ const CompanyFormModal = ({
         try {
           console.log("Uploading documents...");
           const uploadResponse = await axios.post(
-            `http://localhost:5000/companies/batch/${batchYear}/position/${position.id}/documents`,
+            `${backendUrl}/companies/batch/${batchYear}/position/${position.id}/documents`,
             formDataForUpload,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -569,12 +564,12 @@ const CompanyFormModal = ({
 
       if (editData) {
         response = await axios.put(
-          `http://localhost:5000/companies/${editData.id}/batch/${batchYear}`,
+          `${backendUrl}/companies/${editData.id}/batch/${batchYear}`,
           processedData
         );
       } else {
         response = await axios.post(
-          `http://localhost:5000/companies/batch/${batchYear}`,
+          `${backendUrl}/companies/batch/${batchYear}`,
           processedData
         );
       }

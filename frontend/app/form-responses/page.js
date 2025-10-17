@@ -19,6 +19,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import * as XLSX from "xlsx";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 import UploadModal from "./UploadModal";
 import DataViewModal from "./DataViewModal";
@@ -46,9 +47,7 @@ const FormManagementSystem = () => {
   const fetchForms = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `http://localhost:5000/forms/${selectedBatch}`
-      );
+      const response = await axios.get(`${backendUrl}/forms/${selectedBatch}`);
       setForms(response.data.data || []);
       setError(null);
     } catch (err) {
@@ -64,7 +63,7 @@ const FormManagementSystem = () => {
     if (!window.confirm("Are you sure you want to delete this form?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/forms/${formId}`);
+      await axios.delete(`${backendUrl}/forms/${formId}`);
       fetchForms(); // Refresh the forms list
     } catch (err) {
       setError("Failed to delete form");

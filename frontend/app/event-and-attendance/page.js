@@ -15,6 +15,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import * as XLSX from "xlsx";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 import EventCard from "./EventCard";
 import StudentDetailModel from "./StudentDetailModel";
@@ -56,7 +57,7 @@ const EventAttendancePage = () => {
       setLoading(true);
       // Use the new endpoint with batch year
       const response = await axios.get(
-        `http://localhost:5000/events/batch/${selectedBatch}`
+        `${backendUrl}/events/batch/${selectedBatch}`
       );
 
       if (response.data.success) {

@@ -55,13 +55,42 @@ const upload = multer({
   },
 });
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
+const EMAIL_ACCOUNTS = {
+  [process.env.EMAIL_USER]: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-});
+  // Add more accounts here
+  // "another@gmail.com": {
+  //   user: "another@gmail.com",
+  //   pass: process.env.ANOTHER_EMAIL_PASS,
+  // },
+};
+
+// Function to get appropriate transporter based on sender email
+function getTransporter(senderEmail) {
+  const account = EMAIL_ACCOUNTS[senderEmail];
+
+  // If sender email is registered, use its credentials
+  if (account) {
+    return nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: account.user,
+        pass: account.pass,
+      },
+    });
+  }
+
+  // Otherwise, use default credentials
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+}
 
 // Helper function to safely parse attachments
 function parseAttachments(attachmentData) {
@@ -649,8 +678,9 @@ routes.post(
         attachments,
         parsedToEmails,
         parsedCcEmails,
-        finalMessageId, // Now we can pass it
-        parent_message_id
+        finalMessageId,
+        parent_message_id,
+        sender_email
       );
 
       // Save to database with the same message ID
@@ -861,6 +891,64 @@ function getMimeType(fileType) {
   return mimeTypes[fileType.toLowerCase()] || "application/octet-stream";
 }
 
+// async function sendBulkEmails(
+//   students,
+//   subject,
+//   body,
+//   attachments = [],
+//   to_emails = [],
+//   cc_emails = [],
+//   message_id = null,
+//   parent_message_id = null
+// ) {
+//   const results = {
+//     successful: 0,
+//     failed: 0,
+//     errors: [],
+//     failed_emails: [],
+//   };
+
+//   // Get all student emails
+//   const bcc_emails = students.map((s) => s.college_email);
+
+//   // Get appropriate transporter
+//   const transporter = getTransporter(sender_email);
+
+//   const mailOptions = {
+//     from: sender_email || process.env.EMAIL_USER,
+//     from: process.env.EMAIL_USER,
+//     to: to_emails, // main recipients (can be empty array)
+//     bcc: bcc_emails, // all students in one go
+//     cc: cc_emails?.length > 0 ? cc_emails : undefined,
+//     subject,
+//     html: body,
+//     attachments: attachments.length > 0 ? attachments : undefined,
+//     headers: {},
+//   };
+
+//   // Set Message-ID header
+//   if (message_id) {
+//     mailOptions.headers["Message-ID"] = message_id;
+//   }
+
+//   // Set threading headers if this is a reply
+//   if (parent_message_id) {
+//     mailOptions.headers["In-Reply-To"] = parent_message_id;
+//     mailOptions.headers["References"] = parent_message_id;
+//   }
+
+//   try {
+//     await transporter.sendMail(mailOptions);
+//     results.successful = bcc_emails.length;
+//   } catch (error) {
+//     results.failed = bcc_emails.length;
+//     results.errors.push({ error: error.message });
+//     console.error(" Failed to send bulk email:", error.message);
+//   }
+
+//   return results;
+// }
+
 async function sendBulkEmails(
   students,
   subject,
@@ -869,7 +957,8 @@ async function sendBulkEmails(
   to_emails = [],
   cc_emails = [],
   message_id = null,
-  parent_message_id = null
+  parent_message_id = null,
+  sender_email = null // ADD this parameter
 ) {
   const results = {
     successful: 0,
@@ -878,13 +967,15 @@ async function sendBulkEmails(
     failed_emails: [],
   };
 
-  // Get all student emails
   const bcc_emails = students.map((s) => s.college_email);
 
+  // Get appropriate transporter using sender_email
+  const transporter = getTransporter(sender_email);
+
   const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: to_emails, // main recipients (can be empty array)
-    bcc: bcc_emails, // all students in one go
+    from: sender_email || process.env.EMAIL_USER, // FIX: Use sender_email instead of process.env.EMAIL_USER
+    to: to_emails,
+    bcc: bcc_emails,
     cc: cc_emails?.length > 0 ? cc_emails : undefined,
     subject,
     html: body,
@@ -892,12 +983,10 @@ async function sendBulkEmails(
     headers: {},
   };
 
-  // Set Message-ID header
   if (message_id) {
     mailOptions.headers["Message-ID"] = message_id;
   }
 
-  // Set threading headers if this is a reply
   if (parent_message_id) {
     mailOptions.headers["In-Reply-To"] = parent_message_id;
     mailOptions.headers["References"] = parent_message_id;
@@ -909,7 +998,7 @@ async function sendBulkEmails(
   } catch (error) {
     results.failed = bcc_emails.length;
     results.errors.push({ error: error.message });
-    console.error(" Failed to send bulk email:", error.message);
+    console.error("Failed to send bulk email:", error.message);
   }
 
   return results;
@@ -1029,7 +1118,10 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
       body,
       attachments,
       parsedToEmails,
-      parsedCcEmails
+      parsedCcEmails,
+      message_id || generateMessageId(),
+      parent_message_id,
+      sender_email
     );
 
     const recipientEmails = students.map((s) => s.college_email);
@@ -1082,175 +1174,226 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
 });
 
 // POST /api/email-logs/send/students - Send to filtered students
-routes.post("/email-logs/send/students", async (req, res) => {
-  try {
-    const {
-      title,
-      subject,
-      body,
-      sender_email,
-      to_emails,
-      cc_emails,
-      student_ids,
-      position_id,
-      template_id,
-      message_id,
-      parent_message_id,
-    } = req.body;
+routes.post(
+  "/email-logs/send/students",
+  upload.array("manual_attachments", 5),
+  async (req, res) => {
+    const startTime = Date.now();
+    const requestId = `req-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
-    const parsedToEmails = to_emails
-      ? typeof to_emails === "string"
-        ? JSON.parse(to_emails)
-        : to_emails
-      : [];
-    const parsedCcEmails = cc_emails
-      ? typeof cc_emails === "string"
-        ? JSON.parse(cc_emails)
-        : cc_emails
-      : [];
-
-    if (!title || !subject || !body) {
-      return res.status(400).json({
-        success: false,
-        error: "Title, subject, and body are required",
-      });
-    }
-
-    if (!student_ids || student_ids.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: "student_ids array is required",
-      });
-    }
-
-    const result = await db.query(
-      `
-      SELECT id, college_email, first_name, last_name, enrollment_number, 
-             department, branch, cgpa, batch_year
-      FROM students 
-      WHERE id = ANY($1) AND college_email IS NOT NULL
-    `,
-      [student_ids]
-    );
-
-    const students = result.rows;
-
-    if (students.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: "No valid students found with provided IDs",
-      });
-    }
-
-    let attachments = [];
-
-    if (template_id) {
-      const templateResult = await db.query(
-        "SELECT attachments FROM email_templates WHERE id = $1",
-        [template_id]
-      );
-      if (
-        templateResult.rows.length > 0 &&
-        templateResult.rows[0].attachments
-      ) {
-        const templateAttachments =
-          typeof templateResult.rows[0].attachments === "string"
-            ? JSON.parse(templateResult.rows[0].attachments)
-            : templateResult.rows[0].attachments;
-        for (const attachment of templateAttachments) {
-          try {
-            const fileContent = await fsPromises.readFile(attachment.filepath);
-            attachments.push({
-              filename: attachment.filename,
-              content: fileContent,
-              contentType: attachment.mimetype,
-            });
-          } catch (err) {
-            console.error(`Error reading template attachment:`, err);
-          }
-        }
-      }
-    }
-
-    if (position_id) {
-      const docsResult = await db.query(
-        `SELECT document_path, document_title, file_type 
-         FROM position_documents 
-         WHERE position_id = $1 AND is_active = TRUE 
-         ORDER BY display_order`,
-        [position_id]
-      );
-
-      for (const doc of docsResult.rows) {
-        try {
-          const fileContent = await fsPromises.readFile(doc.document_path);
-          attachments.push({
-            filename: doc.document_title,
-            content: fileContent,
-            contentType: getMimeType(doc.file_type),
-          });
-        } catch (err) {
-          console.error(`Error reading position document:`, err);
-        }
-      }
-    }
-
-    const emailResults = await sendBulkEmails(
-      students,
-      subject,
-      body,
-      attachments,
-      parsedToEmails,
-      parsedCcEmails
-    );
-
-    const recipientEmails = students.map((s) => s.college_email);
-
-    // Generate or use provided message_id
-    const finalMessageId =
-      message_id ||
-      `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    const campaignResult = await db.query(
-      `
-      INSERT INTO email_logs 
-      (title, subject, body, recipient_emails, sender_email, 
-      to_emails, cc_emails, sent_at, total_recipients,
-      message_id, parent_message_id, total_successful, total_failed, failed_emails)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9, $10, $11, $12, $13)
-      RETURNING *
-    `,
-      [
+    try {
+      const {
         title,
         subject,
         body,
-        recipientEmails,
         sender_email,
+        to_emails,
+        cc_emails,
+        student_ids,
+        position_id,
+        template_id,
+        message_id,
+        parent_message_id,
+      } = req.body;
+
+      // --- Parse student IDs ---
+      let parsedStudentIds = [];
+      try {
+        parsedStudentIds = student_ids
+          ? typeof student_ids === "string"
+            ? JSON.parse(student_ids)
+            : student_ids
+          : [];
+      } catch (err) {
+        console.error(`[${requestId}] Error parsing student_ids:`, err.message);
+      }
+
+      // --- Parse email arrays ---
+      let parsedToEmails = [];
+      let parsedCcEmails = [];
+
+      try {
+        parsedToEmails = to_emails
+          ? typeof to_emails === "string"
+            ? JSON.parse(to_emails)
+            : to_emails
+          : [];
+      } catch (err) {
+        console.error(`[${requestId}] Error parsing to_emails:`, err.message);
+      }
+
+      try {
+        parsedCcEmails = cc_emails
+          ? typeof cc_emails === "string"
+            ? JSON.parse(cc_emails)
+            : cc_emails
+          : [];
+      } catch (err) {
+        console.error(`[${requestId}] Error parsing cc_emails:`, err.message);
+      }
+
+      // --- Validation ---
+      if (!title || !subject || !body) {
+        return res.status(400).json({
+          success: false,
+          error: "Title, subject, and body are required",
+        });
+      }
+
+      if (!parsedStudentIds || parsedStudentIds.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "student_ids array is required",
+        });
+      }
+
+      // --- Fetch students from database ---
+      const result = await db.query(
+        `
+        SELECT id, college_email, first_name, last_name, enrollment_number, 
+               department, branch, cgpa, batch_year
+        FROM students 
+        WHERE id = ANY($1) AND college_email IS NOT NULL
+        `,
+        [parsedStudentIds]
+      );
+
+      const students = result.rows;
+
+      if (students.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "No valid students found with provided IDs",
+        });
+      }
+
+      // --- Process attachments ---
+      let attachments = [];
+
+      if (template_id) {
+        const templateResult = await db.query(
+          "SELECT attachments FROM email_templates WHERE id = $1",
+          [template_id]
+        );
+
+        if (
+          templateResult.rows.length > 0 &&
+          templateResult.rows[0].attachments
+        ) {
+          const templateAttachments =
+            typeof templateResult.rows[0].attachments === "string"
+              ? JSON.parse(templateResult.rows[0].attachments)
+              : templateResult.rows[0].attachments;
+
+          for (const attachment of templateAttachments) {
+            try {
+              const fileContent = await fsPromises.readFile(
+                attachment.filepath
+              );
+              attachments.push({
+                filename: attachment.filename,
+                content: fileContent,
+                contentType: attachment.mimetype,
+              });
+            } catch (err) {
+              console.error(
+                `[${requestId}] Error reading template attachment ${attachment.filename}:`,
+                err.message
+              );
+            }
+          }
+        }
+      }
+
+      if (position_id) {
+        const docsResult = await db.query(
+          `SELECT document_path, document_title, file_type 
+           FROM position_documents 
+           WHERE position_id = $1 AND is_active = TRUE 
+           ORDER BY display_order`,
+          [position_id]
+        );
+
+        for (const doc of docsResult.rows) {
+          try {
+            const fileContent = await fsPromises.readFile(doc.document_path);
+            attachments.push({
+              filename: doc.document_title,
+              content: fileContent,
+              contentType: getMimeType(doc.file_type),
+            });
+          } catch (err) {
+            console.error(
+              `[${requestId}] Error reading position document ${doc.document_title}:`,
+              err.message
+            );
+          }
+        }
+      }
+
+      // --- Send bulk emails ---
+      const emailResults = await sendBulkEmails(
+        students,
+        subject,
+        body,
+        attachments,
         parsedToEmails,
         parsedCcEmails,
-        students.length,
-        finalMessageId,
-        parent_message_id || null,
-        emailResults.successful,
-        emailResults.failed,
-        emailResults.failed_emails || [],
-      ]
-    );
+        message_id || generateMessageId(),
+        parent_message_id,
+        sender_email
+      );
 
-    res.json({
-      success: true,
-      campaign: campaignResult.rows[0],
-      emailResults,
-      message: `Email sent to ${emailResults.successful} of ${students.length} students`,
-    });
-  } catch (error) {
-    console.error("Error sending student email:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to send email to students",
-    });
+      // --- Log to database ---
+      const recipientEmails = students.map((s) => s.college_email);
+      const finalMessageId =
+        message_id ||
+        `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const campaignResult = await db.query(
+        `
+        INSERT INTO email_logs 
+        (title, subject, body, recipient_emails, sender_email, 
+        to_emails, cc_emails, sent_at, total_recipients,
+        message_id, parent_message_id, total_successful, total_failed, failed_emails)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9, $10, $11, $12, $13)
+        RETURNING *
+        `,
+        [
+          title,
+          subject,
+          body,
+          recipientEmails,
+          sender_email,
+          parsedToEmails,
+          parsedCcEmails,
+          students.length,
+          finalMessageId,
+          parent_message_id || null,
+          emailResults.successful,
+          emailResults.failed,
+          emailResults.failed_emails || [],
+        ]
+      );
+
+      res.json({
+        success: true,
+        campaign: campaignResult.rows[0],
+        emailResults,
+        message: `Email sent to ${emailResults.successful} of ${students.length} students`,
+      });
+    } catch (error) {
+      console.error(`[${requestId}] CRITICAL ERROR:`, error.stack);
+      res.status(500).json({
+        success: false,
+        error: "Failed to send email to students",
+        requestId,
+      });
+    }
   }
-});
+);
 
 // Error handling middleware
 routes.use((error, req, res, next) => {

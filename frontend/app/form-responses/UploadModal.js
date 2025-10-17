@@ -12,6 +12,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const UploadModal = ({ selectedForm, setShowUploadModal, fetchForms }) => {
   const [file, setFile] = useState(null);
@@ -106,7 +107,7 @@ const UploadModal = ({ selectedForm, setShowUploadModal, fetchForms }) => {
       });
 
       const response = await axios.post(
-        `http://localhost:5000/forms/${selectedForm.id}/upload`,
+        `${backendUrl}/forms/${selectedForm.id}/upload`,
         formData,
         {
           headers: {

@@ -23,10 +23,13 @@ import {
   UserCheck,
   Users,
   CheckCircle,
+  Mail,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { useCompaniesContext } from "../../context/CompaniesContext";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import EmailTargetModal from "./EmailTargetModal";
 
 export function CompanyTableView({
   statusColors,
@@ -58,6 +61,10 @@ export function CompanyTableView({
     setSelectedCompanyForEligibility,
   } = useCompaniesContext();
 
+  const router = useRouter();
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedCompanyForEmail, setSelectedCompanyForEmail] = useState(null);
+
   const [expandedRows, setExpandedRows] = useState(new Set());
 
   // Toggle row expansion
@@ -69,6 +76,20 @@ export function CompanyTableView({
       newExpanded.add(companyId);
     }
     setExpandedRows(newExpanded);
+  };
+
+  const handleEmailClick = (company) => {
+    setSelectedCompanyForEmail(company);
+    setShowEmailModal(true);
+  };
+
+  const handleEmailTargetSelect = (emailData) => {
+    // Store in sessionStorage for email page
+    sessionStorage.setItem("emailData", JSON.stringify(emailData));
+    // Close modal
+    setShowEmailModal(false);
+    // Navigate to email page
+    router.push("/email-management?from=company");
   };
 
   if (loading) {
@@ -424,7 +445,7 @@ export function CompanyTableView({
                             <div className="flex items-center gap-1 border-l pl-2">
                               <button
                                 onClick={() => setSelectedCompany(company)}
-                                className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-all duration-200"
+                                className="p-2 text-violet-600 hover:text-violet-800 hover:bg-violet-100 rounded-lg transition-all duration-200"
                                 title="View Details"
                               >
                                 <Eye size={16} />
@@ -438,6 +459,13 @@ export function CompanyTableView({
                                 title="Manage Eligible Students"
                               >
                                 <Users size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleEmailClick(company)}
+                                className="p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-100 rounded-lg transition-all duration-200"
+                                title="Send Email To Students"
+                              >
+                                <Mail size={16} />
                               </button>
                               <button
                                 onClick={() => onEditClick(company)}
@@ -781,6 +809,18 @@ export function CompanyTableView({
         type={deleteType}
         isDeleting={isDeleting}
       />
+
+      {/* Email Target Modal */}
+      {showEmailModal && selectedCompanyForEmail && (
+        <EmailTargetModal
+          company={selectedCompanyForEmail}
+          onClose={() => {
+            setShowEmailModal(false);
+            setSelectedCompanyForEmail(null);
+          }}
+          onSelect={handleEmailTargetSelect}
+        />
+      )}
     </>
   );
 }

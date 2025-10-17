@@ -3,6 +3,7 @@ import { Upload, X, Download, FileText } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useStudentContext } from "../../context/StudentContext"; // Adjust the import based on your file structure
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const UpdateModal = ({ onClose, onUpdateComplete }) => {
   const [file, setFile] = useState(null);
@@ -45,7 +46,7 @@ const UpdateModal = ({ onClose, onUpdateComplete }) => {
 
     try {
       const response = await axios.put(
-        "http://localhost:5000/students/bulk-update",
+        `${backendUrl}/students/bulk-update`,
         formData,
         {
           headers: {

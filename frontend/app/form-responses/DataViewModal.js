@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import * as XLSX from "xlsx";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ModernDataViewModal = ({ selectedForm, setShowDataModal }) => {
   const [formData, setFormData] = useState([]);
@@ -30,7 +31,7 @@ const ModernDataViewModal = ({ selectedForm, setShowDataModal }) => {
       setLoadingData(true);
       setError(null);
       const response = await axios.get(
-        `http://localhost:5000/forms/${selectedForm.id}/data?page=${page}&limit=${pagination.limit}`
+        `${backendUrl}/forms/${selectedForm.id}/data?page=${page}&limit=${pagination.limit}`
       );
 
       setFormData(response.data.data || []);
@@ -63,7 +64,7 @@ const ModernDataViewModal = ({ selectedForm, setShowDataModal }) => {
     try {
       setError(null);
       await axios.delete(
-        `http://localhost:5000/forms/${selectedForm.id}/responses/${id}`
+        `${backendUrl}/forms/${selectedForm.id}/responses/${id}`
       );
       fetchFormData(pagination.page);
     } catch (err) {
@@ -150,7 +151,7 @@ const ModernDataViewModal = ({ selectedForm, setShowDataModal }) => {
       setError(null);
       // Fetch all data for export (without pagination)
       const response = await axios.get(
-        `http://localhost:5000/forms/${selectedForm.id}/data?page=1&limit=9999`
+        `${backendUrl}/forms/${selectedForm.id}/data?page=1&limit=9999`
       );
 
       const dataToExport = response.data.data || [];

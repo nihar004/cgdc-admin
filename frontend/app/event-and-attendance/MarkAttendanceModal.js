@@ -12,6 +12,7 @@ import {
   User,
 } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
   const [loading, setLoading] = useState(true);
@@ -90,7 +91,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
           : "";
 
       const response = await axios.get(
-        `http://localhost:5000/events/${event.id}/eligibleStudents${queryParams}`
+        `${backendUrl}/events/${event.id}/eligibleStudents${queryParams}`
       );
 
       if (response.data.success) {
@@ -146,7 +147,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/events/positions/by-ids?ids=${event.position_ids.join(",")}`
+        `${backendUrl}/events/positions/by-ids?ids=${event.position_ids.join(",")}`
       );
 
       if (response.data.success) {
@@ -213,7 +214,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
         }
 
         const response = await axios.put(
-          `http://localhost:5000/events/${event.id}/attendance`,
+          `${backendUrl}/events/${event.id}/attendance`,
           {
             records: records,
           }
@@ -254,13 +255,10 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
         Object.entries(statusGroups).forEach(([status, regNumbers]) => {
           if (regNumbers.length > 0) {
             apiCalls.push(
-              axios.post(
-                `http://localhost:5000/events/${event.id}/attendance`,
-                {
-                  registration_numbers: regNumbers,
-                  status: status,
-                }
-              )
+              axios.post(`${backendUrl}/events/${event.id}/attendance`, {
+                registration_numbers: regNumbers,
+                status: status,
+              })
             );
           }
         });
@@ -396,20 +394,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
   const statusInfo = getStatusMessage();
 
-  // const updateEventStatus = async (newStatus) => {
-  //   try {
-  //     const response = await axios.put(
-  //       `http://localhost:5000/events/${event.id}/status`,
-  //       { status: newStatus }
-  //     );
-
-  //     if (response.data.success) {
-  //       setEventStatus(newStatus);
-  //     }
-  //   } catch (error) {
-  //     alert(error.response?.data?.message || "Failed to update event status");
-  //   }
-  // };
   const updateEventStatus = async (newStatus) => {
     if (!event?.id) {
       alert("Event ID is missing");
@@ -418,7 +402,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/events/${event.id}/status`,
+        `${backendUrl}/events/${event.id}/status`,
         { status: newStatus }
       );
 
