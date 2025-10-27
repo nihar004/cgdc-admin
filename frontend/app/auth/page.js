@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ForgotPassword from "./ForgotPassword";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function CGDCAuth() {
   const { login } = useAuth();
@@ -56,7 +57,7 @@ export default function CGDCAuth() {
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/users/signup",
+          `${backendUrl}/users/signup`,
           {
             username: formData.username,
             email: formData.email, // Use separate email field

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, ArrowLeft, Mail, Lock, CheckCircle } from "lucide-react";
 import axios from "axios";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function ForgotPassword({ onBack }) {
   const [step, setStep] = useState(1); // 1: Email, 2: Code, 3: New Password
@@ -24,7 +25,7 @@ export default function ForgotPassword({ onBack }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/users/forgot-password",
+        `${backendUrl}/users/forgot-password`,
         { email },
         { withCredentials: true }
       );
@@ -51,7 +52,7 @@ export default function ForgotPassword({ onBack }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/users/verify-reset-code",
+        `${backendUrl}/users/verify-reset-code`,
         { email, code },
         { withCredentials: true }
       );
@@ -89,7 +90,7 @@ export default function ForgotPassword({ onBack }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/users/reset-password",
+        `${backendUrl}/users/reset-password`,
         { email, code, newPassword },
         { withCredentials: true }
       );

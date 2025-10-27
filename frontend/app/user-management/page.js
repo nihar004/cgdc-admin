@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function UserManagement() {
   const { user: currentUser } = useAuth();
@@ -28,7 +29,7 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/users", {
+      const response = await axios.get(`${backendUrl}/users`, {
         withCredentials: true,
       });
       setUsers(response.data.users);
@@ -43,7 +44,7 @@ export default function UserManagement() {
     try {
       setError("");
       const response = await axios.put(
-        `http://localhost:5000/users/${userId}`,
+        `${backendUrl}/users/${userId}`,
         updates,
         { withCredentials: true }
       );
@@ -66,10 +67,9 @@ export default function UserManagement() {
 
     try {
       setError("");
-      const response = await axios.delete(
-        `http://localhost:5000/users/${userId}`,
-        { withCredentials: true }
-      );
+      const response = await axios.delete(`${backendUrl}/users/${userId}`, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         setSuccess("User deleted successfully");
