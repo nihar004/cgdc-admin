@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Acer/Desktop/cgdc-admin/frontend/app/cc/page.js"],"sourcesContent":["function hello_world() {\r\n  return <h1>Hello, Next.js!</h1>;\r\n}\r\n\r\nexport default hello_world;\r\n"],"names":[],"mappings":";;;;;AAAA,SAAS;IACP,qBAAO,8OAAC;kBAAG;;;;;;AACb;uCAEe","debugId":null}}]
+}

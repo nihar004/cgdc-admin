@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Placement Cell Management System Backend",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.6",
+    "papaparse": "^5.5.3",
+    "pg": "^8.16.3",
+    "uuid": "^11.1.0",
+    "xlsx": "^0.18.5"
+  }
+}
