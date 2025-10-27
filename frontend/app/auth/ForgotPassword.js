@@ -179,7 +179,7 @@ export default function ForgotPassword({ onBack }) {
               Forgot Password?
             </h2>
             <p className="text-gray-600">
-              No worries! Enter your email and we'll send you a reset code
+              No worries! Enter your email and we&apos;ll send you a reset code
             </p>
           </div>
 
@@ -280,7 +280,7 @@ export default function ForgotPassword({ onBack }) {
               disabled={loading}
               className="w-full text-blue-600 hover:text-blue-700 text-sm font-semibold py-2 transition-colors disabled:opacity-50"
             >
-              Didn't receive code? Resend
+              Didn&apos;t receive code? Resend
             </button>
           </form>
         </div>

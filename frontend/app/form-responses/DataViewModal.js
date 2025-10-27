@@ -269,7 +269,7 @@ const ModernDataViewModal = ({ selectedForm, setShowDataModal }) => {
                 No data available
               </h3>
               <p className="text-slate-600 mb-6">
-                This form doesn't have any submitted responses yet.
+                This form doesn&apos;t have any submitted responses yet.
               </p>
             </div>
           ) : (

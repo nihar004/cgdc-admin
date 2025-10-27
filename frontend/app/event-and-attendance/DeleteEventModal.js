@@ -125,7 +125,9 @@ const DeleteEventModal = ({
               spellCheck="false"
             />
             {confirmationText.length > 0 && !isValid && (
-              <p className="mt-2 text-sm text-red-600">Text doesn't match</p>
+              <p className="mt-2 text-sm text-red-600">
+                Text doesn&apos;t match
+              </p>
             )}
             {isValid && (
               <p className="mt-2 text-sm text-green-600 flex items-center space-x-1">

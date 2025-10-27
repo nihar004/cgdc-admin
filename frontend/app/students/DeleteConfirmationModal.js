@@ -115,7 +115,7 @@ const DeleteConfirmationModal = ({
             />
             {confirmationText.length > 0 && !isValid && (
               <p className="mt-2 text-sm text-red-600">
-                Registration number doesn't match
+                Registration number doesn&apos;t match
               </p>
             )}
             {isValid && (

@@ -1,12 +1,15 @@
+"use client";
+
 import { useState, useRef, useMemo, useEffect } from "react";
 import { Send, X, FileText, Paperclip, Users } from "lucide-react";
 import { useEmail } from "../../context/EmailContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const ComposeEmail = () => {
+const ComposeEmailContent = () => {
   const { templates, sendLogs, sendEmailToFilteredStudents, loading } =
     useEmail();
   const searchParams = useSearchParams();
@@ -213,129 +216,6 @@ const ComposeEmail = () => {
   const getTotalAttachmentCount = () => {
     return getTemplateAttachments().length + manualAttachments.length;
   };
-
-  // const handleSend = async () => {
-  //   if (!formData.title || !formData.subject || !formData.body) {
-  //     toast.error("Please fill title, subject, and body");
-  //     return;
-  //   }
-
-  //   if (!formData.to_emails) {
-  //     toast.error("Please enter at least one 'To' email address");
-  //     return;
-  //   }
-
-  //   const formDataToSend = new FormData();
-  //   formDataToSend.append("title", formData.title);
-  //   formDataToSend.append("subject", formData.subject);
-  //   formDataToSend.append("body", formData.body);
-  //   formDataToSend.append("sender_email", formData.sender_email);
-
-  //   const toEmails = formData.to_emails
-  //     .split(",")
-  //     .map((e) => e.trim())
-  //     .filter((e) => e);
-  //   formDataToSend.append("to_emails", JSON.stringify(toEmails));
-
-  //   if (selectedTemplate) {
-  //     formDataToSend.append("template_id", selectedTemplate.id);
-  //     if (removedTemplateAttachments.length > 0) {
-  //       formDataToSend.append(
-  //         "excluded_template_attachments",
-  //         JSON.stringify(removedTemplateAttachments)
-  //       );
-  //     }
-  //   }
-
-  //   manualAttachments.forEach((file) => {
-  //     formDataToSend.append("manual_attachments", file);
-  //   });
-
-  //   if (formData.sendType === "filter") {
-  //     const filters = {};
-  //     if (formData.branch.length > 0) {
-  //       filters.branch = formData.branch;
-  //     }
-  //     if (formData.batch_year.length > 0) {
-  //       filters.batch_year = formData.batch_year;
-  //     }
-  //     if (formData.placement_status) {
-  //       filters.placement_status = formData.placement_status;
-  //     }
-  //     formDataToSend.append("recipient_filter", JSON.stringify(filters));
-  //   } else if (formData.sendType === "manual") {
-  //     const emails = formData.recipient_emails
-  //       .split(",")
-  //       .map((e) => e.trim())
-  //       .filter((e) => e);
-  //     if (emails.length === 0) {
-  //       toast.error("Please enter at least one email address");
-  //       return;
-  //     }
-  //     formDataToSend.append("recipient_emails", JSON.stringify(emails));
-  //   } else if (formData.sendType === "student_ids") {
-  //     const studentIds = formData.student_ids
-  //       .split(",")
-  //       .map((id) => parseInt(id.trim()))
-  //       .filter((id) => !isNaN(id));
-
-  //     formDataToSend.append("student_ids", JSON.stringify(studentIds));
-  //   }
-
-  //   if (formData.cc_emails) {
-  //     const ccEmails = formData.cc_emails
-  //       .split(",")
-  //       .map((e) => e.trim())
-  //       .filter((e) => e);
-  //     formDataToSend.append("cc_emails", JSON.stringify(ccEmails));
-  //   }
-
-  //   // Add message tracking fields if provided
-  //   if (formData.message_id) {
-  //     formDataToSend.append("message_id", formData.message_id);
-  //   }
-  //   if (formData.parent_message_id) {
-  //     formDataToSend.append("parent_message_id", formData.parent_message_id);
-  //   }
-
-  //   const sendPromise = sendLogs(formDataToSend);
-
-  //   toast.promise(sendPromise, {
-  //     loading: "Sending email...",
-  //     success: (result) => {
-  //       if (result.success) {
-  //         // Reset form
-  //         setFormData({
-  //           title: "",
-  //           subject: "",
-  //           body: "",
-  //           sender_email: "",
-  //           to_emails: "",
-  //           sendType: "filter",
-  //           branch: [],
-  //           batch_year: [],
-  //           placement_status: "",
-  //           recipient_emails: "",
-  //           student_ids: "",
-  //           event_id: "",
-  //           recipient_type: "registered",
-  //           cc_emails: "",
-  //           message_id: "",
-  //           parent_message_id: "",
-  //         });
-  //         setSelectedTemplate(null);
-  //         setManualAttachments([]);
-  //         setRemovedTemplateAttachments([]);
-
-  //         return `Email sent successfully! (${
-  //           result.data.emailResults?.successful || 0
-  //         } sent, ${result.data.emailResults?.failed || 0} failed)`;
-  //       }
-  //       throw new Error(result.message);
-  //     },
-  //     error: (err) => `Failed to send email: ${err.message}`,
-  //   });
-  // };
 
   const handleSend = async () => {
     if (!formData.title || !formData.subject || !formData.body) {
@@ -766,8 +646,8 @@ const ComposeEmail = () => {
             placeholder="Write your email subject here..."
           />
           <p className="text-xs text-gray-500 mt-1">
-            💡 For follow-ups: Keep subject similar to original (e.g., add "Re:"
-            prefix)
+            💡 For follow-ups: Keep subject similar to original (e.g., add
+            &quot;Re:&quot; prefix)
           </p>
         </div>
 
@@ -1079,7 +959,8 @@ const ComposeEmail = () => {
               Message Tracking (Optional - for follow-up emails)
             </h4>
             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-              ⚠️ For threading: use similar subject line (add "Re:" prefix)
+              ⚠️ For threading: use similar subject line (add &quot;Re:&quot;
+              prefix)
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1136,6 +1017,15 @@ const ComposeEmail = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Outer wrapper component
+const ComposeEmail = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ComposeEmailContent />
+    </Suspense>
   );
 };
 

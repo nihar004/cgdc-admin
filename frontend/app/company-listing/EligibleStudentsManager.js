@@ -339,7 +339,8 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                 <p className="text-sm text-blue-700 mb-3">
                   Student eligibility has not been calculated for this company
                   and batch combination yet. Click the button below to calculate
-                  which students are eligible based on the company's criteria.
+                  which students are eligible based on the company&apos;s
+                  criteria.
                 </p>
                 <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
                   <li>
@@ -431,7 +432,9 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
               <div className="text-3xl font-bold text-red-900">
                 {briefInfo.total_ineligible_count}
               </div>
-              <p className="text-xs text-red-600 mt-1">Don't meet criteria</p>
+              <p className="text-xs text-red-600 mt-1">
+                Don&apos;t meet criteria
+              </p>
             </div>
 
             <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200 rounded-xl p-4">
@@ -678,7 +681,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     Manual Override
                                   </span>
                                   <p className="text-xs text-gray-600 italic line-clamp-2">
-                                    "{student.manual_override_reason}"
+                                    &quot;{student.manual_override_reason}&quot;
                                   </p>
                                 </div>
                               ) : student.used_dream_company ? (
