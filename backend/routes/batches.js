@@ -17,7 +17,7 @@ routes.get("/", async (req, res) => {
 routes.post("/", async (req, res) => {
   const { year } = req.body;
 
-  const parsedYear = parseInt(String(year).trim(), 10);
+  const parsedYear = parseInt(year, 10);
 
   if (isNaN(parsedYear) || parsedYear < 2010 || parsedYear > 2100) {
     return res.status(400).json({ error: "Invalid batch year" });
