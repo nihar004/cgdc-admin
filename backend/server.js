@@ -53,6 +53,11 @@ app.use(
   })
 );
 
+// Health check endpoint (for debugging)
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, message: "Server is running" });
+});
+
 // ============ PUBLIC ROUTES (No Authentication) ============
 app.post("/api/auth/login", login);
 
