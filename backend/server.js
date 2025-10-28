@@ -23,6 +23,9 @@ const users = require("./routes/users");
 
 const app = express();
 
+// Trust proxy - MUST be first
+app.set("trust proxy", 1);
+
 // CORS configuration - IMPORTANT: credentials must be true for sessions
 app.use(
   cors({
@@ -40,10 +43,13 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
+      secure: true,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 12 * 60 * 60 * 1000, // 24 hours
+      sameSite: "lax", // Add this
     },
+    proxy: true,
   })
 );
 
@@ -60,7 +66,6 @@ app.get("/api/auth/me", isAuthenticated, getCurrentUser);
 app.use("/api/students", isAuthenticated, students);
 app.use("/api/batches", isAuthenticated, batches);
 app.use("/api/companies", isAuthenticated, companies);
-app.use("/api/emails", isAuthenticated, emails);
 app.use("/api/forms", isAuthenticated, forms);
 app.use("/api/events", isAuthenticated, events);
 app.use("/api/round-tracking", isAuthenticated, round_tracking);
