@@ -8,6 +8,7 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "default": ()=>ForgotPassword
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/eye.js [app-client] (ecmascript) <export default as Eye>");
@@ -23,6 +24,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
 function ForgotPassword(param) {
     let { onBack } = param;
     _s();
@@ -42,7 +44,7 @@ function ForgotPassword(param) {
         setSuccess("");
         setLoading(true);
         try {
-            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://localhost:5000/users/forgot-password", {
+            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("".concat(backendUrl, "/users/forgot-password"), {
                 email
             }, {
                 withCredentials: true
@@ -67,7 +69,7 @@ function ForgotPassword(param) {
         setSuccess("");
         setLoading(true);
         try {
-            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://localhost:5000/users/verify-reset-code", {
+            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("".concat(backendUrl, "/users/verify-reset-code"), {
                 email,
                 code
             }, {
@@ -101,7 +103,7 @@ function ForgotPassword(param) {
         }
         setLoading(true);
         try {
-            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://localhost:5000/users/reset-password", {
+            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("".concat(backendUrl, "/users/reset-password"), {
                 email,
                 code,
                 newPassword
@@ -138,7 +140,7 @@ function ForgotPassword(param) {
                         className: "w-4 h-4 group-hover:-translate-x-1 transition-transform"
                     }, void 0, false, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 124,
+                        lineNumber: 125,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -146,13 +148,13 @@ function ForgotPassword(param) {
                         children: "Back to Login"
                     }, void 0, false, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 125,
+                        lineNumber: 126,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 120,
+                lineNumber: 121,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -165,14 +167,14 @@ function ForgotPassword(param) {
                             children: "1"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 131,
+                            lineNumber: 132,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "w-20 h-1 transition-all duration-300 ".concat(step >= 2 ? "bg-blue-600" : "bg-gray-200")
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 140,
+                            lineNumber: 141,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -180,14 +182,14 @@ function ForgotPassword(param) {
                             children: "2"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 145,
+                            lineNumber: 146,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "w-20 h-1 transition-all duration-300 ".concat(step >= 3 ? "bg-blue-600" : "bg-gray-200")
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 154,
+                            lineNumber: 155,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -195,18 +197,18 @@ function ForgotPassword(param) {
                             children: "3"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 159,
+                            lineNumber: 160,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/auth/ForgotPassword.js",
-                    lineNumber: 130,
+                    lineNumber: 131,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 129,
+                lineNumber: 130,
                 columnNumber: 7
             }, this),
             step === 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -221,12 +223,12 @@ function ForgotPassword(param) {
                                     className: "w-10 h-10 text-blue-600"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                    lineNumber: 176,
+                                    lineNumber: 177,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 175,
+                                lineNumber: 176,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -234,7 +236,7 @@ function ForgotPassword(param) {
                                 children: "Forgot Password?"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 178,
+                                lineNumber: 179,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -242,13 +244,13 @@ function ForgotPassword(param) {
                                 children: "No worries! Enter your email and we'll send you a reset code"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 181,
+                                lineNumber: 182,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 174,
+                        lineNumber: 175,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -262,7 +264,7 @@ function ForgotPassword(param) {
                                         children: "Email Address"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 188,
+                                        lineNumber: 189,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -278,26 +280,26 @@ function ForgotPassword(param) {
                                                 disabled: loading
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 192,
+                                                lineNumber: 193,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$mail$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Mail$3e$__["Mail"], {
                                                 className: "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 201,
+                                                lineNumber: 202,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 191,
+                                        lineNumber: 192,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 187,
+                                lineNumber: 188,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -311,31 +313,31 @@ function ForgotPassword(param) {
                                             className: "w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/ForgotPassword.js",
-                                            lineNumber: 212,
+                                            lineNumber: 213,
                                             columnNumber: 19
                                         }, this),
                                         "Sending..."
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                    lineNumber: 211,
+                                    lineNumber: 212,
                                     columnNumber: 17
                                 }, this) : "Send Reset Code"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 205,
+                                lineNumber: 206,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 186,
+                        lineNumber: 187,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 173,
+                lineNumber: 174,
                 columnNumber: 9
             }, this),
             step === 2 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -350,12 +352,12 @@ function ForgotPassword(param) {
                                     className: "w-10 h-10 text-green-600"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                    lineNumber: 228,
+                                    lineNumber: 229,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 227,
+                                lineNumber: 228,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -363,7 +365,7 @@ function ForgotPassword(param) {
                                 children: "Check Your Email"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 230,
+                                lineNumber: 231,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -371,7 +373,7 @@ function ForgotPassword(param) {
                                 children: "We sent a 6-digit verification code to"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 233,
+                                lineNumber: 234,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -379,13 +381,13 @@ function ForgotPassword(param) {
                                 children: email
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 236,
+                                lineNumber: 237,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 226,
+                        lineNumber: 227,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -399,7 +401,7 @@ function ForgotPassword(param) {
                                         children: "Verification Code"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 241,
+                                        lineNumber: 242,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -413,7 +415,7 @@ function ForgotPassword(param) {
                                         disabled: loading
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 244,
+                                        lineNumber: 245,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -423,7 +425,7 @@ function ForgotPassword(param) {
                                                 className: "w-2 h-2 bg-yellow-400 rounded-full animate-pulse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 255,
+                                                lineNumber: 256,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -431,19 +433,19 @@ function ForgotPassword(param) {
                                                 children: "Code expires in 15 minutes"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 256,
+                                                lineNumber: 257,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 254,
+                                        lineNumber: 255,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 240,
+                                lineNumber: 241,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -457,19 +459,19 @@ function ForgotPassword(param) {
                                             className: "w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/ForgotPassword.js",
-                                            lineNumber: 269,
+                                            lineNumber: 270,
                                             columnNumber: 19
                                         }, this),
                                         "Verifying..."
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                    lineNumber: 268,
+                                    lineNumber: 269,
                                     columnNumber: 17
                                 }, this) : "Verify Code"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 262,
+                                lineNumber: 263,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -480,19 +482,19 @@ function ForgotPassword(param) {
                                 children: "Didn't receive code? Resend"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 277,
+                                lineNumber: 278,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 239,
+                        lineNumber: 240,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 225,
+                lineNumber: 226,
                 columnNumber: 9
             }, this),
             step === 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -507,12 +509,12 @@ function ForgotPassword(param) {
                                     className: "w-10 h-10 text-purple-600"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                    lineNumber: 294,
+                                    lineNumber: 295,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 293,
+                                lineNumber: 294,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -520,7 +522,7 @@ function ForgotPassword(param) {
                                 children: "Create New Password"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 296,
+                                lineNumber: 297,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -528,13 +530,13 @@ function ForgotPassword(param) {
                                 children: "Choose a strong password to secure your account"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 299,
+                                lineNumber: 300,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 292,
+                        lineNumber: 293,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -548,7 +550,7 @@ function ForgotPassword(param) {
                                         children: "New Password"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 306,
+                                        lineNumber: 307,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -564,7 +566,7 @@ function ForgotPassword(param) {
                                                 disabled: loading
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 310,
+                                                lineNumber: 311,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -575,24 +577,24 @@ function ForgotPassword(param) {
                                                     size: 20
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                                    lineNumber: 324,
+                                                    lineNumber: 325,
                                                     columnNumber: 35
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                     size: 20
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                                    lineNumber: 324,
+                                                    lineNumber: 325,
                                                     columnNumber: 58
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 319,
+                                                lineNumber: 320,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 309,
+                                        lineNumber: 310,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -600,13 +602,13 @@ function ForgotPassword(param) {
                                         children: "Must be at least 6 characters long"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 327,
+                                        lineNumber: 328,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 305,
+                                lineNumber: 306,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -616,7 +618,7 @@ function ForgotPassword(param) {
                                         children: "Confirm New Password"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 333,
+                                        lineNumber: 334,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -632,7 +634,7 @@ function ForgotPassword(param) {
                                                 disabled: loading
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 337,
+                                                lineNumber: 338,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -643,30 +645,30 @@ function ForgotPassword(param) {
                                                     size: 20
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                                    lineNumber: 352,
+                                                    lineNumber: 353,
                                                     columnNumber: 21
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                     size: 20
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                                    lineNumber: 354,
+                                                    lineNumber: 355,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                                lineNumber: 346,
+                                                lineNumber: 347,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/ForgotPassword.js",
-                                        lineNumber: 336,
+                                        lineNumber: 337,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 332,
+                                lineNumber: 333,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -680,31 +682,31 @@ function ForgotPassword(param) {
                                             className: "w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/ForgotPassword.js",
-                                            lineNumber: 367,
+                                            lineNumber: 368,
                                             columnNumber: 19
                                         }, this),
                                         "Resetting..."
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/auth/ForgotPassword.js",
-                                    lineNumber: 366,
+                                    lineNumber: 367,
                                     columnNumber: 17
                                 }, this) : "Reset Password"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/ForgotPassword.js",
-                                lineNumber: 360,
+                                lineNumber: 361,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 304,
+                        lineNumber: 305,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 291,
+                lineNumber: 292,
                 columnNumber: 9
             }, this),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -720,25 +722,25 @@ function ForgotPassword(param) {
                             clipRule: "evenodd"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 386,
+                            lineNumber: 387,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 381,
+                        lineNumber: 382,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         children: error
                     }, void 0, false, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 392,
+                        lineNumber: 393,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 380,
+                lineNumber: 381,
                 columnNumber: 9
             }, this),
             success && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -754,31 +756,31 @@ function ForgotPassword(param) {
                             clipRule: "evenodd"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/ForgotPassword.js",
-                            lineNumber: 404,
+                            lineNumber: 405,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 399,
+                        lineNumber: 400,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         children: success
                     }, void 0, false, {
                         fileName: "[project]/app/auth/ForgotPassword.js",
-                        lineNumber: 410,
+                        lineNumber: 411,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/ForgotPassword.js",
-                lineNumber: 398,
+                lineNumber: 399,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/auth/ForgotPassword.js",
-        lineNumber: 118,
+        lineNumber: 119,
         columnNumber: 5
     }, this);
 }
@@ -798,6 +800,7 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "default": ()=>CGDCAuth
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
@@ -815,6 +818,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
 function CGDCAuth() {
     _s();
     const { login } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$AuthContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
@@ -859,7 +863,7 @@ function CGDCAuth() {
                 return;
             }
             try {
-                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://localhost:5000/users/signup", {
+                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("".concat(backendUrl, "/users/signup"), {
                     username: formData.username,
                     email: formData.email,
                     password: formData.password,
@@ -892,20 +896,20 @@ function CGDCAuth() {
                             className: "absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/page.js",
-                            lineNumber: 88,
+                            lineNumber: 89,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"
                         }, void 0, false, {
                             fileName: "[project]/app/auth/page.js",
-                            lineNumber: 89,
+                            lineNumber: 90,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/auth/page.js",
-                    lineNumber: 87,
+                    lineNumber: 88,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -916,23 +920,23 @@ function CGDCAuth() {
                             onBack: ()=>setShowForgotPassword(false)
                         }, void 0, false, {
                             fileName: "[project]/app/auth/page.js",
-                            lineNumber: 94,
+                            lineNumber: 95,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/auth/page.js",
-                        lineNumber: 93,
+                        lineNumber: 94,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/auth/page.js",
-                    lineNumber: 92,
+                    lineNumber: 93,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/auth/page.js",
-            lineNumber: 86,
+            lineNumber: 87,
             columnNumber: 7
         }, this);
     }
@@ -946,20 +950,20 @@ function CGDCAuth() {
                         className: "absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"
                     }, void 0, false, {
                         fileName: "[project]/app/auth/page.js",
-                        lineNumber: 105,
+                        lineNumber: 106,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"
                     }, void 0, false, {
                         fileName: "[project]/app/auth/page.js",
-                        lineNumber: 106,
+                        lineNumber: 107,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/page.js",
-                lineNumber: 104,
+                lineNumber: 105,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -974,21 +978,21 @@ function CGDCAuth() {
                                     className: "absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/page.js",
-                                    lineNumber: 114,
+                                    lineNumber: 115,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full animate-bounce"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/page.js",
-                                    lineNumber: 115,
+                                    lineNumber: 116,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "absolute top-1/2 right-20 w-16 h-16 bg-white/10 rounded-full animate-ping"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/page.js",
-                                    lineNumber: 116,
+                                    lineNumber: 117,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1005,12 +1009,12 @@ function CGDCAuth() {
                                                 priority: true
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 121,
+                                                lineNumber: 122,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/page.js",
-                                            lineNumber: 120,
+                                            lineNumber: 121,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -1018,7 +1022,7 @@ function CGDCAuth() {
                                             children: "CGDC"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/page.js",
-                                            lineNumber: 131,
+                                            lineNumber: 132,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1026,7 +1030,7 @@ function CGDCAuth() {
                                             children: "Career Guidance &"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/page.js",
-                                            lineNumber: 132,
+                                            lineNumber: 133,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1034,7 +1038,7 @@ function CGDCAuth() {
                                             children: "Development Cell"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/page.js",
-                                            lineNumber: 135,
+                                            lineNumber: 136,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1042,19 +1046,19 @@ function CGDCAuth() {
                                             children: "Empowering students to achieve their career aspirations through comprehensive placement support and guidance."
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/page.js",
-                                            lineNumber: 138,
+                                            lineNumber: 139,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/auth/page.js",
-                                    lineNumber: 119,
+                                    lineNumber: 120,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/auth/page.js",
-                            lineNumber: 112,
+                            lineNumber: 113,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1071,7 +1075,7 @@ function CGDCAuth() {
                                                 children: "Sign In"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 150,
+                                                lineNumber: 151,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1080,13 +1084,13 @@ function CGDCAuth() {
                                                 children: "Sign Up"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 160,
+                                                lineNumber: 161,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/page.js",
-                                        lineNumber: 149,
+                                        lineNumber: 150,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1097,7 +1101,7 @@ function CGDCAuth() {
                                                 children: isLogin ? "Welcome Back" : "Create Account"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 174,
+                                                lineNumber: 175,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1105,13 +1109,13 @@ function CGDCAuth() {
                                                 children: isLogin ? "Sign in to access your placement portal" : "Join CGDC to explore career opportunities"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 177,
+                                                lineNumber: 178,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/page.js",
-                                        lineNumber: 173,
+                                        lineNumber: 174,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -1127,7 +1131,7 @@ function CGDCAuth() {
                                                                 children: "Username"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 189,
+                                                                lineNumber: 190,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1141,13 +1145,13 @@ function CGDCAuth() {
                                                                 disabled: loading
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 192,
+                                                                lineNumber: 193,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 188,
+                                                        lineNumber: 189,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1157,7 +1161,7 @@ function CGDCAuth() {
                                                                 children: "Email Address"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 205,
+                                                                lineNumber: 206,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1171,13 +1175,13 @@ function CGDCAuth() {
                                                                 disabled: loading
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 208,
+                                                                lineNumber: 209,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 204,
+                                                        lineNumber: 205,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
@@ -1189,7 +1193,7 @@ function CGDCAuth() {
                                                         children: "Username or Email"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 224,
+                                                        lineNumber: 225,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1203,13 +1207,13 @@ function CGDCAuth() {
                                                         disabled: loading
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 227,
+                                                        lineNumber: 228,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 223,
+                                                lineNumber: 224,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1221,7 +1225,7 @@ function CGDCAuth() {
                                                         children: "Password"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 241,
+                                                        lineNumber: 242,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1242,7 +1246,7 @@ function CGDCAuth() {
                                                                 placeholder: "Enter your password"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 248,
+                                                                lineNumber: 249,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1254,31 +1258,31 @@ function CGDCAuth() {
                                                                     className: "text-gray-400"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/auth/page.js",
-                                                                    lineNumber: 267,
+                                                                    lineNumber: 268,
                                                                     columnNumber: 25
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                                     size: 20,
                                                                     className: "text-gray-400"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/auth/page.js",
-                                                                    lineNumber: 269,
+                                                                    lineNumber: 270,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 261,
+                                                                lineNumber: 262,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 247,
+                                                        lineNumber: 248,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 240,
+                                                lineNumber: 241,
                                                 columnNumber: 17
                                             }, this),
                                             !isLogin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1288,7 +1292,7 @@ function CGDCAuth() {
                                                         children: "Confirm Password"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 277,
+                                                        lineNumber: 278,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1305,7 +1309,7 @@ function CGDCAuth() {
                                                                 disabled: loading
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 281,
+                                                                lineNumber: 282,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1317,31 +1321,31 @@ function CGDCAuth() {
                                                                     className: "text-gray-400"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/auth/page.js",
-                                                                    lineNumber: 299,
+                                                                    lineNumber: 300,
                                                                     columnNumber: 27
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                                     size: 20,
                                                                     className: "text-gray-400"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/auth/page.js",
-                                                                    lineNumber: 301,
+                                                                    lineNumber: 302,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 291,
+                                                                lineNumber: 292,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 280,
+                                                        lineNumber: 281,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 276,
+                                                lineNumber: 277,
                                                 columnNumber: 19
                                             }, this),
                                             isLogin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1355,7 +1359,7 @@ function CGDCAuth() {
                                                                 className: "rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 311,
+                                                                lineNumber: 312,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1363,13 +1367,13 @@ function CGDCAuth() {
                                                                 children: "Remember me"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/auth/page.js",
-                                                                lineNumber: 315,
+                                                                lineNumber: 316,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 310,
+                                                        lineNumber: 311,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1379,13 +1383,13 @@ function CGDCAuth() {
                                                         children: "Forgot password?"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/page.js",
-                                                        lineNumber: 319,
+                                                        lineNumber: 320,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 309,
+                                                lineNumber: 310,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1396,13 +1400,13 @@ function CGDCAuth() {
                                                 children: loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 329,
+                                                lineNumber: 330,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/page.js",
-                                        lineNumber: 185,
+                                        lineNumber: 186,
                                         columnNumber: 15
                                     }, this),
                                     error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1410,7 +1414,7 @@ function CGDCAuth() {
                                         children: error
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/page.js",
-                                        lineNumber: 344,
+                                        lineNumber: 345,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1424,7 +1428,7 @@ function CGDCAuth() {
                                                 children: "Terms of Service"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 352,
+                                                lineNumber: 353,
                                                 columnNumber: 17
                                             }, this),
                                             " ",
@@ -1436,41 +1440,41 @@ function CGDCAuth() {
                                                 children: "Privacy Policy"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/page.js",
-                                                lineNumber: 356,
+                                                lineNumber: 357,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/page.js",
-                                        lineNumber: 350,
+                                        lineNumber: 351,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/page.js",
-                                lineNumber: 147,
+                                lineNumber: 148,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/auth/page.js",
-                            lineNumber: 146,
+                            lineNumber: 147,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/auth/page.js",
-                    lineNumber: 110,
+                    lineNumber: 111,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/auth/page.js",
-                lineNumber: 109,
+                lineNumber: 110,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/auth/page.js",
-        lineNumber: 102,
+        lineNumber: 103,
         columnNumber: 5
     }, this);
 }

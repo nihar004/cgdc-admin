@@ -48,28 +48,28 @@ app.use(
 );
 
 // ============ PUBLIC ROUTES (No Authentication) ============
-app.post("/auth/login", login);
+app.post("/api/auth/login", login);
 
 // ============ AUTHENTICATED ROUTES ============
-app.post("/auth/logout", isAuthenticated, logout);
-app.get("/auth/me", isAuthenticated, getCurrentUser);
+app.post("/api/auth/logout", isAuthenticated, logout);
+app.get("/api/auth/me", isAuthenticated, getCurrentUser);
 
 // ============ PROTECTED ROUTES ============
 // All routes below require authentication
 
-app.use("/students", isAuthenticated, students);
-app.use("/batches", isAuthenticated, batches);
-app.use("/companies", isAuthenticated, companies);
-app.use("/emails", isAuthenticated, emails);
-app.use("/forms", isAuthenticated, forms);
-app.use("/events", isAuthenticated, events);
-app.use("/round-tracking", isAuthenticated, round_tracking);
-app.use("/emails", isAuthenticated, emails);
-app.use("/eligibility", isAuthenticated, eligibility);
-app.use("/offers", isAuthenticated, offers);
+app.use("/api/students", isAuthenticated, students);
+app.use("/api/batches", isAuthenticated, batches);
+app.use("/api/companies", isAuthenticated, companies);
+app.use("/api/emails", isAuthenticated, emails);
+app.use("/api/forms", isAuthenticated, forms);
+app.use("/api/events", isAuthenticated, events);
+app.use("/api/round-tracking", isAuthenticated, round_tracking);
+app.use("/api/emails", isAuthenticated, emails);
+app.use("/api/eligibility", isAuthenticated, eligibility);
+app.use("/api/offers", isAuthenticated, offers);
 
 // ============ PUBLIC + AUTH ROUTES ============
-app.use("/users", users); // NO isAuthenticated here!
+app.use("/api/users", users); // NO isAuthenticated here!
 
 // 404 handler
 app.use((req, res) => {
