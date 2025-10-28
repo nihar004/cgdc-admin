@@ -17,14 +17,16 @@ routes.get("/", async (req, res) => {
 routes.post("/", async (req, res) => {
   const { year } = req.body;
 
-  if (!year || isNaN(year) || year < 2010 || year > 2100) {
+  const parsedYear = parseInt(String(year).trim(), 10);
+
+  if (isNaN(parsedYear) || parsedYear < 2010 || parsedYear > 2100) {
     return res.status(400).json({ error: "Invalid batch year" });
   }
 
   try {
     const existingBatch = await db.query(
       "SELECT * FROM batches WHERE year = $1",
-      [year]
+      [parsedYear]
     );
 
     if (existingBatch.rows.length > 0) {
@@ -33,7 +35,7 @@ routes.post("/", async (req, res) => {
 
     const result = await db.query(
       "INSERT INTO batches (year) VALUES ($1) RETURNING *",
-      [year]
+      [parsedYear]
     );
 
     res.status(201).json(result.rows[0]);
