@@ -16,6 +16,7 @@ import { StudentProvider } from "../context/StudentContext";
 import { useBatchContext } from "../context/BatchContext";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext"; // Import useAuth
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function Home() {
   return (
@@ -53,7 +54,7 @@ function HomeContent() {
 
     try {
       // Add batch to backend
-      await axios.post("http://localhost:5000/batches", {
+      await axios.post(`${BACKEND_URL}/batches`, {
         year: yearValue,
       });
 
