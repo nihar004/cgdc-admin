@@ -2205,7 +2205,7 @@ export default function EditStudentModel() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Father's Name
+                  Father&apos;s Name
                 </label>
                 <input
                   type="text"
@@ -2217,7 +2217,7 @@ export default function EditStudentModel() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Father's Mobile
+                  Father&apos;s Mobile
                 </label>
                 <input
                   type="tel"
@@ -2229,7 +2229,7 @@ export default function EditStudentModel() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Father's Email
+                  Father&apos;s Email
                 </label>
                 <input
                   type="email"
@@ -2245,7 +2245,7 @@ export default function EditStudentModel() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mother's Name
+                  Mother&apos;s Name
                 </label>
                 <input
                   type="text"
@@ -2257,7 +2257,7 @@ export default function EditStudentModel() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mother's Mobile
+                  Mother&apos;s Mobile
                 </label>
                 <input
                   type="tel"
