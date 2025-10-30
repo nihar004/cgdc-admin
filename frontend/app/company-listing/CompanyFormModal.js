@@ -76,7 +76,7 @@ const CompanyFormModal = ({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const specializations = ["CSE", "ECE", "ME"];
+  const specializations = ["CSE", "E.Com", "ME"];
 
   const sectors = [
     {

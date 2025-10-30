@@ -41,7 +41,7 @@ const ComposeEmailContent = () => {
   const [activeTemplateCategory, setActiveTemplateCategory] = useState("");
   const [availableBatches, setAvailableBatches] = useState([]);
 
-  const availableBranches = ["CSE", "ECE", "ME"];
+  const availableBranches = ["CSE", "E.Com", "ME"];
 
   // Group templates by category
   const groupedTemplates = useMemo(() => {

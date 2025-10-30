@@ -354,8 +354,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
       student.registration_number
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      student.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.enrollment_number
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase())
@@ -705,7 +704,7 @@ const StudentCard = ({
         </div>
         <div>
           <h3 className="font-semibold text-slate-900 text-lg">
-            {student.first_name} {student.last_name}
+            {student.full_name}
           </h3>
           <div className="text-sm text-slate-500 mt-1 flex items-center gap-4">
             <span>Reg: {student.registration_number}</span>

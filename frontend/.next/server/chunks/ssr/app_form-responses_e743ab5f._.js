@@ -22,7 +22,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const UploadModal = ({ selectedForm, setShowUploadModal, fetchForms })=>{
     const [file, setFile] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [dragActive, setDragActive] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -1475,7 +1475,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const ModernDataViewModal = ({ selectedForm, setShowDataModal })=>{
     const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [pagination, setPagination] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
@@ -2184,7 +2184,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const CreateFormModal = ({ setShowCreateForm, fetchForms, selectedBatch, isEditing = false, formData: initialFormData = null })=>{
     const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(initialFormData ? {
         title: initialFormData.title || "",
@@ -2730,7 +2730,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted })=>{
     const [confirmationText, setConfirmationText] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [isDeleting, setIsDeleting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -3008,25 +3008,25 @@ const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted })=>{
                                                 className: "w-2 h-1 bg-white rounded-full"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                                lineNumber: 127,
+                                                lineNumber: 129,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                            lineNumber: 126,
+                                            lineNumber: 128,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: "Confirmed - ready to delete"
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                            lineNumber: 129,
+                                            lineNumber: 131,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                    lineNumber: 125,
+                                    lineNumber: 127,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
@@ -3046,7 +3046,7 @@ const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted })=>{
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                    lineNumber: 136,
+                                    lineNumber: 138,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3059,14 +3059,14 @@ const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted })=>{
                                                 className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                                lineNumber: 151,
+                                                lineNumber: 153,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Deleting..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                                lineNumber: 152,
+                                                lineNumber: 154,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
@@ -3076,27 +3076,27 @@ const DeleteFormModal = ({ isOpen, onClose, form, onFormDeleted })=>{
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                                lineNumber: 156,
+                                                lineNumber: 158,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Delete Form"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                                lineNumber: 157,
+                                                lineNumber: 159,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                                    lineNumber: 144,
+                                    lineNumber: 146,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/form-responses/DeleteFormModal.js",
-                            lineNumber: 135,
+                            lineNumber: 137,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
@@ -3152,7 +3152,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 ;
 ;
 ;

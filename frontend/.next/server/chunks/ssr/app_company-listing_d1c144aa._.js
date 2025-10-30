@@ -1555,25 +1555,25 @@ const DeleteConfirmationModal = ({ isOpen, onClose, data, type = "company", isDe
                                                 className: "w-2 h-1 bg-white rounded-full"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                                lineNumber: 172,
+                                                lineNumber: 174,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                            lineNumber: 171,
+                                            lineNumber: 173,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: "Confirmed - ready to delete"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                            lineNumber: 174,
+                                            lineNumber: 176,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                    lineNumber: 170,
+                                    lineNumber: 172,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
@@ -1593,7 +1593,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, data, type = "company", isDe
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                    lineNumber: 181,
+                                    lineNumber: 183,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1606,14 +1606,14 @@ const DeleteConfirmationModal = ({ isOpen, onClose, data, type = "company", isDe
                                                 className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                                lineNumber: 196,
+                                                lineNumber: 198,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Deleting..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                                lineNumber: 197,
+                                                lineNumber: 199,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
@@ -1623,7 +1623,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, data, type = "company", isDe
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                                lineNumber: 201,
+                                                lineNumber: 203,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1633,20 +1633,20 @@ const DeleteConfirmationModal = ({ isOpen, onClose, data, type = "company", isDe
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                                lineNumber: 202,
+                                                lineNumber: 204,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                                    lineNumber: 189,
+                                    lineNumber: 191,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/DeleteConfirmationModal.js",
-                            lineNumber: 180,
+                            lineNumber: 182,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
@@ -1687,7 +1687,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 function EmailTargetModal({ company, onClose, onSelect }) {
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const handleSelect = async (type)=>{
@@ -2623,8 +2623,8 @@ const CompanyListing = ()=>{
             label: "CSE"
         },
         {
-            value: "ECE",
-            label: "ECE"
+            value: "E.Com",
+            label: "E.Com"
         },
         {
             value: "ME",

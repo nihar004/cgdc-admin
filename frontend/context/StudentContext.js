@@ -17,8 +17,7 @@ export const StudentProvider = ({ children }) => {
 
   const [studentFormData, setStudentFormData] = useState({
     enrollment_number: "",
-    first_name: "",
-    last_name: "",
+    full_name: "",
     phone: "",
     alternate_phone: "",
     college_email: "",
@@ -55,9 +54,7 @@ export const StudentProvider = ({ children }) => {
   const [updateResults, setUpdateResults] = useState(null);
 
   const formatStudentName = (student) => {
-    return student.last_name
-      ? `${student.first_name} ${student.last_name}`
-      : `${student.first_name}`;
+    return student.full_name || "N/A";
   };
 
   const fetchStudents = async () => {

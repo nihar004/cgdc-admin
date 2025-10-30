@@ -18,7 +18,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const DeleteEventModal = ({ isOpen, onClose, event, isDeleting, onEventDeleted })=>{
     const [confirmationText, setConfirmationText] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [isValid, setIsValid] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -294,25 +294,25 @@ const DeleteEventModal = ({ isOpen, onClose, event, isDeleting, onEventDeleted }
                                                 className: "w-2 h-1 bg-white rounded-full"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                                lineNumber: 133,
+                                                lineNumber: 135,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                            lineNumber: 132,
+                                            lineNumber: 134,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: "Confirmed - ready to delete"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                            lineNumber: 135,
+                                            lineNumber: 137,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                    lineNumber: 131,
+                                    lineNumber: 133,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
@@ -332,7 +332,7 @@ const DeleteEventModal = ({ isOpen, onClose, event, isDeleting, onEventDeleted }
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                    lineNumber: 142,
+                                    lineNumber: 144,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -345,14 +345,14 @@ const DeleteEventModal = ({ isOpen, onClose, event, isDeleting, onEventDeleted }
                                                 className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                                lineNumber: 157,
+                                                lineNumber: 159,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Deleting..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                                lineNumber: 158,
+                                                lineNumber: 160,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
@@ -362,27 +362,27 @@ const DeleteEventModal = ({ isOpen, onClose, event, isDeleting, onEventDeleted }
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                                lineNumber: 162,
+                                                lineNumber: 164,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Delete Event"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                                lineNumber: 163,
+                                                lineNumber: 165,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                                    lineNumber: 150,
+                                    lineNumber: 152,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/DeleteEventModal.js",
-                            lineNumber: 141,
+                            lineNumber: 143,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
@@ -2236,7 +2236,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$BatchContext$2e$j
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 // Update the initial form state to handle backend data format
 function CreateEvent({ onBack, onEventCreated, isEditing = false, eventData = null }) {
     // Helper function to format time from backend format
@@ -3933,7 +3933,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     const [saving, setSaving] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -5200,7 +5200,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$event$2d$and$2d$atten
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 ;
 ;
 ;

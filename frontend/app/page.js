@@ -10,13 +10,14 @@ import {
   FaTable,
   FaUserShield,
   FaTimes,
+  FaChartBar,
 } from "react-icons/fa";
 import { MdEventAvailable, MdTrackChanges } from "react-icons/md";
 import { StudentProvider } from "../context/StudentContext";
 import { useBatchContext } from "../context/BatchContext";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext"; // Import useAuth
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function Home() {
   return (
@@ -54,7 +55,7 @@ function HomeContent() {
 
     try {
       // Add batch to backend
-      await axios.post(`${BACKEND_URL}/batches`, {
+      await axios.post(`${backendUrl}/batches`, {
         year: yearValue,
       });
 
@@ -148,13 +149,13 @@ function HomeContent() {
           },
         ]
       : []),
-    // {
-    //   title: "Analytics Dashboard",
-    //   description: "View placement statistics and comprehensive insights",
-    //   icon: <FaChartBar className="w-5 h-5" />,
-    //   link: "/analytics",
-    //   color: "bg-indigo-500",
-    // },
+    {
+      title: "Analytics Dashboard",
+      description: "View placement statistics and comprehensive insights",
+      icon: <FaChartBar className="w-5 h-5" />,
+      link: "/analytics",
+      color: "bg-indigo-500",
+    },
     // {
     //   title: "Penalty Management",
     //   description: "Manage student penalties, rules and handle appeals",

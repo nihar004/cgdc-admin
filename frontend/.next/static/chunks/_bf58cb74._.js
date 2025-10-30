@@ -20,7 +20,7 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const StudentContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createContext"])();
 const StudentProvider = (param)=>{
     let { children } = param;
@@ -33,8 +33,7 @@ const StudentProvider = (param)=>{
     const { selectedBatch } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$BatchContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useBatchContext"])();
     const [studentFormData, setStudentFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         enrollment_number: "",
-        first_name: "",
-        last_name: "",
+        full_name: "",
         phone: "",
         alternate_phone: "",
         college_email: "",
@@ -69,7 +68,7 @@ const StudentProvider = (param)=>{
     const [importResults, setImportResults] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [updateResults, setUpdateResults] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const formatStudentName = (student)=>{
-        return student.last_name ? "".concat(student.first_name, " ").concat(student.last_name) : "".concat(student.first_name);
+        return student.full_name || "N/A";
     };
     const fetchStudents = async ()=>{
         try {
@@ -126,11 +125,11 @@ const StudentProvider = (param)=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/StudentContext.js",
-        lineNumber: 83,
+        lineNumber: 80,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(StudentProvider, "cSv2VJpHSNaGDZpTDTIjwDhCkIU=", false, function() {
+_s(StudentProvider, "0xjg6pk6XWLXNgTwuqzXfOISQ4c=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$BatchContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useBatchContext"]
     ];
@@ -156,6 +155,964 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 
 var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
+// import { Plus, Edit, X } from "lucide-react";
+// import axios from "axios";
+// import { useState } from "react";
+// import { useStudentContext } from "../../context/StudentContext";
+// import toast from "react-hot-toast";
+// const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+// export default function EditStudentModel() {
+//   const {
+//     showEditStudentModal,
+//     setShowEditStudentModal,
+//     setEditingStudent,
+//     studentFormData,
+//     editingStudent,
+//     setStudentFormData,
+//     setStudents, // Add this
+//     fetchStudents,
+//   } = useStudentContext();
+//   const [formErrors, setFormErrors] = useState({});
+//   const [isLoading, setIsLoading] = useState(false);
+//   const handleInputChange = (e) => {
+//     const { name, value } = e.target;
+//     setStudentFormData((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//     // Clear error when user starts typing
+//     if (formErrors[name]) {
+//       setFormErrors((prev) => ({
+//         ...prev,
+//         [name]: "",
+//       }));
+//     }
+//   };
+//   const validateForm = () => {
+//     const errors = {};
+//     if (!studentFormData.first_name.trim())
+//       errors.first_name = "First name is required";
+//     if (!studentFormData.last_name.trim())
+//       errors.last_name = "Last name is required";
+//     if (!studentFormData.enrollment_number.trim())
+//       errors.enrollment_number = "Enrollment number is required";
+//     if (!studentFormData.registration_number.trim())
+//       errors.registration_number = "Registration number is required";
+//     if (!studentFormData.college_email.trim())
+//       errors.college_email = "College email is required";
+//     if (!studentFormData.phone.trim())
+//       errors.phone = "Phone number is required";
+//     if (!studentFormData.department.trim())
+//       errors.department = "Department is required";
+//     if (!studentFormData.branch.trim()) errors.branch = "Branch is required";
+//     // Email validation
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (
+//       studentFormData.college_email &&
+//       !emailRegex.test(studentFormData.college_email)
+//     ) {
+//       errors.college_email = "Invalid email format";
+//     }
+//     if (
+//       studentFormData.personal_email &&
+//       !emailRegex.test(studentFormData.personal_email)
+//     ) {
+//       errors.personal_email = "Invalid email format";
+//     }
+//     // Phone validation
+//     if (studentFormData.phone && !/^\d{10}$/.test(studentFormData.phone)) {
+//       errors.phone = "Phone must be 10 digits";
+//     }
+//     return errors;
+//   };
+//   const resetForm = () => {
+//     setStudentFormData({
+//       enrollment_number: "",
+//       first_name: "",
+//       last_name: "",
+//       phone: "",
+//       alternate_phone: "",
+//       college_email: "",
+//       personal_email: "",
+//       department: "",
+//       branch: "",
+//       batch_year: new Date().getFullYear(),
+//       current_semester: 1,
+//       cgpa: "",
+//       backlogs: 0,
+//       resume_url: "",
+//       linkedin_url: "",
+//       github_url: "",
+//       date_of_birth: "",
+//       gender: "",
+//       registration_number: "",
+//       class_10_percentage: "",
+//       class_12_percentage: "",
+//       permanent_address: "",
+//       permanent_city: "",
+//       permanent_state: "",
+//       ps2_company_name: "",
+//       ps2_project_title: "",
+//       ps2_certificate_url: "",
+//       placement_status: "eligible",
+//     });
+//     setFormErrors({});
+//   };
+//   const handleUpdateStudent = async () => {
+//     const errors = validateForm();
+//     if (Object.keys(errors).length > 0) {
+//       setFormErrors(errors);
+//       return;
+//     }
+//     setIsLoading(true);
+//     try {
+//       // Format data for API
+//       const studentToUpdate = {
+//         ...studentFormData,
+//         cgpa: studentFormData.cgpa ? parseFloat(studentFormData.cgpa) : null,
+//         class_10_percentage: studentFormData.class_10_percentage
+//           ? parseFloat(studentFormData.class_10_percentage)
+//           : null,
+//         class_12_percentage: studentFormData.class_12_percentage
+//           ? parseFloat(studentFormData.class_12_percentage)
+//           : null,
+//         backlogs: parseInt(studentFormData.backlogs) || 0,
+//         current_semester: parseInt(studentFormData.current_semester) || 1,
+//         batch_year: parseInt(studentFormData.batch_year),
+//         date_of_birth: studentFormData.date_of_birth
+//           ? new Date(studentFormData.date_of_birth).toISOString()
+//           : null,
+//       };
+//       const response = await axios.put(
+//         `${backendUrl}/students/update/${editingStudent.id}`,
+//         studentToUpdate
+//       );
+//       if (response.status === 200) {
+//         // Update local state
+//         setStudents((prev) =>
+//           prev.map((s) => (s.id === editingStudent.id ? response.data : s))
+//         );
+//         // Reset form and close modal
+//         resetForm();
+//         setEditingStudent(null);
+//         setShowEditStudentModal(false);
+//         // Show success toast
+//         toast.success("Student updated successfully!", {
+//           duration: 4000,
+//           position: "top-right",
+//         });
+//         // Refresh the data
+//         await fetchStudents();
+//         // Optional: Scroll to top smoothly
+//         window.scrollTo({ top: 0, behavior: "smooth" });
+//       }
+//     } catch (error) {
+//       console.error("Error updating student:", error);
+//       if (error.response) {
+//         // Handle specific HTTP error codes
+//         switch (error.response.status) {
+//           case 404:
+//             toast.error("Student not found. Please refresh the page.");
+//             break;
+//           case 400:
+//             toast.error("Invalid data provided. Please check your inputs.");
+//             break;
+//           case 500:
+//             toast.error("Server error. Please try again later.");
+//             break;
+//           default:
+//             toast.error(
+//               `Error updating student: ${
+//                 error.response.data.message || "Unknown error"
+//               }`
+//             );
+//         }
+//       } else if (error.request) {
+//         // Network error
+//         toast.error("Network error. Please check your connection.");
+//       } else {
+//         toast.error("Error updating student. Please try again.");
+//       }
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+//   return (
+//     <div className="fixed h-full inset-0 bg-gradient-to-br from-blue-900/20 via-indigo-900/30 to-purple-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+//       <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 w-full max-w-6xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-out">
+//         {/* Header */}
+//         <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200/50">
+//           <div>
+//             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-3">
+//               <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white shadow-lg">
+//                 {showEditStudentModal ? (
+//                   <Edit className="h-6 w-6" />
+//                 ) : (
+//                   <Plus className="h-6 w-6" />
+//                 )}
+//               </div>
+//               {showEditStudentModal ? "Edit Student" : "Add New Student"}
+//             </h2>
+//             <p className="text-gray-500 mt-2 ml-14">
+//               {showEditStudentModal
+//                 ? "Update student information"
+//                 : "Enter student details to add to the database"}
+//             </p>
+//           </div>
+//           <button
+//             onClick={() => {
+//               setShowEditStudentModal(false);
+//               setEditingStudent(null);
+//               resetForm();
+//             }}
+//             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100/50 rounded-xl transition-all duration-200 group"
+//           >
+//             <X className="h-6 w-6 group-hover:rotate-90 transition-transform duration-200" />
+//           </button>
+//         </div>
+//         <form
+//           onSubmit={(e) => {
+//             e.preventDefault();
+//             showEditStudentModal && handleUpdateStudent();
+//           }}
+//         >
+//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+//             {/* Left Column - Personal & Contact Information */}
+//             <div className="space-y-8">
+//               {/* Personal Information */}
+//               <div className="space-y-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/50 rounded-xl">
+//                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3 pb-3 border-b border-blue-200/50">
+//                   <div className="p-2 bg-blue-500 rounded-lg">
+//                     <svg
+//                       className="h-4 w-4 text-white"
+//                       fill="none"
+//                       stroke="currentColor"
+//                       viewBox="0 0 24 24"
+//                     >
+//                       <path
+//                         strokeLinecap="round"
+//                         strokeLinejoin="round"
+//                         strokeWidth={2}
+//                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+//                       />
+//                     </svg>
+//                   </div>
+//                   Personal Information
+//                 </h3>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       First Name *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="first_name"
+//                       value={studentFormData.first_name}
+//                       onChange={handleInputChange}
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ${
+//                         formErrors.first_name
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"
+//                       }`}
+//                       placeholder="Enter first name"
+//                     />
+//                     {formErrors.first_name && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.first_name}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Last Name *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="last_name"
+//                       value={studentFormData.last_name}
+//                       onChange={handleInputChange}
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ${
+//                         formErrors.last_name
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"
+//                       }`}
+//                       placeholder="Enter last name"
+//                     />
+//                     {formErrors.last_name && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.last_name}
+//                       </p>
+//                     )}
+//                   </div>
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Date of Birth
+//                     </label>
+//                     <input
+//                       type="date"
+//                       name="date_of_birth"
+//                       value={studentFormData.date_of_birth}
+//                       onChange={handleInputChange}
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Gender
+//                     </label>
+//                     <select
+//                       name="gender"
+//                       value={studentFormData.gender}
+//                       onChange={handleInputChange}
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 bg-white/70"
+//                     >
+//                       <option value="">Select Gender</option>
+//                       <option value="Male">Male</option>
+//                       <option value="Female">Female</option>
+//                       <option value="Other">Other</option>
+//                     </select>
+//                   </div>
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Phone Number *
+//                     </label>
+//                     <input
+//                       type="tel"
+//                       name="phone"
+//                       value={studentFormData.phone}
+//                       onChange={handleInputChange}
+//                       placeholder="10-digit number"
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ${
+//                         formErrors.phone
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"
+//                       }`}
+//                     />
+//                     {formErrors.phone && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.phone}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Alternate Phone
+//                     </label>
+//                     <input
+//                       type="tel"
+//                       name="alternate_phone"
+//                       value={studentFormData.alternate_phone}
+//                       onChange={handleInputChange}
+//                       placeholder="10-digit number"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                 </div>
+//                 <div>
+//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                     College Email *
+//                   </label>
+//                   <input
+//                     type="email"
+//                     name="college_email"
+//                     value={studentFormData.college_email}
+//                     onChange={handleInputChange}
+//                     placeholder="student@college.edu"
+//                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ${
+//                       formErrors.college_email
+//                         ? "border-red-400 bg-red-50/50"
+//                         : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"
+//                     }`}
+//                   />
+//                   {formErrors.college_email && (
+//                     <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                       <svg
+//                         className="h-3 w-3"
+//                         fill="currentColor"
+//                         viewBox="0 0 20 20"
+//                       >
+//                         <path
+//                           fillRule="evenodd"
+//                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                           clipRule="evenodd"
+//                         />
+//                       </svg>
+//                       {formErrors.college_email}
+//                     </p>
+//                   )}
+//                 </div>
+//                 <div>
+//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                     Personal Email
+//                   </label>
+//                   <input
+//                     type="email"
+//                     name="personal_email"
+//                     value={studentFormData.personal_email}
+//                     onChange={handleInputChange}
+//                     placeholder="personal@email.com"
+//                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ${
+//                       formErrors.personal_email
+//                         ? "border-red-400 bg-red-50/50"
+//                         : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"
+//                     }`}
+//                   />
+//                   {formErrors.personal_email && (
+//                     <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                       <svg
+//                         className="h-3 w-3"
+//                         fill="currentColor"
+//                         viewBox="0 0 20 20"
+//                       >
+//                         <path
+//                           fillRule="evenodd"
+//                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                           clipRule="evenodd"
+//                         />
+//                       </svg>
+//                       {formErrors.personal_email}
+//                     </p>
+//                   )}
+//                 </div>
+//               </div>
+//               {/* Address Information */}
+//               <div className="space-y-6 p-6 bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200/50 rounded-xl">
+//                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3 pb-3 border-b border-emerald-200/50">
+//                   <div className="p-2 bg-emerald-500 rounded-lg">
+//                     <svg
+//                       className="h-4 w-4 text-white"
+//                       fill="none"
+//                       stroke="currentColor"
+//                       viewBox="0 0 24 24"
+//                     >
+//                       <path
+//                         strokeLinecap="round"
+//                         strokeLinejoin="round"
+//                         strokeWidth={2}
+//                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+//                       />
+//                       <path
+//                         strokeLinecap="round"
+//                         strokeLinejoin="round"
+//                         strokeWidth={2}
+//                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+//                       />
+//                     </svg>
+//                   </div>
+//                   Address Information
+//                 </h3>
+//                 <div>
+//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                     Permanent Address
+//                   </label>
+//                   <textarea
+//                     name="permanent_address"
+//                     value={studentFormData.permanent_address}
+//                     onChange={handleInputChange}
+//                     rows="3"
+//                     placeholder="Enter complete address"
+//                     className="w-full px-4 py-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 bg-white/70 resize-none"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       City
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="permanent_city"
+//                       value={studentFormData.permanent_city}
+//                       onChange={handleInputChange}
+//                       placeholder="Enter city"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       State
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="permanent_state"
+//                       value={studentFormData.permanent_state}
+//                       onChange={handleInputChange}
+//                       placeholder="Enter state"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//             {/* Right Column - Academic & Professional Information */}
+//             <div className="space-y-8">
+//               {/* Academic Information */}
+//               <div className="space-y-6 p-6 bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200/50 rounded-xl">
+//                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3 pb-3 border-b border-purple-200/50">
+//                   <div className="p-2 bg-purple-500 rounded-lg">
+//                     <svg
+//                       className="h-4 w-4 text-white"
+//                       fill="none"
+//                       stroke="currentColor"
+//                       viewBox="0 0 24 24"
+//                     >
+//                       <path
+//                         strokeLinecap="round"
+//                         strokeLinejoin="round"
+//                         strokeWidth={2}
+//                         d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+//                       />
+//                     </svg>
+//                   </div>
+//                   Academic Information
+//                 </h3>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Enrollment Number *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="enrollment_number"
+//                       value={studentFormData.enrollment_number}
+//                       onChange={handleInputChange}
+//                       placeholder="ENR123456"
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ${
+//                         formErrors.enrollment_number
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70"
+//                       }`}
+//                     />
+//                     {formErrors.enrollment_number && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.enrollment_number}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Registration Number *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="registration_number"
+//                       value={studentFormData.registration_number}
+//                       onChange={handleInputChange}
+//                       placeholder="REG123456"
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ${
+//                         formErrors.registration_number
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70"
+//                       }`}
+//                     />
+//                     {formErrors.registration_number && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.registration_number}
+//                       </p>
+//                     )}
+//                   </div>
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Department *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="department"
+//                       value={studentFormData.department}
+//                       onChange={handleInputChange}
+//                       placeholder="e.g., B.Tech"
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ${
+//                         formErrors.department
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70"
+//                       }`}
+//                     />
+//                     {formErrors.department && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.department}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Branch *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="branch"
+//                       value={studentFormData.branch}
+//                       onChange={handleInputChange}
+//                       placeholder="e.g., CSE, IT, ECE"
+//                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ${
+//                         formErrors.branch
+//                           ? "border-red-400 bg-red-50/50"
+//                           : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70"
+//                       }`}
+//                     />
+//                     {formErrors.branch && (
+//                       <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+//                         <svg
+//                           className="h-3 w-3"
+//                           fill="currentColor"
+//                           viewBox="0 0 20 20"
+//                         >
+//                           <path
+//                             fillRule="evenodd"
+//                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+//                             clipRule="evenodd"
+//                           />
+//                         </svg>
+//                         {formErrors.branch}
+//                       </p>
+//                     )}
+//                   </div>
+//                 </div>
+//                 <div className="grid grid-cols-3 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Batch Year
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="batch_year"
+//                       value={studentFormData.batch_year}
+//                       onChange={handleInputChange}
+//                       min="2020"
+//                       max="2030"
+//                       placeholder="2024"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Current Semester
+//                     </label>
+//                     <select
+//                       name="current_semester"
+//                       value={studentFormData.current_semester}
+//                       onChange={handleInputChange}
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
+//                     >
+//                       <option value="" key="default">
+//                         Select
+//                       </option>
+//                       {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+//                         <option key={`sem-${sem}`} value={sem}>
+//                           Semester {sem}
+//                         </option>
+//                       ))}
+//                     </select>
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       CGPA
+//                     </label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       max="10"
+//                       name="cgpa"
+//                       value={studentFormData.cgpa}
+//                       onChange={handleInputChange}
+//                       placeholder="0.00"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                 </div>
+//                 <div className="grid grid-cols-3 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       10th Percentage
+//                     </label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       max="100"
+//                       name="class_10_percentage"
+//                       value={studentFormData.class_10_percentage}
+//                       onChange={handleInputChange}
+//                       placeholder="85.5"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       12th Percentage
+//                     </label>
+//                     <input
+//                       type="number"
+//                       step="0.01"
+//                       min="0"
+//                       max="100"
+//                       name="class_12_percentage"
+//                       value={studentFormData.class_12_percentage}
+//                       onChange={handleInputChange}
+//                       placeholder="88.2"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       Backlogs
+//                     </label>
+//                     <input
+//                       type="number"
+//                       min="0"
+//                       name="backlogs"
+//                       value={studentFormData.backlogs}
+//                       onChange={handleInputChange}
+//                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+//                     />
+//                   </div>
+//                 </div>
+//               </div>
+//               {/* Professional Information */}
+//               <div className="space-y-6 p-6 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200/50 rounded-xl">
+//                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3 pb-3 border-b border-orange-200/50">
+//                   <div className="p-2 bg-orange-500 rounded-lg">
+//                     <svg
+//                       className="h-4 w-4 text-white"
+//                       fill="none"
+//                       stroke="currentColor"
+//                       viewBox="0 0 24 24"
+//                     >
+//                       <path
+//                         strokeLinecap="round"
+//                         strokeLinejoin="round"
+//                         strokeWidth={2}
+//                         d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
+//                       />
+//                     </svg>
+//                   </div>
+//                   Professional Information
+//                 </h3>
+//                 <div>
+//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                     Resume URL
+//                   </label>
+//                   <input
+//                     type="url"
+//                     name="resume_url"
+//                     value={studentFormData.resume_url}
+//                     onChange={handleInputChange}
+//                     placeholder="https://drive.google.com/file/..."
+//                     className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       LinkedIn URL
+//                     </label>
+//                     <input
+//                       type="url"
+//                       name="linkedin_url"
+//                       value={studentFormData.linkedin_url}
+//                       onChange={handleInputChange}
+//                       placeholder="https://linkedin.com/in/..."
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       GitHub URL
+//                     </label>
+//                     <input
+//                       type="url"
+//                       name="github_url"
+//                       value={studentFormData.github_url}
+//                       onChange={handleInputChange}
+//                       placeholder="https://github.com/..."
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       PS2 Company
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="ps2_company_name"
+//                       value={studentFormData.ps2_company_name}
+//                       onChange={handleInputChange}
+//                       placeholder="Company name"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                       PS2 Project Title
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="ps2_project_title"
+//                       value={studentFormData.ps2_project_title}
+//                       onChange={handleInputChange}
+//                       placeholder="Project title"
+//                       className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                     />
+//                   </div>
+//                 </div>
+//                 <div>
+//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                     PS2 Certificate URL
+//                   </label>
+//                   <input
+//                     type="url"
+//                     name="ps2_certificate_url"
+//                     value={studentFormData.ps2_certificate_url}
+//                     onChange={handleInputChange}
+//                     placeholder="https://certificate-url.com/..."
+//                     className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                   />
+//                 </div>
+//                 <div>
+//                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+//                     Placement Status
+//                   </label>
+//                   <select
+//                     name="placement_status"
+//                     value={studentFormData.placement_status}
+//                     onChange={handleInputChange}
+//                     className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
+//                   >
+//                     <option value="placed" key="placed">
+//                       Placed
+//                     </option>
+//                     <option value="unplaced" key="unplaced">
+//                       Unplaced
+//                     </option>
+//                     <option value="higher_studies" key="higher_studies">
+//                       Higher Studies
+//                     </option>
+//                     <option value="entrepreneurship" key="entrepreneurship">
+//                       Entrepreneurship
+//                     </option>
+//                     <option value="family_business" key="family_business">
+//                       Family Business
+//                     </option>
+//                     <option value="debarred" key="debarred">
+//                       Debarred
+//                     </option>
+//                     <option value="others" key="others">
+//                       Others
+//                     </option>
+//                   </select>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//           {/* Action Buttons */}
+//           <div className="flex justify-end space-x-4 pt-8 mt-8 border-t border-gray-200/50">
+//             <button
+//               type="button"
+//               onClick={() => {
+//                 setShowEditStudentModal(false);
+//                 setEditingStudent(null);
+//                 resetForm();
+//               }}
+//               className="px-8 py-3 text-gray-600 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+//             >
+//               Cancel
+//             </button>
+//             <button
+//               type="submit"
+//               disabled={isLoading}
+//               className={`px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 flex items-center space-x-3 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 ${
+//                 isLoading ? "opacity-50 cursor-not-allowed" : ""
+//               }`}
+//             >
+//               <div className="p-1 bg-white/20 rounded-lg">
+//                 {showEditStudentModal ? (
+//                   <Edit className="h-4 w-4" />
+//                 ) : (
+//                   <Plus className="h-4 w-4" />
+//                 )}
+//               </div>
+//               <span>{isLoading ? "Updating..." : "Update Student"}</span>
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
 __turbopack_context__.s({
     "default": ()=>EditStudentModel
 });
@@ -168,6 +1125,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/StudentContext.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hot-toast/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$dayjs$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/dayjs/dayjs.min.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$plugin$2f$utc$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/dayjs/plugin/utc.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$plugin$2f$timezone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/dayjs/plugin/timezone.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 ;
@@ -175,12 +1135,93 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
+;
+;
+;
+// Add these plugins to dayjs
+__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$dayjs$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].extend(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$plugin$2f$utc$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]);
+__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$dayjs$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].extend(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$plugin$2f$timezone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]);
 function EditStudentModel() {
     _s();
     const { showEditStudentModal, setShowEditStudentModal, setEditingStudent, studentFormData, editingStudent, setStudentFormData, setStudents, fetchStudents } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"])();
     const [formErrors, setFormErrors] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    // Add new state for specializations
+    const [specializations, setSpecializations] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [showAddSpecialization, setShowAddSpecialization] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [newSpecialization, setNewSpecialization] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    // Update the useEffect where initial data is set
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "EditStudentModel.useEffect": ()=>{
+            if (editingStudent) {
+                setStudentFormData({
+                    ...editingStudent,
+                    specialization: editingStudent.specialization_id || "",
+                    enrollment_number: editingStudent.enrollment_number || "",
+                    full_name: editingStudent.full_name || "",
+                    phone: editingStudent.phone || "",
+                    alternate_phone: editingStudent.alternate_phone || "",
+                    college_email: editingStudent.college_email || "",
+                    personal_email: editingStudent.personal_email || "",
+                    department: editingStudent.department || "",
+                    branch: editingStudent.branch || "",
+                    batch_year: editingStudent.batch_year || new Date().getFullYear(),
+                    current_semester: editingStudent.current_semester || "",
+                    cgpa: editingStudent.cgpa || "",
+                    backlogs: editingStudent.backlogs || 0,
+                    resume_url: editingStudent.resume_url || "",
+                    linkedin_url: editingStudent.linkedin_url || "",
+                    github_url: editingStudent.github_url || "",
+                    date_of_birth: editingStudent.date_of_birth && (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$dayjs$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"])(editingStudent.date_of_birth).isValid() ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$dayjs$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"])(editingStudent.date_of_birth).format("YYYY-MM-DD") : "",
+                    gender: editingStudent.gender || "",
+                    registration_number: editingStudent.registration_number || "",
+                    class_10_percentage: editingStudent.class_10_percentage || "",
+                    class_12_percentage: editingStudent.class_12_percentage || "",
+                    permanent_address: editingStudent.permanent_address || "",
+                    permanent_city: editingStudent.permanent_city || "",
+                    permanent_state: editingStudent.permanent_state || "",
+                    ps2_company_name: editingStudent.ps2_company_name || "",
+                    ps2_project_title: editingStudent.ps2_project_title || "",
+                    placement_status: editingStudent.placement_status || "eligible",
+                    father_name: editingStudent.father_name || "",
+                    father_mobile: editingStudent.father_mobile || "",
+                    father_email: editingStudent.father_email || "",
+                    mother_name: editingStudent.mother_name || "",
+                    mother_mobile: editingStudent.mother_mobile || "",
+                    aadhar_number: editingStudent.aadhar_number || "",
+                    pan_number: editingStudent.pan_number || "",
+                    domicile_state: editingStudent.domicile_state || "",
+                    board_10_name: editingStudent.board_10_name || "",
+                    board_10_passing_year: editingStudent.board_10_passing_year || "",
+                    board_12_name: editingStudent.board_12_name || "",
+                    board_12_passing_year: editingStudent.board_12_passing_year || ""
+                });
+            }
+        }
+    }["EditStudentModel.useEffect"], [
+        editingStudent,
+        setStudentFormData
+    ]); // Add setStudentFormData to dependency array
+    // Add this useEffect to fetch specializations
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "EditStudentModel.useEffect": ()=>{
+            const fetchSpecializations = {
+                "EditStudentModel.useEffect.fetchSpecializations": async ()=>{
+                    try {
+                        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("".concat(backendUrl, "/students/specializations"));
+                        if (response.data) {
+                            setSpecializations(response.data);
+                        }
+                    } catch (error) {
+                        console.error("Error fetching specializations:", error);
+                        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].error("Failed to load specializations");
+                    }
+                }
+            }["EditStudentModel.useEffect.fetchSpecializations"];
+            fetchSpecializations();
+        }
+    }["EditStudentModel.useEffect"], []);
     const handleInputChange = (e)=>{
         const { name, value } = e.target;
         setStudentFormData((prev)=>({
@@ -197,9 +1238,7 @@ function EditStudentModel() {
     };
     const validateForm = ()=>{
         const errors = {};
-        if (!studentFormData.first_name.trim()) errors.first_name = "First name is required";
-        if (!studentFormData.last_name.trim()) errors.last_name = "Last name is required";
-        if (!studentFormData.enrollment_number.trim()) errors.enrollment_number = "Enrollment number is required";
+        if (!studentFormData.full_name.trim()) errors.full_name = "Name is required";
         if (!studentFormData.registration_number.trim()) errors.registration_number = "Registration number is required";
         if (!studentFormData.college_email.trim()) errors.college_email = "College email is required";
         if (!studentFormData.phone.trim()) errors.phone = "Phone number is required";
@@ -219,39 +1258,52 @@ function EditStudentModel() {
         }
         return errors;
     };
+    const initialFormState = {
+        enrollment_number: "",
+        full_name: "",
+        phone: "",
+        alternate_phone: "",
+        college_email: "",
+        personal_email: "",
+        department: "",
+        branch: "",
+        batch_year: new Date().getFullYear(),
+        current_semester: "",
+        cgpa: "",
+        backlogs: "0",
+        resume_url: "",
+        linkedin_url: "",
+        github_url: "",
+        date_of_birth: "",
+        gender: "",
+        registration_number: "",
+        class_10_percentage: "",
+        class_12_percentage: "",
+        permanent_address: "",
+        permanent_city: "",
+        permanent_state: "",
+        ps2_company_name: "",
+        ps2_project_title: "",
+        placement_status: "eligible",
+        father_name: "",
+        father_mobile: "",
+        father_email: "",
+        mother_name: "",
+        mother_mobile: "",
+        aadhar_number: "",
+        pan_number: "",
+        domicile_state: "",
+        board_10_name: "",
+        board_10_passing_year: "",
+        board_12_name: "",
+        board_12_passing_year: "",
+        specialization: ""
+    };
     const resetForm = ()=>{
-        setStudentFormData({
-            enrollment_number: "",
-            first_name: "",
-            last_name: "",
-            phone: "",
-            alternate_phone: "",
-            college_email: "",
-            personal_email: "",
-            department: "",
-            branch: "",
-            batch_year: new Date().getFullYear(),
-            current_semester: 1,
-            cgpa: "",
-            backlogs: 0,
-            resume_url: "",
-            linkedin_url: "",
-            github_url: "",
-            date_of_birth: "",
-            gender: "",
-            registration_number: "",
-            class_10_percentage: "",
-            class_12_percentage: "",
-            permanent_address: "",
-            permanent_city: "",
-            permanent_state: "",
-            ps2_company_name: "",
-            ps2_project_title: "",
-            ps2_certificate_url: "",
-            placement_status: "eligible"
-        });
+        setStudentFormData(initialFormState);
         setFormErrors({});
     };
+    // Update the handleUpdateStudent function
     const handleUpdateStudent = async ()=>{
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
@@ -260,16 +1312,20 @@ function EditStudentModel() {
         }
         setIsLoading(true);
         try {
-            // Format data for API
             const studentToUpdate = {
                 ...studentFormData,
+                // Convert specialization ID to number if it exists
+                specialization_id: studentFormData.specialization ? parseInt(studentFormData.specialization) : null,
+                date_of_birth: studentFormData.date_of_birth || null,
                 cgpa: studentFormData.cgpa ? parseFloat(studentFormData.cgpa) : null,
                 class_10_percentage: studentFormData.class_10_percentage ? parseFloat(studentFormData.class_10_percentage) : null,
                 class_12_percentage: studentFormData.class_12_percentage ? parseFloat(studentFormData.class_12_percentage) : null,
                 backlogs: parseInt(studentFormData.backlogs) || 0,
                 current_semester: parseInt(studentFormData.current_semester) || 1,
                 batch_year: parseInt(studentFormData.batch_year),
-                date_of_birth: studentFormData.date_of_birth ? new Date(studentFormData.date_of_birth).toISOString() : null
+                resume_url: studentFormData.resume_url || null,
+                linkedin_url: studentFormData.linkedin_url || null,
+                github_url: studentFormData.github_url || null
             };
             const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put("".concat(backendUrl, "/students/update/").concat(editingStudent.id), studentToUpdate);
             if (response.status === 200) {
@@ -319,6 +1375,37 @@ function EditStudentModel() {
             setIsLoading(false);
         }
     };
+    // Update the handleAddSpecialization function
+    const handleAddSpecialization = async ()=>{
+        if (!newSpecialization.trim()) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].error("Please enter a specialization name");
+            return;
+        }
+        try {
+            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("".concat(backendUrl, "/students/specializations"), {
+                name: newSpecialization.trim()
+            });
+            if (response.data.success) {
+                // Update specializations list with new entry
+                const specsResponse = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("".concat(backendUrl, "/students/specializations"));
+                setSpecializations(specsResponse.data);
+                // Set the new specialization as selected
+                setStudentFormData((prev)=>({
+                        ...prev,
+                        specialization: response.data.specialization.id
+                    }));
+                // Reset form state
+                setNewSpecialization("");
+                setShowAddSpecialization(false);
+                // Show success message
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].success("Added new specialization: ".concat(response.data.specialization.name));
+            }
+        } catch (error) {
+            var _error_response_data, _error_response;
+            console.error("Error adding specialization:", error);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].error(((_error_response = error.response) === null || _error_response === void 0 ? void 0 : (_error_response_data = _error_response.data) === null || _error_response_data === void 0 ? void 0 : _error_response_data.message) || "Failed to add specialization");
+        }
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "fixed h-full inset-0 bg-gradient-to-br from-blue-900/20 via-indigo-900/30 to-purple-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -338,25 +1425,25 @@ function EditStudentModel() {
                                                 className: "h-6 w-6"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                lineNumber: 211,
+                                                lineNumber: 1349,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                                                 className: "h-6 w-6"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                lineNumber: 213,
+                                                lineNumber: 1351,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 209,
+                                            lineNumber: 1347,
                                             columnNumber: 15
                                         }, this),
                                         showEditStudentModal ? "Edit Student" : "Add New Student"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                    lineNumber: 208,
+                                    lineNumber: 1346,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -364,13 +1451,13 @@ function EditStudentModel() {
                                     children: showEditStudentModal ? "Update student information" : "Enter student details to add to the database"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                    lineNumber: 218,
+                                    lineNumber: 1356,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/EditStudentModel.js",
-                            lineNumber: 207,
+                            lineNumber: 1345,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -384,18 +1471,18 @@ function EditStudentModel() {
                                 className: "h-6 w-6 group-hover:rotate-90 transition-transform duration-200"
                             }, void 0, false, {
                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                lineNumber: 232,
+                                lineNumber: 1370,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/students/EditStudentModel.js",
-                            lineNumber: 224,
+                            lineNumber: 1362,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/students/EditStudentModel.js",
-                    lineNumber: 206,
+                    lineNumber: 1344,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -430,145 +1517,87 @@ function EditStudentModel() {
                                                                     d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 255,
+                                                                    lineNumber: 1393,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                lineNumber: 249,
+                                                                lineNumber: 1387,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 248,
+                                                            lineNumber: 1386,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Personal Information"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 247,
+                                                    lineNumber: 1385,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "grid grid-cols-2 gap-4",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
-                                                                    children: "First Name *"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 268,
-                                                                    columnNumber: 21
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                    type: "text",
-                                                                    name: "first_name",
-                                                                    value: studentFormData.first_name,
-                                                                    onChange: handleInputChange,
-                                                                    className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ".concat(formErrors.first_name ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"),
-                                                                    placeholder: "Enter first name"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 271,
-                                                                    columnNumber: 21
-                                                                }, this),
-                                                                formErrors.first_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                    className: "text-red-500 text-xs mt-1 flex items-center gap-1",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                                            className: "h-3 w-3",
-                                                                            fill: "currentColor",
-                                                                            viewBox: "0 0 20 20",
-                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                                                fillRule: "evenodd",
-                                                                                d: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z",
-                                                                                clipRule: "evenodd"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 290,
-                                                                                columnNumber: 27
-                                                                            }, this)
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                                children: "First Name *"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                                lineNumber: 1406,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                type: "text",
+                                                                name: "full_name",
+                                                                value: studentFormData.full_name,
+                                                                onChange: handleInputChange,
+                                                                className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ".concat(formErrors.full_name ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"),
+                                                                placeholder: "Enter first name"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                                lineNumber: 1409,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            formErrors.full_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "text-red-500 text-xs mt-1 flex items-center gap-1",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                                                        className: "h-3 w-3",
+                                                                        fill: "currentColor",
+                                                                        viewBox: "0 0 20 20",
+                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                                                            fillRule: "evenodd",
+                                                                            d: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z",
+                                                                            clipRule: "evenodd"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 285,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        formErrors.first_name
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 284,
-                                                                    columnNumber: 23
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 267,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
-                                                                    children: "Last Name *"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 301,
-                                                                    columnNumber: 21
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                    type: "text",
-                                                                    name: "last_name",
-                                                                    value: studentFormData.last_name,
-                                                                    onChange: handleInputChange,
-                                                                    className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ".concat(formErrors.last_name ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70"),
-                                                                    placeholder: "Enter last name"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 304,
-                                                                    columnNumber: 21
-                                                                }, this),
-                                                                formErrors.last_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                    className: "text-red-500 text-xs mt-1 flex items-center gap-1",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                                            className: "h-3 w-3",
-                                                                            fill: "currentColor",
-                                                                            viewBox: "0 0 20 20",
-                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                                                fillRule: "evenodd",
-                                                                                d: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z",
-                                                                                clipRule: "evenodd"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 323,
-                                                                                columnNumber: 27
-                                                                            }, this)
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 318,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        formErrors.last_name
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 317,
-                                                                    columnNumber: 23
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 300,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
+                                                                            lineNumber: 1428,
+                                                                            columnNumber: 27
+                                                                        }, this)
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/students/EditStudentModel.js",
+                                                                        lineNumber: 1423,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    formErrors.full_name
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                                lineNumber: 1422,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/students/EditStudentModel.js",
+                                                        lineNumber: 1405,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                }, void 0, false, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 266,
+                                                    lineNumber: 1404,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -581,24 +1610,25 @@ function EditStudentModel() {
                                                                     children: "Date of Birth"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 337,
+                                                                    lineNumber: 1442,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                                     type: "date",
                                                                     name: "date_of_birth",
-                                                                    value: studentFormData.date_of_birth,
+                                                                    value: studentFormData.date_of_birth ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$dayjs$2f$dayjs$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"])(studentFormData.date_of_birth)// .add(1, "day")
+                                                                    .format("YYYY-MM-DD") : "",
                                                                     onChange: handleInputChange,
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 340,
+                                                                    lineNumber: 1445,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 336,
+                                                            lineNumber: 1441,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -608,7 +1638,7 @@ function EditStudentModel() {
                                                                     children: "Gender"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 349,
+                                                                    lineNumber: 1460,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -622,7 +1652,7 @@ function EditStudentModel() {
                                                                             children: "Select Gender"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 358,
+                                                                            lineNumber: 1469,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -630,7 +1660,7 @@ function EditStudentModel() {
                                                                             children: "Male"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 359,
+                                                                            lineNumber: 1470,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -638,7 +1668,7 @@ function EditStudentModel() {
                                                                             children: "Female"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 360,
+                                                                            lineNumber: 1471,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -646,25 +1676,25 @@ function EditStudentModel() {
                                                                             children: "Other"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 361,
+                                                                            lineNumber: 1472,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 352,
+                                                                    lineNumber: 1463,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 348,
+                                                            lineNumber: 1459,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 335,
+                                                    lineNumber: 1440,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -677,7 +1707,7 @@ function EditStudentModel() {
                                                                     children: "Phone Number *"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 368,
+                                                                    lineNumber: 1479,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -689,7 +1719,7 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ".concat(formErrors.phone ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70")
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 371,
+                                                                    lineNumber: 1482,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 formErrors.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -705,25 +1735,25 @@ function EditStudentModel() {
                                                                                 clipRule: "evenodd"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 390,
+                                                                                lineNumber: 1501,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 385,
+                                                                            lineNumber: 1496,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         formErrors.phone
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 384,
+                                                                    lineNumber: 1495,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 367,
+                                                            lineNumber: 1478,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -733,7 +1763,7 @@ function EditStudentModel() {
                                                                     children: "Alternate Phone"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 401,
+                                                                    lineNumber: 1512,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -745,19 +1775,19 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 404,
+                                                                    lineNumber: 1515,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 400,
+                                                            lineNumber: 1511,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 366,
+                                                    lineNumber: 1477,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -767,7 +1797,7 @@ function EditStudentModel() {
                                                             children: "College Email *"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 416,
+                                                            lineNumber: 1527,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -779,7 +1809,7 @@ function EditStudentModel() {
                                                             className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ".concat(formErrors.college_email ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70")
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 419,
+                                                            lineNumber: 1530,
                                                             columnNumber: 19
                                                         }, this),
                                                         formErrors.college_email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -795,25 +1825,25 @@ function EditStudentModel() {
                                                                         clipRule: "evenodd"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/EditStudentModel.js",
-                                                                        lineNumber: 438,
+                                                                        lineNumber: 1549,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 433,
+                                                                    lineNumber: 1544,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 formErrors.college_email
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 432,
+                                                            lineNumber: 1543,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 415,
+                                                    lineNumber: 1526,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -823,7 +1853,7 @@ function EditStudentModel() {
                                                             children: "Personal Email"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 450,
+                                                            lineNumber: 1561,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -835,7 +1865,7 @@ function EditStudentModel() {
                                                             className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 ".concat(formErrors.personal_email ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white/70")
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 453,
+                                                            lineNumber: 1564,
                                                             columnNumber: 19
                                                         }, this),
                                                         formErrors.personal_email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -851,31 +1881,31 @@ function EditStudentModel() {
                                                                         clipRule: "evenodd"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/EditStudentModel.js",
-                                                                        lineNumber: 472,
+                                                                        lineNumber: 1583,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 467,
+                                                                    lineNumber: 1578,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 formErrors.personal_email
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 466,
+                                                            lineNumber: 1577,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 449,
+                                                    lineNumber: 1560,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 246,
+                                            lineNumber: 1384,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -899,7 +1929,7 @@ function EditStudentModel() {
                                                                         d: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/EditStudentModel.js",
-                                                                        lineNumber: 494,
+                                                                        lineNumber: 1605,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -909,25 +1939,25 @@ function EditStudentModel() {
                                                                         d: "M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/EditStudentModel.js",
-                                                                        lineNumber: 500,
+                                                                        lineNumber: 1611,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                lineNumber: 488,
+                                                                lineNumber: 1599,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 487,
+                                                            lineNumber: 1598,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Address Information"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 486,
+                                                    lineNumber: 1597,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -937,25 +1967,25 @@ function EditStudentModel() {
                                                             children: "Permanent Address"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 512,
+                                                            lineNumber: 1623,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
                                                             name: "permanent_address",
-                                                            value: studentFormData.permanent_address,
+                                                            value: studentFormData.permanent_address || "",
                                                             onChange: handleInputChange,
                                                             rows: "3",
                                                             placeholder: "Enter complete address",
                                                             className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 bg-white/70 resize-none"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 515,
+                                                            lineNumber: 1626,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 511,
+                                                    lineNumber: 1622,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -968,7 +1998,7 @@ function EditStudentModel() {
                                                                     children: "City"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 527,
+                                                                    lineNumber: 1638,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -980,13 +2010,13 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 530,
+                                                                    lineNumber: 1641,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 526,
+                                                            lineNumber: 1637,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -996,7 +2026,7 @@ function EditStudentModel() {
                                                                     children: "State"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 540,
+                                                                    lineNumber: 1651,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1008,31 +2038,31 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 543,
+                                                                    lineNumber: 1654,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 539,
+                                                            lineNumber: 1650,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 525,
+                                                    lineNumber: 1636,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 485,
+                                            lineNumber: 1596,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                    lineNumber: 244,
+                                    lineNumber: 1382,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1058,24 +2088,24 @@ function EditStudentModel() {
                                                                     d: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 568,
+                                                                    lineNumber: 1679,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                lineNumber: 562,
+                                                                lineNumber: 1673,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 561,
+                                                            lineNumber: 1672,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Academic Information"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 560,
+                                                    lineNumber: 1671,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1088,7 +2118,7 @@ function EditStudentModel() {
                                                                     children: "Enrollment Number *"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 581,
+                                                                    lineNumber: 1692,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1100,7 +2130,7 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ".concat(formErrors.enrollment_number ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70")
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 584,
+                                                                    lineNumber: 1695,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 formErrors.enrollment_number && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1116,25 +2146,25 @@ function EditStudentModel() {
                                                                                 clipRule: "evenodd"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 603,
+                                                                                lineNumber: 1714,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 598,
+                                                                            lineNumber: 1709,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         formErrors.enrollment_number
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 597,
+                                                                    lineNumber: 1708,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 580,
+                                                            lineNumber: 1691,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1144,7 +2174,7 @@ function EditStudentModel() {
                                                                     children: "Registration Number *"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 614,
+                                                                    lineNumber: 1725,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1156,7 +2186,7 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ".concat(formErrors.registration_number ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70")
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 617,
+                                                                    lineNumber: 1728,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 formErrors.registration_number && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1172,31 +2202,31 @@ function EditStudentModel() {
                                                                                 clipRule: "evenodd"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 636,
+                                                                                lineNumber: 1747,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 631,
+                                                                            lineNumber: 1742,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         formErrors.registration_number
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 630,
+                                                                    lineNumber: 1741,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 613,
+                                                            lineNumber: 1724,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 579,
+                                                    lineNumber: 1690,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1209,7 +2239,7 @@ function EditStudentModel() {
                                                                     children: "Department *"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 650,
+                                                                    lineNumber: 1761,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1221,7 +2251,7 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ".concat(formErrors.department ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70")
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 653,
+                                                                    lineNumber: 1764,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 formErrors.department && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1237,25 +2267,25 @@ function EditStudentModel() {
                                                                                 clipRule: "evenodd"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 672,
+                                                                                lineNumber: 1783,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 667,
+                                                                            lineNumber: 1778,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         formErrors.department
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 666,
+                                                                    lineNumber: 1777,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 649,
+                                                            lineNumber: 1760,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1265,7 +2295,7 @@ function EditStudentModel() {
                                                                     children: "Branch *"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 683,
+                                                                    lineNumber: 1794,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1273,11 +2303,11 @@ function EditStudentModel() {
                                                                     name: "branch",
                                                                     value: studentFormData.branch,
                                                                     onChange: handleInputChange,
-                                                                    placeholder: "e.g., CSE, IT, ECE",
+                                                                    placeholder: "e.g., CSE, IT, E.Com",
                                                                     className: "w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 ".concat(formErrors.branch ? "border-red-400 bg-red-50/50" : "border-gray-200 hover:border-purple-300 focus:border-purple-500 bg-white/70")
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 686,
+                                                                    lineNumber: 1797,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 formErrors.branch && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1293,31 +2323,31 @@ function EditStudentModel() {
                                                                                 clipRule: "evenodd"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 705,
+                                                                                lineNumber: 1816,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 700,
+                                                                            lineNumber: 1811,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         formErrors.branch
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 699,
+                                                                    lineNumber: 1810,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 682,
+                                                            lineNumber: 1793,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 648,
+                                                    lineNumber: 1759,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1330,7 +2360,7 @@ function EditStudentModel() {
                                                                     children: "Batch Year"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 719,
+                                                                    lineNumber: 1830,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1344,13 +2374,13 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 722,
+                                                                    lineNumber: 1833,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 718,
+                                                            lineNumber: 1829,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1360,7 +2390,7 @@ function EditStudentModel() {
                                                                     children: "Current Semester"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 734,
+                                                                    lineNumber: 1845,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1374,7 +2404,7 @@ function EditStudentModel() {
                                                                             children: "Select"
                                                                         }, "default", false, {
                                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                                            lineNumber: 743,
+                                                                            lineNumber: 1854,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         [
@@ -1394,19 +2424,19 @@ function EditStudentModel() {
                                                                                 ]
                                                                             }, "sem-".concat(sem), true, {
                                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                                lineNumber: 747,
+                                                                                lineNumber: 1858,
                                                                                 columnNumber: 25
                                                                             }, this))
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 737,
+                                                                    lineNumber: 1848,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 733,
+                                                            lineNumber: 1844,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1416,7 +2446,7 @@ function EditStudentModel() {
                                                                     children: "CGPA"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 754,
+                                                                    lineNumber: 1865,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1431,19 +2461,19 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 757,
+                                                                    lineNumber: 1868,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 753,
+                                                            lineNumber: 1864,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 717,
+                                                    lineNumber: 1828,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1456,7 +2486,7 @@ function EditStudentModel() {
                                                                     children: "10th Percentage"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 773,
+                                                                    lineNumber: 1884,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1471,15 +2501,81 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 776,
+                                                                    lineNumber: 1887,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 772,
+                                                            lineNumber: 1883,
                                                             columnNumber: 19
                                                         }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                                    children: "10th Board"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1900,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                    type: "text",
+                                                                    name: "board_10_name",
+                                                                    value: studentFormData.board_10_name,
+                                                                    onChange: handleInputChange,
+                                                                    placeholder: "e.g., CBSE",
+                                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1903,
+                                                                    columnNumber: 21
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1899,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                                    children: "10th Passing Year"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1913,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                    type: "number",
+                                                                    name: "board_10_passing_year",
+                                                                    value: studentFormData.board_10_passing_year,
+                                                                    onChange: handleInputChange,
+                                                                    min: "2000",
+                                                                    max: "2030",
+                                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1916,
+                                                                    columnNumber: 21
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1912,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 1882,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "grid grid-cols-4 gap-4",
+                                                    children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1487,7 +2583,7 @@ function EditStudentModel() {
                                                                     children: "12th Percentage"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 789,
+                                                                    lineNumber: 1929,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1502,53 +2598,232 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 792,
+                                                                    lineNumber: 1932,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 788,
+                                                            lineNumber: 1928,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                                     className: "block text-sm font-semibold text-gray-700 mb-2",
-                                                                    children: "Backlogs"
+                                                                    children: "12th Board"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 805,
+                                                                    lineNumber: 1946,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                    type: "number",
-                                                                    min: "0",
-                                                                    name: "backlogs",
-                                                                    value: studentFormData.backlogs,
+                                                                    type: "text",
+                                                                    name: "board_12_name",
+                                                                    value: studentFormData.board_12_name,
                                                                     onChange: handleInputChange,
-                                                                    className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                                    placeholder: "e.g., CBSE",
+                                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 808,
+                                                                    lineNumber: 1949,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 804,
+                                                            lineNumber: 1945,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                                    children: "12th Passing Year"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1959,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                    type: "number",
+                                                                    name: "board_12_passing_year",
+                                                                    value: studentFormData.board_12_passing_year,
+                                                                    onChange: handleInputChange,
+                                                                    min: "2000",
+                                                                    max: "2030",
+                                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1962,
+                                                                    columnNumber: 21
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1958,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 771,
+                                                    lineNumber: 1927,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                            className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                            children: "Backlogs"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1974,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                            type: "number",
+                                                            min: "0",
+                                                            name: "backlogs",
+                                                            value: studentFormData.backlogs,
+                                                            onChange: handleInputChange,
+                                                            className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1977,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 1973,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                            className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                            children: "Specialization"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1989,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "space-y-2",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "flex gap-2",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                                                            name: "specialization",
+                                                                            value: studentFormData.specialization,
+                                                                            onChange: handleInputChange,
+                                                                            className: "flex-1 px-4 py-3 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-xl focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white/70",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                                                    value: "",
+                                                                                    children: "Select Specialization"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                                    lineNumber: 2000,
+                                                                                    columnNumber: 25
+                                                                                }, this),
+                                                                                specializations.map((spec)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                                                        value: spec.id,
+                                                                                        children: spec.name
+                                                                                    }, spec.id, false, {
+                                                                                        fileName: "[project]/app/students/EditStudentModel.js",
+                                                                                        lineNumber: 2002,
+                                                                                        columnNumber: 27
+                                                                                    }, this))
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                                            lineNumber: 1994,
+                                                                            columnNumber: 23
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                            type: "button",
+                                                                            onClick: ()=>setShowAddSpecialization(true),
+                                                                            className: "px-4 py-3 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-xl transition-all duration-200",
+                                                                            children: "+ Add New"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                                            lineNumber: 2007,
+                                                                            columnNumber: 23
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 1993,
+                                                                    columnNumber: 21
+                                                                }, this),
+                                                                showAddSpecialization && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "p-4 bg-purple-50 rounded-xl border border-purple-100",
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "flex gap-2",
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                                type: "text",
+                                                                                value: newSpecialization,
+                                                                                onChange: (e)=>setNewSpecialization(e.target.value),
+                                                                                placeholder: "Enter new specialization",
+                                                                                className: "flex-1 px-4 py-2 border-2 border-gray-200 hover:border-purple-300 focus:border-purple-500 rounded-lg focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 bg-white"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                                                lineNumber: 2020,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                                type: "button",
+                                                                                onClick: handleAddSpecialization,
+                                                                                className: "px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-lg transition-all duration-200",
+                                                                                children: "Add"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                                                lineNumber: 2029,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                                type: "button",
+                                                                                onClick: ()=>{
+                                                                                    setShowAddSpecialization(false);
+                                                                                    setNewSpecialization("");
+                                                                                },
+                                                                                className: "px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg transition-all duration-200",
+                                                                                children: "Cancel"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                                                lineNumber: 2036,
+                                                                                columnNumber: 27
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/students/EditStudentModel.js",
+                                                                        lineNumber: 2019,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                                    lineNumber: 2018,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                                            lineNumber: 1992,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 1988,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 559,
+                                            lineNumber: 1670,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1571,24 +2846,24 @@ function EditStudentModel() {
                                                                     d: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 830,
+                                                                    lineNumber: 2063,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/EditStudentModel.js",
-                                                                lineNumber: 824,
+                                                                lineNumber: 2057,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 823,
+                                                            lineNumber: 2056,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Professional Information"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 822,
+                                                    lineNumber: 2055,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1598,25 +2873,25 @@ function EditStudentModel() {
                                                             children: "Resume URL"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 842,
+                                                            lineNumber: 2075,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                             type: "url",
                                                             name: "resume_url",
-                                                            value: studentFormData.resume_url,
+                                                            value: studentFormData.resume_url || "",
                                                             onChange: handleInputChange,
                                                             placeholder: "https://drive.google.com/file/...",
                                                             className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 845,
+                                                            lineNumber: 2078,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 841,
+                                                    lineNumber: 2074,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1629,25 +2904,25 @@ function EditStudentModel() {
                                                                     children: "LinkedIn URL"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 857,
+                                                                    lineNumber: 2090,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                                     type: "url",
                                                                     name: "linkedin_url",
-                                                                    value: studentFormData.linkedin_url,
+                                                                    value: studentFormData.linkedin_url || "",
                                                                     onChange: handleInputChange,
                                                                     placeholder: "https://linkedin.com/in/...",
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 860,
+                                                                    lineNumber: 2093,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 856,
+                                                            lineNumber: 2089,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1657,31 +2932,31 @@ function EditStudentModel() {
                                                                     children: "GitHub URL"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 870,
+                                                                    lineNumber: 2103,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                                     type: "url",
                                                                     name: "github_url",
-                                                                    value: studentFormData.github_url,
+                                                                    value: studentFormData.github_url || "",
                                                                     onChange: handleInputChange,
                                                                     placeholder: "https://github.com/...",
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 873,
+                                                                    lineNumber: 2106,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 869,
+                                                            lineNumber: 2102,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 855,
+                                                    lineNumber: 2088,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1691,10 +2966,10 @@ function EditStudentModel() {
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                                     className: "block text-sm font-semibold text-gray-700 mb-2",
-                                                                    children: "PS2 Company"
+                                                                    children: "Name of the PS2 station"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 886,
+                                                                    lineNumber: 2119,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1706,23 +2981,23 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 889,
+                                                                    lineNumber: 2122,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 885,
+                                                            lineNumber: 2118,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                                     className: "block text-sm font-semibold text-gray-700 mb-2",
-                                                                    children: "PS2 Project Title"
+                                                                    children: "Title of the Project/Thesis"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 899,
+                                                                    lineNumber: 2132,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1734,47 +3009,19 @@ function EditStudentModel() {
                                                                     className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 902,
+                                                                    lineNumber: 2135,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 898,
+                                                            lineNumber: 2131,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 884,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                            className: "block text-sm font-semibold text-gray-700 mb-2",
-                                                            children: "PS2 Certificate URL"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 914,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                            type: "url",
-                                                            name: "ps2_certificate_url",
-                                                            value: studentFormData.ps2_certificate_url,
-                                                            onChange: handleInputChange,
-                                                            placeholder: "https://certificate-url.com/...",
-                                                            className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 917,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 913,
+                                                    lineNumber: 2117,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1784,7 +3031,7 @@ function EditStudentModel() {
                                                             children: "Placement Status"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 928,
+                                                            lineNumber: 2147,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1798,7 +3045,7 @@ function EditStudentModel() {
                                                                     children: "Placed"
                                                                 }, "placed", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 937,
+                                                                    lineNumber: 2156,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1806,7 +3053,7 @@ function EditStudentModel() {
                                                                     children: "Unplaced"
                                                                 }, "unplaced", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 940,
+                                                                    lineNumber: 2159,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1814,7 +3061,7 @@ function EditStudentModel() {
                                                                     children: "Higher Studies"
                                                                 }, "higher_studies", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 943,
+                                                                    lineNumber: 2162,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1822,7 +3069,7 @@ function EditStudentModel() {
                                                                     children: "Entrepreneurship"
                                                                 }, "entrepreneurship", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 946,
+                                                                    lineNumber: 2165,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1830,7 +3077,7 @@ function EditStudentModel() {
                                                                     children: "Family Business"
                                                                 }, "family_business", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 949,
+                                                                    lineNumber: 2168,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1838,7 +3085,7 @@ function EditStudentModel() {
                                                                     children: "Debarred"
                                                                 }, "debarred", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 952,
+                                                                    lineNumber: 2171,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1846,119 +3093,377 @@ function EditStudentModel() {
                                                                     children: "Others"
                                                                 }, "others", false, {
                                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                                    lineNumber: 955,
+                                                                    lineNumber: 2174,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                                            lineNumber: 931,
+                                                            lineNumber: 2150,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                                    lineNumber: 927,
+                                                    lineNumber: 2146,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 821,
+                                            lineNumber: 2054,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                    lineNumber: 557,
+                                    lineNumber: 1668,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/EditStudentModel.js",
-                            lineNumber: 242,
+                            lineNumber: 1380,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex justify-end space-x-4 pt-8 mt-8 border-t border-gray-200/50",
+                            className: "space-y-6 p-6 bg-gradient-to-br from-pink-50 to-red-50 border border-pink-200/50 rounded-xl mt-8",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                    className: "text-xl font-bold text-gray-800 flex items-center gap-3 pb-3 border-b border-pink-200/50",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "p-2 bg-pink-500 rounded-lg",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                                className: "h-4 w-4 text-white",
+                                                fill: "none",
+                                                stroke: "currentColor",
+                                                viewBox: "0 0 24 24",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                                    strokeLinecap: "round",
+                                                    strokeLinejoin: "round",
+                                                    strokeWidth: 2,
+                                                    d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2193,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/students/EditStudentModel.js",
+                                                lineNumber: 2187,
+                                                columnNumber: 17
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2186,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Parent Information"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                    lineNumber: 2185,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid grid-cols-3 gap-4",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Father's Name"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2207,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "father_name",
+                                                    value: studentFormData.father_name,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2210,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2206,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Father's Mobile"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2219,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "tel",
+                                                    name: "father_mobile",
+                                                    value: studentFormData.father_mobile,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2222,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2218,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Father's Email"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2231,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "email",
+                                                    name: "father_email",
+                                                    value: studentFormData.father_email,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2234,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2230,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                    lineNumber: 2205,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid grid-cols-3 gap-4",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Mother's Name"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2247,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "mother_name",
+                                                    value: studentFormData.mother_name,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2250,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2246,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Mother's Mobile"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2259,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "tel",
+                                                    name: "mother_mobile",
+                                                    value: studentFormData.mother_mobile,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2262,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2258,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                    lineNumber: 2245,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid grid-cols-3 gap-4",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Aadhar Number"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2275,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "aadhar_number",
+                                                    value: studentFormData.aadhar_number,
+                                                    onChange: handleInputChange,
+                                                    maxLength: "12",
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2278,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2274,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "PAN Number"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2288,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "pan_number",
+                                                    value: studentFormData.pan_number,
+                                                    onChange: handleInputChange,
+                                                    maxLength: "10",
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2291,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2287,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-semibold text-gray-700 mb-2",
+                                                    children: "Domicile State"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2301,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "domicile_state",
+                                                    value: studentFormData.domicile_state,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-4 py-3 border-2 border-gray-200 hover:border-pink-300 focus:border-pink-500 rounded-xl focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 bg-white/70"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                                    lineNumber: 2304,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/students/EditStudentModel.js",
+                                            lineNumber: 2300,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/students/EditStudentModel.js",
+                                    lineNumber: 2273,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/students/EditStudentModel.js",
+                            lineNumber: 2184,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex justify-end gap-4 mt-8",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    type: "button",
-                                    onClick: ()=>{
-                                        setShowEditStudentModal(false);
-                                        setEditingStudent(null);
-                                        resetForm();
-                                    },
-                                    className: "px-8 py-3 text-gray-600 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium",
+                                    onClick: ()=>setShowEditStudentModal(false),
+                                    className: "px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-200 bg-gray-100 hover:bg-gray-200",
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                    lineNumber: 966,
+                                    lineNumber: 2316,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     type: "submit",
                                     disabled: isLoading,
-                                    className: "px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 flex items-center space-x-3 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 ".concat(isLoading ? "opacity-50 cursor-not-allowed" : ""),
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "p-1 bg-white/20 rounded-lg",
-                                            children: showEditStudentModal ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$square$2d$pen$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Edit$3e$__["Edit"], {
-                                                className: "h-4 w-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/students/EditStudentModel.js",
-                                                lineNumber: 986,
-                                                columnNumber: 19
-                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
-                                                className: "h-4 w-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/students/EditStudentModel.js",
-                                                lineNumber: 988,
-                                                columnNumber: 19
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 984,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            children: isLoading ? "Updating..." : "Update Student"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/students/EditStudentModel.js",
-                                            lineNumber: 991,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
+                                    className: "px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ".concat(isLoading ? "bg-blue-300 text-blue-700 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"),
+                                    children: isLoading ? "Updating..." : "Update Student"
+                                }, void 0, false, {
                                     fileName: "[project]/app/students/EditStudentModel.js",
-                                    lineNumber: 977,
+                                    lineNumber: 2322,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/EditStudentModel.js",
-                            lineNumber: 965,
+                            lineNumber: 2315,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/students/EditStudentModel.js",
-                    lineNumber: 236,
+                    lineNumber: 1374,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/students/EditStudentModel.js",
-            lineNumber: 204,
+            lineNumber: 1342,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/students/EditStudentModel.js",
-        lineNumber: 203,
+        lineNumber: 1341,
         columnNumber: 5
     }, this);
 }
-_s(EditStudentModel, "sfeOtnyKBTDSWkd6B/xErSdCqmw=", false, function() {
+_s(EditStudentModel, "hbQlD7yr9dZ2fVFbUBnHnQ6Xk9A=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"]
     ];
@@ -1975,120 +3480,448 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 
 var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
+// import { Download, X, Check, Minus } from "lucide-react";
+// import { useEffect, useState } from "react";
+// import { useStudentContext } from "../../context/StudentContext";
+// import * as XLSX from "xlsx";
+// export default function ExportModal({ filteredStudents }) {
+//   const [selectedColumns, setSelectedColumns] = useState({});
+//   const { setShowExportModal } = useStudentContext();
+//   const exportableColumns = [
+//     // Personal Info
+//     { key: "first_name", label: "First Name", category: "Personal" },
+//     { key: "last_name", label: "Last Name", category: "Personal" },
+//     { key: "date_of_birth", label: "Date of Birth", category: "Personal" },
+//     { key: "resume_url", label: "Resume URL", category: "Personal" },
+//     { key: "linkedin_url", label: "LinkedIn URL", category: "Personal" },
+//     { key: "github_url", label: "GitHub URL", category: "Personal" },
+//     // Contact Info
+//     { key: "permanent_address", label: "Address", category: "Contact" },
+//     { key: "permanent_city", label: "City", category: "Contact" },
+//     { key: "permanent_state", label: "State", category: "Contact" },
+//     { key: "college_email", label: "College Email", category: "Contact" },
+//     { key: "personal_email", label: "Personal Email", category: "Contact" },
+//     { key: "phone", label: "Phone Number", category: "Contact" },
+//     { key: "alternate_phone", label: "Alternate Phone", category: "Contact" },
+//     // Academic Info
+//     {
+//       key: "registration_number",
+//       label: "Registration Number",
+//       category: "Academic",
+//     },
+//     {
+//       key: "enrollment_number",
+//       label: "Enrollment Number",
+//       category: "Academic",
+//     },
+//     { key: "department", label: "Department", category: "Academic" },
+//     { key: "branch", label: "Branch", category: "Academic" },
+//     { key: "batch_year", label: "Batch Year", category: "Academic" },
+//     { key: "cgpa", label: "CGPA", category: "Academic" },
+//     { key: "backlogs", label: "Backlogs", category: "Academic" },
+//     {
+//       key: "class_10_percentage",
+//       label: "10th Percentage",
+//       category: "Academic",
+//     },
+//     {
+//       key: "class_12_percentage",
+//       label: "12th Percentage",
+//       category: "Academic",
+//     },
+//     // Placement Info
+//     {
+//       key: "placement_status",
+//       label: "Placement Status",
+//       category: "Placement",
+//     },
+//     { key: "current_company", label: "Current Company", category: "Placement" },
+//     {
+//       key: "current_package",
+//       label: "Current Package (LPA)",
+//       category: "Placement",
+//     },
+//     { key: "total_offers", label: "Total Offers", category: "Placement" },
+//     { key: "drives_skipped", label: "Drives Skipped", category: "Placement" },
+//   ];
+//   const handleExport = () => {
+//     const selectedColumnKeys = Object.keys(selectedColumns).filter(
+//       (key) => selectedColumns[key]
+//     );
+//     if (selectedColumnKeys.length === 0) {
+//       alert("Please select at least one column to export.");
+//       return;
+//     }
+//     // Prepare data for export
+//     const exportData = filteredStudents.map((student) => {
+//       const row = {};
+//       selectedColumnKeys.forEach((key) => {
+//         switch (key) {
+//           case "current_company":
+//             row[key] = student.current_offer?.company_name || "N/A";
+//             break;
+//           case "current_package":
+//             row[key] = student.current_offer?.package
+//               ? (student.current_offer.package / 100000).toFixed(1)
+//               : "N/A";
+//             break;
+//           case "total_offers":
+//             row[key] = student.offers_received?.length || 0;
+//             break;
+//           case "drives_attended":
+//             row[key] = student.drives_attended || 0;
+//             break;
+//           case "cgpa":
+//             row[key] =
+//               student.cgpa !== undefined && student.cgpa !== null
+//                 ? Number(student.cgpa).toFixed(2)
+//                 : "N/A";
+//             break;
+//           case "date_of_birth":
+//             row[key] = student[key]
+//               ? new Date(student[key]).toLocaleDateString()
+//               : "N/A";
+//             break;
+//           case "class_10_percentage":
+//           case "class_12_percentage":
+//             row[key] = student[key] ? `${student[key]}%` : "N/A";
+//             break;
+//           default:
+//             row[key] = student[key] || "N/A";
+//         }
+//       });
+//       return row;
+//     });
+//     // Create workbook with better formatting
+//     const ws = XLSX.utils.json_to_sheet(exportData);
+//     const wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, "Students");
+//     // Set column widths based on content
+//     const columnWidths = selectedColumnKeys.map((key) => {
+//       const column = exportableColumns.find((col) => col.key === key);
+//       const baseWidth = column?.label.length || 10;
+//       return { wch: Math.max(baseWidth, 15) };
+//     });
+//     ws["!cols"] = columnWidths;
+//     // Generate filename with timestamp
+//     const fileName = `students_export_${new Date().toISOString().split("T")[0]}_${Date.now()}.xlsx`;
+//     // Save file
+//     XLSX.writeFile(wb, fileName);
+//     setShowExportModal(false);
+//   };
+//   const categories = [...new Set(exportableColumns.map((col) => col.category))];
+//   // Select/Deselect all functionality
+//   const handleSelectAll = () => {
+//     const allSelected = {};
+//     exportableColumns.forEach((col) => {
+//       allSelected[col.key] = true;
+//     });
+//     setSelectedColumns(allSelected);
+//   };
+//   const handleDeselectAll = () => {
+//     setSelectedColumns({});
+//   };
+//   const handleCategoryToggle = (category) => {
+//     const categoryColumns = exportableColumns.filter(
+//       (col) => col.category === category
+//     );
+//     const allCategorySelected = categoryColumns.every(
+//       (col) => selectedColumns[col.key]
+//     );
+//     const newSelection = { ...selectedColumns };
+//     categoryColumns.forEach((col) => {
+//       newSelection[col.key] = !allCategorySelected;
+//     });
+//     setSelectedColumns(newSelection);
+//   };
+//   const getCategorySelectionState = (category) => {
+//     const categoryColumns = exportableColumns.filter(
+//       (col) => col.category === category
+//     );
+//     const selectedCount = categoryColumns.filter(
+//       (col) => selectedColumns[col.key]
+//     ).length;
+//     if (selectedCount === 0) return "none";
+//     if (selectedCount === categoryColumns.length) return "all";
+//     return "partial";
+//   };
+//   const selectedCount = Object.values(selectedColumns).filter(Boolean).length;
+//   const totalCount = exportableColumns.length;
+//   useEffect(() => {
+//     // Initialize with commonly used columns selected
+//     const commonColumns = [
+//       "first_name",
+//       "last_name",
+//       "registration_number",
+//       "college_email",
+//       "department",
+//       "branch",
+//       "cgpa",
+//       "placement_status",
+//       "current_company",
+//       "total_offers",
+//     ];
+//     const initialSelection = {};
+//     exportableColumns.forEach((col) => {
+//       initialSelection[col.key] = commonColumns.includes(col.key);
+//     });
+//     setSelectedColumns(initialSelection);
+//   }, []);
+//   return (
+//     <div className="fixed h-full inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+//       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
+//         {/* Header */}
+//         <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+//           <div className="flex justify-between items-center">
+//             <div>
+//               <h2 className="text-2xl font-bold text-gray-900 mb-1">
+//                 Export Students Data
+//               </h2>
+//               <p className="text-gray-600">
+//                 Select the columns you want to include in your export (
+//                 {selectedCount} of {totalCount} selected)
+//               </p>
+//             </div>
+//             <button
+//               onClick={() => setShowExportModal(false)}
+//               className="p-2 hover:bg-white/80 rounded-lg transition-colors"
+//             >
+//               <X className="h-6 w-6 text-gray-500" />
+//             </button>
+//           </div>
+//         </div>
+//         {/* Controls */}
+//         <div className="p-6 border-b border-gray-200 bg-gray-50">
+//           <div className="flex flex-wrap items-center gap-3">
+//             <button
+//               onClick={handleSelectAll}
+//               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+//             >
+//               <Check className="h-4 w-4" />
+//               Select All
+//             </button>
+//             <button
+//               onClick={handleDeselectAll}
+//               className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+//             >
+//               <Minus className="h-4 w-4" />
+//               Deselect All
+//             </button>
+//             <div className="ml-auto text-sm text-gray-600 bg-white px-3 py-2 rounded-lg border">
+//               {filteredStudents.length} students • {selectedCount} columns
+//               selected
+//             </div>
+//           </div>
+//         </div>
+//         {/* Column Selection */}
+//         <div className="flex-1 overflow-y-auto p-6">
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+//             {categories.map((category) => {
+//               const selectionState = getCategorySelectionState(category);
+//               const categoryColors = {
+//                 Personal:
+//                   "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100",
+//                 Contact:
+//                   "bg-gradient-to-br from-green-50 to-emerald-50 border-green-100",
+//                 Academic:
+//                   "bg-gradient-to-br from-purple-50 to-violet-50 border-purple-100",
+//                 Placement:
+//                   "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-100",
+//               };
+//               return (
+//                 <div
+//                   key={category}
+//                   className={`bg-white border-2 ${categoryColors[category]} rounded-xl p-5 hover:border-opacity-70 transition-colors`}
+//                 >
+//                   <div className="flex items-center justify-between mb-4">
+//                     <h3 className="font-semibold text-lg text-gray-900">
+//                       {category}
+//                     </h3>
+//                     <button
+//                       onClick={() => handleCategoryToggle(category)}
+//                       className={`p-1.5 rounded-md transition-colors ${
+//                         selectionState === "all"
+//                           ? "bg-green-100 text-green-600"
+//                           : selectionState === "partial"
+//                             ? "bg-yellow-100 text-yellow-600"
+//                             : "bg-gray-100 text-gray-400 hover:text-gray-600"
+//                       }`}
+//                       title={
+//                         selectionState === "all" ? "Deselect all" : "Select all"
+//                       }
+//                     >
+//                       {selectionState === "partial" ? (
+//                         <Minus className="h-4 w-4" />
+//                       ) : (
+//                         <Check className="h-4 w-4" />
+//                       )}
+//                     </button>
+//                   </div>
+//                   <div className="space-y-3">
+//                     {exportableColumns
+//                       .filter((col) => col.category === category)
+//                       .map((column) => (
+//                         <label
+//                           key={column.key}
+//                           className="flex items-center gap-3 cursor-pointer group"
+//                         >
+//                           <div className="relative">
+//                             <input
+//                               type="checkbox"
+//                               checked={selectedColumns[column.key] || false}
+//                               onChange={() => {
+//                                 setSelectedColumns((prev) => ({
+//                                   ...prev,
+//                                   [column.key]: !prev[column.key],
+//                                 }));
+//                               }}
+//                               className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-2"
+//                             />
+//                           </div>
+//                           <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors flex-1">
+//                             {column.label}
+//                           </span>
+//                         </label>
+//                       ))}
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </div>
+//         </div>
+//         {/* Footer */}
+//         <div className="p-6 border-t border-gray-200 bg-gray-50">
+//           <div className="flex justify-between items-center">
+//             <div className="text-sm text-gray-600">
+//               Export will include {selectedCount} columns from{" "}
+//               {filteredStudents.length} students
+//             </div>
+//             <div className="flex gap-3">
+//               <button
+//                 onClick={() => setShowExportModal(false)}
+//                 className="px-6 py-2.5 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handleExport}
+//                 disabled={selectedCount === 0}
+//                 className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+//               >
+//                 <Download className="h-4 w-4" />
+//                 Export Excel ({selectedCount} columns)
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 __turbopack_context__.s({
     "default": ()=>ExportModal
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/download.js [app-client] (ecmascript) <export default as Download>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$minus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Minus$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/minus.js [app-client] (ecmascript) <export default as Minus>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/StudentContext.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/xlsx/xlsx.mjs [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
-;
 ;
 ;
 ;
 function ExportModal(param) {
     let { filteredStudents } = param;
     _s();
-    const [selectedColumns, setSelectedColumns] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
     const { setShowExportModal } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"])();
+    const [selectedColumns, setSelectedColumns] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
     const exportableColumns = [
-        // Personal Info
         {
-            key: "first_name",
-            label: "First Name",
-            category: "Personal"
+            key: "s_no",
+            label: "S.No",
+            category: "Basic"
         },
-        {
-            key: "last_name",
-            label: "Last Name",
-            category: "Personal"
-        },
-        {
-            key: "date_of_birth",
-            label: "Date of Birth",
-            category: "Personal"
-        },
-        {
-            key: "resume_url",
-            label: "Resume URL",
-            category: "Personal"
-        },
-        {
-            key: "linkedin_url",
-            label: "LinkedIn URL",
-            category: "Personal"
-        },
-        {
-            key: "github_url",
-            label: "GitHub URL",
-            category: "Personal"
-        },
-        // Contact Info
-        {
-            key: "permanent_address",
-            label: "Address",
-            category: "Contact"
-        },
-        {
-            key: "permanent_city",
-            label: "City",
-            category: "Contact"
-        },
-        {
-            key: "permanent_state",
-            label: "State",
-            category: "Contact"
-        },
-        {
-            key: "college_email",
-            label: "College Email",
-            category: "Contact"
-        },
-        {
-            key: "personal_email",
-            label: "Personal Email",
-            category: "Contact"
-        },
-        {
-            key: "phone",
-            label: "Phone Number",
-            category: "Contact"
-        },
-        {
-            key: "alternate_phone",
-            label: "Alternate Phone",
-            category: "Contact"
-        },
-        // Academic Info
         {
             key: "registration_number",
-            label: "Registration Number",
-            category: "Academic"
+            label: "Regn No",
+            category: "Basic"
         },
         {
-            key: "enrollment_number",
-            label: "Enrollment Number",
-            category: "Academic"
-        },
-        {
-            key: "department",
-            label: "Department",
-            category: "Academic"
+            key: "full_name",
+            label: "Full Name",
+            category: "Basic"
         },
         {
             key: "branch",
-            label: "Branch",
+            label: "Current Branch",
+            category: "Basic"
+        },
+        {
+            key: "phone",
+            label: "Contact No",
+            category: "Basic"
+        },
+        {
+            key: "college_email",
+            label: "University Email ID",
+            category: "Basic"
+        },
+        {
+            key: "specialization",
+            label: "Specialisation",
+            category: "Basic"
+        },
+        {
+            key: "personal_email",
+            label: "Personal Mail id",
+            category: "Basic"
+        },
+        {
+            key: "gender",
+            label: "Gender",
+            category: "Basic"
+        },
+        {
+            key: "qualifying_exam_10",
+            label: "Qualifying Exam",
             category: "Academic"
         },
         {
-            key: "batch_year",
-            label: "Batch Year",
+            key: "board_10_name",
+            label: "Name of Board",
+            category: "Academic"
+        },
+        {
+            key: "board_10_passing_year",
+            label: "Passing Year",
+            category: "Academic"
+        },
+        {
+            key: "class_10_percentage",
+            label: "10th CGPA or %",
+            category: "Academic"
+        },
+        {
+            key: "qualifying_exam_12",
+            label: "12th Qualifying Exam",
+            category: "Academic"
+        },
+        {
+            key: "board_12_name",
+            label: "Name of Board (12th)",
+            category: "Academic"
+        },
+        {
+            key: "board_12_passing_year",
+            label: "Passing Year (12th)",
+            category: "Academic"
+        },
+        {
+            key: "class_12_percentage",
+            label: "12th CGPA%",
             category: "Academic"
         },
         {
@@ -2098,44 +3931,93 @@ function ExportModal(param) {
         },
         {
             key: "backlogs",
-            label: "Backlogs",
+            label: "backlogs",
             category: "Academic"
         },
         {
-            key: "class_10_percentage",
-            label: "10th Percentage",
-            category: "Academic"
+            key: "ps2_company_name",
+            label: "Name of the PS2 station",
+            category: "Professional"
         },
         {
-            key: "class_12_percentage",
-            label: "12th Percentage",
-            category: "Academic"
-        },
-        // Placement Info
-        {
-            key: "placement_status",
-            label: "Placement Status",
-            category: "Placement"
+            key: "ps2_project_title",
+            label: "Title of the project/Thesis",
+            category: "Professional"
         },
         {
-            key: "current_company",
-            label: "Current Company",
-            category: "Placement"
+            key: "permanent_address",
+            label: "Address",
+            category: "Contact"
         },
         {
-            key: "current_package",
-            label: "Current Package (LPA)",
-            category: "Placement"
+            key: "permanent_city",
+            label: "City/District",
+            category: "Contact"
         },
         {
-            key: "total_offers",
-            label: "Total Offers",
-            category: "Placement"
+            key: "permanent_state",
+            label: "State",
+            category: "Contact"
         },
         {
-            key: "drives_skipped",
-            label: "Drives Skipped",
-            category: "Placement"
+            key: "father_name",
+            label: "Father Name",
+            category: "Family"
+        },
+        {
+            key: "father_mobile",
+            label: "Father's Mobile No",
+            category: "Family"
+        },
+        {
+            key: "father_email",
+            label: "Father's Email ID",
+            category: "Family"
+        },
+        {
+            key: "mother_name",
+            label: "Mother's Name",
+            category: "Family"
+        },
+        {
+            key: "mother_mobile",
+            label: "Mother's Mobile No",
+            category: "Family"
+        },
+        {
+            key: "resume_url",
+            label: "Updated CV",
+            category: "Professional"
+        },
+        {
+            key: "date_of_birth",
+            label: "Date of Birth",
+            category: "Personal"
+        },
+        {
+            key: "aadhar_number",
+            label: "Aadhar Card No.",
+            category: "Personal"
+        },
+        {
+            key: "pan_number",
+            label: "Pan Card No.",
+            category: "Personal"
+        },
+        {
+            key: "domicile_state",
+            label: "Domicile State",
+            category: "Personal"
+        },
+        {
+            key: "linkedin_url",
+            label: "linkedin_url",
+            category: "Professional"
+        },
+        {
+            key: "github_url",
+            label: "github_url",
+            category: "Professional"
         }
     ];
     const handleExport = ()=>{
@@ -2144,65 +4026,75 @@ function ExportModal(param) {
             alert("Please select at least one column to export.");
             return;
         }
+        // Get columns in the order defined in exportableColumns
+        const orderedColumns = exportableColumns.filter((col)=>selectedColumnKeys.includes(col.key)).map((col)=>col.key);
         // Prepare data for export
-        const exportData = filteredStudents.map((student)=>{
+        const exportData = filteredStudents.map((student, index)=>{
             const row = {};
-            selectedColumnKeys.forEach((key)=>{
+            orderedColumns.forEach((key)=>{
                 switch(key){
-                    case "current_company":
-                        var _student_current_offer;
-                        row[key] = ((_student_current_offer = student.current_offer) === null || _student_current_offer === void 0 ? void 0 : _student_current_offer.company_name) || "N/A";
+                    case "s_no":
+                        row[exportableColumns.find((c)=>c.key === key).label] = index + 1;
                         break;
-                    case "current_package":
-                        var _student_current_offer1;
-                        row[key] = ((_student_current_offer1 = student.current_offer) === null || _student_current_offer1 === void 0 ? void 0 : _student_current_offer1.package) ? (student.current_offer.package / 100000).toFixed(1) : "N/A";
+                    case "qualifying_exam_10":
+                        row[exportableColumns.find((c)=>c.key === key).label] = "10th";
                         break;
-                    case "total_offers":
-                        var _student_offers_received;
-                        row[key] = ((_student_offers_received = student.offers_received) === null || _student_offers_received === void 0 ? void 0 : _student_offers_received.length) || 0;
-                        break;
-                    case "drives_attended":
-                        row[key] = student.drives_attended || 0;
+                    case "qualifying_exam_12":
+                        row[exportableColumns.find((c)=>c.key === key).label] = "12th";
                         break;
                     case "cgpa":
-                        row[key] = student.cgpa !== undefined && student.cgpa !== null ? Number(student.cgpa).toFixed(2) : "N/A";
+                        row[exportableColumns.find((c)=>c.key === key).label] = student.cgpa !== undefined && student.cgpa !== null ? Number(student.cgpa).toFixed(2) : "N/A";
                         break;
                     case "date_of_birth":
-                        row[key] = student[key] ? new Date(student[key]).toLocaleDateString() : "N/A";
+                        row[exportableColumns.find((c)=>c.key === key).label] = student[key] ? new Date(student[key]).toLocaleDateString() : "N/A";
                         break;
                     case "class_10_percentage":
                     case "class_12_percentage":
-                        row[key] = student[key] ? "".concat(student[key], "%") : "N/A";
+                        row[exportableColumns.find((c)=>c.key === key).label] = student[key] ? "".concat(student[key], "%") : "N/A";
+                        break;
+                    case "specialization":
+                        row[exportableColumns.find((c)=>c.key === key).label] = student.specialization_name || "N/A";
                         break;
                     default:
-                        row[key] = student[key] || "N/A";
+                        row[exportableColumns.find((c)=>c.key === key).label] = student[key] || "N/A";
                 }
             });
             return row;
         });
-        // Create workbook with better formatting
-        const ws = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].json_to_sheet(exportData);
-        const wb = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_new();
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_append_sheet(wb, ws, "Students");
-        // Set column widths based on content
-        const columnWidths = selectedColumnKeys.map((key)=>{
-            const column = exportableColumns.find((col)=>col.key === key);
-            const baseWidth = (column === null || column === void 0 ? void 0 : column.label.length) || 10;
-            return {
-                wch: Math.max(baseWidth, 15)
-            };
+        // Create CSV content
+        const headers = orderedColumns.map((key)=>exportableColumns.find((c)=>c.key === key).label);
+        const csvContent = [
+            headers.join(","),
+            ...exportData.map((row)=>headers.map((header)=>{
+                    const value = row[header] || "";
+                    // Escape quotes and wrap in quotes if contains comma
+                    const stringValue = String(value);
+                    if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
+                        return '"'.concat(stringValue.replace(/"/g, '""'), '"');
+                    }
+                    return stringValue;
+                }).join(","))
+        ].join("\n");
+        // Create blob and download
+        const blob = new Blob([
+            csvContent
+        ], {
+            type: "text/csv;charset=utf-8;"
         });
-        ws["!cols"] = columnWidths;
-        // Generate filename with timestamp
-        const fileName = "students_export_".concat(new Date().toISOString().split("T")[0], "_").concat(Date.now(), ".xlsx");
-        // Save file
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["writeFile"](wb, fileName);
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        const fileName = "students_export_".concat(new Date().toISOString().split("T")[0], ".csv");
+        link.setAttribute("href", url);
+        link.setAttribute("download", fileName);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         setShowExportModal(false);
     };
     const categories = [
         ...new Set(exportableColumns.map((col)=>col.category))
     ];
-    // Select/Deselect all functionality
     const handleSelectAll = ()=>{
         const allSelected = {};
         exportableColumns.forEach((col)=>{
@@ -2235,35 +4127,31 @@ function ExportModal(param) {
     const totalCount = exportableColumns.length;
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "ExportModal.useEffect": ()=>{
-            // Initialize with commonly used columns selected
-            const commonColumns = [
-                "first_name",
-                "last_name",
-                "registration_number",
-                "college_email",
-                "department",
-                "branch",
-                "cgpa",
-                "placement_status",
-                "current_company",
-                "total_offers"
-            ];
-            const initialSelection = {};
+            // Select all columns by default
+            const allSelected = {};
             exportableColumns.forEach({
                 "ExportModal.useEffect": (col)=>{
-                    initialSelection[col.key] = commonColumns.includes(col.key);
+                    allSelected[col.key] = true;
                 }
             }["ExportModal.useEffect"]);
-            setSelectedColumns(initialSelection);
+            setSelectedColumns(allSelected);
         }
     }["ExportModal.useEffect"], []);
+    const categoryColors = {
+        Basic: "bg-blue-50 border-blue-200",
+        Academic: "bg-purple-50 border-purple-200",
+        Professional: "bg-orange-50 border-orange-200",
+        Contact: "bg-green-50 border-green-200",
+        Family: "bg-pink-50 border-pink-200",
+        Personal: "bg-indigo-50 border-indigo-200"
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "fixed h-full inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4",
+        className: "fixed h-full inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden flex flex-col",
+            className: "bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden flex flex-col",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50",
+                    className: "p-6 border-b border-gray-200 bg-gray-50",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex justify-between items-center",
                         children: [
@@ -2274,11 +4162,11 @@ function ExportModal(param) {
                                         children: "Export Students Data"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 217,
+                                        lineNumber: 619,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-gray-600",
+                                        className: "text-gray-600 text-sm",
                                         children: [
                                             "Select the columns you want to include in your export (",
                                             selectedCount,
@@ -2288,43 +4176,43 @@ function ExportModal(param) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 220,
+                                        lineNumber: 622,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 216,
+                                lineNumber: 618,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 onClick: ()=>setShowExportModal(false),
-                                className: "p-2 hover:bg-white/80 rounded-lg transition-colors",
+                                className: "p-2 hover:bg-gray-200 rounded-lg transition-colors",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
-                                    className: "h-6 w-6 text-gray-500"
+                                    className: "h-5 w-5 text-gray-500"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/ExportModal.js",
-                                    lineNumber: 229,
+                                    lineNumber: 631,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 225,
+                                lineNumber: 627,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ExportModal.js",
-                        lineNumber: 215,
+                        lineNumber: 617,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/students/ExportModal.js",
-                    lineNumber: 214,
+                    lineNumber: 616,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "p-6 border-b border-gray-200 bg-gray-50",
+                    className: "p-4 border-b border-gray-200 bg-white",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex flex-wrap items-center gap-3",
                         children: [
@@ -2336,14 +4224,14 @@ function ExportModal(param) {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 241,
+                                        lineNumber: 643,
                                         columnNumber: 15
                                     }, this),
                                     "Select All"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 237,
+                                lineNumber: 639,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2354,64 +4242,58 @@ function ExportModal(param) {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 248,
+                                        lineNumber: 650,
                                         columnNumber: 15
                                     }, this),
                                     "Deselect All"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 244,
+                                lineNumber: 646,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "ml-auto text-sm text-gray-600 bg-white px-3 py-2 rounded-lg border",
+                                className: "ml-auto text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200",
                                 children: [
-                                    filteredStudents.length,
+                                    (filteredStudents === null || filteredStudents === void 0 ? void 0 : filteredStudents.length) || 0,
                                     " students • ",
                                     selectedCount,
                                     " columns selected"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 251,
+                                lineNumber: 653,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ExportModal.js",
-                        lineNumber: 236,
+                        lineNumber: 638,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/students/ExportModal.js",
-                    lineNumber: 235,
+                    lineNumber: 637,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex-1 overflow-y-auto p-6",
+                    className: "flex-1 overflow-y-auto p-6 bg-gray-50",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+                        className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
                         children: categories.map((category)=>{
                             const selectionState = getCategorySelectionState(category);
-                            const categoryColors = {
-                                Personal: "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100",
-                                Contact: "bg-gradient-to-br from-green-50 to-emerald-50 border-green-100",
-                                Academic: "bg-gradient-to-br from-purple-50 to-violet-50 border-purple-100",
-                                Placement: "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-100"
-                            };
                             return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "bg-white border-2 ".concat(categoryColors[category], " rounded-xl p-5 hover:border-opacity-70 transition-colors"),
+                                className: "bg-white border ".concat(categoryColors[category], " rounded-lg p-4 shadow-sm"),
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "flex items-center justify-between mb-4",
+                                        className: "flex items-center justify-between mb-3",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                className: "font-semibold text-lg text-gray-900",
+                                                className: "font-semibold text-base text-gray-900",
                                                 children: category
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ExportModal.js",
-                                                lineNumber: 280,
+                                                lineNumber: 672,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2422,91 +4304,84 @@ function ExportModal(param) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ExportModal.js",
-                                                    lineNumber: 297,
+                                                    lineNumber: 689,
                                                     columnNumber: 25
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ExportModal.js",
-                                                    lineNumber: 299,
+                                                    lineNumber: 691,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ExportModal.js",
-                                                lineNumber: 283,
+                                                lineNumber: 675,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 279,
+                                        lineNumber: 671,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "space-y-3",
+                                        className: "space-y-2",
                                         children: exportableColumns.filter((col)=>col.category === category).map((column)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                className: "flex items-center gap-3 cursor-pointer group",
+                                                className: "flex items-center gap-2 cursor-pointer group",
                                                 children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "relative",
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                            type: "checkbox",
-                                                            checked: selectedColumns[column.key] || false,
-                                                            onChange: ()=>{
-                                                                setSelectedColumns((prev)=>({
-                                                                        ...prev,
-                                                                        [column.key]: !prev[column.key]
-                                                                    }));
-                                                            },
-                                                            className: "w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-2"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/students/ExportModal.js",
-                                                            lineNumber: 312,
-                                                            columnNumber: 29
-                                                        }, this)
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                        type: "checkbox",
+                                                        checked: selectedColumns[column.key] || false,
+                                                        onChange: ()=>{
+                                                            setSelectedColumns((prev)=>({
+                                                                    ...prev,
+                                                                    [column.key]: !prev[column.key]
+                                                                }));
+                                                        },
+                                                        className: "w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ExportModal.js",
-                                                        lineNumber: 311,
+                                                        lineNumber: 703,
                                                         columnNumber: 27
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-sm text-gray-700 group-hover:text-gray-900 transition-colors flex-1",
+                                                        className: "text-sm text-gray-700 group-hover:text-gray-900 transition-colors",
                                                         children: column.label
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ExportModal.js",
-                                                        lineNumber: 324,
+                                                        lineNumber: 714,
                                                         columnNumber: 27
                                                     }, this)
                                                 ]
                                             }, column.key, true, {
                                                 fileName: "[project]/app/students/ExportModal.js",
-                                                lineNumber: 307,
+                                                lineNumber: 699,
                                                 columnNumber: 25
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 303,
+                                        lineNumber: 695,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, category, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 275,
+                                lineNumber: 667,
                                 columnNumber: 17
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/app/students/ExportModal.js",
-                        lineNumber: 260,
+                        lineNumber: 662,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/students/ExportModal.js",
-                    lineNumber: 259,
+                    lineNumber: 661,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "p-6 border-t border-gray-200 bg-gray-50",
+                    className: "p-4 border-t border-gray-200 bg-white",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex justify-between items-center",
                         children: [
@@ -2517,12 +4392,12 @@ function ExportModal(param) {
                                     selectedCount,
                                     " columns from",
                                     " ",
-                                    filteredStudents.length,
+                                    (filteredStudents === null || filteredStudents === void 0 ? void 0 : filteredStudents.length) || 0,
                                     " students"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 339,
+                                lineNumber: 729,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2530,64 +4405,64 @@ function ExportModal(param) {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: ()=>setShowExportModal(false),
-                                        className: "px-6 py-2.5 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium",
+                                        className: "px-5 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium",
                                         children: "Cancel"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 344,
+                                        lineNumber: 734,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: handleExport,
                                         disabled: selectedCount === 0,
-                                        className: "px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-medium",
+                                        className: "px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ExportModal.js",
-                                                lineNumber: 355,
+                                                lineNumber: 745,
                                                 columnNumber: 17
                                             }, this),
-                                            "Export Excel (",
+                                            "Export CSV (",
                                             selectedCount,
                                             " columns)"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ExportModal.js",
-                                        lineNumber: 350,
+                                        lineNumber: 740,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ExportModal.js",
-                                lineNumber: 343,
+                                lineNumber: 733,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ExportModal.js",
-                        lineNumber: 338,
+                        lineNumber: 728,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/students/ExportModal.js",
-                    lineNumber: 337,
+                    lineNumber: 727,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/students/ExportModal.js",
-            lineNumber: 212,
+            lineNumber: 614,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/students/ExportModal.js",
-        lineNumber: 211,
+        lineNumber: 613,
         columnNumber: 5
     }, this);
 }
-_s(ExportModal, "bJxLMavsLvW0sS0x+RBkpeAcxhs=", false, function() {
+_s(ExportModal, "5Ud4qADIBwAx3diO6x2vGbqG170=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"]
     ];
@@ -2737,18 +4612,13 @@ const DeleteConfirmationModal = (param)=>{
                                             " ",
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 className: "font-semibold",
-                                                children: [
-                                                    student.first_name,
-                                                    " ",
-                                                    student.last_name
-                                                ]
-                                            }, void 0, true, {
+                                                children: student.full_name
+                                            }, void 0, false, {
                                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
                                                 lineNumber: 66,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
-                                            " ",
-                                            "and remove all associated data."
+                                            " and remove all associated data."
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/DeleteConfirmationModal.js",
@@ -2779,14 +4649,10 @@ const DeleteConfirmationModal = (param)=>{
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                 className: "font-semibold text-gray-900 mb-1",
-                                children: [
-                                    student.first_name,
-                                    " ",
-                                    student.last_name
-                                ]
-                            }, void 0, true, {
+                                children: student.full_name
+                            }, void 0, false, {
                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                lineNumber: 78,
+                                lineNumber: 76,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2797,7 +4663,7 @@ const DeleteConfirmationModal = (param)=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                lineNumber: 81,
+                                lineNumber: 79,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2809,18 +4675,18 @@ const DeleteConfirmationModal = (param)=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                lineNumber: 84,
+                                lineNumber: 82,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                        lineNumber: 77,
+                        lineNumber: 75,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                    lineNumber: 76,
+                    lineNumber: 74,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -2839,7 +4705,7 @@ const DeleteConfirmationModal = (param)=>{
                                             children: expectedText
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                            lineNumber: 95,
+                                            lineNumber: 93,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " ",
@@ -2847,7 +4713,7 @@ const DeleteConfirmationModal = (param)=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                    lineNumber: 93,
+                                    lineNumber: 91,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2861,7 +4727,7 @@ const DeleteConfirmationModal = (param)=>{
                                     spellCheck: "false"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                    lineNumber: 100,
+                                    lineNumber: 98,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 confirmationText.length > 0 && !isValid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2869,7 +4735,7 @@ const DeleteConfirmationModal = (param)=>{
                                     children: "Registration number doesn't match"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                    lineNumber: 117,
+                                    lineNumber: 115,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 isValid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2881,31 +4747,31 @@ const DeleteConfirmationModal = (param)=>{
                                                 className: "w-2 h-1 bg-white rounded-full"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                                lineNumber: 124,
+                                                lineNumber: 122,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                            lineNumber: 123,
+                                            lineNumber: 121,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: "Confirmed - ready to delete"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                            lineNumber: 126,
+                                            lineNumber: 124,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                    lineNumber: 122,
+                                    lineNumber: 120,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                            lineNumber: 92,
+                            lineNumber: 90,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2919,7 +4785,7 @@ const DeleteConfirmationModal = (param)=>{
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                    lineNumber: 133,
+                                    lineNumber: 131,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2932,14 +4798,14 @@ const DeleteConfirmationModal = (param)=>{
                                                 className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                                lineNumber: 148,
+                                                lineNumber: 146,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Deleting..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                                lineNumber: 149,
+                                                lineNumber: 147,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
@@ -2949,33 +4815,33 @@ const DeleteConfirmationModal = (param)=>{
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                                lineNumber: 153,
+                                                lineNumber: 151,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "Delete Student"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                                lineNumber: 154,
+                                                lineNumber: 152,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                                    lineNumber: 141,
+                                    lineNumber: 139,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                            lineNumber: 132,
+                            lineNumber: 130,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/students/DeleteConfirmationModal.js",
-                    lineNumber: 91,
+                    lineNumber: 89,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
@@ -3027,7 +4893,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const ManualOffersModal = (param)=>{
     let { isOpen, onClose, student, onSuccess } = param;
     _s();
@@ -3204,11 +5070,8 @@ const ManualOffersModal = (param)=>{
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-slate-300 text-sm mt-2",
                                     children: [
-                                        student.first_name,
-                                        " ",
-                                        student.last_name,
-                                        " •",
-                                        " ",
+                                        student.full_name,
+                                        " • ",
                                         student.enrollment_number
                                     ]
                                 }, void 0, true, {
@@ -3229,12 +5092,12 @@ const ManualOffersModal = (param)=>{
                                 className: "h-5 w-5"
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 216,
+                                lineNumber: 215,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/students/ManualOffersModal.js",
-                            lineNumber: 212,
+                            lineNumber: 211,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
@@ -3258,12 +5121,12 @@ const ManualOffersModal = (param)=>{
                                                 className: "h-5 w-5 text-emerald-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 227,
+                                                lineNumber: 226,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 226,
+                                            lineNumber: 225,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -3271,13 +5134,13 @@ const ManualOffersModal = (param)=>{
                                             children: "Current Accepted Offer"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 229,
+                                            lineNumber: 228,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 225,
+                                    lineNumber: 224,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3290,7 +5153,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Company"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 235,
+                                                    lineNumber: 234,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3298,13 +5161,13 @@ const ManualOffersModal = (param)=>{
                                                     children: currentOffer.company_name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 238,
+                                                    lineNumber: 237,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 234,
+                                            lineNumber: 233,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3314,7 +5177,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Position"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 243,
+                                                    lineNumber: 242,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3322,13 +5185,13 @@ const ManualOffersModal = (param)=>{
                                                     children: currentOffer.position_title
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 246,
+                                                    lineNumber: 245,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 242,
+                                            lineNumber: 241,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3338,7 +5201,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Package"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 251,
+                                                    lineNumber: 250,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3346,13 +5209,13 @@ const ManualOffersModal = (param)=>{
                                                     children: formatPackage(currentOffer.package)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 254,
+                                                    lineNumber: 253,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 250,
+                                            lineNumber: 249,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3362,7 +5225,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Type"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 259,
+                                                    lineNumber: 258,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3370,25 +5233,25 @@ const ManualOffersModal = (param)=>{
                                                     children: currentOffer.source === "campus" ? "Campus" : "Off-Campus"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 262,
+                                                    lineNumber: 261,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 258,
+                                            lineNumber: 257,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 233,
+                                    lineNumber: 232,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/ManualOffersModal.js",
-                            lineNumber: 224,
+                            lineNumber: 223,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         !showOfferForm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3399,14 +5262,14 @@ const ManualOffersModal = (param)=>{
                                     className: "h-5 w-5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 282,
+                                    lineNumber: 281,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 "Add Manual Offer"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/ManualOffersModal.js",
-                            lineNumber: 278,
+                            lineNumber: 277,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         showOfferForm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3420,7 +5283,7 @@ const ManualOffersModal = (param)=>{
                                             children: editingOffer ? "Edit Manual Offer" : "Add New Manual Offer"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 291,
+                                            lineNumber: 290,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3434,18 +5297,18 @@ const ManualOffersModal = (param)=>{
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 302,
+                                                lineNumber: 301,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 294,
+                                            lineNumber: 293,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 290,
+                                    lineNumber: 289,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3458,7 +5321,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Company Name *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 308,
+                                                    lineNumber: 307,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3470,13 +5333,13 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 311,
+                                                    lineNumber: 310,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 307,
+                                            lineNumber: 306,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3486,7 +5349,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Position Title *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 322,
+                                                    lineNumber: 321,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3498,13 +5361,13 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 325,
+                                                    lineNumber: 324,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 321,
+                                            lineNumber: 320,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3514,7 +5377,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Package (in ₹) *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 336,
+                                                    lineNumber: 335,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3528,13 +5391,13 @@ const ManualOffersModal = (param)=>{
                                                     placeholder: "e.g., 1200000"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 339,
+                                                    lineNumber: 338,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 335,
+                                            lineNumber: 334,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3544,7 +5407,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Company Type *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 352,
+                                                    lineNumber: 351,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3559,7 +5422,7 @@ const ManualOffersModal = (param)=>{
                                                             children: "Tech"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 362,
+                                                            lineNumber: 361,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3567,19 +5430,19 @@ const ManualOffersModal = (param)=>{
                                                             children: "Non-Tech"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 363,
+                                                            lineNumber: 362,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 355,
+                                                    lineNumber: 354,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 351,
+                                            lineNumber: 350,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3589,7 +5452,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Job Type"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 368,
+                                                    lineNumber: 367,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3603,7 +5466,7 @@ const ManualOffersModal = (param)=>{
                                                             children: "Full Time"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 377,
+                                                            lineNumber: 376,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3611,7 +5474,7 @@ const ManualOffersModal = (param)=>{
                                                             children: "Internship"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 378,
+                                                            lineNumber: 377,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3619,19 +5482,19 @@ const ManualOffersModal = (param)=>{
                                                             children: "Internship + PPO"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 379,
+                                                            lineNumber: 378,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 371,
+                                                    lineNumber: 370,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 367,
+                                            lineNumber: 366,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3641,7 +5504,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Offer Date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 386,
+                                                    lineNumber: 385,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3652,13 +5515,13 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 389,
+                                                    lineNumber: 388,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 385,
+                                            lineNumber: 384,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3668,7 +5531,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Monthly Stipend (if applicable)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 399,
+                                                    lineNumber: 398,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3680,13 +5543,13 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 402,
+                                                    lineNumber: 401,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 398,
+                                            lineNumber: 397,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3696,7 +5559,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Work Location"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 413,
+                                                    lineNumber: 412,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3707,13 +5570,13 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 416,
+                                                    lineNumber: 415,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 412,
+                                            lineNumber: 411,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3724,7 +5587,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Bond Details"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 426,
+                                                    lineNumber: 425,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -3735,13 +5598,13 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 429,
+                                                    lineNumber: 428,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 425,
+                                            lineNumber: 424,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3752,7 +5615,7 @@ const ManualOffersModal = (param)=>{
                                                     children: "Additional Details"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 439,
+                                                    lineNumber: 438,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -3763,19 +5626,19 @@ const ManualOffersModal = (param)=>{
                                                     className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 442,
+                                                    lineNumber: 441,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 438,
+                                            lineNumber: 437,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 306,
+                                    lineNumber: 305,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3789,7 +5652,7 @@ const ManualOffersModal = (param)=>{
                                             children: isLoading ? "Saving..." : editingOffer ? "Update Offer" : "Add Offer"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 453,
+                                            lineNumber: 452,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3802,19 +5665,19 @@ const ManualOffersModal = (param)=>{
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 465,
+                                            lineNumber: 464,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 452,
+                                    lineNumber: 451,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/ManualOffersModal.js",
-                            lineNumber: 289,
+                            lineNumber: 288,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3833,13 +5696,13 @@ const ManualOffersModal = (param)=>{
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 483,
+                                            lineNumber: 482,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 481,
+                                    lineNumber: 480,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 offers.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3849,7 +5712,7 @@ const ManualOffersModal = (param)=>{
                                             className: "h-12 w-12 mx-auto mb-3 opacity-30"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 490,
+                                            lineNumber: 489,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3857,7 +5720,7 @@ const ManualOffersModal = (param)=>{
                                             children: "No offers found"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 491,
+                                            lineNumber: 490,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3865,13 +5728,13 @@ const ManualOffersModal = (param)=>{
                                             children: "Add a manual offer to get started"
                                         }, void 0, false, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 492,
+                                            lineNumber: 491,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 489,
+                                    lineNumber: 488,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "space-y-3",
@@ -3894,7 +5757,7 @@ const ManualOffersModal = (param)=>{
                                                                             children: offer.company_name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                            lineNumber: 510,
+                                                                            lineNumber: 509,
                                                                             columnNumber: 27
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3902,7 +5765,7 @@ const ManualOffersModal = (param)=>{
                                                                             children: offer.source === "campus" ? "Campus" : "Off-Campus"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                            lineNumber: 513,
+                                                                            lineNumber: 512,
                                                                             columnNumber: 27
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         offer.is_accepted && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3912,20 +5775,20 @@ const ManualOffersModal = (param)=>{
                                                                                     className: "h-3 w-3"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                    lineNumber: 526,
+                                                                                    lineNumber: 525,
                                                                                     columnNumber: 31
                                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                                 " Accepted"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                            lineNumber: 525,
+                                                                            lineNumber: 524,
                                                                             columnNumber: 29
                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 509,
+                                                                    lineNumber: 508,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3933,13 +5796,13 @@ const ManualOffersModal = (param)=>{
                                                                     children: offer.position_title
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 530,
+                                                                    lineNumber: 529,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 508,
+                                                            lineNumber: 507,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3955,12 +5818,12 @@ const ManualOffersModal = (param)=>{
                                                                                 className: "h-4 w-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 543,
+                                                                                lineNumber: 542,
                                                                                 columnNumber: 31
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                            lineNumber: 538,
+                                                                            lineNumber: 537,
                                                                             columnNumber: 29
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3971,12 +5834,12 @@ const ManualOffersModal = (param)=>{
                                                                                 className: "h-4 w-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 550,
+                                                                                lineNumber: 549,
                                                                                 columnNumber: 31
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                            lineNumber: 545,
+                                                                            lineNumber: 544,
                                                                             columnNumber: 29
                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                     ]
@@ -3987,19 +5850,19 @@ const ManualOffersModal = (param)=>{
                                                                     children: "Accept"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 555,
+                                                                    lineNumber: 554,
                                                                     columnNumber: 27
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 535,
+                                                            lineNumber: 534,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 507,
+                                                    lineNumber: 506,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4012,7 +5875,7 @@ const ManualOffersModal = (param)=>{
                                                                     className: "h-4 w-4 text-blue-600"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 567,
+                                                                    lineNumber: 566,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4020,13 +5883,13 @@ const ManualOffersModal = (param)=>{
                                                                     children: formatPackage(offer.package)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 568,
+                                                                    lineNumber: 567,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 566,
+                                                            lineNumber: 565,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4036,7 +5899,7 @@ const ManualOffersModal = (param)=>{
                                                                     className: "h-4 w-4 text-purple-600"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 573,
+                                                                    lineNumber: 572,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4044,13 +5907,13 @@ const ManualOffersModal = (param)=>{
                                                                     children: (_offer_job_type = offer.job_type) === null || _offer_job_type === void 0 ? void 0 : _offer_job_type.replace("_", " ")
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 574,
+                                                                    lineNumber: 573,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 572,
+                                                            lineNumber: 571,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4060,7 +5923,7 @@ const ManualOffersModal = (param)=>{
                                                                     className: "h-4 w-4 text-amber-600"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 579,
+                                                                    lineNumber: 578,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4068,13 +5931,13 @@ const ManualOffersModal = (param)=>{
                                                                     children: offer.offer_date
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 580,
+                                                                    lineNumber: 579,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 578,
+                                                            lineNumber: 577,
                                                             columnNumber: 23
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         offer.work_location && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4084,7 +5947,7 @@ const ManualOffersModal = (param)=>{
                                                                     className: "h-4 w-4 text-red-600"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 586,
+                                                                    lineNumber: 585,
                                                                     columnNumber: 27
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4092,43 +5955,43 @@ const ManualOffersModal = (param)=>{
                                                                     children: offer.work_location
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                    lineNumber: 587,
+                                                                    lineNumber: 586,
                                                                     columnNumber: 27
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                                            lineNumber: 585,
+                                                            lineNumber: 584,
                                                             columnNumber: 25
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 565,
+                                                    lineNumber: 564,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, offer.offer_id, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 499,
+                                            lineNumber: 498,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0));
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 497,
+                                    lineNumber: 496,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/ManualOffersModal.js",
-                            lineNumber: 480,
+                            lineNumber: 479,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/students/ManualOffersModal.js",
-                    lineNumber: 221,
+                    lineNumber: 220,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4139,12 +6002,12 @@ const ManualOffersModal = (param)=>{
                         children: "Close"
                     }, void 0, false, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 602,
+                        lineNumber: 601,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/students/ManualOffersModal.js",
-                    lineNumber: 601,
+                    lineNumber: 600,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
@@ -4196,7 +6059,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 function StudentTable(param) {
     let { filteredStudents } = param;
     _s();
@@ -4212,8 +6075,7 @@ function StudentTable(param) {
         setEditingStudent(student);
         setStudentFormData({
             enrollment_number: student.enrollment_number || "",
-            first_name: student.first_name || "",
-            last_name: student.last_name || "",
+            full_name: student.full_name || "",
             phone: student.phone || "",
             alternate_phone: student.alternate_phone || "",
             college_email: student.college_email || "",
@@ -4279,7 +6141,7 @@ function StudentTable(param) {
             // Refresh the students data
             await fetchStudents();
             // Show success toast
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].success("".concat(studentToDelete.first_name, " ").concat(studentToDelete.last_name, " has been deleted successfully."), {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].success("".concat(studentToDelete.full_name, " has been deleted successfully."), {
                 duration: 4000,
                 position: "top-right"
             });
@@ -4336,12 +6198,12 @@ function StudentTable(param) {
                                                     className: "rounded border-gray-300"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 161,
+                                                    lineNumber: 160,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 160,
+                                                lineNumber: 159,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4349,7 +6211,7 @@ function StudentTable(param) {
                                                 children: "Student Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 166,
+                                                lineNumber: 165,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4357,7 +6219,7 @@ function StudentTable(param) {
                                                 children: "Academic Info"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 169,
+                                                lineNumber: 168,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4365,7 +6227,7 @@ function StudentTable(param) {
                                                 children: "Contact Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 172,
+                                                lineNumber: 171,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4373,7 +6235,7 @@ function StudentTable(param) {
                                                 children: "Status"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 175,
+                                                lineNumber: 174,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4381,7 +6243,7 @@ function StudentTable(param) {
                                                 children: "Placement Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 178,
+                                                lineNumber: 177,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4389,7 +6251,7 @@ function StudentTable(param) {
                                                 children: "Board Marks"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 181,
+                                                lineNumber: 180,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4397,18 +6259,18 @@ function StudentTable(param) {
                                                 children: "Actions"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 184,
+                                                lineNumber: 183,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/StudentTable.js",
-                                        lineNumber: 159,
+                                        lineNumber: 158,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/StudentTable.js",
-                                    lineNumber: 158,
+                                    lineNumber: 157,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4425,12 +6287,12 @@ function StudentTable(param) {
                                                         className: "rounded border-gray-300"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 196,
+                                                        lineNumber: 195,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 195,
+                                                    lineNumber: 194,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4446,12 +6308,12 @@ function StudentTable(param) {
                                                                         children: formatStudentName(student)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                                        lineNumber: 205,
+                                                                        lineNumber: 204,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 204,
+                                                                    lineNumber: 203,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4459,7 +6321,7 @@ function StudentTable(param) {
                                                                     children: student.registration_number
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 209,
+                                                                    lineNumber: 208,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4467,7 +6329,7 @@ function StudentTable(param) {
                                                                     children: student.college_email
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 212,
+                                                                    lineNumber: 211,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4475,23 +6337,23 @@ function StudentTable(param) {
                                                                     children: student.personal_email
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 215,
+                                                                    lineNumber: 214,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/StudentTable.js",
-                                                            lineNumber: 203,
+                                                            lineNumber: 202,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 202,
+                                                        lineNumber: 201,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 201,
+                                                    lineNumber: 200,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4508,7 +6370,7 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 223,
+                                                                lineNumber: 222,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4522,12 +6384,12 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 227,
+                                                                    lineNumber: 226,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 226,
+                                                                lineNumber: 225,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4541,18 +6403,18 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 234,
+                                                                lineNumber: 233,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 222,
+                                                        lineNumber: 221,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 221,
+                                                    lineNumber: 220,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4568,7 +6430,7 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 242,
+                                                                lineNumber: 241,
                                                                 columnNumber: 25
                                                             }, this),
                                                             student.alternate_phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4579,18 +6441,18 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 246,
+                                                                lineNumber: 245,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 241,
+                                                        lineNumber: 240,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 240,
+                                                    lineNumber: 239,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4603,7 +6465,7 @@ function StudentTable(param) {
                                                                 children: student.placement_status.replace("_", " ")
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 254,
+                                                                lineNumber: 253,
                                                                 columnNumber: 25
                                                             }, this),
                                                             student.current_offer && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4611,18 +6473,18 @@ function StudentTable(param) {
                                                                 children: student.current_offer.company_name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 262,
+                                                                lineNumber: 261,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 253,
+                                                        lineNumber: 252,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 252,
+                                                    lineNumber: 251,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4638,7 +6500,7 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 271,
+                                                                lineNumber: 270,
                                                                 columnNumber: 27
                                                             }, this),
                                                             student.offers_received.slice(0, 2).map((offer, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4651,25 +6513,25 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, idx, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 277,
+                                                                    lineNumber: 276,
                                                                     columnNumber: 31
                                                                 }, this))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 270,
+                                                        lineNumber: 269,
                                                         columnNumber: 25
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "text-xs text-gray-400",
                                                         children: "No offers yet"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 284,
+                                                        lineNumber: 283,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 268,
+                                                    lineNumber: 267,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4688,12 +6550,12 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 292,
+                                                                    lineNumber: 291,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 291,
+                                                                lineNumber: 290,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4707,12 +6569,12 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 297,
+                                                                    lineNumber: 296,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 296,
+                                                                lineNumber: 295,
                                                                 columnNumber: 25
                                                             }, this),
                                                             student.drives_skipped > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4723,18 +6585,18 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 302,
+                                                                lineNumber: 301,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 290,
+                                                        lineNumber: 289,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 289,
+                                                    lineNumber: 288,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4750,12 +6612,12 @@ function StudentTable(param) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 315,
+                                                                    lineNumber: 314,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 310,
+                                                                lineNumber: 309,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4766,12 +6628,12 @@ function StudentTable(param) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 322,
+                                                                    lineNumber: 321,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 317,
+                                                                lineNumber: 316,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4782,51 +6644,51 @@ function StudentTable(param) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 329,
+                                                                    lineNumber: 328,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 324,
+                                                                lineNumber: 323,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 309,
+                                                        lineNumber: 308,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 308,
+                                                    lineNumber: 307,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, student.id, true, {
                                             fileName: "[project]/app/students/StudentTable.js",
-                                            lineNumber: 191,
+                                            lineNumber: 190,
                                             columnNumber: 19
                                         }, this);
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/StudentTable.js",
-                                    lineNumber: 189,
+                                    lineNumber: 188,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/StudentTable.js",
-                            lineNumber: 157,
+                            lineNumber: 156,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/students/StudentTable.js",
-                        lineNumber: 156,
+                        lineNumber: 155,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/students/StudentTable.js",
-                    lineNumber: 155,
+                    lineNumber: 154,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$students$2f$DeleteConfirmationModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4837,7 +6699,7 @@ function StudentTable(param) {
                     isDeleting: isDeleting
                 }, void 0, false, {
                     fileName: "[project]/app/students/StudentTable.js",
-                    lineNumber: 341,
+                    lineNumber: 340,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$students$2f$ManualOffersModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4847,13 +6709,13 @@ function StudentTable(param) {
                     onSuccess: handleOffersSuccess
                 }, void 0, false, {
                     fileName: "[project]/app/students/StudentTable.js",
-                    lineNumber: 350,
+                    lineNumber: 349,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/students/StudentTable.js",
-            lineNumber: 154,
+            lineNumber: 153,
             columnNumber: 7
         }, this)
     }, void 0, false);
@@ -4898,7 +6760,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const ImportModal = (param)=>{
     let { onClose, onImportComplete } = param;
     _s();
@@ -5945,12 +7807,8 @@ const ImportResultsModal = (param)=>{
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
                                                                                 className: "font-semibold text-gray-900",
-                                                                                children: [
-                                                                                    student.first_name,
-                                                                                    " ",
-                                                                                    student.last_name
-                                                                                ]
-                                                                            }, void 0, true, {
+                                                                                children: student.full_name || "N/A"
+                                                                            }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ImportResultsModal.js",
                                                                                 lineNumber: 245,
                                                                                 columnNumber: 33
@@ -6208,7 +8066,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const UpdateModal = (param)=>{
     let { onClose, onUpdateComplete } = param;
     _s();
@@ -7356,8 +9214,8 @@ const BRANCHES = [
         label: "CSE"
     },
     {
-        value: "ECE",
-        label: "ECE"
+        value: "E.Com",
+        label: "E.Com"
     },
     {
         value: "ME",

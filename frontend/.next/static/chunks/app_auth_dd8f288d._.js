@@ -24,7 +24,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 function ForgotPassword(param) {
     let { onBack } = param;
     _s();
@@ -818,7 +818,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 function CGDCAuth() {
     _s();
     const { login } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$AuthContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();

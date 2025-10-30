@@ -126,7 +126,7 @@ function CreateEvent({
     { value: "company_visit", label: "Company Visit" },
   ];
 
-  const specializations = ["CSE", "ECE", "ME"];
+  const specializations = ["CSE", "E.Com", "ME"];
 
   const modes = [
     { value: "offline", label: "Offline" },

@@ -274,7 +274,7 @@ const Templates = () => {
               value={form.body}
               onChange={(e) => setForm({ ...form, body: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 h-32 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Hello {first_name}..."
+              placeholder="Hello ..."
             />
           </div>
 

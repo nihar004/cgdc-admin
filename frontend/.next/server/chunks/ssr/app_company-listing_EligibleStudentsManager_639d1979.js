@@ -29,7 +29,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$toa
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 // Manual Override Modal Component
 function ManualOverrideModal({ student, companyId, batchYear, onClose, onSuccess }) {
     const [reason, setReason] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
@@ -120,12 +120,8 @@ function ManualOverrideModal({ student, companyId, batchYear, onClose, onSuccess
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-sm text-blue-900 font-medium mb-1",
-                            children: [
-                                student.first_name,
-                                " ",
-                                student.last_name
-                            ]
-                        }, void 0, true, {
+                            children: student.full_name
+                        }, void 0, false, {
                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
                             lineNumber: 78,
                             columnNumber: 11
@@ -586,27 +582,27 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                     children: "Students will be evaluated based on CGPA, backlogs, and branch requirements"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 345,
+                                                    lineNumber: 346,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                     children: "Placement status and upgrade opportunities will be considered"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 349,
+                                                    lineNumber: 350,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                     children: "You can manually add ineligible students later"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 353,
+                                                    lineNumber: 354,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 344,
+                                            lineNumber: 345,
                                             columnNumber: 17
                                         }, this)
                                     ]
@@ -635,7 +631,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 children: "Cancel"
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 360,
+                                lineNumber: 361,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -648,7 +644,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                             className: "h-4 w-4 animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 373,
+                                            lineNumber: 374,
                                             columnNumber: 19
                                         }, this),
                                         "Calculating..."
@@ -659,7 +655,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 378,
+                                            lineNumber: 379,
                                             columnNumber: 19
                                         }, this),
                                         "Calculate Eligibility"
@@ -667,13 +663,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 }, void 0, true)
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 366,
+                                lineNumber: 367,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                        lineNumber: 359,
+                        lineNumber: 360,
                         columnNumber: 11
                     }, this)
                 ]
@@ -706,12 +702,12 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                             className: "h-6 w-6 text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 396,
+                                            lineNumber: 397,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 395,
+                                        lineNumber: 396,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -719,13 +715,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: "Eligibility Overview"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 398,
+                                        lineNumber: 399,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 394,
+                                lineNumber: 395,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -735,18 +731,18 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     className: "h-6 w-6 text-gray-400"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 406,
+                                    lineNumber: 407,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 402,
+                                lineNumber: 403,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                        lineNumber: 393,
+                        lineNumber: 394,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -762,7 +758,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "h-5 w-5 text-green-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 413,
+                                                lineNumber: 414,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -770,13 +766,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "Eligible"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 414,
+                                                lineNumber: 415,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 412,
+                                        lineNumber: 413,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -784,7 +780,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: briefInfo.total_eligible_count
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 418,
+                                        lineNumber: 419,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -792,13 +788,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: "Students can apply"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 421,
+                                        lineNumber: 422,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 411,
+                                lineNumber: 412,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -811,7 +807,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "h-5 w-5 text-red-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 426,
+                                                lineNumber: 427,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -819,13 +815,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "Ineligible"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 427,
+                                                lineNumber: 428,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 425,
+                                        lineNumber: 426,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -833,7 +829,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: briefInfo.total_ineligible_count
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 431,
+                                        lineNumber: 432,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -841,13 +837,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: "Don't meet criteria"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 434,
+                                        lineNumber: 435,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 424,
+                                lineNumber: 425,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -860,7 +856,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "h-5 w-5 text-amber-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 439,
+                                                lineNumber: 442,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -868,13 +864,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "Dream Used"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 440,
+                                                lineNumber: 443,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 438,
+                                        lineNumber: 441,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -882,7 +878,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: briefInfo.dream_company_count || 0
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 444,
+                                        lineNumber: 447,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -890,19 +886,19 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: "Via dream company"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 447,
+                                        lineNumber: 450,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 437,
+                                lineNumber: 440,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                        lineNumber: 410,
+                        lineNumber: 411,
                         columnNumber: 11
                     }, this),
                     briefInfo.eligibility_criteria && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -913,7 +909,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 children: "Eligibility Criteria"
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 453,
+                                lineNumber: 456,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -926,7 +922,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "Minimum CGPA:"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 458,
+                                                lineNumber: 461,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -934,13 +930,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: briefInfo.eligibility_criteria.min_cgpa || "No minimum"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 459,
+                                                lineNumber: 462,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 457,
+                                        lineNumber: 460,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -950,7 +946,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "Maximum Backlogs:"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 464,
+                                                lineNumber: 467,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -958,13 +954,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: briefInfo.eligibility_criteria.max_backlogs === 999 ? "No limit" : briefInfo.eligibility_criteria.max_backlogs
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 465,
+                                                lineNumber: 468,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 463,
+                                        lineNumber: 466,
                                         columnNumber: 17
                                     }, this),
                                     briefInfo.eligibility_criteria.allowed_specializations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -975,7 +971,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "Allowed Branches:"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 473,
+                                                lineNumber: 476,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -985,30 +981,30 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                         children: spec.trim()
                                                     }, idx, false, {
                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                        lineNumber: 482,
+                                                        lineNumber: 485,
                                                         columnNumber: 25
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 474,
+                                                lineNumber: 477,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 472,
+                                        lineNumber: 475,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 456,
+                                lineNumber: 459,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                        lineNumber: 452,
+                        lineNumber: 455,
                         columnNumber: 13
                     }, this),
                     briefInfo.updated_at && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1019,7 +1015,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                        lineNumber: 497,
+                        lineNumber: 500,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1031,7 +1027,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 children: "Close"
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 503,
+                                lineNumber: 506,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1044,7 +1040,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                             className: "h-4 w-4 animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 516,
+                                            lineNumber: 519,
                                             columnNumber: 19
                                         }, this),
                                         "Loading..."
@@ -1055,7 +1051,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 521,
+                                            lineNumber: 524,
                                             columnNumber: 19
                                         }, this),
                                         "Show Student Details"
@@ -1063,24 +1059,24 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 }, void 0, true)
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 509,
+                                lineNumber: 512,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                        lineNumber: 502,
+                        lineNumber: 505,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                lineNumber: 392,
+                lineNumber: 393,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-            lineNumber: 391,
+            lineNumber: 392,
             columnNumber: 7
         }, this);
     }
@@ -1105,12 +1101,12 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "h-6 w-6 text-blue-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 542,
+                                                lineNumber: 545,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 541,
+                                            lineNumber: 544,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1118,13 +1114,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                             children: "Manage Eligible Students"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 544,
+                                            lineNumber: 547,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 540,
+                                    lineNumber: 543,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1141,14 +1137,14 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 556,
+                                                    lineNumber: 559,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Hide Details"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 549,
+                                            lineNumber: 552,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1158,24 +1154,24 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "h-6 w-6 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 563,
+                                                lineNumber: 566,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 559,
+                                            lineNumber: 562,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 548,
+                                    lineNumber: 551,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                            lineNumber: 539,
+                            lineNumber: 542,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1191,7 +1187,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 569,
+                                    lineNumber: 572,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1204,13 +1200,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 579,
+                                    lineNumber: 582,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                            lineNumber: 568,
+                            lineNumber: 571,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1224,7 +1220,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "mx-auto h-12 w-12 text-gray-300 mb-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 596,
+                                                lineNumber: 599,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1232,13 +1228,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "No eligible students yet"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 597,
+                                                lineNumber: 600,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 595,
+                                        lineNumber: 598,
                                         columnNumber: 19
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "overflow-x-auto",
@@ -1254,7 +1250,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Registration"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 604,
+                                                                lineNumber: 607,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1262,7 +1258,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Name"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 607,
+                                                                lineNumber: 610,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1270,7 +1266,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Enrollment"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 610,
+                                                                lineNumber: 613,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1278,7 +1274,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Branch"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 613,
+                                                                lineNumber: 616,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1286,7 +1282,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "CGPA"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 616,
+                                                                lineNumber: 619,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1294,7 +1290,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Backlogs"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 619,
+                                                                lineNumber: 622,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1302,7 +1298,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Academics"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 622,
+                                                                lineNumber: 625,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1310,7 +1306,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Status"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 625,
+                                                                lineNumber: 628,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1318,18 +1314,18 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Action"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 628,
+                                                                lineNumber: 631,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                        lineNumber: 603,
+                                                        lineNumber: 606,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 602,
+                                                    lineNumber: 605,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1342,19 +1338,15 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: student.registration_number
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 639,
+                                                                    lineNumber: 642,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "px-4 py-3 text-sm text-gray-900",
-                                                                    children: [
-                                                                        student.first_name,
-                                                                        " ",
-                                                                        student.last_name
-                                                                    ]
-                                                                }, void 0, true, {
+                                                                    children: student.full_name
+                                                                }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 642,
+                                                                    lineNumber: 645,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1362,7 +1354,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: student.enrollment_number
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 645,
+                                                                    lineNumber: 648,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1374,7 +1366,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 648,
+                                                                    lineNumber: 651,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1382,7 +1374,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: parseFloat(student.cgpa).toFixed(2)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 651,
+                                                                    lineNumber: 654,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1390,7 +1382,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: student.backlogs
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 654,
+                                                                    lineNumber: 657,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1406,7 +1398,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         children: "10th:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 660,
+                                                                                        lineNumber: 663,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1417,13 +1409,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 661,
+                                                                                        lineNumber: 664,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 659,
+                                                                                lineNumber: 662,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1434,7 +1426,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         children: "12th:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 666,
+                                                                                        lineNumber: 669,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1445,24 +1437,24 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 667,
+                                                                                        lineNumber: 670,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 665,
+                                                                                lineNumber: 668,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 658,
+                                                                        lineNumber: 661,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 657,
+                                                                    lineNumber: 660,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1477,14 +1469,14 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         className: "h-3 w-3"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 677,
+                                                                                        lineNumber: 680,
                                                                                         columnNumber: 37
                                                                                     }, this),
                                                                                     "Manual Override"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 676,
+                                                                                lineNumber: 679,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1496,13 +1488,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 680,
+                                                                                lineNumber: 683,
                                                                                 columnNumber: 35
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 675,
+                                                                        lineNumber: 678,
                                                                         columnNumber: 33
                                                                     }, this) : student.used_dream_company ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         className: "inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-medium",
@@ -1511,14 +1503,14 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                 className: "h-3 w-3"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 686,
+                                                                                lineNumber: 689,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             "Dream Company"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 685,
+                                                                        lineNumber: 688,
                                                                         columnNumber: 33
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         className: "inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium",
@@ -1527,19 +1519,19 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                 className: "h-3 w-3"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 691,
+                                                                                lineNumber: 694,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             "Auto Eligible"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 690,
+                                                                        lineNumber: 693,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 673,
+                                                                    lineNumber: 676,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1553,52 +1545,52 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                 className: "h-3 w-3 animate-spin"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 710,
+                                                                                lineNumber: 713,
                                                                                 columnNumber: 37
                                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
                                                                                 className: "h-3 w-3"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 712,
+                                                                                lineNumber: 715,
                                                                                 columnNumber: 37
                                                                             }, this),
                                                                             "Remove"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 699,
+                                                                        lineNumber: 702,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 696,
+                                                                    lineNumber: 699,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, student.id, true, {
                                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                            lineNumber: 635,
+                                                            lineNumber: 638,
                                                             columnNumber: 27
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 633,
+                                                    lineNumber: 636,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 601,
+                                            lineNumber: 604,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 600,
+                                        lineNumber: 603,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 593,
+                                    lineNumber: 596,
                                     columnNumber: 15
                                 }, this),
                                 activeTab === "ineligible" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1609,7 +1601,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 className: "mx-auto h-12 w-12 text-gray-300 mb-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 731,
+                                                lineNumber: 734,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1617,13 +1609,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 children: "All students are eligible"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 732,
+                                                lineNumber: 735,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 730,
+                                        lineNumber: 733,
                                         columnNumber: 19
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "overflow-x-auto",
@@ -1639,7 +1631,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Registration"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 739,
+                                                                lineNumber: 742,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1647,7 +1639,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Name"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 742,
+                                                                lineNumber: 745,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1655,7 +1647,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Enrollment"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 745,
+                                                                lineNumber: 748,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1663,7 +1655,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Branch"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 748,
+                                                                lineNumber: 751,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1671,7 +1663,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "CGPA"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 751,
+                                                                lineNumber: 754,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1679,7 +1671,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Backlogs"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 754,
+                                                                lineNumber: 757,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1687,7 +1679,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Academics"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 757,
+                                                                lineNumber: 760,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1695,7 +1687,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Dream Status"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 760,
+                                                                lineNumber: 763,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1703,18 +1695,18 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                 children: "Actions"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                lineNumber: 763,
+                                                                lineNumber: 766,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                        lineNumber: 738,
+                                                        lineNumber: 741,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 737,
+                                                    lineNumber: 740,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1727,19 +1719,15 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: student.registration_number
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 774,
+                                                                    lineNumber: 777,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "px-4 py-3 text-sm text-gray-900",
-                                                                    children: [
-                                                                        student.first_name,
-                                                                        " ",
-                                                                        student.last_name
-                                                                    ]
-                                                                }, void 0, true, {
+                                                                    children: student.full_name
+                                                                }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 777,
+                                                                    lineNumber: 780,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1747,7 +1735,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: student.enrollment_number
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 780,
+                                                                    lineNumber: 783,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1759,7 +1747,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 783,
+                                                                    lineNumber: 786,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1767,7 +1755,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: parseFloat(student.cgpa).toFixed(2)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 786,
+                                                                    lineNumber: 789,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1775,7 +1763,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                     children: student.backlogs
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 789,
+                                                                    lineNumber: 792,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1791,7 +1779,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         children: "10th:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 795,
+                                                                                        lineNumber: 798,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1802,13 +1790,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 796,
+                                                                                        lineNumber: 799,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 794,
+                                                                                lineNumber: 797,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1819,7 +1807,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         children: "12th:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 801,
+                                                                                        lineNumber: 804,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1830,24 +1818,24 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 802,
+                                                                                        lineNumber: 805,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 800,
+                                                                                lineNumber: 803,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 793,
+                                                                        lineNumber: 796,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 792,
+                                                                    lineNumber: 795,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1859,14 +1847,14 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                 className: "h-3 w-3"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 811,
+                                                                                lineNumber: 814,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             "Already Used"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 810,
+                                                                        lineNumber: 813,
                                                                         columnNumber: 33
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         className: "inline-flex items-center gap-1 bg-green-100 text-green-800 px-2.5 py-1 rounded-lg text-xs font-medium",
@@ -1875,19 +1863,19 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                 className: "h-3 w-3"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 816,
+                                                                                lineNumber: 819,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             "Available"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 815,
+                                                                        lineNumber: 818,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 808,
+                                                                    lineNumber: 811,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1905,20 +1893,20 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         className: "h-3 w-3 animate-spin"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 833,
+                                                                                        lineNumber: 836,
                                                                                         columnNumber: 39
                                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                                                                                         className: "h-3 w-3"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 835,
+                                                                                        lineNumber: 838,
                                                                                         columnNumber: 39
                                                                                     }, this),
                                                                                     "Dream"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 824,
+                                                                                lineNumber: 827,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1931,58 +1919,58 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                                                         className: "h-3 w-3"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                        lineNumber: 848,
+                                                                                        lineNumber: 851,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     "Manual"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                                lineNumber: 840,
+                                                                                lineNumber: 843,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                        lineNumber: 822,
+                                                                        lineNumber: 825,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                                    lineNumber: 821,
+                                                                    lineNumber: 824,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, student.id, true, {
                                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                            lineNumber: 770,
+                                                            lineNumber: 773,
                                                             columnNumber: 27
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                    lineNumber: 768,
+                                                    lineNumber: 771,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                            lineNumber: 736,
+                                            lineNumber: 739,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 735,
+                                        lineNumber: 738,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                    lineNumber: 728,
+                                    lineNumber: 731,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                            lineNumber: 591,
+                            lineNumber: 594,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2000,7 +1988,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                         children: eligibleStudents.length
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                        lineNumber: 867,
+                                                        lineNumber: 870,
                                                         columnNumber: 19
                                                     }, this),
                                                     " ",
@@ -2008,7 +1996,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 866,
+                                                lineNumber: 869,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2018,7 +2006,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                         children: ineligibleStudents.length
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                        lineNumber: 873,
+                                                        lineNumber: 876,
                                                         columnNumber: 19
                                                     }, this),
                                                     " ",
@@ -2026,7 +2014,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 872,
+                                                lineNumber: 875,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2036,7 +2024,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                         children: eligibilityData?.dream_company_usage_count || 0
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                        lineNumber: 879,
+                                                        lineNumber: 882,
                                                         columnNumber: 19
                                                     }, this),
                                                     " ",
@@ -2044,13 +2032,13 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                                lineNumber: 878,
+                                                lineNumber: 881,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 865,
+                                        lineNumber: 868,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2059,29 +2047,29 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         children: "Close"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                        lineNumber: 885,
+                                        lineNumber: 888,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                                lineNumber: 864,
+                                lineNumber: 867,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                            lineNumber: 863,
+                            lineNumber: 866,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                    lineNumber: 538,
+                    lineNumber: 541,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                lineNumber: 537,
+                lineNumber: 540,
                 columnNumber: 7
             }, this),
             showManualOverride && selectedStudent && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ManualOverrideModal, {
@@ -2095,7 +2083,7 @@ function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                 onSuccess: handleManualOverrideSuccess
             }, void 0, false, {
                 fileName: "[project]/app/company-listing/EligibleStudentsManager.js",
-                lineNumber: 897,
+                lineNumber: 900,
                 columnNumber: 9
             }, this)
         ]
