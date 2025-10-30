@@ -13,7 +13,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const EmailContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createContext"])();
 const EmailProvider = ({ children })=>{
     const [templates, setTemplates] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
@@ -311,6 +311,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$EmailContext$2e$j
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/axios/lib/axios.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hot-toast/dist/index.mjs [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-ssr] (ecmascript)");
+"use client";
 ;
 ;
 ;
@@ -318,8 +319,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navi
 ;
 ;
 ;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000");
-const ComposeEmail = ()=>{
+;
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
+const ComposeEmailContent = ()=>{
     const { templates, sendLogs, sendEmailToFilteredStudents, loading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$EmailContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEmail"])();
     const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSearchParams"])();
     const [selectedTemplate, setSelectedTemplate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -502,116 +504,6 @@ const ComposeEmail = ()=>{
     const getTotalAttachmentCount = ()=>{
         return getTemplateAttachments().length + manualAttachments.length;
     };
-    // const handleSend = async () => {
-    //   if (!formData.title || !formData.subject || !formData.body) {
-    //     toast.error("Please fill title, subject, and body");
-    //     return;
-    //   }
-    //   if (!formData.to_emails) {
-    //     toast.error("Please enter at least one 'To' email address");
-    //     return;
-    //   }
-    //   const formDataToSend = new FormData();
-    //   formDataToSend.append("title", formData.title);
-    //   formDataToSend.append("subject", formData.subject);
-    //   formDataToSend.append("body", formData.body);
-    //   formDataToSend.append("sender_email", formData.sender_email);
-    //   const toEmails = formData.to_emails
-    //     .split(",")
-    //     .map((e) => e.trim())
-    //     .filter((e) => e);
-    //   formDataToSend.append("to_emails", JSON.stringify(toEmails));
-    //   if (selectedTemplate) {
-    //     formDataToSend.append("template_id", selectedTemplate.id);
-    //     if (removedTemplateAttachments.length > 0) {
-    //       formDataToSend.append(
-    //         "excluded_template_attachments",
-    //         JSON.stringify(removedTemplateAttachments)
-    //       );
-    //     }
-    //   }
-    //   manualAttachments.forEach((file) => {
-    //     formDataToSend.append("manual_attachments", file);
-    //   });
-    //   if (formData.sendType === "filter") {
-    //     const filters = {};
-    //     if (formData.branch.length > 0) {
-    //       filters.branch = formData.branch;
-    //     }
-    //     if (formData.batch_year.length > 0) {
-    //       filters.batch_year = formData.batch_year;
-    //     }
-    //     if (formData.placement_status) {
-    //       filters.placement_status = formData.placement_status;
-    //     }
-    //     formDataToSend.append("recipient_filter", JSON.stringify(filters));
-    //   } else if (formData.sendType === "manual") {
-    //     const emails = formData.recipient_emails
-    //       .split(",")
-    //       .map((e) => e.trim())
-    //       .filter((e) => e);
-    //     if (emails.length === 0) {
-    //       toast.error("Please enter at least one email address");
-    //       return;
-    //     }
-    //     formDataToSend.append("recipient_emails", JSON.stringify(emails));
-    //   } else if (formData.sendType === "student_ids") {
-    //     const studentIds = formData.student_ids
-    //       .split(",")
-    //       .map((id) => parseInt(id.trim()))
-    //       .filter((id) => !isNaN(id));
-    //     formDataToSend.append("student_ids", JSON.stringify(studentIds));
-    //   }
-    //   if (formData.cc_emails) {
-    //     const ccEmails = formData.cc_emails
-    //       .split(",")
-    //       .map((e) => e.trim())
-    //       .filter((e) => e);
-    //     formDataToSend.append("cc_emails", JSON.stringify(ccEmails));
-    //   }
-    //   // Add message tracking fields if provided
-    //   if (formData.message_id) {
-    //     formDataToSend.append("message_id", formData.message_id);
-    //   }
-    //   if (formData.parent_message_id) {
-    //     formDataToSend.append("parent_message_id", formData.parent_message_id);
-    //   }
-    //   const sendPromise = sendLogs(formDataToSend);
-    //   toast.promise(sendPromise, {
-    //     loading: "Sending email...",
-    //     success: (result) => {
-    //       if (result.success) {
-    //         // Reset form
-    //         setFormData({
-    //           title: "",
-    //           subject: "",
-    //           body: "",
-    //           sender_email: "",
-    //           to_emails: "",
-    //           sendType: "filter",
-    //           branch: [],
-    //           batch_year: [],
-    //           placement_status: "",
-    //           recipient_emails: "",
-    //           student_ids: "",
-    //           event_id: "",
-    //           recipient_type: "registered",
-    //           cc_emails: "",
-    //           message_id: "",
-    //           parent_message_id: "",
-    //         });
-    //         setSelectedTemplate(null);
-    //         setManualAttachments([]);
-    //         setRemovedTemplateAttachments([]);
-    //         return `Email sent successfully! (${
-    //           result.data.emailResults?.successful || 0
-    //         } sent, ${result.data.emailResults?.failed || 0} failed)`;
-    //       }
-    //       throw new Error(result.message);
-    //     },
-    //     error: (err) => `Failed to send email: ${err.message}`,
-    //   });
-    // };
     const handleSend = async ()=>{
         if (!formData.title || !formData.subject || !formData.body) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].error("Please fill title, subject, and body");
@@ -769,7 +661,7 @@ const ComposeEmail = ()=>{
                                         className: "w-5 h-5 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 532,
+                                        lineNumber: 412,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -777,13 +669,13 @@ const ComposeEmail = ()=>{
                                         children: "Quick Start Templates"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 533,
+                                        lineNumber: 413,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 531,
+                                lineNumber: 411,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -798,24 +690,24 @@ const ComposeEmail = ()=>{
                                                 children: groupedTemplates[category]?.length || 0
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 549,
+                                                lineNumber: 429,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, category, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 539,
+                                        lineNumber: 419,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)))
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 537,
+                                lineNumber: 417,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 530,
+                        lineNumber: 410,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -835,32 +727,32 @@ const ComposeEmail = ()=>{
                                                 className: "w-3 h-3"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 589,
+                                                lineNumber: 469,
                                                 columnNumber: 23
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             attachmentCount
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 584,
+                                        lineNumber: 464,
                                         columnNumber: 21
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, template.id, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 573,
+                                lineNumber: 453,
                                 columnNumber: 17
                             }, ("TURBOPACK compile-time value", void 0));
                         })
                     }, void 0, false, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 563,
+                        lineNumber: 443,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                lineNumber: 529,
+                lineNumber: 409,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -881,7 +773,7 @@ const ComposeEmail = ()=>{
                                                     className: "w-5 h-5 text-green-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                    lineNumber: 607,
+                                                    lineNumber: 487,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -892,13 +784,13 @@ const ComposeEmail = ()=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                    lineNumber: 608,
+                                                    lineNumber: 488,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                            lineNumber: 606,
+                                            lineNumber: 486,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         selectedTemplate && getTemplateAttachments().length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -915,7 +807,7 @@ const ComposeEmail = ()=>{
                                                                     className: "w-4 h-4 text-green-600"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                    lineNumber: 618,
+                                                                    lineNumber: 498,
                                                                     columnNumber: 27
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -927,13 +819,13 @@ const ComposeEmail = ()=>{
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                    lineNumber: 619,
+                                                                    lineNumber: 499,
                                                                     columnNumber: 27
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                            lineNumber: 617,
+                                                            lineNumber: 497,
                                                             columnNumber: 25
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -950,12 +842,12 @@ const ComposeEmail = ()=>{
                                                                                         className: "w-4 h-4 text-green-600"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                        lineNumber: 632,
+                                                                                        lineNumber: 512,
                                                                                         columnNumber: 35
                                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                    lineNumber: 631,
+                                                                                    lineNumber: 511,
                                                                                     columnNumber: 33
                                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -966,7 +858,7 @@ const ComposeEmail = ()=>{
                                                                                             children: attachment.filename
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                            lineNumber: 635,
+                                                                                            lineNumber: 515,
                                                                                             columnNumber: 35
                                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                                         attachment.size && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -978,19 +870,19 @@ const ComposeEmail = ()=>{
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                            lineNumber: 639,
+                                                                                            lineNumber: 519,
                                                                                             columnNumber: 37
                                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                    lineNumber: 634,
+                                                                                    lineNumber: 514,
                                                                                     columnNumber: 33
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                            lineNumber: 630,
+                                                                            lineNumber: 510,
                                                                             columnNumber: 31
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1001,45 +893,45 @@ const ComposeEmail = ()=>{
                                                                                 className: "w-4 h-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                lineNumber: 655,
+                                                                                lineNumber: 535,
                                                                                 columnNumber: 33
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                            lineNumber: 648,
+                                                                            lineNumber: 528,
                                                                             columnNumber: 31
                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                     ]
                                                                 }, index, true, {
                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                    lineNumber: 626,
+                                                                    lineNumber: 506,
                                                                     columnNumber: 29
                                                                 }, ("TURBOPACK compile-time value", void 0)))
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                            lineNumber: 624,
+                                                            lineNumber: 504,
                                                             columnNumber: 25
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                    lineNumber: 616,
+                                                    lineNumber: 496,
                                                     columnNumber: 23
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 615,
+                                                lineNumber: 495,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                            lineNumber: 614,
+                                            lineNumber: 494,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                    lineNumber: 605,
+                                    lineNumber: 485,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1058,23 +950,23 @@ const ComposeEmail = ()=>{
                                         className: "w-4 h-4 text-green-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 678,
+                                        lineNumber: 558,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                    lineNumber: 665,
+                                    lineNumber: 545,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                            lineNumber: 604,
+                            lineNumber: 484,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 603,
+                        lineNumber: 483,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1087,7 +979,7 @@ const ComposeEmail = ()=>{
                                         children: "Title (Internal)"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 687,
+                                        lineNumber: 567,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1101,13 +993,13 @@ const ComposeEmail = ()=>{
                                         placeholder: "e.g., Google Drive Reminder - Jan 2024"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 690,
+                                        lineNumber: 570,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 686,
+                                lineNumber: 566,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1120,7 +1012,7 @@ const ComposeEmail = ()=>{
                                                 children: "Sender Email"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 702,
+                                                lineNumber: 582,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1134,13 +1026,13 @@ const ComposeEmail = ()=>{
                                                 className: "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 705,
+                                                lineNumber: 585,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 701,
+                                        lineNumber: 581,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1150,7 +1042,7 @@ const ComposeEmail = ()=>{
                                                 children: "To Emails (comma-separated) *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 716,
+                                                lineNumber: 596,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1164,7 +1056,7 @@ const ComposeEmail = ()=>{
                                                 placeholder: "placement@college.edu, hod@college.edu"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 719,
+                                                lineNumber: 599,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1172,25 +1064,25 @@ const ComposeEmail = ()=>{
                                                 children: "Primary visible recipients (students will be in BCC)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 728,
+                                                lineNumber: 608,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 715,
+                                        lineNumber: 595,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 700,
+                                lineNumber: 580,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 685,
+                        lineNumber: 565,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1200,7 +1092,7 @@ const ComposeEmail = ()=>{
                                 children: "CC Emails (comma-separated, optional)"
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 736,
+                                lineNumber: 616,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1214,7 +1106,7 @@ const ComposeEmail = ()=>{
                                 placeholder: "hod@college.edu, coordinator@college.edu"
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 739,
+                                lineNumber: 619,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1222,13 +1114,13 @@ const ComposeEmail = ()=>{
                                 children: "CC recipients will be visible to all. Students are automatically in BCC (hidden)."
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 748,
+                                lineNumber: 628,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 735,
+                        lineNumber: 615,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1238,7 +1130,7 @@ const ComposeEmail = ()=>{
                                 children: "Email Subject"
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 756,
+                                lineNumber: 636,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1252,7 +1144,7 @@ const ComposeEmail = ()=>{
                                 placeholder: "Write your email subject here..."
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 759,
+                                lineNumber: 639,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1260,13 +1152,13 @@ const ComposeEmail = ()=>{
                                 children: '💡 For follow-ups: Keep subject similar to original (e.g., add "Re:" prefix)'
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 768,
+                                lineNumber: 648,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 755,
+                        lineNumber: 635,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1276,7 +1168,7 @@ const ComposeEmail = ()=>{
                                 children: "Email Body (HTML)"
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 776,
+                                lineNumber: 656,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -1289,13 +1181,13 @@ const ComposeEmail = ()=>{
                                 placeholder: "Write your email body here..."
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 779,
+                                lineNumber: 659,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 775,
+                        lineNumber: 655,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1305,7 +1197,7 @@ const ComposeEmail = ()=>{
                                 children: "Additional Attachments"
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 789,
+                                lineNumber: 669,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1324,14 +1216,14 @@ const ComposeEmail = ()=>{
                                                         className: "w-4 h-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 800,
+                                                        lineNumber: 680,
                                                         columnNumber: 17
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     "Add Files"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 794,
+                                                lineNumber: 674,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1343,13 +1235,13 @@ const ComposeEmail = ()=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 803,
+                                                lineNumber: 683,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 793,
+                                        lineNumber: 673,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1361,7 +1253,7 @@ const ComposeEmail = ()=>{
                                         accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 807,
+                                        lineNumber: 687,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     manualAttachments.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1376,7 +1268,7 @@ const ComposeEmail = ()=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 818,
+                                                lineNumber: 698,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1393,12 +1285,12 @@ const ComposeEmail = ()=>{
                                                                             className: "w-4 h-4 text-purple-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                            lineNumber: 829,
+                                                                            lineNumber: 709,
                                                                             columnNumber: 27
                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                        lineNumber: 828,
+                                                                        lineNumber: 708,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1409,7 +1301,7 @@ const ComposeEmail = ()=>{
                                                                                 children: file.name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                lineNumber: 832,
+                                                                                lineNumber: 712,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1420,19 +1312,19 @@ const ComposeEmail = ()=>{
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                                lineNumber: 835,
+                                                                                lineNumber: 715,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                        lineNumber: 831,
+                                                                        lineNumber: 711,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                lineNumber: 827,
+                                                                lineNumber: 707,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1443,41 +1335,41 @@ const ComposeEmail = ()=>{
                                                                     className: "w-4 h-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                    lineNumber: 845,
+                                                                    lineNumber: 725,
                                                                     columnNumber: 25
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                lineNumber: 840,
+                                                                lineNumber: 720,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, index, true, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 823,
+                                                        lineNumber: 703,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 821,
+                                                lineNumber: 701,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 817,
+                                        lineNumber: 697,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 792,
+                                lineNumber: 672,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 788,
+                        lineNumber: 668,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1487,7 +1379,7 @@ const ComposeEmail = ()=>{
                                 children: "Send To"
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 857,
+                                lineNumber: 737,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             searchParams.get("from") !== "company" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1510,7 +1402,7 @@ const ComposeEmail = ()=>{
                                                 className: "w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 865,
+                                                lineNumber: 745,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1518,18 +1410,18 @@ const ComposeEmail = ()=>{
                                                 children: type === "filter" ? "Filter Students" : type === "manual" ? "Manual Emails" : "Selected Students"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 874,
+                                                lineNumber: 754,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, type, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 864,
+                                        lineNumber: 744,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)))
                             }, void 0, false, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 862,
+                                lineNumber: 742,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             formData.sendType === "filter" && searchParams.get("from") !== "company" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1542,7 +1434,7 @@ const ComposeEmail = ()=>{
                                                 children: "Branch"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 890,
+                                                lineNumber: 770,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1562,12 +1454,12 @@ const ComposeEmail = ()=>{
                                                         children: branch
                                                     }, branch, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 895,
+                                                        lineNumber: 775,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 893,
+                                                lineNumber: 773,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             formData.branch.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1581,7 +1473,7 @@ const ComposeEmail = ()=>{
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 918,
+                                                        lineNumber: 798,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1593,19 +1485,19 @@ const ComposeEmail = ()=>{
                                                         children: "Clear all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 921,
+                                                        lineNumber: 801,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 917,
+                                                lineNumber: 797,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 889,
+                                        lineNumber: 769,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1618,7 +1510,7 @@ const ComposeEmail = ()=>{
                                                         children: "Batch Year"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 935,
+                                                        lineNumber: 815,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1642,12 +1534,12 @@ const ComposeEmail = ()=>{
                                                                             children: year
                                                                         }, year, false, {
                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                            lineNumber: 943,
+                                                                            lineNumber: 823,
                                                                             columnNumber: 31
                                                                         }, ("TURBOPACK compile-time value", void 0)))
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                    lineNumber: 941,
+                                                                    lineNumber: 821,
                                                                     columnNumber: 27
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 formData.batch_year.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1662,7 +1554,7 @@ const ComposeEmail = ()=>{
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                            lineNumber: 968,
+                                                                            lineNumber: 848,
                                                                             columnNumber: 31
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1674,13 +1566,13 @@ const ComposeEmail = ()=>{
                                                                             children: "Clear all"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                            lineNumber: 972,
+                                                                            lineNumber: 852,
                                                                             columnNumber: 31
                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                    lineNumber: 967,
+                                                                    lineNumber: 847,
                                                                     columnNumber: 29
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
@@ -1689,18 +1581,18 @@ const ComposeEmail = ()=>{
                                                             children: "No batch years available"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                            lineNumber: 987,
+                                                            lineNumber: 867,
                                                             columnNumber: 25
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 938,
+                                                        lineNumber: 818,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 934,
+                                                lineNumber: 814,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1710,7 +1602,7 @@ const ComposeEmail = ()=>{
                                                         children: "Placement Status"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 995,
+                                                        lineNumber: 875,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1726,7 +1618,7 @@ const ComposeEmail = ()=>{
                                                                 children: "All"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                lineNumber: 1008,
+                                                                lineNumber: 888,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1734,7 +1626,7 @@ const ComposeEmail = ()=>{
                                                                 children: "Placed"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                lineNumber: 1009,
+                                                                lineNumber: 889,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1742,31 +1634,31 @@ const ComposeEmail = ()=>{
                                                                 children: "Unplaced"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                                lineNumber: 1010,
+                                                                lineNumber: 890,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 998,
+                                                        lineNumber: 878,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 994,
+                                                lineNumber: 874,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 933,
+                                        lineNumber: 813,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 888,
+                                lineNumber: 768,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)),
                             formData.sendType === "manual" && searchParams.get("from") !== "company" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1777,7 +1669,7 @@ const ComposeEmail = ()=>{
                                         children: "Email Addresses (comma-separated)"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1020,
+                                        lineNumber: 900,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -1790,13 +1682,13 @@ const ComposeEmail = ()=>{
                                         placeholder: "student1@college.edu, student2@college.edu"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1023,
+                                        lineNumber: 903,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 1019,
+                                lineNumber: 899,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)),
                             (formData.sendType === "student_ids" || searchParams.get("from") === "company") && emailData && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1809,7 +1701,7 @@ const ComposeEmail = ()=>{
                                                 className: "w-5 h-5 text-blue-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1042,
+                                                lineNumber: 922,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1819,7 +1711,7 @@ const ComposeEmail = ()=>{
                                                         children: emailData.companyName
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 1044,
+                                                        lineNumber: 924,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1834,19 +1726,19 @@ const ComposeEmail = ()=>{
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                        lineNumber: 1047,
+                                                        lineNumber: 927,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1043,
+                                                lineNumber: 923,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1041,
+                                        lineNumber: 921,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     emailData.studentEmails && emailData.studentEmails.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1861,7 +1753,7 @@ const ComposeEmail = ()=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1061,
+                                                lineNumber: 941,
                                                 columnNumber: 23
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1871,30 +1763,30 @@ const ComposeEmail = ()=>{
                                                     children: emailData.studentEmails.join(", ")
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                    lineNumber: 1065,
+                                                    lineNumber: 945,
                                                     columnNumber: 25
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1064,
+                                                lineNumber: 944,
                                                 columnNumber: 23
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1060,
+                                        lineNumber: 940,
                                         columnNumber: 21
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 1040,
+                                lineNumber: 920,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 856,
+                        lineNumber: 736,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1908,7 +1800,7 @@ const ComposeEmail = ()=>{
                                         children: "Message Tracking (Optional - for follow-up emails)"
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1078,
+                                        lineNumber: 958,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1916,13 +1808,13 @@ const ComposeEmail = ()=>{
                                         children: '⚠️ For threading: use similar subject line (add "Re:" prefix)'
                                     }, void 0, false, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1081,
+                                        lineNumber: 961,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 1077,
+                                lineNumber: 957,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1935,7 +1827,7 @@ const ComposeEmail = ()=>{
                                                 children: "Message ID"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1087,
+                                                lineNumber: 968,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1949,7 +1841,7 @@ const ComposeEmail = ()=>{
                                                 placeholder: "Leave empty to auto-generate"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1090,
+                                                lineNumber: 971,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1957,13 +1849,13 @@ const ComposeEmail = ()=>{
                                                 children: "Auto-generated if not provided"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1099,
+                                                lineNumber: 980,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1086,
+                                        lineNumber: 967,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1973,7 +1865,7 @@ const ComposeEmail = ()=>{
                                                 children: "Parent Message ID"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1104,
+                                                lineNumber: 985,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1987,7 +1879,7 @@ const ComposeEmail = ()=>{
                                                 placeholder: "Link to original email for follow-ups"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1107,
+                                                lineNumber: 988,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1995,25 +1887,25 @@ const ComposeEmail = ()=>{
                                                 children: "Use this for follow-up/trail emails"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                                lineNumber: 1119,
+                                                lineNumber: 1000,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                                        lineNumber: 1103,
+                                        lineNumber: 984,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                                lineNumber: 1085,
+                                lineNumber: 966,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 1076,
+                        lineNumber: 956,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2027,31 +1919,52 @@ const ComposeEmail = ()=>{
                                     className: "w-4 h-4"
                                 }, void 0, false, {
                                     fileName: "[project]/app/email-management/ComposeEmail.js",
-                                    lineNumber: 1133,
+                                    lineNumber: 1014,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 loading ? "Sending..." : "Send Email"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/email-management/ComposeEmail.js",
-                            lineNumber: 1128,
+                            lineNumber: 1009,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/app/email-management/ComposeEmail.js",
-                        lineNumber: 1127,
+                        lineNumber: 1008,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/email-management/ComposeEmail.js",
-                lineNumber: 600,
+                lineNumber: 480,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/email-management/ComposeEmail.js",
-        lineNumber: 526,
+        lineNumber: 406,
+        columnNumber: 5
+    }, ("TURBOPACK compile-time value", void 0));
+};
+// Outer wrapper component
+const ComposeEmail = ()=>{
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Suspense"], {
+        fallback: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            children: "Loading..."
+        }, void 0, false, {
+            fileName: "[project]/app/email-management/ComposeEmail.js",
+            lineNumber: 1026,
+            columnNumber: 25
+        }, void 0),
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ComposeEmailContent, {}, void 0, false, {
+            fileName: "[project]/app/email-management/ComposeEmail.js",
+            lineNumber: 1027,
+            columnNumber: 7
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/app/email-management/ComposeEmail.js",
+        lineNumber: 1026,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

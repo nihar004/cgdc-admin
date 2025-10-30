@@ -63,10 +63,8 @@ const DeleteConfirmationModal = ({
               </p>
               <p className="text-sm text-red-700">
                 This will permanently delete the student record for{" "}
-                <span className="font-semibold">
-                  {student.first_name} {student.last_name}
-                </span>{" "}
-                and remove all associated data.
+                <span className="font-semibold">{student.full_name}</span> and
+                remove all associated data.
               </p>
             </div>
           </div>
@@ -76,7 +74,7 @@ const DeleteConfirmationModal = ({
         <div className="mb-6 p-4 bg-gray-50 rounded-xl">
           <div className="text-center">
             <h3 className="font-semibold text-gray-900 mb-1">
-              {student.first_name} {student.last_name}
+              {student.full_name}
             </h3>
             <p className="text-sm text-gray-600 mb-1">
               Registration: {student.registration_number}

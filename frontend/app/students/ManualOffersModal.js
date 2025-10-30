@@ -205,8 +205,7 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
           <div>
             <h2 className="text-2xl font-bold text-white">Manage Offers</h2>
             <p className="text-slate-300 text-sm mt-2">
-              {student.first_name} {student.last_name} •{" "}
-              {student.enrollment_number}
+              {student.full_name} • {student.enrollment_number}
             </p>
           </div>
           <button

@@ -76,7 +76,7 @@ function ManualOverrideModal({
 
         <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4">
           <p className="text-sm text-blue-900 font-medium mb-1">
-            {student.first_name} {student.last_name}
+            {student.full_name}
           </p>
           <p className="text-xs text-blue-700">
             Registration: {student.registration_number} | CGPA:{" "}
@@ -643,7 +643,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                               {student.registration_number}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-900">
-                              {student.first_name} {student.last_name}
+                              {student.full_name}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-600">
                               {student.enrollment_number}
@@ -778,7 +778,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                               {student.registration_number}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-900">
-                              {student.first_name} {student.last_name}
+                              {student.full_name}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-600">
                               {student.enrollment_number}

@@ -29,8 +29,7 @@ export default function StudentTable({ filteredStudents }) {
     setEditingStudent(student);
     setStudentFormData({
       enrollment_number: student.enrollment_number || "",
-      first_name: student.first_name || "",
-      last_name: student.last_name || "",
+      full_name: student.full_name || "",
       phone: student.phone || "",
       alternate_phone: student.alternate_phone || "",
       college_email: student.college_email || "",
@@ -109,7 +108,7 @@ export default function StudentTable({ filteredStudents }) {
 
       // Show success toast
       toast.success(
-        `${studentToDelete.first_name} ${studentToDelete.last_name} has been deleted successfully.`,
+        `${studentToDelete.full_name} has been deleted successfully.`,
         {
           duration: 4000,
           position: "top-right",

@@ -28,7 +28,7 @@ import { useBatchContext } from "../../context/BatchContext";
 
 const BRANCHES = [
   { value: "CSE", label: "CSE" },
-  { value: "ECE", label: "ECE" },
+  { value: "E.Com", label: "E.Com" },
   { value: "ME", label: "ME" },
 ];
 

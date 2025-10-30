@@ -243,7 +243,7 @@ const ImportResultsModal = ({ results, onClose }) => {
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 mb-2">
                                 <h4 className="font-semibold text-gray-900">
-                                  {student.first_name} {student.last_name}
+                                  {student.full_name || "N/A"}
                                 </h4>
                                 {activeTab.key === "successful" && (
                                   <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-800">
