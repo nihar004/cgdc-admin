@@ -1,10 +1,1 @@
-{
-  "/analytics/page": "app/analytics/page.js",
-  "/auth/page": "app/auth/page.js",
-  "/company-listing/page": "app/company-listing/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js",
-  "/round-tracking/page": "app/round-tracking/page.js",
-  "/students/page": "app/students/page.js",
-  "/user-management/page": "app/user-management/page.js"
-}
+{}
