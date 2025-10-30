@@ -31,7 +31,7 @@ routes.get("/batch/:batch_year", async (req, res) => {
         COALESCE(
           json_agg(DISTINCT jsonb_build_object(
             'student_id', s.id,
-            'name', CONCAT(s.first_name, ' ', s.last_name),
+            'name', s.full_name,
             'registration_number', s.registration_number,
             'enrollment_number', s.enrollment_number,
             'department', CONCAT(s.department, ' ', s.branch),
@@ -699,8 +699,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
               s.id,
               s.registration_number,
               s.enrollment_number,
-              s.first_name,
-              s.last_name,
+              s.full_name,
               s.department,
               s.batch_year,
               (fr.response_data->>'position_id')::int AS applied_position_id
@@ -709,7 +708,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
             INNER JOIN forms f ON f.id = fr.form_id
             WHERE f.event_id = $1
               AND (fr.response_data->>'position_id')::int = ANY($2::int[])
-            ORDER BY s.batch_year, s.department, s.first_name, s.last_name
+            ORDER BY s.batch_year, s.department, s.full_name
           `;
           studentParams = [eventId, positionIdArray];
         } else {
@@ -719,8 +718,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
               s.id,
               s.registration_number,
               s.enrollment_number,
-              s.first_name,
-              s.last_name,
+              s.full_name,
               s.department,
               s.batch_year,
               (fr.response_data->>'position_id')::int AS applied_position_id
@@ -728,7 +726,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
             INNER JOIN form_responses fr ON fr.student_id = s.id
             INNER JOIN forms f ON f.id = fr.form_id
             WHERE f.event_id = $1
-            ORDER BY s.batch_year, s.department, s.first_name, s.last_name
+            ORDER BY s.batch_year, s.department, s.full_name
           `;
           studentParams = [eventId];
         }
@@ -741,8 +739,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
               s.id,
               s.registration_number,
               s.enrollment_number,
-              s.first_name,
-              s.last_name,
+              s.full_name,
               s.department,
               s.batch_year,
               (fr.response_data->>'position_id')::int AS applied_position_id
@@ -760,7 +757,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
                 WHERE company_id = $1 AND round_number = 1
               )
               AND (fr.response_data->>'position_id')::int = ANY($3::int[])
-            ORDER BY s.batch_year, s.department, s.first_name, s.last_name
+            ORDER BY s.batch_year, s.department, s.full_name
           `;
           studentParams = [
             event.company_id,
@@ -774,8 +771,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
               s.id,
               s.registration_number,
               s.enrollment_number,
-              s.first_name,
-              s.last_name,
+              s.full_name,
               s.department,
               s.batch_year,
               (
@@ -796,7 +792,7 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
               AND prev_event.company_id = $1
               AND prev_event.round_number = $2
               AND s.registration_number IS NOT NULL
-            ORDER BY s.batch_year, s.department, s.first_name, s.last_name
+            ORDER BY s.batch_year, s.department, s.full_name
           `;
           studentParams = [event.company_id, event.round_number - 1];
         }
@@ -808,15 +804,14 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
           s.id,
           s.registration_number,
           s.enrollment_number,
-          s.first_name,
-          s.last_name,
+          s.full_name,
           s.department,
           s.batch_year
         FROM students s
         INNER JOIN form_responses fr ON fr.student_id = s.id
         INNER JOIN forms f ON f.id = fr.form_id
         WHERE f.event_id = $1
-        ORDER BY s.batch_year, s.department, s.first_name, s.last_name
+        ORDER BY s.batch_year, s.department, s.full_name
       `;
       studentParams = [eventId];
     }

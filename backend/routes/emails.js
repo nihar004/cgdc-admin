@@ -633,8 +633,7 @@ routes.post(
       } else if (parsedRecipientEmails && parsedRecipientEmails.length > 0) {
         students = parsedRecipientEmails.map((email) => ({
           college_email: email,
-          first_name: "",
-          last_name: "",
+          full_name: "",
           enrollment_number: "",
           department: "",
           branch: "",
@@ -750,7 +749,7 @@ routes.post(
 
 function buildStudentQuery(filter) {
   let query = `
-    SELECT id, college_email, personal_email, first_name, last_name, 
+    SELECT id, college_email, personal_email, full_name, 
            enrollment_number, registration_number, department, branch, cgpa, batch_year,
            class_10_percentage, class_12_percentage, 
            PS2_company_name, PS2_project_title
@@ -993,7 +992,7 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
 
     if (recipient_type === "registered") {
       studentQuery = `
-        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+        SELECT DISTINCT s.id, s.college_email, s.full_name, 
                s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
         FROM students s
         INNER JOIN student_round_results srr ON s.id = srr.student_id
@@ -1001,7 +1000,7 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
       `;
     } else if (recipient_type === "attended") {
       studentQuery = `
-        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+        SELECT DISTINCT s.id, s.college_email, s.full_name, 
                s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
         FROM students s
         INNER JOIN event_attendance ea ON s.id = ea.student_id
@@ -1009,7 +1008,7 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
       `;
     } else if (recipient_type === "absent") {
       studentQuery = `
-        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+        SELECT DISTINCT s.id, s.college_email, s.full_name, 
                s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
         FROM students s
         INNER JOIN event_attendance ea ON s.id = ea.student_id
@@ -1017,7 +1016,7 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
       `;
     } else if (recipient_type === "selected") {
       studentQuery = `
-        SELECT DISTINCT s.id, s.college_email, s.first_name, s.last_name, 
+        SELECT DISTINCT s.id, s.college_email, s.full_name, 
                s.enrollment_number, s.department, s.branch, s.cgpa, s.batch_year
         FROM students s
         INNER JOIN student_round_results srr ON s.id = srr.student_id
@@ -1193,7 +1192,7 @@ routes.post(
       // --- Fetch students from database ---
       const result = await db.query(
         `
-        SELECT id, college_email, first_name, last_name, enrollment_number, 
+        SELECT id, college_email, full_name , enrollment_number, 
                department, branch, cgpa, batch_year
         FROM students 
         WHERE id = ANY($1) AND college_email IS NOT NULL
