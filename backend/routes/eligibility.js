@@ -342,227 +342,6 @@ routes.put(
   }
 );
 
-// // GET /eligibility/companies/:companyId/batch/:batchYear/email-targets/eligible-only
-// routes.get(
-//   "/companies/:companyId/batch/:batchYear/email-targets/eligible-only",
-//   async (req, res) => {
-//     const { companyId, batchYear } = req.params;
-
-//     try {
-//       if (!companyId || isNaN(companyId)) {
-//         return res.status(400).json({ error: "Invalid company ID" });
-//       }
-//       if (!batchYear || isNaN(batchYear)) {
-//         return res.status(400).json({ error: "Invalid batch year" });
-//       }
-
-//       // Get batch ID from batch year
-//       const batchResult = await db.query(
-//         "SELECT id FROM batches WHERE year = $1",
-//         [parseInt(batchYear)]
-//       );
-
-//       if (batchResult.rows.length === 0) {
-//         return res.status(404).json({
-//           success: false,
-//           error: "Batch not found for the given year",
-//           students: [],
-//           student_ids: [],
-//         });
-//       }
-
-//       const batchId = batchResult.rows[0].id;
-
-//       const eligibilityQuery = `
-//       SELECT
-//         eligible_student_ids,
-//         dream_company_student_ids,
-//         manual_override_reasons
-//       FROM company_eligibility
-//       WHERE company_id = $1 AND batch_id = $2
-//     `;
-
-//       const eligibilityResult = await db.query(eligibilityQuery, [
-//         companyId,
-//         batchId,
-//       ]);
-
-//       if (eligibilityResult.rows.length === 0) {
-//         return res.status(404).json({
-//           success: false,
-//           error: "No eligibility record found",
-//           students: [],
-//           student_ids: [],
-//         });
-//       }
-
-//       const eligibleIds = eligibilityResult.rows[0].eligible_student_ids || [];
-//       const dreamCompanyIds =
-//         eligibilityResult.rows[0].dream_company_student_ids || [];
-//       const manualReasons =
-//         eligibilityResult.rows[0].manual_override_reasons || {};
-
-//       if (eligibleIds.length === 0) {
-//         return res.json({
-//           success: true,
-//           students: [],
-//           student_ids: [],
-//           total_count: 0,
-//         });
-//       }
-
-//       const query = `
-//       SELECT
-//         s.id, s.registration_number, s.enrollment_number,
-//         s.first_name, s.last_name, s.college_email, s.personal_email,
-//         s.phone, s.branch, s.batch_year, s.cgpa, s.backlogs,
-//         s.department, s.placement_status, s.current_offer
-//       FROM students s
-//       WHERE s.id = ANY($1::int[])
-//         AND s.college_email IS NOT NULL
-//       ORDER BY s.cgpa DESC, s.first_name, s.last_name
-//     `;
-
-//       const result = await db.query(query, [eligibleIds]);
-
-//       const students = result.rows.map((student) => ({
-//         ...student,
-//         full_name: `${student.first_name} ${student.last_name}`,
-//         used_dream_company: dreamCompanyIds.includes(student.id),
-//         manual_override_reason: manualReasons[student.id] || null,
-//       }));
-
-//       res.json({
-//         success: true,
-//         company_id: parseInt(companyId),
-//         batch_year: parseInt(batchYear),
-//         batch_id: batchId,
-//         students: students,
-//         student_ids: students.map((s) => s.id),
-//         total_count: students.length,
-//       });
-//     } catch (error) {
-//       console.error("Error fetching eligible students:", error);
-//       res.status(500).json({
-//         success: false,
-//         error: "Failed to fetch eligible students",
-//         details: error.message,
-//       });
-//     }
-//   }
-// );
-
-// // GET /eligibility/companies/:companyId/batch/:batchYear/email-targets/dream-only
-// routes.get(
-//   "/companies/:companyId/batch/:batchYear/email-targets/dream-only",
-//   async (req, res) => {
-//     const { companyId, batchYear } = req.params;
-
-//     try {
-//       if (!companyId || isNaN(companyId)) {
-//         return res.status(400).json({ error: "Invalid company ID" });
-//       }
-//       if (!batchYear || isNaN(batchYear)) {
-//         return res.status(400).json({ error: "Invalid batch year" });
-//       }
-
-//       // Get batch ID from batch year
-//       const batchResult = await db.query(
-//         "SELECT id FROM batches WHERE year = $1",
-//         [parseInt(batchYear)]
-//       );
-
-//       if (batchResult.rows.length === 0) {
-//         return res.status(404).json({
-//           success: false,
-//           error: "Batch not found for the given year",
-//           students: [],
-//           student_ids: [],
-//         });
-//       }
-
-//       const batchId = batchResult.rows[0].id;
-
-//       const eligibilityQuery = `
-//       SELECT
-//         ineligible_student_ids,
-//         dream_company_student_ids
-//       FROM company_eligibility
-//       WHERE company_id = $1 AND batch_id = $2
-//     `;
-
-//       const eligibilityResult = await db.query(eligibilityQuery, [
-//         companyId,
-//         batchId,
-//       ]);
-
-//       if (eligibilityResult.rows.length === 0) {
-//         return res.status(404).json({
-//           success: false,
-//           error: "No eligibility record found",
-//           students: [],
-//           student_ids: [],
-//         });
-//       }
-
-//       const ineligibleIds =
-//         eligibilityResult.rows[0].ineligible_student_ids || [];
-//       const dreamCompanyIds =
-//         eligibilityResult.rows[0].dream_company_student_ids || [];
-
-//       // Find ineligible students who haven't used dream company
-//       const dreamOpportunityIds = ineligibleIds.filter(
-//         (id) => !dreamCompanyIds.includes(id)
-//       );
-
-//       if (dreamOpportunityIds.length === 0) {
-//         return res.json({
-//           success: true,
-//           students: [],
-//           student_ids: [],
-//           total_count: 0,
-//         });
-//       }
-
-//       const query = `
-//       SELECT
-//         s.id, s.registration_number, s.enrollment_number,
-//         s.first_name, s.last_name, s.college_email, s.personal_email,
-//         s.phone, s.branch, s.batch_year, s.cgpa, s.backlogs,
-//         s.department, s.placement_status, s.current_offer, s.dream_company_used
-//       FROM students s
-//       WHERE s.id = ANY($1::int[])
-//         AND s.college_email IS NOT NULL
-//       ORDER BY s.cgpa DESC, s.first_name, s.last_name
-//     `;
-
-//       const result = await db.query(query, [dreamOpportunityIds]);
-
-//       const students = result.rows.map((student) => ({
-//         ...student,
-//         full_name: `${student.first_name} ${student.last_name}`,
-//         can_use_dream_company: !student.dream_company_used,
-//       }));
-
-//       res.json({
-//         success: true,
-//         company_id: parseInt(companyId),
-//         batch_year: parseInt(batchYear),
-//         batch_id: batchId,
-//         students: students,
-//         student_ids: students.map((s) => s.id),
-//         total_count: students.length,
-//       });
-//     } catch (error) {
-//       console.error("Error fetching dream opportunity students:", error);
-//       res.status(500).json({
-//         success: false,
-//         error: "Failed to fetch dream opportunity students",
-//         details: error.message,
-//       });
-//     }
-//   }
-// );
 // GET /eligibility/companies/:companyId/batch/:batchYear/email-targets/eligible-only
 routes.get(
   "/companies/:companyId/batch/:batchYear/email-targets/eligible-only",
@@ -635,22 +414,19 @@ routes.get(
       const query = `
       SELECT 
         s.id,
-        s.first_name,
-        s.last_name,
+        s.full_name,
         s.college_email
       FROM students s
       WHERE s.id = ANY($1::int[])
         AND s.college_email IS NOT NULL
-      ORDER BY s.first_name, s.last_name
+      ORDER BY s.full_name 
     `;
 
       const result = await db.query(query, [eligibleIds]);
 
       const students = result.rows.map((student) => ({
         id: student.id,
-        first_name: student.first_name,
-        last_name: student.last_name,
-        full_name: `${student.first_name} ${student.last_name}`,
+        full_name: student.full_name,
         college_email: student.college_email,
       }));
 
@@ -749,22 +525,19 @@ routes.get(
       const query = `
       SELECT 
         s.id,
-        s.first_name,
-        s.last_name,
+        s.full_name,
         s.college_email
       FROM students s
       WHERE s.id = ANY($1::int[])
         AND s.college_email IS NOT NULL
-      ORDER BY s.first_name, s.last_name
+      ORDER BY s.full_name
     `;
 
       const result = await db.query(query, [dreamOpportunityIds]);
 
       const students = result.rows.map((student) => ({
         id: student.id,
-        first_name: student.first_name,
-        last_name: student.last_name,
-        full_name: `${student.first_name} ${student.last_name}`,
+        full_name: student.full_name,
         college_email: student.college_email,
       }));
 

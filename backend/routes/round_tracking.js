@@ -371,7 +371,7 @@ routes.get("/events/:eventId/students", async (req, res) => {
         SELECT DISTINCT
           s.id,
           s.registration_number,
-          s.first_name || ' ' || s.last_name as name,
+          s.full_name as name,
           s.enrollment_number,
           s.cgpa,
           s.department,
@@ -403,7 +403,7 @@ routes.get("/events/:eventId/students", async (req, res) => {
         SELECT DISTINCT
           s.id,
           s.registration_number,
-          s.first_name || ' ' || s.last_name as name,
+          s.full_name as name,
           s.enrollment_number,
           s.cgpa,
           s.department,
