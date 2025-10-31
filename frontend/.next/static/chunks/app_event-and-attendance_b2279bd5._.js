@@ -2420,7 +2420,7 @@ function CreateEvent(param) {
     ];
     const specializations = [
         "CSE",
-        "ECE",
+        "E.Com",
         "ME"
     ];
     const modes = [
@@ -4309,8 +4309,8 @@ const MarkAttendanceModal = (param)=>{
         }
     };
     const filteredStudents = students.filter((student)=>{
-        var _student_registration_number, _student_first_name, _student_last_name, _student_enrollment_number;
-        return ((_student_registration_number = student.registration_number) === null || _student_registration_number === void 0 ? void 0 : _student_registration_number.toLowerCase().includes(searchTerm.toLowerCase())) || ((_student_first_name = student.first_name) === null || _student_first_name === void 0 ? void 0 : _student_first_name.toLowerCase().includes(searchTerm.toLowerCase())) || ((_student_last_name = student.last_name) === null || _student_last_name === void 0 ? void 0 : _student_last_name.toLowerCase().includes(searchTerm.toLowerCase())) || ((_student_enrollment_number = student.enrollment_number) === null || _student_enrollment_number === void 0 ? void 0 : _student_enrollment_number.toLowerCase().includes(searchTerm.toLowerCase()));
+        var _student_registration_number, _student_full_name, _student_enrollment_number;
+        return ((_student_registration_number = student.registration_number) === null || _student_registration_number === void 0 ? void 0 : _student_registration_number.toLowerCase().includes(searchTerm.toLowerCase())) || ((_student_full_name = student.full_name) === null || _student_full_name === void 0 ? void 0 : _student_full_name.toLowerCase().includes(searchTerm.toLowerCase())) || ((_student_enrollment_number = student.enrollment_number) === null || _student_enrollment_number === void 0 ? void 0 : _student_enrollment_number.toLowerCase().includes(searchTerm.toLowerCase()));
     });
     const getStatusMessage = ()=>{
         switch(eventStatus){
@@ -4322,7 +4322,7 @@ const MarkAttendanceModal = (param)=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 371,
+                        lineNumber: 370,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4334,7 +4334,7 @@ const MarkAttendanceModal = (param)=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 377,
+                        lineNumber: 376,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4346,7 +4346,7 @@ const MarkAttendanceModal = (param)=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 384,
+                        lineNumber: 383,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4358,7 +4358,7 @@ const MarkAttendanceModal = (param)=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 390,
+                        lineNumber: 389,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4402,12 +4402,12 @@ const MarkAttendanceModal = (param)=>{
                                             className: "h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 428,
+                                            lineNumber: 427,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 424,
+                                        lineNumber: 423,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4419,12 +4419,12 @@ const MarkAttendanceModal = (param)=>{
                                                     className: "h-6 w-6"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 433,
+                                                    lineNumber: 432,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 432,
+                                                lineNumber: 431,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4434,7 +4434,7 @@ const MarkAttendanceModal = (param)=>{
                                                         children: isEditMode ? "Edit Attendance" : "Mark Attendance"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                        lineNumber: 436,
+                                                        lineNumber: 435,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4445,7 +4445,7 @@ const MarkAttendanceModal = (param)=>{
                                                                 children: eventData === null || eventData === void 0 ? void 0 : eventData.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 440,
+                                                                lineNumber: 439,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4456,7 +4456,7 @@ const MarkAttendanceModal = (param)=>{
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 443,
+                                                                lineNumber: 442,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             (eventData === null || eventData === void 0 ? void 0 : eventData.type) === "company_round" && (eventData === null || eventData === void 0 ? void 0 : eventData.roundNumber) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4470,7 +4470,7 @@ const MarkAttendanceModal = (param)=>{
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 451,
+                                                                        lineNumber: 450,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     (eventData === null || eventData === void 0 ? void 0 : eventData.roundType) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4478,13 +4478,13 @@ const MarkAttendanceModal = (param)=>{
                                                                         children: eventData.roundType
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 455,
+                                                                        lineNumber: 454,
                                                                         columnNumber: 29
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 450,
+                                                                lineNumber: 449,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             positionDetails.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4495,14 +4495,14 @@ const MarkAttendanceModal = (param)=>{
                                                                         children: "Positions: "
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 463,
+                                                                        lineNumber: 462,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     positionDetails.map((p)=>p.position_title).join(", ")
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 462,
+                                                                lineNumber: 461,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4512,7 +4512,7 @@ const MarkAttendanceModal = (param)=>{
                                                                         children: (eventData === null || eventData === void 0 ? void 0 : eventData.date) && new Date(eventData.date).toLocaleDateString()
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 470,
+                                                                        lineNumber: 469,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4523,38 +4523,38 @@ const MarkAttendanceModal = (param)=>{
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 474,
+                                                                        lineNumber: 473,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         children: eventData === null || eventData === void 0 ? void 0 : eventData.venue
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 477,
+                                                                        lineNumber: 476,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 469,
+                                                                lineNumber: 468,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                        lineNumber: 439,
+                                                        lineNumber: 438,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 435,
+                                                lineNumber: 434,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 431,
+                                        lineNumber: 430,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4567,7 +4567,7 @@ const MarkAttendanceModal = (param)=>{
                                                 children: "Start Event"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 484,
+                                                lineNumber: 483,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4577,19 +4577,19 @@ const MarkAttendanceModal = (param)=>{
                                                 children: "End Event"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 495,
+                                                lineNumber: 494,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 483,
+                                        lineNumber: 482,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 423,
+                                lineNumber: 422,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4601,13 +4601,13 @@ const MarkAttendanceModal = (param)=>{
                                         children: statusInfo.message
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 513,
+                                        lineNumber: 512,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 509,
+                                lineNumber: 508,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4617,7 +4617,7 @@ const MarkAttendanceModal = (param)=>{
                                         className: "h-4 w-4 text-orange-600 mt-0.5"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 517,
+                                        lineNumber: 516,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4628,26 +4628,26 @@ const MarkAttendanceModal = (param)=>{
                                                 children: "Important Note"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 519,
+                                                lineNumber: 518,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 children: "Students are marked as absent by default. Only mark present for those who attended."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 520,
+                                                lineNumber: 519,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 518,
+                                        lineNumber: 517,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 516,
+                                lineNumber: 515,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             roundInfo && (eventData === null || eventData === void 0 ? void 0 : eventData.type) === "company_round" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4660,7 +4660,7 @@ const MarkAttendanceModal = (param)=>{
                                             children: "Round Information"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 530,
+                                            lineNumber: 529,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4673,7 +4673,7 @@ const MarkAttendanceModal = (param)=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 532,
+                                                    lineNumber: 531,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4683,14 +4683,14 @@ const MarkAttendanceModal = (param)=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 533,
+                                                    lineNumber: 532,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 roundInfo.roundNumber === 1 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: "• Source: Students who applied via registration forms"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 535,
+                                                    lineNumber: 534,
                                                     columnNumber: 23
                                                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: [
@@ -4700,24 +4700,24 @@ const MarkAttendanceModal = (param)=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 539,
+                                                    lineNumber: 538,
                                                     columnNumber: 23
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 531,
+                                            lineNumber: 530,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 529,
+                                    lineNumber: 528,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 528,
+                                lineNumber: 527,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4728,7 +4728,7 @@ const MarkAttendanceModal = (param)=>{
                                         value: stats.total
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 550,
+                                        lineNumber: 549,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4737,7 +4737,7 @@ const MarkAttendanceModal = (param)=>{
                                         color: "green"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 551,
+                                        lineNumber: 550,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4746,7 +4746,7 @@ const MarkAttendanceModal = (param)=>{
                                         color: "amber"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 552,
+                                        lineNumber: 551,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4755,7 +4755,7 @@ const MarkAttendanceModal = (param)=>{
                                         color: "red"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 553,
+                                        lineNumber: 552,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4764,13 +4764,13 @@ const MarkAttendanceModal = (param)=>{
                                         color: "gray"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 554,
+                                        lineNumber: 553,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 549,
+                                lineNumber: 548,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4782,7 +4782,7 @@ const MarkAttendanceModal = (param)=>{
                                             className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 563,
+                                            lineNumber: 562,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -4793,18 +4793,18 @@ const MarkAttendanceModal = (param)=>{
                                             className: "w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 564,
+                                            lineNumber: 563,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 562,
+                                    lineNumber: 561,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 561,
+                                lineNumber: 560,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4818,7 +4818,7 @@ const MarkAttendanceModal = (param)=>{
                                                 className: "h-16 w-16 text-slate-300 mx-auto mb-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 578,
+                                                lineNumber: 577,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -4826,7 +4826,7 @@ const MarkAttendanceModal = (param)=>{
                                                 children: "Attendance marking is not available yet"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 579,
+                                                lineNumber: 578,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4834,18 +4834,18 @@ const MarkAttendanceModal = (param)=>{
                                                 children: "Please wait for the event to start"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 582,
+                                                lineNumber: 581,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 577,
+                                        lineNumber: 576,
                                         columnNumber: 19
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 576,
+                                    lineNumber: 575,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)) : loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex items-center justify-center py-12",
@@ -4853,12 +4853,12 @@ const MarkAttendanceModal = (param)=>{
                                         className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 589,
+                                        lineNumber: 588,
                                         columnNumber: 19
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 588,
+                                    lineNumber: 587,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "space-y-3",
@@ -4871,7 +4871,7 @@ const MarkAttendanceModal = (param)=>{
                                                 canMarkAttendance: canMarkAttendance || isEditMode
                                             }, student.id, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 594,
+                                                lineNumber: 593,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0))),
                                         (canMarkAttendance || isEditMode) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4885,46 +4885,46 @@ const MarkAttendanceModal = (param)=>{
                                                         className: "h-5 w-5 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                        lineNumber: 611,
+                                                        lineNumber: 610,
                                                         columnNumber: 25
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     saving ? "Saving..." : isEditMode ? "Update Attendance" : "Save Attendance"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 606,
+                                                lineNumber: 605,
                                                 columnNumber: 23
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 605,
+                                            lineNumber: 604,
                                             columnNumber: 21
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 592,
+                                    lineNumber: 591,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 574,
+                                lineNumber: 573,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 422,
+                        lineNumber: 421,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 421,
+                    lineNumber: 420,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 420,
+                lineNumber: 419,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             showReasonModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4941,7 +4941,7 @@ const MarkAttendanceModal = (param)=>{
                                     children: "Reason for Change Required"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 632,
+                                    lineNumber: 631,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4949,7 +4949,7 @@ const MarkAttendanceModal = (param)=>{
                                     children: "Since the event has ended, please provide a reason for this attendance change:"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 635,
+                                    lineNumber: 634,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -4960,7 +4960,7 @@ const MarkAttendanceModal = (param)=>{
                                     rows: 4
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 639,
+                                    lineNumber: 638,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4976,7 +4976,7 @@ const MarkAttendanceModal = (param)=>{
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 647,
+                                            lineNumber: 646,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4986,34 +4986,34 @@ const MarkAttendanceModal = (param)=>{
                                             children: "Confirm Change"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 657,
+                                            lineNumber: 656,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 646,
+                                    lineNumber: 645,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 631,
+                            lineNumber: 630,
                             columnNumber: 15
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 630,
+                        lineNumber: 629,
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 629,
+                    lineNumber: 628,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 628,
+                lineNumber: 627,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         ]
@@ -5038,7 +5038,7 @@ const StatCard = (param)=>{
                 children: value
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 687,
+                lineNumber: 686,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5046,13 +5046,13 @@ const StatCard = (param)=>{
                 children: title
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 688,
+                lineNumber: 687,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-        lineNumber: 684,
+        lineNumber: 683,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -5073,26 +5073,22 @@ const StudentCard = (param)=>{
                                 className: "h-6 w-6 text-slate-400"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 704,
+                                lineNumber: 703,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 703,
+                            lineNumber: 702,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                     className: "font-semibold text-slate-900 text-lg",
-                                    children: [
-                                        student.first_name,
-                                        " ",
-                                        student.last_name
-                                    ]
-                                }, void 0, true, {
+                                    children: student.full_name
+                                }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 707,
+                                    lineNumber: 706,
                                     columnNumber: 11
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5105,7 +5101,7 @@ const StudentCard = (param)=>{
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 711,
+                                            lineNumber: 710,
                                             columnNumber: 13
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5115,7 +5111,7 @@ const StudentCard = (param)=>{
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 712,
+                                            lineNumber: 711,
                                             columnNumber: 13
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5126,13 +5122,13 @@ const StudentCard = (param)=>{
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 713,
+                                            lineNumber: 712,
                                             columnNumber: 13
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 710,
+                                    lineNumber: 709,
                                     columnNumber: 11
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 (attendance === null || attendance === void 0 ? void 0 : attendance.check_in_time) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5142,7 +5138,7 @@ const StudentCard = (param)=>{
                                             className: "h-3 w-3 inline mr-1"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 719,
+                                            lineNumber: 718,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         "Check-in: ",
@@ -5150,7 +5146,7 @@ const StudentCard = (param)=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 718,
+                                    lineNumber: 717,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 (attendance === null || attendance === void 0 ? void 0 : attendance.reason_for_change) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5161,7 +5157,7 @@ const StudentCard = (param)=>{
                                             children: "Reason:"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 725,
+                                            lineNumber: 724,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " ",
@@ -5169,19 +5165,19 @@ const StudentCard = (param)=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 724,
+                                    lineNumber: 723,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 706,
+                            lineNumber: 705,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 702,
+                    lineNumber: 701,
                     columnNumber: 7
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5196,13 +5192,13 @@ const StudentCard = (param)=>{
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 738,
+                                lineNumber: 737,
                                 columnNumber: 17
                             }, void 0),
                             label: "Present"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 733,
+                            lineNumber: 732,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(AttendanceButton, {
@@ -5214,13 +5210,13 @@ const StudentCard = (param)=>{
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 746,
+                                lineNumber: 745,
                                 columnNumber: 17
                             }, void 0),
                             label: "Late"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 741,
+                            lineNumber: 740,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(AttendanceButton, {
@@ -5232,30 +5228,30 @@ const StudentCard = (param)=>{
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 754,
+                                lineNumber: 753,
                                 columnNumber: 17
                             }, void 0),
                             label: "Absent"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 749,
+                            lineNumber: 748,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 732,
+                    lineNumber: 731,
                     columnNumber: 7
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-            lineNumber: 701,
+            lineNumber: 700,
             columnNumber: 5
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-        lineNumber: 700,
+        lineNumber: 699,
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -5280,7 +5276,7 @@ const AttendanceButton = (param)=>{
         ]
     }, void 0, true, {
         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-        lineNumber: 791,
+        lineNumber: 790,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

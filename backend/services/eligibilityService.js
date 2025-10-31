@@ -35,7 +35,7 @@ async function calculateEligibleStudents(db, companyId, batchId) {
         s.id AS student_id,
         s.registration_number,
         s.enrollment_number,
-        CONCAT(s.first_name, ' ', s.last_name) AS full_name,
+        s.full_name,
         s.branch,
         s.batch_year,
         s.cgpa,
@@ -593,7 +593,7 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
       if (ids.length === 0) return [];
       const query = `
         SELECT 
-          id, registration_number, enrollment_number, first_name, last_name,
+          id, registration_number, enrollment_number, full_name,
           branch, batch_year, cgpa, backlogs, department, class_10_percentage, 
           class_12_percentage
         FROM students
