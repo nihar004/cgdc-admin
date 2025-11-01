@@ -3316,16 +3316,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$round$2d$tracking$2f$
 ;
 ;
 ;
+// First, update the formatPackage function to handle ranges
 const formatPackage = (amount)=>{
-    if (amount == null || isNaN(amount)) {
+    if (amount == null || isNaN(amount) || amount === -1) {
         return "Not Disclosed";
     }
-    if (amount >= 10000000) {
-        return `₹ ${(amount / 10000000).toFixed(1)} Cr`;
-    } else if (amount >= 100000) {
-        return `₹ ${(amount / 100000).toFixed(1)} LPA`;
+    // Amount is now already in lakhs from backend
+    if (amount >= 100) {
+        return `₹${(amount / 100).toFixed(1)} Cr`;
     }
-    return `₹ ${amount.toLocaleString()}`;
+    return `₹${amount.toFixed(2)} LPA`;
 };
 const CompanyCard = ({ company, onToggle, isExpanded, onUpdate })=>{
     const getStatusColor = (status)=>{
@@ -3476,34 +3476,35 @@ const CompanyCard = ({ company, onToggle, isExpanded, onUpdate })=>{
     }, ("TURBOPACK compile-time value", void 0));
 };
 const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
+    // Update the renderPackageInfo function in PositionSection
     const renderPackageInfo = ()=>{
         switch(position.job_type){
             case "internship":
-                return position.internship_stipend_monthly > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                return position.internship_stipend_monthly ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                     className: "text-xs text-slate-600",
                     children: [
-                        formatPackage(position.internship_stipend_monthly),
-                        "/month"
+                        "₹",
+                        position.internship_stipend_monthly
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                    lineNumber: 92,
+                    lineNumber: 93,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                     className: "text-xs text-slate-600",
                     children: "Stipend not disclosed"
                 }, void 0, false, {
                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                    lineNumber: 96,
+                    lineNumber: 97,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             case "full_time":
                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                     className: "text-xs text-slate-600",
-                    children: formatPackage(position.package_range)
+                    children: position.package === -1 ? "Package not disclosed" : position.has_range ? `${formatPackage(position.package)} - ${formatPackage(position.package_end)}` : formatPackage(position.package)
                 }, void 0, false, {
                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                    lineNumber: 101,
+                    lineNumber: 102,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0));
             case "internship_plus_ppo":
@@ -3511,10 +3512,10 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                             className: "text-xs text-slate-600",
-                            children: position.internship_stipend_monthly > 0 ? `${formatPackage(position.internship_stipend_monthly)}/month stipend` : "Stipend not disclosed"
+                            children: position.internship_stipend_monthly ? `${position.internship_stipend_monthly} stipend` : "Stipend not disclosed"
                         }, void 0, false, {
                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                            lineNumber: 109,
+                            lineNumber: 116,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3522,18 +3523,19 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                             children: "•"
                         }, void 0, false, {
                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                            lineNumber: 114,
+                            lineNumber: 121,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                             className: "text-xs text-slate-600",
                             children: [
-                                "PPO: ",
-                                formatPackage(position.package_range)
+                                "PPO:",
+                                " ",
+                                position.package === -1 ? "Not disclosed" : position.has_range ? `${formatPackage(position.package)} - ${formatPackage(position.package_end)}` : formatPackage(position.package)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                            lineNumber: 115,
+                            lineNumber: 122,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
@@ -3557,7 +3559,7 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                                     children: position.position_title
                                 }, void 0, false, {
                                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                                    lineNumber: 131,
+                                    lineNumber: 145,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3569,7 +3571,7 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                                             children: "•"
                                         }, void 0, false, {
                                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                                            lineNumber: 136,
+                                            lineNumber: 150,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3577,19 +3579,19 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                                             children: position.job_type?.replace(/_/g, " ").toUpperCase()
                                         }, void 0, false, {
                                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                                            lineNumber: 137,
+                                            lineNumber: 151,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                                    lineNumber: 134,
+                                    lineNumber: 148,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                            lineNumber: 130,
+                            lineNumber: 144,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3600,7 +3602,7 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                                     children: "Selected"
                                 }, void 0, false, {
                                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                                    lineNumber: 143,
+                                    lineNumber: 157,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3608,24 +3610,24 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                                     children: position.selected_students || 0
                                 }, void 0, false, {
                                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                                    lineNumber: 144,
+                                    lineNumber: 158,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/round-tracking/CompanyCard.js",
-                            lineNumber: 142,
+                            lineNumber: 156,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/round-tracking/CompanyCard.js",
-                    lineNumber: 129,
+                    lineNumber: 143,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/app/round-tracking/CompanyCard.js",
-                lineNumber: 128,
+                lineNumber: 142,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             position.events && position.events.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$round$2d$tracking$2f$RoundsTable$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -3637,7 +3639,7 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                 onUpdate: onUpdate
             }, void 0, false, {
                 fileName: "[project]/app/round-tracking/CompanyCard.js",
-                lineNumber: 152,
+                lineNumber: 166,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "px-5 py-6 text-center text-slate-500",
@@ -3647,7 +3649,7 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                         className: "mx-auto mb-2 text-slate-300"
                     }, void 0, false, {
                         fileName: "[project]/app/round-tracking/CompanyCard.js",
-                        lineNumber: 162,
+                        lineNumber: 176,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3655,19 +3657,19 @@ const PositionSection = ({ position, companyName, companyId, onUpdate })=>{
                         children: "No rounds scheduled yet"
                     }, void 0, false, {
                         fileName: "[project]/app/round-tracking/CompanyCard.js",
-                        lineNumber: 163,
+                        lineNumber: 177,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/round-tracking/CompanyCard.js",
-                lineNumber: 161,
+                lineNumber: 175,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/round-tracking/CompanyCard.js",
-        lineNumber: 127,
+        lineNumber: 141,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

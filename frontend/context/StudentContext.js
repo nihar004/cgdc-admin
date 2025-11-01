@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useBatchContext } from "./BatchContext";
+import { useAuth } from "./AuthContext";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const StudentContext = createContext();
@@ -14,6 +15,7 @@ export const StudentProvider = ({ children }) => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const { selectedBatch } = useBatchContext();
+  const { user, loading } = useAuth();
 
   const [studentFormData, setStudentFormData] = useState({
     enrollment_number: "",
@@ -74,7 +76,7 @@ export const StudentProvider = ({ children }) => {
 
   useEffect(() => {
     fetchStudents();
-  }, [selectedBatch]);
+  }, [selectedBatch, user, loading]);
 
   return (
     <StudentContext.Provider

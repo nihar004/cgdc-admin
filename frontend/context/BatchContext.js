@@ -2,6 +2,7 @@
 
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const BatchContext = createContext();
@@ -17,6 +18,7 @@ export function BatchProvider({ children }) {
   });
 
   const [batches, setBatches] = useState([]); // store all available batches
+  const { user, loading } = useAuth();
 
   // Fetch batches only once when the app loads
   useEffect(() => {
@@ -48,7 +50,7 @@ export function BatchProvider({ children }) {
     }
     fetchBatches();
     return () => controller.abort();
-  }, []);
+  }, [user, loading]);
 
   // Whenever selectedBatch changes → save to localStorage (client-side only)
   useEffect(() => {
