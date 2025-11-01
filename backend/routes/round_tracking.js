@@ -35,10 +35,17 @@ routes.get("/companies/:year", async (req, res) => {
         c.company_name,
         c.is_marquee,
         c.sector,
+        c.office_address,
+        c.jd_shared_date,
+        c.eligibility_10th,
+        c.eligibility_12th,
+        c.max_backlogs,
         cp.id AS position_id,
         cp.position_title,
         cp.job_type,
-        cp.package_range,
+        cp.package,
+        cp.has_range,
+        cp.package_end,
         cp.internship_stipend_monthly,
         cp.is_active AS position_active
       FROM companies c
@@ -210,12 +217,10 @@ routes.get("/companies/:year", async (req, res) => {
           id: row.position_id,
           position_title: row.position_title,
           job_type: row.job_type,
-          package_range: row.package_range
-            ? parseFloat(row.package_range)
-            : null,
-          internship_stipend_monthly: row.internship_stipend_monthly
-            ? parseFloat(row.internship_stipend_monthly)
-            : null,
+          package: row.package ? parseFloat(row.package) : null,
+          has_range: row.has_range || false,
+          package_end: row.package_end ? parseFloat(row.package_end) : null,
+          internship_stipend_monthly: row.internship_stipend_monthly || null,
           is_active: row.position_active,
           events: [],
           final_selected_count: 0,
@@ -802,23 +807,33 @@ routes.get("/events/:eventId/details", async (req, res) => {
       const counts = countsResult.rows[0];
 
       // Get position details
-      const positionQuery = `SELECT position_title, job_type, package_range FROM company_positions WHERE id = $1`;
+      const positionQuery = `
+        SELECT 
+          position_title, 
+          job_type, 
+          package,
+          has_range,
+          package_end,
+          internship_stipend_monthly 
+        FROM company_positions 
+        WHERE id = $1
+      `;
       const positionResult = await db.query(positionQuery, [pid]);
       const position = positionResult.rows[0];
 
+      // Update the position details mapping
       countsPerPosition[pid] = {
         position_id: pid,
         position_title: position?.position_title,
         job_type: position?.job_type,
-        package_range: position?.package_range
-          ? parseFloat(position.package_range)
-          : null,
-        applied:
-          event.round_number === 1 ? parseInt(counts.applied_count) || 0 : 0,
-        eligible:
-          event.round_number === 1
-            ? parseInt(counts.applied_count) || 0
-            : parseInt(counts.eligible_count) || 0,
+        package: position?.package ? parseFloat(position.package) : null,
+        has_range: position?.has_range || false,
+        package_end: position?.package_end ? parseFloat(position.package_end) : null,
+        internship_stipend_monthly: position?.internship_stipend_monthly || null,
+        applied: event.round_number === 1 ? parseInt(counts.applied_count) || 0 : 0,
+        eligible: event.round_number === 1
+          ? parseInt(counts.applied_count) || 0
+          : parseInt(counts.eligible_count) || 0,
         attended: parseInt(counts.attended_count) || 0,
         qualified: parseInt(counts.qualified_count) || 0,
         not_qualified: parseInt(counts.not_qualified_count) || 0,

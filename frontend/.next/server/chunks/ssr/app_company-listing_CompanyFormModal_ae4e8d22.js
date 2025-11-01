@@ -54,16 +54,23 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
         glassdoor_rating: editData?.glassdoor_rating ?? "",
         work_locations: editData?.work_locations ?? "",
         min_cgpa: editData?.min_cgpa ?? "",
-        max_backlogs: editData?.max_backlogs ?? "",
+        max_backlogs: editData?.max_backlogs ?? false,
         bond_required: editData?.bond_required ?? false,
         account_owner: editData?.account_owner ?? "",
+        office_address: editData?.office_address ?? "",
+        jd_shared_date: formatDateForInput(editData?.jd_shared_date) ?? "",
+        eligibility_10th: editData?.eligibility_10th ?? "",
+        eligibility_12th: editData?.eligibility_12th ?? "",
         allowed_specializations: editData?.allowed_specializations ?? [],
         positions: (editData?.positions ?? []).map((position)=>({
+                id: position?.id || null,
                 position_title: position?.position_title ?? "",
                 job_type: position?.job_type ?? "full_time",
                 company_type: position?.company_type ?? "tech",
-                package_range: position?.package_range ?? 0,
-                internship_stipend_monthly: position?.internship_stipend_monthly ?? -1,
+                package: position?.package ?? -1,
+                has_range: position?.has_range ?? false,
+                package_end: position?.package_end ?? -1,
+                internship_stipend_monthly: position?.internship_stipend_monthly ?? null,
                 selected_students: position?.selected_students ?? -1,
                 rounds_start_date: formatDateForInput(position?.rounds_start_date) ?? "",
                 rounds_end_date: formatDateForInput(position?.rounds_end_date) ?? "",
@@ -160,8 +167,10 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
     const handleSpecializationToggle = (spec)=>{
         setFormData((prev)=>({
                 ...prev,
-                allowed_specializations: prev.allowed_specializations.includes(spec) ? prev.allowed_specializations.filter((s)=>s !== spec) : [
+                allowed_specializations: Array.isArray(prev.allowed_specializations) ? prev.allowed_specializations.includes(spec) ? prev.allowed_specializations.filter((s)=>s !== spec) : [
                     ...prev.allowed_specializations,
+                    spec
+                ] : [
                     spec
                 ]
             }));
@@ -175,8 +184,10 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                         position_title: "",
                         job_type: "full_time",
                         company_type: "tech",
-                        package_range: 0,
-                        internship_stipend_monthly: 0,
+                        package: -1,
+                        has_range: false,
+                        package_end: -1,
+                        internship_stipend_monthly: null,
                         selected_students: 0,
                         rounds_start_date: "",
                         rounds_end_date: "",
@@ -274,9 +285,6 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
         const newErrors = {};
         if (!formData.company_name) {
             newErrors.company_name = "Company name is required";
-        }
-        if (!formData.scheduled_visit) {
-            newErrors.scheduled_visit = "Scheduled visit date is required";
         }
         // Validate that actual_arrival is after scheduled_visit if both exist
         if (formData.actual_arrival && formData.scheduled_visit) {
@@ -539,7 +547,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                             children: editData ? "Edit Company" : "Add New Company"
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 605,
+                            lineNumber: 612,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -550,18 +558,18 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                 size: 28
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                lineNumber: 613,
+                                lineNumber: 620,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 608,
+                            lineNumber: 615,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                    lineNumber: 604,
+                    lineNumber: 611,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -579,7 +587,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 621,
+                                            lineNumber: 628,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -587,13 +595,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: "Company Information"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 622,
+                                            lineNumber: 629,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 620,
+                                    lineNumber: 627,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -606,7 +614,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Company Name *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 628,
+                                                    lineNumber: 635,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -618,7 +626,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     required: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 631,
+                                                    lineNumber: 638,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.company_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -626,13 +634,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: errors.company_name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 640,
+                                                    lineNumber: 647,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 627,
+                                            lineNumber: 634,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -643,7 +651,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Company Description"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 646,
+                                                    lineNumber: 653,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -654,13 +662,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 649,
+                                                    lineNumber: 656,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 645,
+                                            lineNumber: 652,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -670,7 +678,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Sector"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 658,
+                                                    lineNumber: 665,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -684,7 +692,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             children: "Select Sector"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 667,
+                                                            lineNumber: 674,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         sectors.map((sector)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -692,19 +700,19 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 children: sector.label
                                                             }, sector.value, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 670,
+                                                                lineNumber: 677,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 661,
+                                                    lineNumber: 668,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 657,
+                                            lineNumber: 664,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -718,7 +726,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 677,
+                                                    lineNumber: 684,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -726,13 +734,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Marquee Company"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 684,
+                                                    lineNumber: 691,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 676,
+                                            lineNumber: 683,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -742,7 +750,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Account Owner"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 689,
+                                                    lineNumber: 696,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -753,25 +761,25 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 692,
+                                                    lineNumber: 699,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 688,
+                                            lineNumber: 695,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 626,
+                                    lineNumber: 633,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 619,
+                            lineNumber: 626,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -785,7 +793,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 706,
+                                            lineNumber: 713,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -793,13 +801,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: "Contact Information"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 707,
+                                            lineNumber: 714,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 705,
+                                    lineNumber: 712,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -815,14 +823,14 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 714,
+                                                            lineNumber: 721,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "Website URL"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 713,
+                                                    lineNumber: 720,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -833,13 +841,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 717,
+                                                    lineNumber: 724,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 712,
+                                            lineNumber: 719,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -852,14 +860,14 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 727,
+                                                            lineNumber: 734,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "LinkedIn URL"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 726,
+                                                    lineNumber: 733,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -870,13 +878,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 730,
+                                                    lineNumber: 737,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 725,
+                                            lineNumber: 732,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -886,7 +894,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Primary HR Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 739,
+                                                    lineNumber: 746,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -897,13 +905,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 742,
+                                                    lineNumber: 749,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 738,
+                                            lineNumber: 745,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -913,7 +921,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "HR Designation"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 751,
+                                                    lineNumber: 758,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -924,13 +932,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 754,
+                                                    lineNumber: 761,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 750,
+                                            lineNumber: 757,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -943,14 +951,14 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 764,
+                                                            lineNumber: 771,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "HR Email"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 763,
+                                                    lineNumber: 770,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -961,7 +969,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 767,
+                                                    lineNumber: 774,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.primary_hr_email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -969,13 +977,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: errors.primary_hr_email
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 775,
+                                                    lineNumber: 782,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 762,
+                                            lineNumber: 769,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -988,14 +996,14 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 782,
+                                                            lineNumber: 789,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "HR Phone"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 781,
+                                                    lineNumber: 788,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1006,25 +1014,61 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 785,
+                                                    lineNumber: 792,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 780,
+                                            lineNumber: 787,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 711,
+                                    lineNumber: 718,
+                                    columnNumber: 13
+                                }, ("TURBOPACK compile-time value", void 0)),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid grid-cols-1 md:grid-cols-2 gap-6",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "md:col-span-2",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                children: "Office Address"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                lineNumber: 803,
+                                                columnNumber: 17
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
+                                                name: "office_address",
+                                                value: formData.office_address,
+                                                onChange: handleInputChange,
+                                                rows: 2,
+                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50",
+                                                placeholder: "Enter office address"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                lineNumber: 806,
+                                                columnNumber: 17
+                                            }, ("TURBOPACK compile-time value", void 0))
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                        lineNumber: 802,
+                                        columnNumber: 15
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                }, void 0, false, {
+                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                    lineNumber: 801,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 704,
+                            lineNumber: 711,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1038,7 +1082,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 799,
+                                            lineNumber: 821,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -1046,13 +1090,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: "Visit Details"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 800,
+                                            lineNumber: 822,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 798,
+                                    lineNumber: 820,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1062,14 +1106,40 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                     className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                    children: "Scheduled Visit*"
+                                                    children: "JD Shared Date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 806,
+                                                    lineNumber: 828,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    required: true,
+                                                    type: "date",
+                                                    name: "jd_shared_date",
+                                                    value: formData.jd_shared_date,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 831,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                            lineNumber: 827,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                    children: "Scheduled Visit"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 840,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                     type: "date",
                                                     name: "scheduled_visit",
                                                     value: formData.scheduled_visit,
@@ -1077,7 +1147,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 809,
+                                                    lineNumber: 843,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.scheduled_visit && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1085,13 +1155,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: errors.scheduled_visit
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 818,
+                                                    lineNumber: 851,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 805,
+                                            lineNumber: 839,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1101,7 +1171,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Actual Arrival"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 824,
+                                                    lineNumber: 857,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1112,13 +1182,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 827,
+                                                    lineNumber: 860,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 823,
+                                            lineNumber: 856,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1131,14 +1201,14 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 837,
+                                                            lineNumber: 870,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "Glassdoor Rating"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 836,
+                                                    lineNumber: 869,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1152,7 +1222,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 840,
+                                                    lineNumber: 873,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.glassdoor_rating && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1160,63 +1230,64 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: errors.glassdoor_rating
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 851,
+                                                    lineNumber: 884,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 835,
+                                            lineNumber: 868,
                                             columnNumber: 15
-                                        }, ("TURBOPACK compile-time value", void 0))
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 804,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                            className: "block text-sm font-medium text-neutral-700 mb-1",
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "col-span-2",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
-                                                    size: 16,
-                                                    className: "inline mr-1"
-                                                }, void 0, false, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
+                                                            size: 16,
+                                                            className: "inline mr-1"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                            lineNumber: 891,
+                                                            columnNumber: 19
+                                                        }, ("TURBOPACK compile-time value", void 0)),
+                                                        "Work Locations"
+                                                    ]
+                                                }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 859,
+                                                    lineNumber: 890,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
-                                                "Work Locations"
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "work_locations",
+                                                    value: formData.work_locations,
+                                                    onChange: handleInputChange,
+                                                    placeholder: "e.g., Bangalore, Hyderabad, Mumbai",
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 894,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 858,
-                                            columnNumber: 15
-                                        }, ("TURBOPACK compile-time value", void 0)),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            type: "text",
-                                            name: "work_locations",
-                                            value: formData.work_locations,
-                                            onChange: handleInputChange,
-                                            placeholder: "e.g., Bangalore, Hyderabad, Mumbai",
-                                            className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 862,
+                                            lineNumber: 889,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 857,
+                                    lineNumber: 826,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 797,
+                            lineNumber: 819,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1230,7 +1301,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 876,
+                                            lineNumber: 909,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -1238,13 +1309,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: "Requirements"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 877,
+                                            lineNumber: 910,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 875,
+                                    lineNumber: 908,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1257,7 +1328,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Minimum CGPA"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 883,
+                                                    lineNumber: 916,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1271,7 +1342,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 886,
+                                                    lineNumber: 919,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.min_cgpa && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1279,42 +1350,103 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: errors.min_cgpa
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 897,
+                                                    lineNumber: 930,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 882,
+                                            lineNumber: 915,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                     className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                    children: "Maximum Backlogs"
+                                                    children: "10th Eligibility (%)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 901,
+                                                    lineNumber: 935,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                     type: "number",
-                                                    name: "max_backlogs",
-                                                    value: formData.max_backlogs,
+                                                    name: "eligibility_10th",
+                                                    value: formData.eligibility_10th,
                                                     onChange: handleInputChange,
                                                     min: "0",
-                                                    max: "999",
-                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                                                    max: "100",
+                                                    step: "0.01",
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50",
+                                                    placeholder: "e.g., 60.00"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 904,
+                                                    lineNumber: 938,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 900,
+                                            lineNumber: 934,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                    children: "12th Eligibility (%)"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 951,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "number",
+                                                    name: "eligibility_12th",
+                                                    value: formData.eligibility_12th,
+                                                    onChange: handleInputChange,
+                                                    min: "0",
+                                                    max: "100",
+                                                    step: "0.01",
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50",
+                                                    placeholder: "e.g., 60.00"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 954,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                            lineNumber: 950,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex items-center space-x-2",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "checkbox",
+                                                    name: "max_backlogs",
+                                                    checked: formData.max_backlogs,
+                                                    onChange: handleInputChange,
+                                                    className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 967,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "text-sm font-medium text-neutral-700",
+                                                    children: "Backlogs Allowed"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 974,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                            lineNumber: 966,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1328,7 +1460,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 915,
+                                                    lineNumber: 979,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1336,19 +1468,19 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: "Bond Required"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 922,
+                                                    lineNumber: 986,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 914,
+                                            lineNumber: 978,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 881,
+                                    lineNumber: 914,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1358,7 +1490,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: "Allowed Specializations"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 928,
+                                            lineNumber: 992,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1370,24 +1502,24 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     children: spec
                                                 }, spec, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 933,
+                                                    lineNumber: 997,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)))
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 931,
+                                            lineNumber: 995,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 927,
+                                    lineNumber: 991,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 874,
+                            lineNumber: 907,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1401,7 +1533,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                             children: "Positions"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 953,
+                                            lineNumber: 1017,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1413,25 +1545,26 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                     size: 16
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 961,
+                                                    lineNumber: 1025,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 "Add Position"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 956,
+                                            lineNumber: 1020,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 952,
+                                    lineNumber: 1016,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 formData.positions.map((position, positionIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "border border-neutral-200 rounded-lg p-4 space-y-4 bg-neutral-50",
                                         children: [
+                                            console.log("Rendering position:", positionIndex, position),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex justify-between items-start",
                                                 children: [
@@ -1443,7 +1576,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 971,
+                                                        lineNumber: 1036,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1454,18 +1587,18 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                             size: 16
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 979,
+                                                            lineNumber: 1044,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 974,
+                                                        lineNumber: 1039,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                lineNumber: 970,
+                                                lineNumber: 1035,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1478,7 +1611,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 children: "Position Type*"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 984,
+                                                                lineNumber: 1049,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1492,7 +1625,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                         children: "Tech"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 999,
+                                                                        lineNumber: 1064,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1500,19 +1633,19 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                         children: "Non-Tech"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1000,
+                                                                        lineNumber: 1065,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 987,
+                                                                lineNumber: 1052,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 983,
+                                                        lineNumber: 1048,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1521,7 +1654,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 className: "block text-sm font-medium text-neutral-700 mb-1",
                                                                 children: [
                                                                     "Position Title*",
-                                                                    editData && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    editData && position.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                         className: "inline-block ml-2 group relative",
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$info$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Info$3e$__["Info"], {
@@ -1529,7 +1662,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                 className: "inline text-blue-500"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1008,
+                                                                                lineNumber: 1073,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1537,19 +1670,19 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                 children: "Position titles cannot be edited to maintain data consistency across rounds and applications. To modify, please delete this position and create a new one."
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1009,
+                                                                                lineNumber: 1074,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1007,
+                                                                        lineNumber: 1072,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1004,
+                                                                lineNumber: 1069,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1557,25 +1690,25 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 type: "text",
                                                                 value: position.position_title,
                                                                 onChange: (e)=>updatePosition(positionIndex, "position_title", e.target.value),
-                                                                disabled: !!editData,
-                                                                className: `w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${editData ? "bg-neutral-100 cursor-not-allowed opacity-75" : "bg-white"}`
+                                                                disabled: !!editData && !!position.id,
+                                                                className: `w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${!!editData && !!position.id ? "bg-neutral-100 cursor-not-allowed opacity-75" : "bg-white"}`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1018,
+                                                                lineNumber: 1083,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
-                                                            editData && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            !!editData && !!position.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "mt-1 text-xs text-neutral-600 bg-neutral-100 px-2 py-1 rounded",
                                                                 children: "💡 To change position title, delete this position and create a new one"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1037,
+                                                                lineNumber: 1102,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1003,
+                                                        lineNumber: 1068,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1585,7 +1718,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 children: "Job Type*"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1044,
+                                                                lineNumber: 1109,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1598,144 +1731,178 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                         children: type.label
                                                                     }, type.value, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1060,
+                                                                        lineNumber: 1125,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1047,
+                                                                lineNumber: 1112,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1043,
+                                                        lineNumber: 1108,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     (position.job_type === "full_time" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "md:col-span-2 space-y-3",
                                                         children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                                children: "Package Range *"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1071,
-                                                                columnNumber: 23
-                                                            }, ("TURBOPACK compile-time value", void 0)),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                type: "number",
-                                                                min: "-1",
-                                                                max: "999999999",
-                                                                value: position.package_range,
-                                                                onChange: (e)=>updatePosition(positionIndex, "package_range", e.target.value),
-                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
-                                                                required: position.job_type === "full_time" || position.job_type === "internship_plus_ppo"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1074,
-                                                                columnNumber: 23
-                                                            }, ("TURBOPACK compile-time value", void 0)),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "mt-1 text-xs text-red-500 bg-red-100 px-2 py-1 rounded inline-block",
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex items-center gap-2",
                                                                 children: [
-                                                                    "💡 Enter",
-                                                                    " ",
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                        className: "font-medium text-red-700",
-                                                                        children: "-1"
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                        type: "checkbox",
+                                                                        checked: position.has_range,
+                                                                        onChange: (e)=>updatePosition(positionIndex, "has_range", e.target.checked),
+                                                                        className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1094,
+                                                                        lineNumber: 1138,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
-                                                                    " if not disclosed"
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                        className: "text-sm font-medium text-neutral-700",
+                                                                        children: "Package has a range"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1150,
+                                                                        columnNumber: 25
+                                                                    }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1092,
+                                                                lineNumber: 1137,
+                                                                columnNumber: 23
+                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: `grid ${position.has_range ? "grid-cols-2" : "grid-cols-1"} gap-4`,
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                                                children: position.has_range ? "Package (Start) in LPA *" : "Package in LPA *"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1160,
+                                                                                columnNumber: 27
+                                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                                type: "number",
+                                                                                min: "-1",
+                                                                                step: "0.01",
+                                                                                value: position.package,
+                                                                                onChange: (e)=>updatePosition(positionIndex, "package", e.target.value),
+                                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
+                                                                                required: true,
+                                                                                placeholder: "e.g., 12.5"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1165,
+                                                                                columnNumber: 27
+                                                                            }, ("TURBOPACK compile-time value", void 0))
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1159,
+                                                                        columnNumber: 25
+                                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                                    position.has_range && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                                                children: "Package (End) in LPA *"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1185,
+                                                                                columnNumber: 29
+                                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                                type: "number",
+                                                                                min: "-1",
+                                                                                step: "0.01",
+                                                                                value: position.package_end,
+                                                                                onChange: (e)=>updatePosition(positionIndex, "package_end", e.target.value),
+                                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
+                                                                                required: true,
+                                                                                placeholder: "e.g., 15.0"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1188,
+                                                                                columnNumber: 29
+                                                                            }, ("TURBOPACK compile-time value", void 0))
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1184,
+                                                                        columnNumber: 27
+                                                                    }, ("TURBOPACK compile-time value", void 0))
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                lineNumber: 1156,
+                                                                columnNumber: 23
+                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded",
+                                                                children: [
+                                                                    "💡 Enter ",
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        className: "font-medium",
+                                                                        children: "-1"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1208,
+                                                                        columnNumber: 34
+                                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                                    " if not disclosed. Package is in Lakhs Per Annum (LPA)"
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                lineNumber: 1207,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1070,
+                                                        lineNumber: 1135,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     (position.job_type === "internship" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                                 className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                                children: "Internship Stipend (Monthly)*"
+                                                                children: "Internship Stipend (Monthly)"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1103,
+                                                                lineNumber: 1217,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                type: "number",
-                                                                min: "-1",
-                                                                max: "99999999",
-                                                                value: position.internship_stipend_monthly,
+                                                                type: "text",
+                                                                value: position.internship_stipend_monthly || "",
                                                                 onChange: (e)=>updatePosition(positionIndex, "internship_stipend_monthly", e.target.value),
                                                                 className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
-                                                                required: position.job_type === "internship" || position.job_type === "internship_plus_ppo"
+                                                                placeholder: "e.g., ₹25,000 or 20k-30k or Not Disclosed"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1106,
+                                                                lineNumber: 1220,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "mt-1 text-xs text-red-500 bg-red-100 px-2 py-1 rounded inline-block",
-                                                                children: [
-                                                                    "💡 Enter",
-                                                                    " ",
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                        className: "font-medium text-red-700",
-                                                                        children: "-1"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1126,
-                                                                        columnNumber: 25
-                                                                    }, ("TURBOPACK compile-time value", void 0)),
-                                                                    " if not disclosed"
-                                                                ]
-                                                            }, void 0, true, {
+                                                                className: "mt-1 text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded",
+                                                                children: '💡 Enter stipend as text (e.g., "₹25,000/month","20k-30k", or "Not Disclosed")'
+                                                            }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1124,
+                                                                lineNumber: 1233,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1102,
+                                                        lineNumber: 1216,
                                                         columnNumber: 21
-                                                    }, ("TURBOPACK compile-time value", void 0)),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                                children: "Selected Students"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1133,
-                                                                columnNumber: 21
-                                                            }, ("TURBOPACK compile-time value", void 0)),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                type: "number",
-                                                                min: "-1",
-                                                                value: position.selected_students,
-                                                                onChange: (e)=>updatePosition(positionIndex, "selected_students", parseInt(e.target.value) || 0),
-                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1136,
-                                                                columnNumber: 21
-                                                            }, ("TURBOPACK compile-time value", void 0))
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1132,
-                                                        columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         children: [
@@ -1744,7 +1911,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 children: "Rounds Start Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1152,
+                                                                lineNumber: 1241,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1754,13 +1921,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1155,
+                                                                lineNumber: 1244,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1151,
+                                                        lineNumber: 1240,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1770,7 +1937,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 children: "Rounds End Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1170,
+                                                                lineNumber: 1259,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1780,19 +1947,19 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                 className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1173,
+                                                                lineNumber: 1262,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1169,
+                                                        lineNumber: 1258,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                lineNumber: 982,
+                                                lineNumber: 1047,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1808,7 +1975,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                         children: "Documents"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1193,
+                                                                        lineNumber: 1282,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1816,13 +1983,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                         children: "*Supports: PDF, DOC, DOCX, JPG, JPEG, PNG"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1196,
+                                                                        lineNumber: 1285,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1192,
+                                                                lineNumber: 1281,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1834,20 +2001,20 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                         size: 14
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1205,
+                                                                        lineNumber: 1294,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     "Add Document"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1200,
+                                                                lineNumber: 1289,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1191,
+                                                        lineNumber: 1280,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     position.documents.map((document, docIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1862,7 +2029,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                 children: "Document Type*"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1219,
+                                                                                lineNumber: 1308,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1875,18 +2042,18 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                         children: type.label
                                                                                     }, type.value, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                        lineNumber: 1236,
+                                                                                        lineNumber: 1325,
                                                                                         columnNumber: 31
                                                                                     }, ("TURBOPACK compile-time value", void 0)))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1222,
+                                                                                lineNumber: 1311,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1218,
+                                                                        lineNumber: 1307,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1896,7 +2063,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                 children: "Document Title*"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1245,
+                                                                                lineNumber: 1334,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1908,13 +2075,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                 placeholder: "Enter document title"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1248,
+                                                                                lineNumber: 1337,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1244,
+                                                                        lineNumber: 1333,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1928,7 +2095,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1267,
+                                                                                lineNumber: 1356,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             document.original_filename && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1944,7 +2111,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1276,
+                                                                                            lineNumber: 1365,
                                                                                             columnNumber: 33
                                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1952,18 +2119,18 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                             children: "Existing"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1279,
+                                                                                            lineNumber: 1368,
                                                                                             columnNumber: 33
                                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                    lineNumber: 1275,
+                                                                                    lineNumber: 1364,
                                                                                     columnNumber: 31
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1274,
+                                                                                lineNumber: 1363,
                                                                                 columnNumber: 29
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             !document.original_filename && document.newDocumentFile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1979,7 +2146,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1291,
+                                                                                            lineNumber: 1380,
                                                                                             columnNumber: 35
                                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1987,18 +2154,18 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                             children: "New"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1294,
+                                                                                            lineNumber: 1383,
                                                                                             columnNumber: 35
                                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                    lineNumber: 1290,
+                                                                                    lineNumber: 1379,
                                                                                     columnNumber: 33
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1289,
+                                                                                lineNumber: 1378,
                                                                                 columnNumber: 31
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2015,7 +2182,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                                 className: "absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                                lineNumber: 1304,
+                                                                                                lineNumber: 1393,
                                                                                                 columnNumber: 31
                                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2025,18 +2192,18 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                                     children: document.original_filename ? "Choose new file..." : "Choose file..."
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                                    lineNumber: 1321,
+                                                                                                    lineNumber: 1410,
                                                                                                     columnNumber: 33
                                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                                lineNumber: 1320,
+                                                                                                lineNumber: 1409,
                                                                                                 columnNumber: 31
                                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                        lineNumber: 1303,
+                                                                                        lineNumber: 1392,
                                                                                         columnNumber: 29
                                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2046,48 +2213,48 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                                                                         children: "Remove"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                        lineNumber: 1328,
+                                                                                        lineNumber: 1417,
                                                                                         columnNumber: 29
                                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1302,
+                                                                                lineNumber: 1391,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1266,
+                                                                        lineNumber: 1355,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1216,
+                                                                lineNumber: 1305,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         }, docIndex, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 1212,
+                                                            lineNumber: 1301,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0)))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                lineNumber: 1189,
+                                                lineNumber: 1278,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, positionIndex, true, {
                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                        lineNumber: 966,
+                                        lineNumber: 1030,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 951,
+                            lineNumber: 1015,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2100,7 +2267,7 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 1349,
+                                    lineNumber: 1438,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2110,13 +2277,13 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                                     children: loading ? "Saving..." : editData ? "Update Company" : "Create Company"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 1356,
+                                    lineNumber: 1445,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 1348,
+                            lineNumber: 1437,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         errors.submit && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2124,24 +2291,24 @@ const CompanyFormModal = ({ batchYear, onClose, onSuccess, editData = null })=>{
                             children: errors.submit
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 1369,
+                            lineNumber: 1458,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                    lineNumber: 617,
+                    lineNumber: 624,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-            lineNumber: 602,
+            lineNumber: 609,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-        lineNumber: 601,
+        lineNumber: 608,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

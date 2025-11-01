@@ -15,8 +15,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/axios/lib/axios.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$BatchContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/BatchContext.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hot-toast/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$path$2d$browserify$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/path-browserify/index.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
+;
 ;
 ;
 ;
@@ -44,15 +46,23 @@ function CompaniesProvider(param) {
     const [showEligibilityModal, setShowEligibilityModal] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [selectedCompanyForEligibility, setSelectedCompanyForEligibility] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const formatPackage = (amount)=>{
-        if (amount == null || isNaN(amount)) {
+        if (amount == null || isNaN(amount) || amount === -1) {
             return "Not Disclosed";
         }
-        if (amount >= 10000000) {
-            return "₹".concat((amount / 10000000).toFixed(1), " Cr");
-        } else if (amount >= 100000) {
-            return "₹".concat((amount / 100000).toFixed(1), " LPA");
+        // Amount is now already in lakhs from backend
+        if (amount >= 100) {
+            return "₹".concat((amount / 100).toFixed(1), " Cr");
         }
-        return "₹".concat(amount.toLocaleString());
+        return "₹".concat(amount.toFixed(2), " LPA");
+    };
+    const formatPackageRange = (position)=>{
+        if (!position.package || position.package === -1) {
+            return "Not Disclosed";
+        }
+        if (position.has_range && position.package_end && position.package_end !== -1) {
+            return "".concat(formatPackage(position.package), " - ").concat(formatPackage(position.package_end));
+        }
+        return formatPackage(position.package);
     };
     // Fetch companies data
     const fetchCompanies = async ()=>{
@@ -180,6 +190,7 @@ function CompaniesProvider(param) {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(CompaniesContext.Provider, {
         value: {
             formatPackage,
+            formatPackageRange,
             selectedCompany,
             setSelectedCompany,
             companies,
@@ -223,7 +234,7 @@ function CompaniesProvider(param) {
         children: children
     }, void 0, false, {
         fileName: "[project]/context/CompaniesContext.js",
-        lineNumber: 204,
+        lineNumber: 220,
         columnNumber: 5
     }, this);
 }
@@ -286,7 +297,7 @@ var _s = __turbopack_context__.k.signature();
 function CompanyCardView(param) {
     let { company, statusColors, companyTypeColors, onEditClick } = param;
     _s();
-    const { formatPackage, setSelectedCompany, getCompanyStatus, setShowEligibilityModal, setSelectedCompanyForEligibility } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
+    const { formatPackageRange, setSelectedCompany, getCompanyStatus, setShowEligibilityModal, setSelectedCompanyForEligibility } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
     // Individual expand state for this specific card
     const [isExpanded, setIsExpanded] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const status = getCompanyStatus(company);
@@ -764,7 +775,7 @@ function CompanyCardView(param) {
                                         lineNumber: 205,
                                         columnNumber: 15
                                     }, this),
-                                    (!company.min_cgpa || company.min_cgpa == 0) && (!company.max_backlogs || company.max_backlogs == 999) && !company.bond_required ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    (!company.min_cgpa || company.min_cgpa == 0) && !company.max_backlogs && !company.bond_required ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-center py-3 text-slate-500 italic",
                                         children: "No Other Specific Requirements Mentioned"
                                     }, void 0, false, {
@@ -799,24 +810,20 @@ function CompanyCardView(param) {
                                                 lineNumber: 235,
                                                 columnNumber: 19
                                             }, this),
-                                            company.max_backlogs && company.max_backlogs != 999 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-center justify-between text-sm",
+                                            company.max_backlogs && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-2 rounded-lg",
                                                 children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-slate-600",
-                                                        children: "Maximum Backlogs"
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
+                                                        size: 14
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
                                                         lineNumber: 244,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "font-semibold text-slate-900",
-                                                        children: [
-                                                            "≤",
-                                                            company.max_backlogs
-                                                        ]
-                                                    }, void 0, true, {
+                                                        className: "font-medium",
+                                                        children: "Backlogs Allowed"
+                                                    }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
                                                         lineNumber: 245,
                                                         columnNumber: 21
@@ -834,7 +841,7 @@ function CompanyCardView(param) {
                                                         size: 14
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 252,
+                                                        lineNumber: 250,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -842,13 +849,13 @@ function CompanyCardView(param) {
                                                         children: "Bond Required"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 253,
+                                                        lineNumber: 251,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 251,
+                                                lineNumber: 249,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -884,7 +891,7 @@ function CompanyCardView(param) {
                                                 className: "text-slate-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 269,
+                                                lineNumber: 267,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -896,13 +903,13 @@ function CompanyCardView(param) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 270,
+                                                lineNumber: 268,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 268,
+                                        lineNumber: 266,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -916,32 +923,32 @@ function CompanyCardView(param) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 275,
+                                                lineNumber: 273,
                                                 columnNumber: 17
                                             }, this),
                                             isExpanded ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUp$3e$__["ChevronUp"], {
                                                 size: 16
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 279,
+                                                lineNumber: 277,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
                                                 size: 16
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 281,
+                                                lineNumber: 279,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 274,
+                                        lineNumber: 272,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 264,
+                                lineNumber: 262,
                                 columnNumber: 13
                             }, this),
                             isExpanded && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -960,7 +967,7 @@ function CompanyCardView(param) {
                                                             children: position.position_title
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                            lineNumber: 296,
+                                                            lineNumber: 294,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -971,7 +978,7 @@ function CompanyCardView(param) {
                                                                     children: (_position_company_type = position.company_type) === null || _position_company_type === void 0 ? void 0 : _position_company_type.toUpperCase()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                    lineNumber: 301,
+                                                                    lineNumber: 299,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -979,24 +986,24 @@ function CompanyCardView(param) {
                                                                     children: (_position_job_type = position.job_type) === null || _position_job_type === void 0 ? void 0 : _position_job_type.replace("_", " ").toUpperCase()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                    lineNumber: 308,
+                                                                    lineNumber: 306,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                            lineNumber: 299,
+                                                            lineNumber: 297,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                    lineNumber: 295,
+                                                    lineNumber: 293,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 294,
+                                                lineNumber: 292,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1006,11 +1013,11 @@ function CompanyCardView(param) {
                                                         className: "bg-blue-50 rounded-lg p-3",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "text-sm font-semibold ".concat(position.internship_stipend_monthly === -1 ? "text-gray-500" : "text-blue-700"),
-                                                                children: position.internship_stipend_monthly === -1 ? "Not disclosed" : "₹".concat(position.internship_stipend_monthly, "/month")
+                                                                className: "text-sm font-semibold ".concat(!position.internship_stipend_monthly ? "text-gray-500" : "text-blue-700"),
+                                                                children: !position.internship_stipend_monthly ? "Not disclosed" : "₹".concat(position.internship_stipend_monthly)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 321,
+                                                                lineNumber: 319,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1018,24 +1025,24 @@ function CompanyCardView(param) {
                                                                 children: "Internship Stipend"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 332,
+                                                                lineNumber: 330,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 320,
+                                                        lineNumber: 318,
                                                         columnNumber: 25
                                                     }, this),
                                                     (position.job_type === "full_time" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "bg-emerald-50 rounded-lg p-3",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "text-sm font-semibold ".concat(position.package_range === -1 ? "text-gray-500" : "text-emerald-700"),
-                                                                children: position.package_range === -1 ? "Not disclosed" : formatPackage(position.package_range)
+                                                                className: "text-sm font-semibold ".concat(position.package === -1 ? "text-gray-500" : "text-emerald-700"),
+                                                                children: position.package === -1 ? "Not disclosed" : formatPackageRange(position)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 342,
+                                                                lineNumber: 339,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1043,19 +1050,19 @@ function CompanyCardView(param) {
                                                                 children: position.job_type === "internship_plus_ppo" ? "PPO Package" : "Annual Package"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 353,
+                                                                lineNumber: 350,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 341,
+                                                        lineNumber: 338,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 316,
+                                                lineNumber: 314,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1069,7 +1076,7 @@ function CompanyCardView(param) {
                                                                 children: position.applications_count || 0
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 365,
+                                                                lineNumber: 362,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1077,13 +1084,13 @@ function CompanyCardView(param) {
                                                                 children: "Registered"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 368,
+                                                                lineNumber: 365,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 364,
+                                                        lineNumber: 361,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1094,7 +1101,7 @@ function CompanyCardView(param) {
                                                                 children: position.selected_students || 0
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 371,
+                                                                lineNumber: 368,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1102,19 +1109,19 @@ function CompanyCardView(param) {
                                                                 children: "Selected"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 374,
+                                                                lineNumber: 371,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 370,
+                                                        lineNumber: 367,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 363,
+                                                lineNumber: 360,
                                                 columnNumber: 21
                                             }, this),
                                             (position.rounds_start_date || position.rounds_end_date) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1125,7 +1132,7 @@ function CompanyCardView(param) {
                                                         children: "Rounds Schedule"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 382,
+                                                        lineNumber: 379,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1139,7 +1146,7 @@ function CompanyCardView(param) {
                                                                         className: "text-orange-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 388,
+                                                                        lineNumber: 385,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1151,13 +1158,13 @@ function CompanyCardView(param) {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 389,
+                                                                        lineNumber: 386,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 387,
+                                                                lineNumber: 384,
                                                                 columnNumber: 29
                                                             }, this),
                                                             position.rounds_end_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1168,7 +1175,7 @@ function CompanyCardView(param) {
                                                                         className: "text-orange-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 399,
+                                                                        lineNumber: 396,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1180,25 +1187,25 @@ function CompanyCardView(param) {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 400,
+                                                                        lineNumber: 397,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 398,
+                                                                lineNumber: 395,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 385,
+                                                        lineNumber: 382,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 381,
+                                                lineNumber: 378,
                                                 columnNumber: 23
                                             }, this),
                                             position.documents && position.documents.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1209,7 +1216,7 @@ function CompanyCardView(param) {
                                                         children: "Documents:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 415,
+                                                        lineNumber: 412,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1224,7 +1231,7 @@ function CompanyCardView(param) {
                                                                         size: 12
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 427,
+                                                                        lineNumber: 424,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     doc.document_title,
@@ -1232,42 +1239,42 @@ function CompanyCardView(param) {
                                                                         size: 10
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 429,
+                                                                        lineNumber: 426,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, doc.id, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 420,
+                                                                lineNumber: 417,
                                                                 columnNumber: 29
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 418,
+                                                        lineNumber: 415,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 414,
+                                                lineNumber: 411,
                                                 columnNumber: 23
                                             }, this)
                                         ]
                                     }, position.id, true, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 289,
+                                        lineNumber: 287,
                                         columnNumber: 19
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 287,
+                                lineNumber: 285,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                        lineNumber: 263,
+                        lineNumber: 261,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1286,12 +1293,12 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 453,
+                                            lineNumber: 450,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 446,
+                                        lineNumber: 443,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "p-2 text-red-500 opacity-60 cursor-not-allowed",
@@ -1300,12 +1307,12 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 460,
+                                            lineNumber: 457,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 456,
+                                        lineNumber: 453,
                                         columnNumber: 15
                                     }, this),
                                     company.linkedin_url ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -1318,12 +1325,12 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 472,
+                                            lineNumber: 469,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 465,
+                                        lineNumber: 462,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "p-2 text-red-500 opacity-60 cursor-not-allowed",
@@ -1332,18 +1339,18 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 479,
+                                            lineNumber: 476,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 475,
+                                        lineNumber: 472,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 444,
+                                lineNumber: 441,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1357,12 +1364,12 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 490,
+                                            lineNumber: 487,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 485,
+                                        lineNumber: 482,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1376,12 +1383,12 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 500,
+                                            lineNumber: 497,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 492,
+                                        lineNumber: 489,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1392,12 +1399,12 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 507,
+                                            lineNumber: 504,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 502,
+                                        lineNumber: 499,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1407,24 +1414,24 @@ function CompanyCardView(param) {
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 513,
+                                            lineNumber: 510,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 509,
+                                        lineNumber: 506,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 484,
+                                lineNumber: 481,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                        lineNumber: 443,
+                        lineNumber: 440,
                         columnNumber: 9
                     }, this)
                 ]
@@ -1440,7 +1447,7 @@ function CompanyCardView(param) {
         columnNumber: 5
     }, this);
 }
-_s(CompanyCardView, "EslTmY4k7FX1kAzU0YWuAQ8x4sA=", false, function() {
+_s(CompanyCardView, "flejtWYjdCazaWXDm2yvn3gwF88=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"]
     ];
@@ -1453,1587 +1460,12 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }
 }}),
 "[project]/app/company-listing/CompanyDetailModal.js [app-client] (ecmascript)": ((__turbopack_context__) => {
-"use strict";
 
-var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
+var { k: __turbopack_refresh__, m: module, e: exports } = __turbopack_context__;
 {
-__turbopack_context__.s({
-    "CompanyDetailModal": ()=>CompanyDetailModal
-});
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/calendar.js [app-client] (ecmascript) <export default as Calendar>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/users.js [app-client] (ecmascript) <export default as Users>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/clock.js [app-client] (ecmascript) <export default as Clock>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/globe.js [app-client] (ecmascript) <export default as Globe>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$linkedin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Linkedin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/linkedin.js [app-client] (ecmascript) <export default as Linkedin>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$mail$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Mail$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/mail.js [app-client] (ecmascript) <export default as Mail>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$phone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Phone$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/phone.js [app-client] (ecmascript) <export default as Phone>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$award$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Award$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/award.js [app-client] (ecmascript) <export default as Award>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$briefcase$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Briefcase$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/briefcase.js [app-client] (ecmascript) <export default as Briefcase>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$graduation$2d$cap$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__GraduationCap$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/graduation-cap.js [app-client] (ecmascript) <export default as GraduationCap>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-alert.js [app-client] (ecmascript) <export default as AlertCircle>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/external-link.js [app-client] (ecmascript) <export default as ExternalLink>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/trending-up.js [app-client] (ecmascript) <export default as TrendingUp>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$building$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Building2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/building-2.js [app-client] (ecmascript) <export default as Building2>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/star.js [app-client] (ecmascript) <export default as Star>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-text.js [app-client] (ecmascript) <export default as FileText>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$at$2d$sign$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AtSign$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/at-sign.js [app-client] (ecmascript) <export default as AtSign>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__UserCheck$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/user-check.js [app-client] (ecmascript) <export default as UserCheck>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check-big.js [app-client] (ecmascript) <export default as CheckCircle>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/CompaniesContext.js [app-client] (ecmascript)");
-;
-var _s = __turbopack_context__.k.signature();
-;
-;
-function CompanyDetailModal() {
-    var _statusConfig_status, _statusConfig_status1, _statusConfig_status2, _selectedCompany_positions, _selectedCompany_positions1;
-    _s();
-    const { selectedCompany, setSelectedCompany, formatPackage, getCompanyStatus } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
-    const status = getCompanyStatus(selectedCompany);
-    // Modern status colors
-    const statusConfig = {
-        upcoming: {
-            color: "bg-blue-50 text-blue-700 border-blue-200",
-            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__["Calendar"],
-            label: "Upcoming"
-        },
-        delayed: {
-            color: "bg-amber-50 text-amber-700 border-amber-200",
-            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"],
-            label: "Delayed"
-        },
-        jd_shared: {
-            color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"],
-            label: "JD Shared"
-        }
-    };
-    const StatusIcon = ((_statusConfig_status = statusConfig[status]) === null || _statusConfig_status === void 0 ? void 0 : _statusConfig_status.icon) || __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__["Calendar"];
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 overflow-y-auto",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "min-h-screen flex items-start justify-center p-2 py-4",
-            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "bg-white rounded-2xl max-w-5xl w-full shadow-2xl my-2",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-200 px-5 py-4 rounded-t-2xl",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                onClick: ()=>setSelectedCompany(null),
-                                className: "absolute top-4 right-4 p-1.5 text-slate-500 bg-slate-100 hover:text-slate-900 hover:scale-110 rounded-lg transition-all duration-200",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
-                                    size: 18
-                                }, void 0, false, {
-                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                    lineNumber: 67,
-                                    columnNumber: 15
-                                }, this)
-                            }, void 0, false, {
-                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                lineNumber: 63,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "pr-12",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "flex items-start gap-3 mb-3",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "p-2 bg-white rounded-xl shadow-sm border border-slate-200",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$building$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Building2$3e$__["Building2"], {
-                                                    size: 20,
-                                                    className: "text-slate-600"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 74,
-                                                    columnNumber: 19
-                                                }, this)
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                lineNumber: 73,
-                                                columnNumber: 17
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex-1",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "flex items-center gap-2 mb-1",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                                                className: "text-2xl font-bold text-slate-900",
-                                                                children: selectedCompany.company_name
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 78,
-                                                                columnNumber: 21
-                                                            }, this),
-                                                            selectedCompany.is_marquee && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                className: "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border border-amber-200",
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$award$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Award$3e$__["Award"], {
-                                                                        size: 12,
-                                                                        className: "mr-1"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 83,
-                                                                        columnNumber: 25
-                                                                    }, this),
-                                                                    "Marquee"
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 82,
-                                                                columnNumber: 23
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 77,
-                                                        columnNumber: 19
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-slate-600 text-sm leading-relaxed mb-3",
-                                                        children: selectedCompany.company_description
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 88,
-                                                        columnNumber: 19
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "flex flex-wrap items-center gap-2",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                className: "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ".concat(((_statusConfig_status1 = statusConfig[status]) === null || _statusConfig_status1 === void 0 ? void 0 : _statusConfig_status1.color) || statusConfig.upcoming.color),
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(StatusIcon, {
-                                                                        size: 12,
-                                                                        className: "mr-1"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 97,
-                                                                        columnNumber: 23
-                                                                    }, this),
-                                                                    ((_statusConfig_status2 = statusConfig[status]) === null || _statusConfig_status2 === void 0 ? void 0 : _statusConfig_status2.label) || "Upcoming"
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 94,
-                                                                columnNumber: 21
-                                                            }, this),
-                                                            selectedCompany.sector && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                className: "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300",
-                                                                children: selectedCompany.sector
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 102,
-                                                                columnNumber: 23
-                                                            }, this),
-                                                            selectedCompany.glassdoor_rating && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                className: "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800 border border-yellow-200",
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
-                                                                        size: 12,
-                                                                        className: "mr-1 fill-current"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 109,
-                                                                        columnNumber: 25
-                                                                    }, this),
-                                                                    parseFloat(selectedCompany.glassdoor_rating).toFixed(1)
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 108,
-                                                                columnNumber: 23
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 93,
-                                                        columnNumber: 19
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                lineNumber: 76,
-                                                columnNumber: 17
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                        lineNumber: 72,
-                                        columnNumber: 15
-                                    }, this),
-                                    selectedCompany.work_locations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "bg-white/60 backdrop-blur rounded-lg p-3 border border-slate-200",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-center gap-2 mb-2",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
-                                                        size: 14,
-                                                        className: "text-slate-500"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 123,
-                                                        columnNumber: 21
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-xs font-semibold text-slate-700",
-                                                        children: "Work Locations"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 124,
-                                                        columnNumber: 21
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                lineNumber: 122,
-                                                columnNumber: 19
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex flex-wrap gap-1.5",
-                                                children: selectedCompany.work_locations.split(", ").map((location, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200",
-                                                        children: location.trim()
-                                                    }, index, false, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 132,
-                                                        columnNumber: 25
-                                                    }, this))
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                lineNumber: 128,
-                                                columnNumber: 19
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                        lineNumber: 121,
-                                        columnNumber: 17
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                lineNumber: 70,
-                                columnNumber: 13
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                        lineNumber: 62,
-                        columnNumber: 11
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "p-5",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-1 xl:grid-cols-3 gap-5",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "xl:col-span-2 space-y-5",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "bg-slate-50 rounded-xl p-4 border border-slate-200",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
-                                                            size: 18,
-                                                            className: "text-slate-600"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 153,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        "Primary Contact"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 152,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "grid grid-cols-1 lg:grid-cols-2 gap-4",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "space-y-2",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                            className: "text-xs font-semibold text-slate-600 uppercase tracking-wide",
-                                                                            children: "HR Manager"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 159,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-base font-bold text-slate-900 mt-0.5",
-                                                                            children: selectedCompany.primary_hr_name
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 162,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-slate-600 text-sm font-medium",
-                                                                            children: selectedCompany.primary_hr_designation
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 165,
-                                                                            columnNumber: 25
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 158,
-                                                                    columnNumber: 23
-                                                                }, this),
-                                                                selectedCompany.account_owner && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex items-center gap-1 mt-2 text-md text-slate-900 font-bold",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$at$2d$sign$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AtSign$3e$__["AtSign"], {
-                                                                            size: 16,
-                                                                            className: "text-blue-600"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 172,
-                                                                            columnNumber: 27
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "font-bold text-slate-900 text-sm",
-                                                                            children: [
-                                                                                "Account Owner: ",
-                                                                                selectedCompany.account_owner
-                                                                            ]
-                                                                        }, void 0, true, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 173,
-                                                                            columnNumber: 27
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 171,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 157,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "space-y-3",
-                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                        className: "text-xs font-semibold text-slate-600 uppercase tracking-wide",
-                                                                        children: "Contact Details"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 181,
-                                                                        columnNumber: 25
-                                                                    }, this),
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                        className: "space-y-2 mt-1",
-                                                                        children: [
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$mail$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Mail$3e$__["Mail"], {
-                                                                                        size: 14,
-                                                                                        className: "text-blue-600"
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 186,
-                                                                                        columnNumber: 29
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                                                        href: "mailto:".concat(selectedCompany.primary_hr_email),
-                                                                                        className: "text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors",
-                                                                                        children: selectedCompany.primary_hr_email
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 187,
-                                                                                        columnNumber: 29
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 185,
-                                                                                columnNumber: 27
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$phone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Phone$3e$__["Phone"], {
-                                                                                        size: 14,
-                                                                                        className: "text-emerald-600"
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 195,
-                                                                                        columnNumber: 29
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "text-slate-900 text-sm font-medium",
-                                                                                        children: selectedCompany.primary_hr_phone
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 196,
-                                                                                        columnNumber: 29
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 194,
-                                                                                columnNumber: 27
-                                                                            }, this)
-                                                                        ]
-                                                                    }, void 0, true, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 184,
-                                                                        columnNumber: 25
-                                                                    }, this)
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 180,
-                                                                columnNumber: 23
-                                                            }, this)
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 179,
-                                                            columnNumber: 21
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 156,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                            lineNumber: 151,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "bg-white border border-slate-200 rounded-xl p-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "flex items-center justify-between mb-4",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                        className: "text-lg font-bold text-slate-900 flex items-center gap-2",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$briefcase$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Briefcase$3e$__["Briefcase"], {
-                                                                size: 18,
-                                                                className: "text-slate-600"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 210,
-                                                                columnNumber: 23
-                                                            }, this),
-                                                            "Open Positions (",
-                                                            ((_selectedCompany_positions = selectedCompany.positions) === null || _selectedCompany_positions === void 0 ? void 0 : _selectedCompany_positions.length) || 0,
-                                                            ")"
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 209,
-                                                        columnNumber: 21
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 208,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "space-y-4",
-                                                    children: ((_selectedCompany_positions1 = selectedCompany.positions) === null || _selectedCompany_positions1 === void 0 ? void 0 : _selectedCompany_positions1.map((position)=>{
-                                                        var _position_company_type, _position_job_type;
-                                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "border border-slate-200 rounded-lg p-4 hover:shadow-sm transition-all duration-200",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex justify-between items-start mb-3",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                        className: "flex-1",
-                                                                        children: [
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                                                className: "text-base font-bold text-slate-900 mb-2",
-                                                                                children: position.position_title
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 223,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex items-center gap-2 mb-3",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200",
-                                                                                        children: (_position_company_type = position.company_type) === null || _position_company_type === void 0 ? void 0 : _position_company_type.toUpperCase()
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 230,
-                                                                                        columnNumber: 31
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "px-2 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200",
-                                                                                        children: (_position_job_type = position.job_type) === null || _position_job_type === void 0 ? void 0 : _position_job_type.replace("_", " ").toUpperCase()
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 234,
-                                                                                        columnNumber: 31
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 228,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "grid grid-cols-1 md:grid-cols-2 gap-4 mb-4",
-                                                                                children: [
-                                                                                    position.job_type === "full_time" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                        className: "bg-green-50 rounded-lg p-3 border border-green-200",
-                                                                                        children: [
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-lg font-bold text-green-600",
-                                                                                                children: position.package_range === -1 ? "Not disclosed" : formatPackage(position.package_range)
-                                                                                            }, void 0, false, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 246,
-                                                                                                columnNumber: 35
-                                                                                            }, this),
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-xs text-green-700 font-medium",
-                                                                                                children: "Annual Package"
-                                                                                            }, void 0, false, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 251,
-                                                                                                columnNumber: 35
-                                                                                            }, this)
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 245,
-                                                                                        columnNumber: 33
-                                                                                    }, this),
-                                                                                    position.job_type === "internship" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                        className: "bg-blue-50 rounded-lg p-3 border border-blue-200",
-                                                                                        children: [
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-lg font-bold text-blue-600",
-                                                                                                children: position.internship_stipend_monthly === -1 ? "Not disclosed" : "₹".concat(position.internship_stipend_monthly, "/month")
-                                                                                            }, void 0, false, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 260,
-                                                                                                columnNumber: 35
-                                                                                            }, this),
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-xs text-blue-700 font-medium",
-                                                                                                children: "Internship Stipend"
-                                                                                            }, void 0, false, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 265,
-                                                                                                columnNumber: 35
-                                                                                            }, this)
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 259,
-                                                                                        columnNumber: 33
-                                                                                    }, this),
-                                                                                    position.job_type === "internship_plus_ppo" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                                                        children: [
-                                                                                            position.internship_stipend_monthly && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "bg-blue-50 rounded-lg p-3 border border-blue-200",
-                                                                                                children: [
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                        className: "text-lg font-bold text-blue-600",
-                                                                                                        children: position.internship_stipend_monthly === -1 ? "Not disclosed" : "₹".concat(position.internship_stipend_monthly, "/month")
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 276,
-                                                                                                        columnNumber: 39
-                                                                                                    }, this),
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                        className: "text-xs text-blue-700 font-medium",
-                                                                                                        children: "Internship Stipend"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 282,
-                                                                                                        columnNumber: 39
-                                                                                                    }, this)
-                                                                                                ]
-                                                                                            }, void 0, true, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 275,
-                                                                                                columnNumber: 37
-                                                                                            }, this),
-                                                                                            position.package_range && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "bg-green-50 rounded-lg p-3 border border-green-200",
-                                                                                                children: [
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                        className: "text-lg font-bold text-green-600",
-                                                                                                        children: position.package_range === -1 ? "Not disclosed" : formatPackage(position.package_range)
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 289,
-                                                                                                        columnNumber: 39
-                                                                                                    }, this),
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                        className: "text-xs text-green-700 font-medium",
-                                                                                                        children: "PPO Package"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 296,
-                                                                                                        columnNumber: 39
-                                                                                                    }, this)
-                                                                                                ]
-                                                                                            }, void 0, true, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 288,
-                                                                                                columnNumber: 37
-                                                                                            }, this)
-                                                                                        ]
-                                                                                    }, void 0, true)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 242,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "grid grid-cols-2 md:grid-cols-3 gap-4 mb-4",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                        className: "bg-blue-50 p-3 rounded-lg",
-                                                                                        children: [
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "flex items-center gap-1 mb-1",
-                                                                                                children: [
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
-                                                                                                        size: 14,
-                                                                                                        className: "text-blue-500"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 308,
-                                                                                                        columnNumber: 35
-                                                                                                    }, this),
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                        className: "text-xs font-medium text-blue-700",
-                                                                                                        children: "Registered"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 309,
-                                                                                                        columnNumber: 35
-                                                                                                    }, this)
-                                                                                                ]
-                                                                                            }, void 0, true, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 307,
-                                                                                                columnNumber: 33
-                                                                                            }, this),
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-lg font-bold text-blue-800",
-                                                                                                children: position.applications_count || 0
-                                                                                            }, void 0, false, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 313,
-                                                                                                columnNumber: 33
-                                                                                            }, this)
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 306,
-                                                                                        columnNumber: 31
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                        className: "bg-green-50 p-3 rounded-lg",
-                                                                                        children: [
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "flex items-center gap-1 mb-1",
-                                                                                                children: [
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__["CheckCircle"], {
-                                                                                                        size: 14,
-                                                                                                        className: "text-green-500"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 320,
-                                                                                                        columnNumber: 35
-                                                                                                    }, this),
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                        className: "text-xs font-medium text-green-700",
-                                                                                                        children: "Selected"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 324,
-                                                                                                        columnNumber: 35
-                                                                                                    }, this)
-                                                                                                ]
-                                                                                            }, void 0, true, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 319,
-                                                                                                columnNumber: 33
-                                                                                            }, this),
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-lg font-bold text-green-800",
-                                                                                                children: position.selected_students || 0
-                                                                                            }, void 0, false, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 328,
-                                                                                                columnNumber: 33
-                                                                                            }, this)
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 318,
-                                                                                        columnNumber: 31
-                                                                                    }, this),
-                                                                                    (position.rounds_start_date || position.rounds_end_date) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                        className: "bg-orange-50 p-3 rounded-lg col-span-2 md:col-span-1",
-                                                                                        children: [
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "flex items-center gap-1 mb-1",
-                                                                                                children: [
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__["Calendar"], {
-                                                                                                        size: 14,
-                                                                                                        className: "text-orange-500"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 338,
-                                                                                                        columnNumber: 37
-                                                                                                    }, this),
-                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                        className: "text-xs font-medium text-orange-700",
-                                                                                                        children: "Rounds Schedule"
-                                                                                                    }, void 0, false, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 342,
-                                                                                                        columnNumber: 37
-                                                                                                    }, this)
-                                                                                                ]
-                                                                                            }, void 0, true, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 337,
-                                                                                                columnNumber: 35
-                                                                                            }, this),
-                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                className: "text-sm text-orange-800 space-y-1",
-                                                                                                children: [
-                                                                                                    position.rounds_start_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                        className: "flex items-center gap-1",
-                                                                                                        children: [
-                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                className: "text-xs",
-                                                                                                                children: "Start:"
-                                                                                                            }, void 0, false, {
-                                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                                lineNumber: 349,
-                                                                                                                columnNumber: 41
-                                                                                                            }, this),
-                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                className: "font-medium",
-                                                                                                                children: new Date(position.rounds_start_date).toLocaleDateString()
-                                                                                                            }, void 0, false, {
-                                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                                lineNumber: 350,
-                                                                                                                columnNumber: 41
-                                                                                                            }, this)
-                                                                                                        ]
-                                                                                                    }, void 0, true, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 348,
-                                                                                                        columnNumber: 39
-                                                                                                    }, this),
-                                                                                                    position.rounds_end_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                                        className: "flex items-center gap-1",
-                                                                                                        children: [
-                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                className: "text-xs",
-                                                                                                                children: "End:"
-                                                                                                            }, void 0, false, {
-                                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                                lineNumber: 359,
-                                                                                                                columnNumber: 41
-                                                                                                            }, this),
-                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                className: "font-medium",
-                                                                                                                children: new Date(position.rounds_end_date).toLocaleDateString()
-                                                                                                            }, void 0, false, {
-                                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                                lineNumber: 360,
-                                                                                                                columnNumber: 41
-                                                                                                            }, this)
-                                                                                                        ]
-                                                                                                    }, void 0, true, {
-                                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                        lineNumber: 358,
-                                                                                                        columnNumber: 39
-                                                                                                    }, this)
-                                                                                                ]
-                                                                                            }, void 0, true, {
-                                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                                lineNumber: 346,
-                                                                                                columnNumber: 35
-                                                                                            }, this)
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                        lineNumber: 336,
-                                                                                        columnNumber: 33
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 305,
-                                                                                columnNumber: 29
-                                                                            }, this)
-                                                                        ]
-                                                                    }, void 0, true, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 222,
-                                                                        columnNumber: 27
-                                                                    }, this)
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 221,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                position.documents && position.documents.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "border-t border-slate-100 pt-3",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-sm font-semibold text-slate-700 mb-2",
-                                                                            children: "Documents:"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 378,
-                                                                            columnNumber: 31
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "flex flex-wrap gap-1.5",
-                                                                            children: position.documents.map((doc)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                                                    href: doc.download_url.replace(/\\/g, "/"),
-                                                                                    target: "_blank",
-                                                                                    rel: "noopener noreferrer",
-                                                                                    className: "inline-flex items-center gap-1.5 text-xs bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 px-2 py-1 rounded-lg border border-slate-200 hover:border-blue-200 transition-all duration-200 font-medium",
-                                                                                    children: [
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
-                                                                                            size: 12
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                            lineNumber: 390,
-                                                                                            columnNumber: 37
-                                                                                        }, this),
-                                                                                        doc.document_title,
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
-                                                                                            size: 10
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                            lineNumber: 392,
-                                                                                            columnNumber: 37
-                                                                                        }, this)
-                                                                                    ]
-                                                                                }, doc.id, true, {
-                                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                    lineNumber: 383,
-                                                                                    columnNumber: 35
-                                                                                }, this))
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 381,
-                                                                            columnNumber: 31
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 377,
-                                                                    columnNumber: 29
-                                                                }, this)
-                                                            ]
-                                                        }, position.id, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 217,
-                                                            columnNumber: 23
-                                                        }, this);
-                                                    })) || /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "text-center py-6 text-slate-500",
-                                                        children: "No positions available"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                        lineNumber: 400,
-                                                        columnNumber: 23
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 215,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                            lineNumber: 207,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "bg-slate-50 rounded-xl p-4 border border-slate-200",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$graduation$2d$cap$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__GraduationCap$3e$__["GraduationCap"], {
-                                                            size: 18,
-                                                            className: "text-blue-600"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 410,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        "Eligibility Requirements"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 409,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "space-y-4",
-                                                    children: [
-                                                        selectedCompany.allowed_specializations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "bg-violet-50 rounded-lg p-3 border border-violet-300",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                                    className: "text-sm font-semibold text-purple-900 mb-2",
-                                                                    children: "Eligible Branches"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 418,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex flex-wrap gap-2",
-                                                                    children: selectedCompany.allowed_specializations.replace(/[{}]/g, "").split(",").map((spec, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-sm font-medium",
-                                                                            children: spec.trim()
-                                                                        }, index, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 426,
-                                                                            columnNumber: 31
-                                                                        }, this))
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 421,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 417,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        (!selectedCompany.min_cgpa || selectedCompany.min_cgpa == 0) && (!selectedCompany.max_backlogs || selectedCompany.max_backlogs == 999) && !selectedCompany.bond_required ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "text-center py-6 text-slate-500 italic",
-                                                            children: "No Other Specific Requirements Mentioned"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 443,
-                                                            columnNumber: 23
-                                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "grid grid-cols-1 md:grid-cols-2 gap-3",
-                                                            children: [
-                                                                selectedCompany.min_cgpa && selectedCompany.min_cgpa != 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "bg-white rounded-lg p-3 border border-gray-300",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-2xl font-bold text-blue-600 mb-0.5",
-                                                                            children: selectedCompany.min_cgpa
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 451,
-                                                                            columnNumber: 31
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-xs font-semibold text-slate-600 uppercase tracking-wide",
-                                                                            children: "Minimum CGPA"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 454,
-                                                                            columnNumber: 31
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 450,
-                                                                    columnNumber: 29
-                                                                }, this),
-                                                                selectedCompany.max_backlogs && selectedCompany.max_backlogs != 999 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "bg-white rounded-lg p-3 border border-gray-300",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-2xl font-bold text-orange-600 mb-0.5",
-                                                                            children: [
-                                                                                "≤",
-                                                                                selectedCompany.max_backlogs
-                                                                            ]
-                                                                        }, void 0, true, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 462,
-                                                                            columnNumber: 31
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-xs font-semibold text-slate-600 uppercase tracking-wide",
-                                                                            children: "Maximum Backlogs"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 465,
-                                                                            columnNumber: 31
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 461,
-                                                                    columnNumber: 29
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 447,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        selectedCompany.bond_required && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "bg-amber-50 border border-amber-200 rounded-lg p-3",
-                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "flex items-start gap-2",
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
-                                                                        size: 16,
-                                                                        className: "text-amber-600 mt-0.5"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 477,
-                                                                        columnNumber: 27
-                                                                    }, this),
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                        children: [
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                className: "font-bold text-amber-800 text-sm",
-                                                                                children: "Bond Required"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 482,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                                className: "text-amber-700 mt-0.5 text-sm font-medium",
-                                                                                children: "This company requires a service bond agreement upon selection."
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                                lineNumber: 485,
-                                                                                columnNumber: 29
-                                                                            }, this)
-                                                                        ]
-                                                                    }, void 0, true, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 481,
-                                                                        columnNumber: 27
-                                                                    }, this)
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                lineNumber: 476,
-                                                                columnNumber: 25
-                                                            }, this)
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 475,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 414,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                            lineNumber: 408,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                    lineNumber: 149,
-                                    columnNumber: 15
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "space-y-4",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "bg-white border border-slate-200 rounded-xl p-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-base font-bold text-slate-900 mb-4 flex items-center gap-2",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
-                                                            size: 16,
-                                                            className: "text-slate-600"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 502,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        "Statistics"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 501,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "space-y-4",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "flex items-center gap-2 mb-4 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg border border-indigo-200",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__UserCheck$3e$__["UserCheck"], {
-                                                                    size: 16
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 508,
-                                                                    columnNumber: 23
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                    className: "font-medium",
-                                                                    children: [
-                                                                        selectedCompany.total_eligible_students || 0,
-                                                                        " Eligible Students"
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 509,
-                                                                    columnNumber: 23
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 507,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "grid grid-cols-2 gap-3",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "bg-blue-50 rounded-lg p-3 text-center border border-blue-200",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-xl font-bold text-blue-600"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 517,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-xs text-blue-600 font-semibold uppercase tracking-wide",
-                                                                            children: "Applied"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 521,
-                                                                            columnNumber: 25
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 516,
-                                                                    columnNumber: 23
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-xl font-bold text-emerald-600",
-                                                                            children: selectedCompany.total_selected || 0
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 526,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "text-xs text-emerald-600 font-semibold uppercase tracking-wide",
-                                                                            children: "Selected"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 529,
-                                                                            columnNumber: 25
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 525,
-                                                                    columnNumber: 23
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 515,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex items-center justify-between mb-1",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-slate-600 text-sm font-medium",
-                                                                            children: "Selection Rate"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 538,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-base font-bold text-purple-600",
-                                                                            children: (selectedCompany.applications_count || 0) > 0 ? "".concat(Math.round((selectedCompany.selected || 0) / (selectedCompany.applications_count || 1) * 100), "%") : "0%"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 541,
-                                                                            columnNumber: 25
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 537,
-                                                                    columnNumber: 23
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "w-full bg-slate-200 rounded-full h-2",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                        className: "bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-500",
-                                                                        style: {
-                                                                            width: "".concat(Math.min((selectedCompany.selected || 0) / (selectedCompany.applications_count || 1) * 100, 100), "%")
-                                                                        }
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                        lineNumber: 548,
-                                                                        columnNumber: 25
-                                                                    }, this)
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 547,
-                                                                    columnNumber: 23
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 536,
-                                                            columnNumber: 21
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 505,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                            lineNumber: 500,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "bg-slate-50 rounded-xl p-4 border border-slate-200",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-base font-bold text-slate-900 mb-4 flex items-center gap-2",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__["Calendar"], {
-                                                            size: 16,
-                                                            className: "text-slate-600"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 562,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        "Schedule"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 561,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "space-y-3",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "bg-white rounded-lg p-3 border border-slate-200",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex items-center gap-2 mb-1",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__["Calendar"], {
-                                                                            size: 14,
-                                                                            className: "text-blue-500"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 568,
-                                                                            columnNumber: 25
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-xs font-bold text-slate-600 uppercase tracking-wide",
-                                                                            children: "Scheduled Visit"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 569,
-                                                                            columnNumber: 25
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 567,
-                                                                    columnNumber: 23
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "text-sm font-bold text-blue-600",
-                                                                    children: new Date(selectedCompany.scheduled_visit).toLocaleDateString("en-US", {
-                                                                        weekday: "short",
-                                                                        year: "numeric",
-                                                                        month: "short",
-                                                                        day: "numeric"
-                                                                    })
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 573,
-                                                                    columnNumber: 23
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 566,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        selectedCompany.actual_arrival && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "bg-white rounded-lg p-3 border border-slate-200",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex items-center gap-2 mb-1",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
-                                                                            size: 14,
-                                                                            className: "text-emerald-500"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 588,
-                                                                            columnNumber: 27
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-xs font-bold text-slate-600 uppercase tracking-wide",
-                                                                            children: "Actual Arrival"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                            lineNumber: 589,
-                                                                            columnNumber: 27
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 587,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "text-sm font-bold text-emerald-600",
-                                                                    children: new Date(selectedCompany.actual_arrival).toLocaleDateString("en-US", {
-                                                                        weekday: "short",
-                                                                        year: "numeric",
-                                                                        month: "short",
-                                                                        day: "numeric"
-                                                                    })
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 593,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 586,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 565,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                            lineNumber: 560,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "bg-white border border-slate-200 rounded-xl p-4",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-base font-bold text-slate-900 mb-4 flex items-center gap-2",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
-                                                            size: 16,
-                                                            className: "text-slate-600"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 611,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        "Quick Links"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 610,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "space-y-2",
-                                                    children: [
-                                                        selectedCompany.website_url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                            href: selectedCompany.website_url,
-                                                            target: "_blank",
-                                                            rel: "noopener noreferrer",
-                                                            className: "flex items-center gap-2 p-3 bg-slate-50 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-slate-200 transition-all duration-200 group",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__["Globe"], {
-                                                                    size: 16,
-                                                                    className: "text-blue-600"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 622,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                    className: "text-sm font-semibold text-slate-700 group-hover:text-blue-700",
-                                                                    children: "Company Website"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 623,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
-                                                                    size: 12,
-                                                                    className: "text-slate-400 ml-auto"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 626,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 616,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        selectedCompany.linkedin_url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                            href: selectedCompany.linkedin_url,
-                                                            target: "_blank",
-                                                            rel: "noopener noreferrer",
-                                                            className: "flex items-center gap-2 p-3 bg-slate-50 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-slate-200 transition-all duration-200 group",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$linkedin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Linkedin$3e$__["Linkedin"], {
-                                                                    size: 16,
-                                                                    className: "text-blue-600"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 639,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                    className: "text-sm font-semibold text-slate-700 group-hover:text-blue-700",
-                                                                    children: "LinkedIn Page"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 640,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
-                                                                    size: 12,
-                                                                    className: "text-slate-400 ml-auto"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                                    lineNumber: 643,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                            lineNumber: 633,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                                    lineNumber: 614,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                            lineNumber: 609,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                                    lineNumber: 498,
-                                    columnNumber: 15
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                            lineNumber: 147,
-                            columnNumber: 13
-                        }, this)
-                    }, void 0, false, {
-                        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                        lineNumber: 146,
-                        columnNumber: 11
-                    }, this)
-                ]
-            }, void 0, true, {
-                fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-                lineNumber: 60,
-                columnNumber: 9
-            }, this)
-        }, void 0, false, {
-            fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-            lineNumber: 59,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
-        fileName: "[project]/app/company-listing/CompanyDetailModal.js",
-        lineNumber: 58,
-        columnNumber: 5
-    }, this);
-}
-_s(CompanyDetailModal, "wW8gqL+Dxw4vxgv6nLOEyx+ySAw=", false, function() {
-    return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"]
-    ];
-});
-_c = CompanyDetailModal;
-var _c;
-__turbopack_context__.k.register(_c, "CompanyDetailModal");
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
-}
+const e = new Error("Could not parse module '[project]/app/company-listing/CompanyDetailModal.js'\n\nUnexpected token. Did you mean `{'}'}` or `&rbrace;`?");
+e.code = 'MODULE_UNPARSABLE';
+throw e;
 }}),
 "[project]/app/company-listing/DeleteConfirmationModal.js [app-client] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
@@ -3829,7 +2261,7 @@ var _s = __turbopack_context__.k.signature();
 function CompanyTableView(param) {
     let { statusColors, companyTypeColors, onEditClick } = param;
     _s();
-    const { formatPackage, setSelectedCompany, fetchCompanies, loading, error, searchTerm, typeFilter, sectorFilter, filteredCompanies, getCompanyStatus, setSearchTerm, setTypeFilter, setSectorFilter, handleDeleteClick, showDeleteModal, setShowDeleteModal, itemToDelete, deleteType, isDeleting, setItemToDelete, setShowEligibilityModal, setSelectedCompanyForEligibility } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
+    const { formatPackage, formatPackageRange, setSelectedCompany, fetchCompanies, loading, error, searchTerm, typeFilter, sectorFilter, filteredCompanies, getCompanyStatus, setSearchTerm, setTypeFilter, setSectorFilter, handleDeleteClick, showDeleteModal, setShowDeleteModal, itemToDelete, deleteType, isDeleting, setItemToDelete, setShowEligibilityModal, setSelectedCompanyForEligibility } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const [showEmailModal, setShowEmailModal] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [selectedCompanyForEmail, setSelectedCompanyForEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -3864,7 +2296,7 @@ function CompanyTableView(param) {
                     className: "animate-spin h-8 w-8 text-blue-600"
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 98,
+                    lineNumber: 99,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3872,13 +2304,13 @@ function CompanyTableView(param) {
                     children: "Loading companies..."
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 99,
+                    lineNumber: 100,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/company-listing/CompanyTableView.js",
-            lineNumber: 97,
+            lineNumber: 98,
             columnNumber: 7
         }, this);
     }
@@ -3890,7 +2322,7 @@ function CompanyTableView(param) {
                     className: "mx-auto h-12 w-12 text-red-400"
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 107,
+                    lineNumber: 108,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -3898,7 +2330,7 @@ function CompanyTableView(param) {
                     children: "Error Loading Companies"
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 108,
+                    lineNumber: 109,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3906,7 +2338,7 @@ function CompanyTableView(param) {
                     children: error
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 111,
+                    lineNumber: 112,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3915,13 +2347,13 @@ function CompanyTableView(param) {
                     children: "Try Again"
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 112,
+                    lineNumber: 113,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/company-listing/CompanyTableView.js",
-            lineNumber: 106,
+            lineNumber: 107,
             columnNumber: 7
         }, this);
     }
@@ -3946,7 +2378,7 @@ function CompanyTableView(param) {
                                                     children: "Company Details"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 131,
+                                                    lineNumber: 132,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3954,7 +2386,7 @@ function CompanyTableView(param) {
                                                     children: "Type & Sector"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 134,
+                                                    lineNumber: 135,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3962,7 +2394,7 @@ function CompanyTableView(param) {
                                                     children: "Positions"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 137,
+                                                    lineNumber: 138,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3970,7 +2402,7 @@ function CompanyTableView(param) {
                                                     children: "Requirements"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 140,
+                                                    lineNumber: 141,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3978,7 +2410,7 @@ function CompanyTableView(param) {
                                                     children: "Schedule & Status"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 143,
+                                                    lineNumber: 144,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3986,7 +2418,7 @@ function CompanyTableView(param) {
                                                     children: "Applications"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 146,
+                                                    lineNumber: 147,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3994,18 +2426,18 @@ function CompanyTableView(param) {
                                                     children: "Actions"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 149,
+                                                    lineNumber: 150,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                            lineNumber: 130,
+                                            lineNumber: 131,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 129,
+                                        lineNumber: 130,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4034,7 +2466,7 @@ function CompanyTableView(param) {
                                                                                         children: company.company_name
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 167,
+                                                                                        lineNumber: 168,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     company.is_marquee && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4044,20 +2476,20 @@ function CompanyTableView(param) {
                                                                                                 size: 12
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 172,
+                                                                                                lineNumber: 173,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             "Marquee"
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 171,
+                                                                                        lineNumber: 172,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 166,
+                                                                                lineNumber: 167,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             company.company_description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4065,7 +2497,7 @@ function CompanyTableView(param) {
                                                                                 children: company.company_description
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 179,
+                                                                                lineNumber: 180,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4079,7 +2511,7 @@ function CompanyTableView(param) {
                                                                                                 className: "text-yellow-400 fill-current"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 187,
+                                                                                                lineNumber: 188,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4087,13 +2519,13 @@ function CompanyTableView(param) {
                                                                                                 children: parseFloat(company.glassdoor_rating).toFixed(1)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 191,
+                                                                                                lineNumber: 192,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 186,
+                                                                                        lineNumber: 187,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     company.work_locations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4103,7 +2535,7 @@ function CompanyTableView(param) {
                                                                                                 size: 12
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 201,
+                                                                                                lineNumber: 202,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4111,35 +2543,35 @@ function CompanyTableView(param) {
                                                                                                 children: company.work_locations
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 202,
+                                                                                                lineNumber: 203,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 200,
+                                                                                        lineNumber: 201,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 184,
+                                                                                lineNumber: 185,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                        lineNumber: 165,
+                                                                        lineNumber: 166,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 164,
+                                                                    lineNumber: 165,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 163,
+                                                                lineNumber: 164,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4151,17 +2583,17 @@ function CompanyTableView(param) {
                                                                         children: company.sector
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                        lineNumber: 217,
+                                                                        lineNumber: 218,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 214,
+                                                                    lineNumber: 215,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 213,
+                                                                lineNumber: 214,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4178,7 +2610,7 @@ function CompanyTableView(param) {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 227,
+                                                                            lineNumber: 228,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4189,71 +2621,96 @@ function CompanyTableView(param) {
                                                                                     size: 12
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 236,
+                                                                                    lineNumber: 237,
                                                                                     columnNumber: 33
                                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
                                                                                     size: 12
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 238,
+                                                                                    lineNumber: 239,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 isExpanded ? "Hide Details" : "View Details"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 231,
+                                                                            lineNumber: 232,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 226,
+                                                                    lineNumber: 227,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 225,
+                                                                lineNumber: 226,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                className: "px-2 py-5 flex flex-col items-center ",
+                                                                className: "px-4 py-5 w-[15%]",
                                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "space-y-1 text-xs flex flex-col items-center",
+                                                                    className: "space-y-2",
                                                                     children: [
-                                                                        company.allowed_specializations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "flex flex-wrap gap-1 justify-center",
-                                                                            children: company.allowed_specializations.replace(/[{}]/g, "") // Remove curly braces
-                                                                            .split(",").map((spec, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                    className: "bg-purple-100 text-purple-700 px-1 py-1 rounded text-xs font-medium",
-                                                                                    children: spec.trim()
-                                                                                }, index, false, {
+                                                                        (company.eligibility_10th || company.eligibility_12th) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "space-y-1",
+                                                                            children: [
+                                                                                company.eligibility_10th && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                    className: "text-xs",
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                            className: "font-medium",
+                                                                                            children: "10th:"
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                            lineNumber: 255,
+                                                                                            columnNumber: 37
+                                                                                        }, this),
+                                                                                        " ",
+                                                                                        company.eligibility_10th,
+                                                                                        "%"
+                                                                                    ]
+                                                                                }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 255,
-                                                                                    columnNumber: 37
-                                                                                }, this))
-                                                                        }, void 0, false, {
+                                                                                    lineNumber: 254,
+                                                                                    columnNumber: 35
+                                                                                }, this),
+                                                                                company.eligibility_12th && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                    className: "text-xs",
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                            className: "font-medium",
+                                                                                            children: "12th:"
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                            lineNumber: 261,
+                                                                                            columnNumber: 37
+                                                                                        }, this),
+                                                                                        " ",
+                                                                                        company.eligibility_12th,
+                                                                                        "%"
+                                                                                    ]
+                                                                                }, void 0, true, {
+                                                                                    fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                    lineNumber: 260,
+                                                                                    columnNumber: 35
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 250,
+                                                                            lineNumber: 252,
                                                                             columnNumber: 31
                                                                         }, this),
-                                                                        (!company.min_cgpa || company.min_cgpa == 0) && (!company.max_backlogs || company.max_backlogs == 999) && !company.bond_required && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "font-medium text-gray-600 italic text-center px-5",
-                                                                            children: "No other Requirements"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 270,
-                                                                            columnNumber: 33
-                                                                        }, this),
-                                                                        company.min_cgpa && company.min_cgpa != 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "flex gap-1",
+                                                                        company.min_cgpa && company.min_cgpa !== 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex items-center gap-1 text-xs",
                                                                             children: [
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$graduation$2d$cap$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__GraduationCap$3e$__["GraduationCap"], {
                                                                                     size: 12,
                                                                                     className: "text-blue-500"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 278,
+                                                                                    lineNumber: 271,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4264,75 +2721,85 @@ function CompanyTableView(param) {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 282,
+                                                                                    lineNumber: 275,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 277,
+                                                                            lineNumber: 270,
                                                                             columnNumber: 31
                                                                         }, this),
-                                                                        company.max_backlogs && company.max_backlogs != 999 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "flex gap-1",
+                                                                        company.max_backlogs && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded",
                                                                             children: [
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
-                                                                                    size: 12,
-                                                                                    className: "text-orange-500"
+                                                                                    size: 12
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 292,
-                                                                                    columnNumber: 35
+                                                                                    lineNumber: 284,
+                                                                                    columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                    children: [
-                                                                                        "Backlogs: ≤",
-                                                                                        company.max_backlogs
-                                                                                    ]
-                                                                                }, void 0, true, {
+                                                                                    children: "Backlogs Allowed"
+                                                                                }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 296,
-                                                                                    columnNumber: 35
+                                                                                    lineNumber: 285,
+                                                                                    columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 291,
-                                                                            columnNumber: 33
+                                                                            lineNumber: 283,
+                                                                            columnNumber: 31
                                                                         }, this),
                                                                         company.bond_required && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "flex items-center gap-1 bg-orange-50 text-orange-700 px-2 py-1 rounded",
+                                                                            className: "flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded",
                                                                             children: [
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
                                                                                     size: 12
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 303,
+                                                                                    lineNumber: 292,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                    className: "font-medium",
                                                                                     children: "Bond Required"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 304,
+                                                                                    lineNumber: 293,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 302,
+                                                                            lineNumber: 291,
+                                                                            columnNumber: 31
+                                                                        }, this),
+                                                                        company.allowed_specializations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex flex-wrap gap-1 mt-2",
+                                                                            children: company.allowed_specializations.replace(/[{}]/g, "").split(",").map((spec, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-xs font-medium",
+                                                                                    children: spec.trim()
+                                                                                }, index, false, {
+                                                                                    fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                    lineNumber: 304,
+                                                                                    columnNumber: 37
+                                                                                }, this))
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                            lineNumber: 299,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 247,
+                                                                    lineNumber: 248,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 246,
+                                                                lineNumber: 247,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4345,12 +2812,40 @@ function CompanyTableView(param) {
                                                                             children: status
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 315,
+                                                                            lineNumber: 319,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                             className: "space-y-1 text-xs",
                                                                             children: [
+                                                                                company.jd_shared_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                    className: "flex items-center gap-1",
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
+                                                                                            size: 12,
+                                                                                            className: "text-blue-500"
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                            lineNumber: 328,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                            children: [
+                                                                                                "JD Shared:",
+                                                                                                " ",
+                                                                                                new Date(company.jd_shared_date).toLocaleDateString()
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                            lineNumber: 332,
+                                                                                            columnNumber: 35
+                                                                                        }, this)
+                                                                                    ]
+                                                                                }, void 0, true, {
+                                                                                    fileName: "[project]/app/company-listing/CompanyTableView.js",
+                                                                                    lineNumber: 327,
+                                                                                    columnNumber: 33
+                                                                                }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                                     className: "flex items-center gap-1",
                                                                                     children: [
@@ -4359,20 +2854,24 @@ function CompanyTableView(param) {
                                                                                             className: "text-gray-400"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 323,
+                                                                                            lineNumber: 341,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                            children: new Date(company.scheduled_visit).toLocaleDateString()
-                                                                                        }, void 0, false, {
+                                                                                            children: [
+                                                                                                "Visit:",
+                                                                                                " ",
+                                                                                                new Date(company.scheduled_visit).toLocaleDateString()
+                                                                                            ]
+                                                                                        }, void 0, true, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 324,
+                                                                                            lineNumber: 342,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 322,
+                                                                                    lineNumber: 340,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 company.actual_arrival && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4383,37 +2882,41 @@ function CompanyTableView(param) {
                                                                                             className: "text-green-500"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 332,
+                                                                                            lineNumber: 351,
                                                                                             columnNumber: 35
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                            children: new Date(company.actual_arrival).toLocaleDateString()
-                                                                                        }, void 0, false, {
+                                                                                            children: [
+                                                                                                "Arrived:",
+                                                                                                " ",
+                                                                                                new Date(company.actual_arrival).toLocaleDateString()
+                                                                                            ]
+                                                                                        }, void 0, true, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 333,
+                                                                                            lineNumber: 352,
                                                                                             columnNumber: 35
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 331,
+                                                                                    lineNumber: 350,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 321,
+                                                                            lineNumber: 325,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 314,
+                                                                    lineNumber: 318,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 313,
+                                                                lineNumber: 317,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4432,7 +2935,7 @@ function CompanyTableView(param) {
                                                                                 className: "text-red-500"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 355,
+                                                                                lineNumber: 375,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4440,13 +2943,13 @@ function CompanyTableView(param) {
                                                                                 children: "Set Eligible Students First"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 356,
+                                                                                lineNumber: 376,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                        lineNumber: 348,
+                                                                        lineNumber: 368,
                                                                         columnNumber: 31
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                         children: [
@@ -4458,7 +2961,7 @@ function CompanyTableView(param) {
                                                                                         className: "text-emerald-500"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 363,
+                                                                                        lineNumber: 383,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4469,13 +2972,13 @@ function CompanyTableView(param) {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 367,
+                                                                                        lineNumber: 387,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 362,
+                                                                                lineNumber: 382,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4489,7 +2992,7 @@ function CompanyTableView(param) {
                                                                                                 children: company.total_registered || 0
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 374,
+                                                                                                lineNumber: 394,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4497,13 +3000,13 @@ function CompanyTableView(param) {
                                                                                                 children: "Registered"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 377,
+                                                                                                lineNumber: 397,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 373,
+                                                                                        lineNumber: 393,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4514,7 +3017,7 @@ function CompanyTableView(param) {
                                                                                                 children: company.total_selected || 0
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 382,
+                                                                                                lineNumber: 402,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4522,31 +3025,31 @@ function CompanyTableView(param) {
                                                                                                 children: "Selected"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 385,
+                                                                                                lineNumber: 405,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 381,
+                                                                                        lineNumber: 401,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 372,
+                                                                                lineNumber: 392,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 346,
+                                                                    lineNumber: 366,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 345,
+                                                                lineNumber: 365,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4569,12 +3072,12 @@ function CompanyTableView(param) {
                                                                                             size: 16
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 411,
+                                                                                            lineNumber: 431,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 404,
+                                                                                        lineNumber: 424,
                                                                                         columnNumber: 35
                                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                                         className: "text-red-500 p-1 cursor-not-allowed opacity-60",
@@ -4583,12 +3086,12 @@ function CompanyTableView(param) {
                                                                                             size: 16
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 418,
+                                                                                            lineNumber: 438,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 414,
+                                                                                        lineNumber: 434,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     company.linkedin_url ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -4601,12 +3104,12 @@ function CompanyTableView(param) {
                                                                                             size: 16
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 431,
+                                                                                            lineNumber: 451,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 424,
+                                                                                        lineNumber: 444,
                                                                                         columnNumber: 35
                                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                                         className: "text-red-500 p-1 cursor-not-allowed opacity-60",
@@ -4615,23 +3118,23 @@ function CompanyTableView(param) {
                                                                                             size: 16
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                            lineNumber: 438,
+                                                                                            lineNumber: 458,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 434,
+                                                                                        lineNumber: 454,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 401,
+                                                                                lineNumber: 421,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 399,
+                                                                            lineNumber: 419,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4645,12 +3148,12 @@ function CompanyTableView(param) {
                                                                                         size: 16
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 451,
+                                                                                        lineNumber: 471,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 446,
+                                                                                    lineNumber: 466,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4664,12 +3167,12 @@ function CompanyTableView(param) {
                                                                                         size: 16
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 461,
+                                                                                        lineNumber: 481,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 453,
+                                                                                    lineNumber: 473,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4680,12 +3183,12 @@ function CompanyTableView(param) {
                                                                                         size: 16
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 468,
+                                                                                        lineNumber: 488,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 463,
+                                                                                    lineNumber: 483,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4696,12 +3199,12 @@ function CompanyTableView(param) {
                                                                                         size: 16
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 475,
+                                                                                        lineNumber: 495,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 470,
+                                                                                    lineNumber: 490,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4712,35 +3215,35 @@ function CompanyTableView(param) {
                                                                                         size: 16
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 485,
+                                                                                        lineNumber: 505,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                    lineNumber: 478,
+                                                                                    lineNumber: 498,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                            lineNumber: 445,
+                                                                            lineNumber: 465,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                    lineNumber: 397,
+                                                                    lineNumber: 417,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 396,
+                                                                lineNumber: 416,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                        lineNumber: 161,
+                                                        lineNumber: 162,
                                                         columnNumber: 23
                                                     }, this),
                                                     isExpanded && company.positions && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -4756,7 +3259,7 @@ function CompanyTableView(param) {
                                                                         children: "Position Details"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                        lineNumber: 500,
+                                                                        lineNumber: 520,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4776,7 +3279,7 @@ function CompanyTableView(param) {
                                                                                                         children: position.position_title
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 512,
+                                                                                                        lineNumber: 532,
                                                                                                         columnNumber: 41
                                                                                                     }, this),
                                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4787,7 +3290,7 @@ function CompanyTableView(param) {
                                                                                                                 children: (_position_company_type = position.company_type) === null || _position_company_type === void 0 ? void 0 : _position_company_type.toUpperCase()
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 517,
+                                                                                                                lineNumber: 537,
                                                                                                                 columnNumber: 43
                                                                                                             }, this),
                                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4795,64 +3298,44 @@ function CompanyTableView(param) {
                                                                                                                 children: (_position_job_type = position.job_type) === null || _position_job_type === void 0 ? void 0 : _position_job_type.replace("_", " ").toUpperCase()
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 527,
+                                                                                                                lineNumber: 547,
                                                                                                                 columnNumber: 43
                                                                                                             }, this),
                                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                                                                 className: "flex items-center gap-2",
                                                                                                                 children: [
-                                                                                                                    position.job_type === "full_time" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                        className: "text-sm font-medium ".concat(position.package_range === -1 ? "text-gray-500" : "text-green-600"),
-                                                                                                                        children: position.package_range === -1 ? "Package: Not disclosed" : formatPackage(position.package_range)
+                                                                                                                    (position.job_type === "full_time" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                                                        className: "text-sm font-medium ".concat(position.package === -1 ? "text-gray-500" : "text-green-600"),
+                                                                                                                        children: position.package === -1 ? "Package: Not disclosed" : position.has_range ? formatPackageRange(position) : formatPackage(position.package)
                                                                                                                     }, void 0, false, {
                                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                        lineNumber: 538,
+                                                                                                                        lineNumber: 560,
                                                                                                                         columnNumber: 47
                                                                                                                     }, this),
-                                                                                                                    position.job_type === "internship" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                        className: "text-sm font-medium ".concat(position.internship_stipend_monthly === -1 ? "text-gray-500" : "text-green-600"),
-                                                                                                                        children: position.internship_stipend_monthly === -1 ? "Stipend: Not disclosed" : "₹".concat(position.internship_stipend_monthly, "/month")
+                                                                                                                    (position.job_type === "internship" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                                                        className: "text-sm font-medium ".concat(!position.internship_stipend_monthly ? "text-gray-500" : "text-green-600"),
+                                                                                                                        children: !position.internship_stipend_monthly ? "Stipend: Not disclosed" : "₹".concat(position.internship_stipend_monthly)
                                                                                                                     }, void 0, false, {
                                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                        lineNumber: 556,
+                                                                                                                        lineNumber: 584,
                                                                                                                         columnNumber: 47
-                                                                                                                    }, this),
-                                                                                                                    position.job_type === "internship_plus_ppo" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                                                                                        children: [
-                                                                                                                            position.internship_stipend_monthly && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                                className: "text-sm font-medium ".concat(position.internship_stipend_monthly === -1 ? "text-gray-500" : "text-blue-600"),
-                                                                                                                                children: position.internship_stipend_monthly === -1 ? "Stipend: Not disclosed" : "₹".concat(position.internship_stipend_monthly, "/month")
-                                                                                                                            }, void 0, false, {
-                                                                                                                                fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                                lineNumber: 576,
-                                                                                                                                columnNumber: 51
-                                                                                                                            }, this),
-                                                                                                                            position.package_range && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                                                className: "text-sm font-medium ".concat(position.package_range === -1 ? "text-gray-500" : "text-green-600"),
-                                                                                                                                children: position.package_range === -1 ? "PPO: Not disclosed" : "+ ".concat(formatPackage(position.package_range))
-                                                                                                                            }, void 0, false, {
-                                                                                                                                fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                                lineNumber: 591,
-                                                                                                                                columnNumber: 51
-                                                                                                                            }, this)
-                                                                                                                        ]
-                                                                                                                    }, void 0, true)
+                                                                                                                    }, this)
                                                                                                                 ]
                                                                                                             }, void 0, true, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 534,
+                                                                                                                lineNumber: 554,
                                                                                                                 columnNumber: 43
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 515,
+                                                                                                        lineNumber: 535,
                                                                                                         columnNumber: 41
                                                                                                     }, this)
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 511,
+                                                                                                lineNumber: 531,
                                                                                                 columnNumber: 39
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4866,18 +3349,18 @@ function CompanyTableView(param) {
                                                                                                     size: 14
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                    lineNumber: 625,
+                                                                                                    lineNumber: 614,
                                                                                                     columnNumber: 41
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 611,
+                                                                                                lineNumber: 600,
                                                                                                 columnNumber: 39
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 510,
+                                                                                        lineNumber: 530,
                                                                                         columnNumber: 37
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4894,7 +3377,7 @@ function CompanyTableView(param) {
                                                                                                                 className: "text-blue-500"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 633,
+                                                                                                                lineNumber: 622,
                                                                                                                 columnNumber: 43
                                                                                                             }, this),
                                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4902,13 +3385,13 @@ function CompanyTableView(param) {
                                                                                                                 children: "Registered"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 637,
+                                                                                                                lineNumber: 626,
                                                                                                                 columnNumber: 43
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 632,
+                                                                                                        lineNumber: 621,
                                                                                                         columnNumber: 41
                                                                                                     }, this),
                                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4916,13 +3399,13 @@ function CompanyTableView(param) {
                                                                                                         children: position.registered_students || 0
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 641,
+                                                                                                        lineNumber: 630,
                                                                                                         columnNumber: 41
                                                                                                     }, this)
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 631,
+                                                                                                lineNumber: 620,
                                                                                                 columnNumber: 39
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4936,7 +3419,7 @@ function CompanyTableView(param) {
                                                                                                                 className: "text-green-500"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 648,
+                                                                                                                lineNumber: 637,
                                                                                                                 columnNumber: 43
                                                                                                             }, this),
                                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4944,13 +3427,13 @@ function CompanyTableView(param) {
                                                                                                                 children: "Selected"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 652,
+                                                                                                                lineNumber: 641,
                                                                                                                 columnNumber: 43
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 647,
+                                                                                                        lineNumber: 636,
                                                                                                         columnNumber: 41
                                                                                                     }, this),
                                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4958,13 +3441,13 @@ function CompanyTableView(param) {
                                                                                                         children: position.selected_students || 0
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 656,
+                                                                                                        lineNumber: 645,
                                                                                                         columnNumber: 41
                                                                                                     }, this)
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 646,
+                                                                                                lineNumber: 635,
                                                                                                 columnNumber: 39
                                                                                             }, this),
                                                                                             (position.rounds_start_date || position.rounds_end_date) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4978,7 +3461,7 @@ function CompanyTableView(param) {
                                                                                                                 className: "text-orange-500"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 665,
+                                                                                                                lineNumber: 654,
                                                                                                                 columnNumber: 45
                                                                                                             }, this),
                                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4986,13 +3469,13 @@ function CompanyTableView(param) {
                                                                                                                 children: "Rounds"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 669,
+                                                                                                                lineNumber: 658,
                                                                                                                 columnNumber: 45
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 664,
+                                                                                                        lineNumber: 653,
                                                                                                         columnNumber: 43
                                                                                                     }, this),
                                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5006,7 +3489,7 @@ function CompanyTableView(param) {
                                                                                                                 ]
                                                                                                             }, void 0, true, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 675,
+                                                                                                                lineNumber: 664,
                                                                                                                 columnNumber: 47
                                                                                                             }, this),
                                                                                                             position.rounds_end_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5017,25 +3500,25 @@ function CompanyTableView(param) {
                                                                                                                 ]
                                                                                                             }, void 0, true, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 683,
+                                                                                                                lineNumber: 672,
                                                                                                                 columnNumber: 47
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 673,
+                                                                                                        lineNumber: 662,
                                                                                                         columnNumber: 43
                                                                                                     }, this)
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 663,
+                                                                                                lineNumber: 652,
                                                                                                 columnNumber: 41
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 630,
+                                                                                        lineNumber: 619,
                                                                                         columnNumber: 37
                                                                                     }, this),
                                                                                     position.documents && position.documents.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5046,7 +3529,7 @@ function CompanyTableView(param) {
                                                                                                 children: "Documents:"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 699,
+                                                                                                lineNumber: 688,
                                                                                                 columnNumber: 43
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5061,7 +3544,7 @@ function CompanyTableView(param) {
                                                                                                                 size: 12
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 714,
+                                                                                                                lineNumber: 703,
                                                                                                                 columnNumber: 49
                                                                                                             }, this),
                                                                                                             doc.document_title,
@@ -5069,75 +3552,75 @@ function CompanyTableView(param) {
                                                                                                                 size: 10
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                                lineNumber: 716,
+                                                                                                                lineNumber: 705,
                                                                                                                 columnNumber: 49
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, doc.id, true, {
                                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                        lineNumber: 704,
+                                                                                                        lineNumber: 693,
                                                                                                         columnNumber: 47
                                                                                                     }, this))
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                                lineNumber: 702,
+                                                                                                lineNumber: 691,
                                                                                                 columnNumber: 43
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                        lineNumber: 698,
+                                                                                        lineNumber: 687,
                                                                                         columnNumber: 41
                                                                                     }, this)
                                                                                 ]
                                                                             }, position.id, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                                lineNumber: 506,
+                                                                                lineNumber: 526,
                                                                                 columnNumber: 35
                                                                             }, this);
                                                                         })
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                        lineNumber: 504,
+                                                                        lineNumber: 524,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                                lineNumber: 499,
+                                                                lineNumber: 519,
                                                                 columnNumber: 29
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                            lineNumber: 495,
+                                                            lineNumber: 515,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                        lineNumber: 494,
+                                                        lineNumber: 514,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, company.id, true, {
                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                lineNumber: 160,
+                                                lineNumber: 161,
                                                 columnNumber: 21
                                             }, this);
                                         })
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 154,
+                                        lineNumber: 155,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                lineNumber: 128,
+                                lineNumber: 129,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                            lineNumber: 127,
+                            lineNumber: 128,
                             columnNumber: 11
                         }, this),
                         filteredCompanies.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5151,12 +3634,12 @@ function CompanyTableView(param) {
                                             className: "h-10 w-10 text-gray-400"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                            lineNumber: 741,
+                                            lineNumber: 730,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 740,
+                                        lineNumber: 729,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -5164,7 +3647,7 @@ function CompanyTableView(param) {
                                         children: searchTerm || typeFilter !== "all" || sectorFilter !== "all" ? "No companies match your filters" : "No companies found"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 744,
+                                        lineNumber: 733,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5176,26 +3659,26 @@ function CompanyTableView(param) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 755,
+                                                    lineNumber: 744,
                                                     columnNumber: 23
                                                 }, this),
                                                 "Try adjusting your search criteria or filters"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                            lineNumber: 754,
+                                            lineNumber: 743,
                                             columnNumber: 21
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             className: "flex items-center justify-center",
                                             children: "Add a new company to get started with placement management."
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                            lineNumber: 759,
+                                            lineNumber: 748,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 750,
+                                        lineNumber: 739,
                                         columnNumber: 17
                                     }, this),
                                     !searchTerm && typeFilter === "all" && sectorFilter === "all" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5206,14 +3689,14 @@ function CompanyTableView(param) {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                lineNumber: 773,
+                                                lineNumber: 762,
                                                 columnNumber: 23
                                             }, this),
                                             "Add Company"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 769,
+                                        lineNumber: 758,
                                         columnNumber: 21
                                     }, this),
                                     (searchTerm || typeFilter !== "all" || sectorFilter !== "all") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5230,41 +3713,41 @@ function CompanyTableView(param) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                                    lineNumber: 790,
+                                                    lineNumber: 779,
                                                     columnNumber: 23
                                                 }, this),
                                                 "Reset Filters"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                            lineNumber: 782,
+                                            lineNumber: 771,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                        lineNumber: 781,
+                                        lineNumber: 770,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                                lineNumber: 739,
+                                lineNumber: 728,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyTableView.js",
-                            lineNumber: 738,
+                            lineNumber: 727,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/company-listing/CompanyTableView.js",
-                    lineNumber: 126,
+                    lineNumber: 127,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                lineNumber: 124,
+                lineNumber: 125,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$company$2d$listing$2f$DeleteConfirmationModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -5278,7 +3761,7 @@ function CompanyTableView(param) {
                 isDeleting: isDeleting
             }, void 0, false, {
                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                lineNumber: 802,
+                lineNumber: 791,
                 columnNumber: 7
             }, this),
             showEmailModal && selectedCompanyForEmail && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$company$2d$listing$2f$EmailTargetModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -5290,13 +3773,13 @@ function CompanyTableView(param) {
                 onSelect: handleEmailTargetSelect
             }, void 0, false, {
                 fileName: "[project]/app/company-listing/CompanyTableView.js",
-                lineNumber: 815,
+                lineNumber: 804,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true);
 }
-_s(CompanyTableView, "TSmeM+HmjdF/O725Uxtk/b1MSkk=", false, function() {
+_s(CompanyTableView, "9tvYFSmCc8oLOYgaZS5UlZ93SXY=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCompaniesContext"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
@@ -5352,7 +3835,7 @@ const formatDateForInput = (dateString)=>{
 const CompanyFormModal = (param)=>{
     let { batchYear, onClose, onSuccess, editData = null } = param;
     _s();
-    var _editData_company_name, _editData_company_description, _editData_sector, _editData_is_marquee, _editData_website_url, _editData_linkedin_url, _editData_primary_hr_name, _editData_primary_hr_designation, _editData_primary_hr_email, _editData_primary_hr_phone, _formatDateForInput, _formatDateForInput1, _editData_glassdoor_rating, _editData_work_locations, _editData_min_cgpa, _editData_max_backlogs, _editData_bond_required, _editData_account_owner, _editData_allowed_specializations, _editData_positions;
+    var _editData_company_name, _editData_company_description, _editData_sector, _editData_is_marquee, _editData_website_url, _editData_linkedin_url, _editData_primary_hr_name, _editData_primary_hr_designation, _editData_primary_hr_email, _editData_primary_hr_phone, _formatDateForInput, _formatDateForInput1, _editData_glassdoor_rating, _editData_work_locations, _editData_min_cgpa, _editData_max_backlogs, _editData_bond_required, _editData_account_owner, _editData_office_address, _formatDateForInput2, _editData_eligibility_10th, _editData_eligibility_12th, _editData_allowed_specializations, _editData_positions;
     // Initialize form data with editData if provided, otherwise use default values
     const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         company_name: (_editData_company_name = editData === null || editData === void 0 ? void 0 : editData.company_name) !== null && _editData_company_name !== void 0 ? _editData_company_name : "",
@@ -5373,16 +3856,23 @@ const CompanyFormModal = (param)=>{
         max_backlogs: (_editData_max_backlogs = editData === null || editData === void 0 ? void 0 : editData.max_backlogs) !== null && _editData_max_backlogs !== void 0 ? _editData_max_backlogs : "",
         bond_required: (_editData_bond_required = editData === null || editData === void 0 ? void 0 : editData.bond_required) !== null && _editData_bond_required !== void 0 ? _editData_bond_required : false,
         account_owner: (_editData_account_owner = editData === null || editData === void 0 ? void 0 : editData.account_owner) !== null && _editData_account_owner !== void 0 ? _editData_account_owner : "",
+        office_address: (_editData_office_address = editData === null || editData === void 0 ? void 0 : editData.office_address) !== null && _editData_office_address !== void 0 ? _editData_office_address : "",
+        jd_shared_date: (_formatDateForInput2 = formatDateForInput(editData === null || editData === void 0 ? void 0 : editData.jd_shared_date)) !== null && _formatDateForInput2 !== void 0 ? _formatDateForInput2 : "",
+        eligibility_10th: (_editData_eligibility_10th = editData === null || editData === void 0 ? void 0 : editData.eligibility_10th) !== null && _editData_eligibility_10th !== void 0 ? _editData_eligibility_10th : "",
+        eligibility_12th: (_editData_eligibility_12th = editData === null || editData === void 0 ? void 0 : editData.eligibility_12th) !== null && _editData_eligibility_12th !== void 0 ? _editData_eligibility_12th : "",
         allowed_specializations: (_editData_allowed_specializations = editData === null || editData === void 0 ? void 0 : editData.allowed_specializations) !== null && _editData_allowed_specializations !== void 0 ? _editData_allowed_specializations : [],
         positions: ((_editData_positions = editData === null || editData === void 0 ? void 0 : editData.positions) !== null && _editData_positions !== void 0 ? _editData_positions : []).map({
             "CompanyFormModal.useState": (position)=>{
-                var _position_position_title, _position_job_type, _position_company_type, _position_package_range, _position_internship_stipend_monthly, _position_selected_students, _formatDateForInput, _formatDateForInput1, _position_documents;
+                var _position_position_title, _position_job_type, _position_company_type, _position_package, _position_has_range, _position_package_end, _position_internship_stipend_monthly, _position_selected_students, _formatDateForInput, _formatDateForInput1, _position_documents;
                 return {
+                    id: (position === null || position === void 0 ? void 0 : position.id) || null,
                     position_title: (_position_position_title = position === null || position === void 0 ? void 0 : position.position_title) !== null && _position_position_title !== void 0 ? _position_position_title : "",
                     job_type: (_position_job_type = position === null || position === void 0 ? void 0 : position.job_type) !== null && _position_job_type !== void 0 ? _position_job_type : "full_time",
                     company_type: (_position_company_type = position === null || position === void 0 ? void 0 : position.company_type) !== null && _position_company_type !== void 0 ? _position_company_type : "tech",
-                    package_range: (_position_package_range = position === null || position === void 0 ? void 0 : position.package_range) !== null && _position_package_range !== void 0 ? _position_package_range : 0,
-                    internship_stipend_monthly: (_position_internship_stipend_monthly = position === null || position === void 0 ? void 0 : position.internship_stipend_monthly) !== null && _position_internship_stipend_monthly !== void 0 ? _position_internship_stipend_monthly : -1,
+                    package: (_position_package = position === null || position === void 0 ? void 0 : position.package) !== null && _position_package !== void 0 ? _position_package : -1,
+                    has_range: (_position_has_range = position === null || position === void 0 ? void 0 : position.has_range) !== null && _position_has_range !== void 0 ? _position_has_range : false,
+                    package_end: (_position_package_end = position === null || position === void 0 ? void 0 : position.package_end) !== null && _position_package_end !== void 0 ? _position_package_end : -1,
+                    internship_stipend_monthly: (_position_internship_stipend_monthly = position === null || position === void 0 ? void 0 : position.internship_stipend_monthly) !== null && _position_internship_stipend_monthly !== void 0 ? _position_internship_stipend_monthly : null,
                     selected_students: (_position_selected_students = position === null || position === void 0 ? void 0 : position.selected_students) !== null && _position_selected_students !== void 0 ? _position_selected_students : -1,
                     rounds_start_date: (_formatDateForInput = formatDateForInput(position === null || position === void 0 ? void 0 : position.rounds_start_date)) !== null && _formatDateForInput !== void 0 ? _formatDateForInput : "",
                     rounds_end_date: (_formatDateForInput1 = formatDateForInput(position === null || position === void 0 ? void 0 : position.rounds_end_date)) !== null && _formatDateForInput1 !== void 0 ? _formatDateForInput1 : "",
@@ -5501,8 +3991,10 @@ const CompanyFormModal = (param)=>{
                         position_title: "",
                         job_type: "full_time",
                         company_type: "tech",
-                        package_range: 0,
-                        internship_stipend_monthly: 0,
+                        package: -1,
+                        has_range: false,
+                        package_end: -1,
+                        internship_stipend_monthly: null,
                         selected_students: 0,
                         rounds_start_date: "",
                         rounds_end_date: "",
@@ -5600,9 +4092,6 @@ const CompanyFormModal = (param)=>{
         const newErrors = {};
         if (!formData.company_name) {
             newErrors.company_name = "Company name is required";
-        }
-        if (!formData.scheduled_visit) {
-            newErrors.scheduled_visit = "Scheduled visit date is required";
         }
         // Validate that actual_arrival is after scheduled_visit if both exist
         if (formData.actual_arrival && formData.scheduled_visit) {
@@ -5868,7 +4357,7 @@ const CompanyFormModal = (param)=>{
                             children: editData ? "Edit Company" : "Add New Company"
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 605,
+                            lineNumber: 610,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5879,18 +4368,18 @@ const CompanyFormModal = (param)=>{
                                 size: 28
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                lineNumber: 613,
+                                lineNumber: 618,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 608,
+                            lineNumber: 613,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                    lineNumber: 604,
+                    lineNumber: 609,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -5908,7 +4397,7 @@ const CompanyFormModal = (param)=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 621,
+                                            lineNumber: 626,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -5916,13 +4405,13 @@ const CompanyFormModal = (param)=>{
                                             children: "Company Information"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 622,
+                                            lineNumber: 627,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 620,
+                                    lineNumber: 625,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5935,7 +4424,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Company Name *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 628,
+                                                    lineNumber: 633,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5947,7 +4436,7 @@ const CompanyFormModal = (param)=>{
                                                     required: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 631,
+                                                    lineNumber: 636,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.company_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5955,13 +4444,13 @@ const CompanyFormModal = (param)=>{
                                                     children: errors.company_name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 640,
+                                                    lineNumber: 645,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 627,
+                                            lineNumber: 632,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5972,7 +4461,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Company Description"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 646,
+                                                    lineNumber: 651,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -5983,13 +4472,13 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 649,
+                                                    lineNumber: 654,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 645,
+                                            lineNumber: 650,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5999,7 +4488,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Sector"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 658,
+                                                    lineNumber: 663,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -6013,7 +4502,7 @@ const CompanyFormModal = (param)=>{
                                                             children: "Select Sector"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 667,
+                                                            lineNumber: 672,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         sectors.map((sector)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6021,19 +4510,19 @@ const CompanyFormModal = (param)=>{
                                                                 children: sector.label
                                                             }, sector.value, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 670,
+                                                                lineNumber: 675,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 661,
+                                                    lineNumber: 666,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 657,
+                                            lineNumber: 662,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6047,7 +4536,7 @@ const CompanyFormModal = (param)=>{
                                                     className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 677,
+                                                    lineNumber: 682,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6055,13 +4544,13 @@ const CompanyFormModal = (param)=>{
                                                     children: "Marquee Company"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 684,
+                                                    lineNumber: 689,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 676,
+                                            lineNumber: 681,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6071,7 +4560,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Account Owner"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 689,
+                                                    lineNumber: 694,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6082,25 +4571,25 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 692,
+                                                    lineNumber: 697,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 688,
+                                            lineNumber: 693,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 626,
+                                    lineNumber: 631,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 619,
+                            lineNumber: 624,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -6114,7 +4603,7 @@ const CompanyFormModal = (param)=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 706,
+                                            lineNumber: 711,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -6122,13 +4611,13 @@ const CompanyFormModal = (param)=>{
                                             children: "Contact Information"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 707,
+                                            lineNumber: 712,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 705,
+                                    lineNumber: 710,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6144,14 +4633,14 @@ const CompanyFormModal = (param)=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 714,
+                                                            lineNumber: 719,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "Website URL"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 713,
+                                                    lineNumber: 718,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6162,13 +4651,13 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 717,
+                                                    lineNumber: 722,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 712,
+                                            lineNumber: 717,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6181,14 +4670,14 @@ const CompanyFormModal = (param)=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 727,
+                                                            lineNumber: 732,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "LinkedIn URL"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 726,
+                                                    lineNumber: 731,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6199,13 +4688,13 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 730,
+                                                    lineNumber: 735,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 725,
+                                            lineNumber: 730,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6215,7 +4704,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Primary HR Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 739,
+                                                    lineNumber: 744,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6226,13 +4715,13 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 742,
+                                                    lineNumber: 747,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 738,
+                                            lineNumber: 743,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6242,7 +4731,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "HR Designation"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 751,
+                                                    lineNumber: 756,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6253,13 +4742,13 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 754,
+                                                    lineNumber: 759,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 750,
+                                            lineNumber: 755,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6272,14 +4761,14 @@ const CompanyFormModal = (param)=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 764,
+                                                            lineNumber: 769,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "HR Email"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 763,
+                                                    lineNumber: 768,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6290,7 +4779,7 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 767,
+                                                    lineNumber: 772,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.primary_hr_email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6298,13 +4787,13 @@ const CompanyFormModal = (param)=>{
                                                     children: errors.primary_hr_email
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 775,
+                                                    lineNumber: 780,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 762,
+                                            lineNumber: 767,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6317,14 +4806,14 @@ const CompanyFormModal = (param)=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 782,
+                                                            lineNumber: 787,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "HR Phone"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 781,
+                                                    lineNumber: 786,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6335,25 +4824,61 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 785,
+                                                    lineNumber: 790,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 780,
+                                            lineNumber: 785,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 711,
+                                    lineNumber: 716,
+                                    columnNumber: 13
+                                }, ("TURBOPACK compile-time value", void 0)),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid grid-cols-1 md:grid-cols-2 gap-6",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "md:col-span-2",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                children: "Office Address"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                lineNumber: 801,
+                                                columnNumber: 17
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
+                                                name: "office_address",
+                                                value: formData.office_address,
+                                                onChange: handleInputChange,
+                                                rows: 2,
+                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50",
+                                                placeholder: "Enter office address"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                lineNumber: 804,
+                                                columnNumber: 17
+                                            }, ("TURBOPACK compile-time value", void 0))
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                        lineNumber: 800,
+                                        columnNumber: 15
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                }, void 0, false, {
+                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                    lineNumber: 799,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 704,
+                            lineNumber: 709,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -6367,7 +4892,7 @@ const CompanyFormModal = (param)=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 799,
+                                            lineNumber: 819,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -6375,13 +4900,13 @@ const CompanyFormModal = (param)=>{
                                             children: "Visit Details"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 800,
+                                            lineNumber: 820,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 798,
+                                    lineNumber: 818,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6391,14 +4916,40 @@ const CompanyFormModal = (param)=>{
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                     className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                    children: "Scheduled Visit*"
+                                                    children: "JD Shared Date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 806,
+                                                    lineNumber: 826,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    required: true,
+                                                    type: "date",
+                                                    name: "jd_shared_date",
+                                                    value: formData.jd_shared_date,
+                                                    onChange: handleInputChange,
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 829,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                            lineNumber: 825,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                    children: "Scheduled Visit*"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 838,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                     type: "date",
                                                     name: "scheduled_visit",
                                                     value: formData.scheduled_visit,
@@ -6406,7 +4957,7 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 809,
+                                                    lineNumber: 841,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.scheduled_visit && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6414,13 +4965,13 @@ const CompanyFormModal = (param)=>{
                                                     children: errors.scheduled_visit
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 818,
+                                                    lineNumber: 849,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 805,
+                                            lineNumber: 837,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6430,7 +4981,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Actual Arrival"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 824,
+                                                    lineNumber: 855,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6441,13 +4992,13 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 827,
+                                                    lineNumber: 858,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 823,
+                                            lineNumber: 854,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6460,14 +5011,14 @@ const CompanyFormModal = (param)=>{
                                                             className: "inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 837,
+                                                            lineNumber: 868,
                                                             columnNumber: 19
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         "Glassdoor Rating"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 836,
+                                                    lineNumber: 867,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6481,7 +5032,7 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 840,
+                                                    lineNumber: 871,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.glassdoor_rating && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6489,63 +5040,64 @@ const CompanyFormModal = (param)=>{
                                                     children: errors.glassdoor_rating
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 851,
+                                                    lineNumber: 882,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 835,
+                                            lineNumber: 866,
                                             columnNumber: 15
-                                        }, ("TURBOPACK compile-time value", void 0))
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 804,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                            className: "block text-sm font-medium text-neutral-700 mb-1",
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "col-span-2",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
-                                                    size: 16,
-                                                    className: "inline mr-1"
-                                                }, void 0, false, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__["MapPin"], {
+                                                            size: 16,
+                                                            className: "inline mr-1"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                            lineNumber: 889,
+                                                            columnNumber: 19
+                                                        }, ("TURBOPACK compile-time value", void 0)),
+                                                        "Work Locations"
+                                                    ]
+                                                }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 859,
+                                                    lineNumber: 888,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
-                                                "Work Locations"
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "text",
+                                                    name: "work_locations",
+                                                    value: formData.work_locations,
+                                                    onChange: handleInputChange,
+                                                    placeholder: "e.g., Bangalore, Hyderabad, Mumbai",
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 892,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 858,
-                                            columnNumber: 15
-                                        }, ("TURBOPACK compile-time value", void 0)),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            type: "text",
-                                            name: "work_locations",
-                                            value: formData.work_locations,
-                                            onChange: handleInputChange,
-                                            placeholder: "e.g., Bangalore, Hyderabad, Mumbai",
-                                            className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 862,
+                                            lineNumber: 887,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 857,
+                                    lineNumber: 824,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 797,
+                            lineNumber: 817,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -6559,7 +5111,7 @@ const CompanyFormModal = (param)=>{
                                             className: "text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 876,
+                                            lineNumber: 907,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -6567,13 +5119,13 @@ const CompanyFormModal = (param)=>{
                                             children: "Requirements"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 877,
+                                            lineNumber: 908,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 875,
+                                    lineNumber: 906,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6586,7 +5138,7 @@ const CompanyFormModal = (param)=>{
                                                     children: "Minimum CGPA"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 883,
+                                                    lineNumber: 914,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6600,7 +5152,7 @@ const CompanyFormModal = (param)=>{
                                                     className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 886,
+                                                    lineNumber: 917,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 errors.min_cgpa && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6608,42 +5160,103 @@ const CompanyFormModal = (param)=>{
                                                     children: errors.min_cgpa
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 897,
+                                                    lineNumber: 928,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 882,
+                                            lineNumber: 913,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                     className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                    children: "Maximum Backlogs"
+                                                    children: "10th Eligibility (%)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 901,
+                                                    lineNumber: 933,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                     type: "number",
-                                                    name: "max_backlogs",
-                                                    value: formData.max_backlogs,
+                                                    name: "eligibility_10th",
+                                                    value: formData.eligibility_10th,
                                                     onChange: handleInputChange,
                                                     min: "0",
-                                                    max: "999",
-                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                                                    max: "100",
+                                                    step: "0.01",
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50",
+                                                    placeholder: "e.g., 60.00"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 904,
+                                                    lineNumber: 936,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 900,
+                                            lineNumber: 932,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                    children: "12th Eligibility (%)"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 949,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "number",
+                                                    name: "eligibility_12th",
+                                                    value: formData.eligibility_12th,
+                                                    onChange: handleInputChange,
+                                                    min: "0",
+                                                    max: "100",
+                                                    step: "0.01",
+                                                    className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50",
+                                                    placeholder: "e.g., 60.00"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 952,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                            lineNumber: 948,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex items-center space-x-2",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "checkbox",
+                                                    name: "max_backlogs",
+                                                    checked: formData.max_backlogs,
+                                                    onChange: handleInputChange,
+                                                    className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 965,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    className: "text-sm font-medium text-neutral-700",
+                                                    children: "Backlogs Allowed"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                    lineNumber: 972,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                            lineNumber: 964,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6657,7 +5270,7 @@ const CompanyFormModal = (param)=>{
                                                     className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 915,
+                                                    lineNumber: 977,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6665,19 +5278,19 @@ const CompanyFormModal = (param)=>{
                                                     children: "Bond Required"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 922,
+                                                    lineNumber: 984,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 914,
+                                            lineNumber: 976,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 881,
+                                    lineNumber: 912,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6687,7 +5300,7 @@ const CompanyFormModal = (param)=>{
                                             children: "Allowed Specializations"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 928,
+                                            lineNumber: 990,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6699,24 +5312,24 @@ const CompanyFormModal = (param)=>{
                                                     children: spec
                                                 }, spec, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 933,
+                                                    lineNumber: 995,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)))
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 931,
+                                            lineNumber: 993,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 927,
+                                    lineNumber: 989,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 874,
+                            lineNumber: 905,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -6730,7 +5343,7 @@ const CompanyFormModal = (param)=>{
                                             children: "Positions"
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 953,
+                                            lineNumber: 1015,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6742,25 +5355,26 @@ const CompanyFormModal = (param)=>{
                                                     size: 16
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                    lineNumber: 961,
+                                                    lineNumber: 1023,
                                                     columnNumber: 17
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 "Add Position"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                            lineNumber: 956,
+                                            lineNumber: 1018,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 952,
+                                    lineNumber: 1014,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 formData.positions.map((position, positionIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "border border-neutral-200 rounded-lg p-4 space-y-4 bg-neutral-50",
                                         children: [
+                                            console.log("Rendering position:", positionIndex, position),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex justify-between items-start",
                                                 children: [
@@ -6772,7 +5386,7 @@ const CompanyFormModal = (param)=>{
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 971,
+                                                        lineNumber: 1034,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6783,18 +5397,18 @@ const CompanyFormModal = (param)=>{
                                                             size: 16
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 979,
+                                                            lineNumber: 1042,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 974,
+                                                        lineNumber: 1037,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                lineNumber: 970,
+                                                lineNumber: 1033,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6807,7 +5421,7 @@ const CompanyFormModal = (param)=>{
                                                                 children: "Position Type*"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 984,
+                                                                lineNumber: 1047,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -6821,7 +5435,7 @@ const CompanyFormModal = (param)=>{
                                                                         children: "Tech"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 999,
+                                                                        lineNumber: 1062,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6829,19 +5443,19 @@ const CompanyFormModal = (param)=>{
                                                                         children: "Non-Tech"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1000,
+                                                                        lineNumber: 1063,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 987,
+                                                                lineNumber: 1050,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 983,
+                                                        lineNumber: 1046,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6850,7 +5464,7 @@ const CompanyFormModal = (param)=>{
                                                                 className: "block text-sm font-medium text-neutral-700 mb-1",
                                                                 children: [
                                                                     "Position Title*",
-                                                                    editData && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    editData && position.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                         className: "inline-block ml-2 group relative",
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$info$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Info$3e$__["Info"], {
@@ -6858,7 +5472,7 @@ const CompanyFormModal = (param)=>{
                                                                                 className: "inline text-blue-500"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1008,
+                                                                                lineNumber: 1071,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6866,19 +5480,19 @@ const CompanyFormModal = (param)=>{
                                                                                 children: "Position titles cannot be edited to maintain data consistency across rounds and applications. To modify, please delete this position and create a new one."
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1009,
+                                                                                lineNumber: 1072,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1007,
+                                                                        lineNumber: 1070,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1004,
+                                                                lineNumber: 1067,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -6886,25 +5500,25 @@ const CompanyFormModal = (param)=>{
                                                                 type: "text",
                                                                 value: position.position_title,
                                                                 onChange: (e)=>updatePosition(positionIndex, "position_title", e.target.value),
-                                                                disabled: !!editData,
-                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ".concat(editData ? "bg-neutral-100 cursor-not-allowed opacity-75" : "bg-white")
+                                                                disabled: !!editData && !!position.id,
+                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ".concat(!!editData && !!position.id ? "bg-neutral-100 cursor-not-allowed opacity-75" : "bg-white")
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1018,
+                                                                lineNumber: 1081,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
-                                                            editData && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            !!editData && !!position.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "mt-1 text-xs text-neutral-600 bg-neutral-100 px-2 py-1 rounded",
                                                                 children: "💡 To change position title, delete this position and create a new one"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1037,
+                                                                lineNumber: 1100,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1003,
+                                                        lineNumber: 1066,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6914,7 +5528,7 @@ const CompanyFormModal = (param)=>{
                                                                 children: "Job Type*"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1044,
+                                                                lineNumber: 1107,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -6927,144 +5541,178 @@ const CompanyFormModal = (param)=>{
                                                                         children: type.label
                                                                     }, type.value, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1060,
+                                                                        lineNumber: 1123,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1047,
+                                                                lineNumber: 1110,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1043,
+                                                        lineNumber: 1106,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     (position.job_type === "full_time" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "md:col-span-2 space-y-3",
                                                         children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                                children: "Package Range *"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1071,
-                                                                columnNumber: 23
-                                                            }, ("TURBOPACK compile-time value", void 0)),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                type: "number",
-                                                                min: "-1",
-                                                                max: "999999999",
-                                                                value: position.package_range,
-                                                                onChange: (e)=>updatePosition(positionIndex, "package_range", e.target.value),
-                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
-                                                                required: position.job_type === "full_time" || position.job_type === "internship_plus_ppo"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1074,
-                                                                columnNumber: 23
-                                                            }, ("TURBOPACK compile-time value", void 0)),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "mt-1 text-xs text-red-500 bg-red-100 px-2 py-1 rounded inline-block",
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex items-center gap-2",
                                                                 children: [
-                                                                    "💡 Enter",
-                                                                    " ",
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                        className: "font-medium text-red-700",
-                                                                        children: "-1"
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                        type: "checkbox",
+                                                                        checked: position.has_range,
+                                                                        onChange: (e)=>updatePosition(positionIndex, "has_range", e.target.checked),
+                                                                        className: "rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1094,
+                                                                        lineNumber: 1136,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
-                                                                    " if not disclosed"
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                        className: "text-sm font-medium text-neutral-700",
+                                                                        children: "Package has a range"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1148,
+                                                                        columnNumber: 25
+                                                                    }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1092,
+                                                                lineNumber: 1135,
+                                                                columnNumber: 23
+                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "grid ".concat(position.has_range ? "grid-cols-2" : "grid-cols-1", " gap-4"),
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                                                children: position.has_range ? "Package (Start) in LPA *" : "Package in LPA *"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1158,
+                                                                                columnNumber: 27
+                                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                                type: "number",
+                                                                                min: "-1",
+                                                                                step: "0.01",
+                                                                                value: position.package,
+                                                                                onChange: (e)=>updatePosition(positionIndex, "package", e.target.value),
+                                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
+                                                                                required: true,
+                                                                                placeholder: "e.g., 12.5"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1163,
+                                                                                columnNumber: 27
+                                                                            }, ("TURBOPACK compile-time value", void 0))
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1157,
+                                                                        columnNumber: 25
+                                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                                    position.has_range && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
+                                                                                children: "Package (End) in LPA *"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1183,
+                                                                                columnNumber: 29
+                                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                                type: "number",
+                                                                                min: "-1",
+                                                                                step: "0.01",
+                                                                                value: position.package_end,
+                                                                                onChange: (e)=>updatePosition(positionIndex, "package_end", e.target.value),
+                                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
+                                                                                required: true,
+                                                                                placeholder: "e.g., 15.0"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                                lineNumber: 1186,
+                                                                                columnNumber: 29
+                                                                            }, ("TURBOPACK compile-time value", void 0))
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1182,
+                                                                        columnNumber: 27
+                                                                    }, ("TURBOPACK compile-time value", void 0))
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                lineNumber: 1154,
+                                                                columnNumber: 23
+                                                            }, ("TURBOPACK compile-time value", void 0)),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded",
+                                                                children: [
+                                                                    "💡 Enter ",
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        className: "font-medium",
+                                                                        children: "-1"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                        lineNumber: 1206,
+                                                                        columnNumber: 34
+                                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                                    " if not disclosed. Package is in Lakhs Per Annum (LPA)"
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
+                                                                lineNumber: 1205,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1070,
+                                                        lineNumber: 1133,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     (position.job_type === "internship" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                                 className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                                children: "Internship Stipend (Monthly)*"
+                                                                children: "Internship Stipend (Monthly)"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1103,
+                                                                lineNumber: 1215,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                type: "number",
-                                                                min: "-1",
-                                                                max: "99999999",
-                                                                value: position.internship_stipend_monthly,
+                                                                type: "text",
+                                                                value: position.internship_stipend_monthly || "",
                                                                 onChange: (e)=>updatePosition(positionIndex, "internship_stipend_monthly", e.target.value),
                                                                 className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white",
-                                                                required: position.job_type === "internship" || position.job_type === "internship_plus_ppo"
+                                                                placeholder: "e.g., ₹25,000 or 20k-30k or Not Disclosed"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1106,
+                                                                lineNumber: 1218,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "mt-1 text-xs text-red-500 bg-red-100 px-2 py-1 rounded inline-block",
-                                                                children: [
-                                                                    "💡 Enter",
-                                                                    " ",
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                        className: "font-medium text-red-700",
-                                                                        children: "-1"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1126,
-                                                                        columnNumber: 25
-                                                                    }, ("TURBOPACK compile-time value", void 0)),
-                                                                    " if not disclosed"
-                                                                ]
-                                                            }, void 0, true, {
+                                                                className: "mt-1 text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded",
+                                                                children: '💡 Enter stipend as text (e.g., "₹25,000/month","20k-30k", or "Not Disclosed")'
+                                                            }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1124,
+                                                                lineNumber: 1231,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1102,
+                                                        lineNumber: 1214,
                                                         columnNumber: 21
-                                                    }, ("TURBOPACK compile-time value", void 0)),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                                className: "block text-sm font-medium text-neutral-700 mb-1",
-                                                                children: "Selected Students"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1133,
-                                                                columnNumber: 21
-                                                            }, ("TURBOPACK compile-time value", void 0)),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                type: "number",
-                                                                min: "-1",
-                                                                value: position.selected_students,
-                                                                onChange: (e)=>updatePosition(positionIndex, "selected_students", parseInt(e.target.value) || 0),
-                                                                className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1136,
-                                                                columnNumber: 21
-                                                            }, ("TURBOPACK compile-time value", void 0))
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1132,
-                                                        columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         children: [
@@ -7073,7 +5721,7 @@ const CompanyFormModal = (param)=>{
                                                                 children: "Rounds Start Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1152,
+                                                                lineNumber: 1239,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -7083,13 +5731,13 @@ const CompanyFormModal = (param)=>{
                                                                 className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1155,
+                                                                lineNumber: 1242,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1151,
+                                                        lineNumber: 1238,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7099,7 +5747,7 @@ const CompanyFormModal = (param)=>{
                                                                 children: "Rounds End Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1170,
+                                                                lineNumber: 1257,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -7109,19 +5757,19 @@ const CompanyFormModal = (param)=>{
                                                                 className: "w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1173,
+                                                                lineNumber: 1260,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1169,
+                                                        lineNumber: 1256,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                lineNumber: 982,
+                                                lineNumber: 1045,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7137,7 +5785,7 @@ const CompanyFormModal = (param)=>{
                                                                         children: "Documents"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1193,
+                                                                        lineNumber: 1280,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -7145,13 +5793,13 @@ const CompanyFormModal = (param)=>{
                                                                         children: "*Supports: PDF, DOC, DOCX, JPG, JPEG, PNG"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1196,
+                                                                        lineNumber: 1283,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1192,
+                                                                lineNumber: 1279,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7163,20 +5811,20 @@ const CompanyFormModal = (param)=>{
                                                                         size: 14
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1205,
+                                                                        lineNumber: 1292,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     "Add Document"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1200,
+                                                                lineNumber: 1287,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                        lineNumber: 1191,
+                                                        lineNumber: 1278,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     position.documents.map((document, docIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7191,7 +5839,7 @@ const CompanyFormModal = (param)=>{
                                                                                 children: "Document Type*"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1219,
+                                                                                lineNumber: 1306,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -7204,18 +5852,18 @@ const CompanyFormModal = (param)=>{
                                                                                         children: type.label
                                                                                     }, type.value, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                        lineNumber: 1236,
+                                                                                        lineNumber: 1323,
                                                                                         columnNumber: 31
                                                                                     }, ("TURBOPACK compile-time value", void 0)))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1222,
+                                                                                lineNumber: 1309,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1218,
+                                                                        lineNumber: 1305,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7225,7 +5873,7 @@ const CompanyFormModal = (param)=>{
                                                                                 children: "Document Title*"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1245,
+                                                                                lineNumber: 1332,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -7237,13 +5885,13 @@ const CompanyFormModal = (param)=>{
                                                                                 placeholder: "Enter document title"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1248,
+                                                                                lineNumber: 1335,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1244,
+                                                                        lineNumber: 1331,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7257,7 +5905,7 @@ const CompanyFormModal = (param)=>{
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1267,
+                                                                                lineNumber: 1354,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             document.original_filename && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7273,7 +5921,7 @@ const CompanyFormModal = (param)=>{
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1276,
+                                                                                            lineNumber: 1363,
                                                                                             columnNumber: 33
                                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7281,18 +5929,18 @@ const CompanyFormModal = (param)=>{
                                                                                             children: "Existing"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1279,
+                                                                                            lineNumber: 1366,
                                                                                             columnNumber: 33
                                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                    lineNumber: 1275,
+                                                                                    lineNumber: 1362,
                                                                                     columnNumber: 31
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1274,
+                                                                                lineNumber: 1361,
                                                                                 columnNumber: 29
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             !document.original_filename && document.newDocumentFile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7308,7 +5956,7 @@ const CompanyFormModal = (param)=>{
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1291,
+                                                                                            lineNumber: 1378,
                                                                                             columnNumber: 35
                                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7316,18 +5964,18 @@ const CompanyFormModal = (param)=>{
                                                                                             children: "New"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                            lineNumber: 1294,
+                                                                                            lineNumber: 1381,
                                                                                             columnNumber: 35
                                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                    lineNumber: 1290,
+                                                                                    lineNumber: 1377,
                                                                                     columnNumber: 33
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1289,
+                                                                                lineNumber: 1376,
                                                                                 columnNumber: 31
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7344,7 +5992,7 @@ const CompanyFormModal = (param)=>{
                                                                                                 className: "absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                                lineNumber: 1304,
+                                                                                                lineNumber: 1391,
                                                                                                 columnNumber: 31
                                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7354,18 +6002,18 @@ const CompanyFormModal = (param)=>{
                                                                                                     children: document.original_filename ? "Choose new file..." : "Choose file..."
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                                    lineNumber: 1321,
+                                                                                                    lineNumber: 1408,
                                                                                                     columnNumber: 33
                                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                                lineNumber: 1320,
+                                                                                                lineNumber: 1407,
                                                                                                 columnNumber: 31
                                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                        lineNumber: 1303,
+                                                                                        lineNumber: 1390,
                                                                                         columnNumber: 29
                                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7375,48 +6023,48 @@ const CompanyFormModal = (param)=>{
                                                                                         children: "Remove"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                        lineNumber: 1328,
+                                                                                        lineNumber: 1415,
                                                                                         columnNumber: 29
                                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                                lineNumber: 1302,
+                                                                                lineNumber: 1389,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                        lineNumber: 1266,
+                                                                        lineNumber: 1353,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                                lineNumber: 1216,
+                                                                lineNumber: 1303,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         }, docIndex, false, {
                                                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                            lineNumber: 1212,
+                                                            lineNumber: 1299,
                                                             columnNumber: 21
                                                         }, ("TURBOPACK compile-time value", void 0)))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                                lineNumber: 1189,
+                                                lineNumber: 1276,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, positionIndex, true, {
                                         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                        lineNumber: 966,
+                                        lineNumber: 1028,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 951,
+                            lineNumber: 1013,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7429,7 +6077,7 @@ const CompanyFormModal = (param)=>{
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 1349,
+                                    lineNumber: 1436,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7439,13 +6087,13 @@ const CompanyFormModal = (param)=>{
                                     children: loading ? "Saving..." : editData ? "Update Company" : "Create Company"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                                    lineNumber: 1356,
+                                    lineNumber: 1443,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 1348,
+                            lineNumber: 1435,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         errors.submit && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7453,28 +6101,28 @@ const CompanyFormModal = (param)=>{
                             children: errors.submit
                         }, void 0, false, {
                             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                            lineNumber: 1369,
+                            lineNumber: 1456,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/company-listing/CompanyFormModal.js",
-                    lineNumber: 617,
+                    lineNumber: 622,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/app/company-listing/CompanyFormModal.js",
-            lineNumber: 602,
+            lineNumber: 607,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/app/company-listing/CompanyFormModal.js",
-        lineNumber: 601,
+        lineNumber: 606,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(CompanyFormModal, "ycYDDzY7bVAyYW8z+WCnWf81Xcg=");
+_s(CompanyFormModal, "Z1ID1sI4ESO5jGfNB0zpziMtcqA=");
 _c = CompanyFormModal;
 const __TURBOPACK__default__export__ = CompanyFormModal;
 var _c;

@@ -342,10 +342,6 @@ function CreateEvent({
           formData.eventCategory === "company_event"
             ? formData.companyId
             : null,
-        // positionId:
-        //   formData.eventCategory === "company_event"
-        //     ? formData.positionId
-        //     : null,
         positionIds:
           formData.eventCategory === "company_event"
             ? formData.positionIds.map(Number)
@@ -684,30 +680,32 @@ function CreateEvent({
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Round Type *
-                </label>
-                <select
-                  name="roundType"
-                  value={formData.roundType}
-                  onChange={handleInputChange}
-                  disabled={
-                    isEditing && formData.eventCategory === "company_event"
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                >
-                  <option value="">Select round type</option>
-                  <option value="first">First Round</option>
-                  <option value="middle">Middle Round</option>
-                  <option value="last">Last Round</option>
-                </select>
-                {errors.roundType && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.roundType}
-                  </p>
-                )}
-              </div>
+              {formData.eventCategory === "company_event" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Round Type *
+                  </label>
+                  <select
+                    name="roundType"
+                    value={formData.roundType}
+                    onChange={handleInputChange}
+                    disabled={
+                      isEditing && formData.eventCategory === "company_event"
+                    }
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  >
+                    <option value="">Select round type</option>
+                    <option value="first">First Round</option>
+                    <option value="middle">Middle Round</option>
+                    <option value="last">Last Round</option>
+                  </select>
+                  {errors.roundType && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.roundType}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

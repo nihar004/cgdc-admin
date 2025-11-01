@@ -1,17 +1,17 @@
 import { ChevronDown, ChevronRight, Calendar } from "lucide-react";
 import RoundsTable from "./RoundsTable";
 
+// First, update the formatPackage function to handle ranges
 const formatPackage = (amount) => {
-  if (amount == null || isNaN(amount)) {
+  if (amount == null || isNaN(amount) || amount === -1) {
     return "Not Disclosed";
   }
 
-  if (amount >= 10000000) {
-    return `₹ ${(amount / 10000000).toFixed(1)} Cr`;
-  } else if (amount >= 100000) {
-    return `₹ ${(amount / 100000).toFixed(1)} LPA`;
+  // Amount is now already in lakhs from backend
+  if (amount >= 100) {
+    return `₹${(amount / 100).toFixed(1)} Cr`;
   }
-  return `₹ ${amount.toLocaleString()}`;
+  return `₹${amount.toFixed(2)} LPA`;
 };
 
 const CompanyCard = ({ company, onToggle, isExpanded, onUpdate }) => {
@@ -85,12 +85,13 @@ const CompanyCard = ({ company, onToggle, isExpanded, onUpdate }) => {
 };
 
 const PositionSection = ({ position, companyName, companyId, onUpdate }) => {
+  // Update the renderPackageInfo function in PositionSection
   const renderPackageInfo = () => {
     switch (position.job_type) {
       case "internship":
-        return position.internship_stipend_monthly > 0 ? (
+        return position.internship_stipend_monthly ? (
           <span className="text-xs text-slate-600">
-            {formatPackage(position.internship_stipend_monthly)}/month
+            ₹{position.internship_stipend_monthly}
           </span>
         ) : (
           <span className="text-xs text-slate-600">Stipend not disclosed</span>
@@ -99,7 +100,13 @@ const PositionSection = ({ position, companyName, companyId, onUpdate }) => {
       case "full_time":
         return (
           <span className="text-xs text-slate-600">
-            {formatPackage(position.package_range)}
+            {position.package === -1
+              ? "Package not disclosed"
+              : position.has_range
+                ? `${formatPackage(position.package)} - ${formatPackage(
+                    position.package_end
+                  )}`
+                : formatPackage(position.package)}
           </span>
         );
 
@@ -107,13 +114,20 @@ const PositionSection = ({ position, companyName, companyId, onUpdate }) => {
         return (
           <>
             <span className="text-xs text-slate-600">
-              {position.internship_stipend_monthly > 0
-                ? `${formatPackage(position.internship_stipend_monthly)}/month stipend`
+              {position.internship_stipend_monthly
+                ? `${position.internship_stipend_monthly} stipend`
                 : "Stipend not disclosed"}
             </span>
             <span className="text-xs text-slate-400">•</span>
             <span className="text-xs text-slate-600">
-              PPO: {formatPackage(position.package_range)}
+              PPO:{" "}
+              {position.package === -1
+                ? "Not disclosed"
+                : position.has_range
+                  ? `${formatPackage(position.package)} - ${formatPackage(
+                      position.package_end
+                    )}`
+                  : formatPackage(position.package)}
             </span>
           </>
         );

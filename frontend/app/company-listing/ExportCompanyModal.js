@@ -36,6 +36,7 @@ export default function ExportCompanyModal({ companies, onClose }) {
     },
     { key: "primary_hr_email", label: "HR Email", category: "HR Contact" },
     { key: "primary_hr_phone", label: "HR Phone", category: "HR Contact" },
+    { key: "office_address", label: "Office Address", category: "HR Contact" },
     { key: "account_owner", label: "Account Owner", category: "HR Contact" },
 
     // Requirements
@@ -52,10 +53,21 @@ export default function ExportCompanyModal({ companies, onClose }) {
       label: "Total Eligible Students",
       category: "Requirements",
     },
+    {
+      key: "eligibility_10th",
+      label: "10th Percentage",
+      category: "Requirements",
+    },
+    {
+      key: "eligibility_12th",
+      label: "12th Percentage",
+      category: "Requirements",
+    },
 
     // Schedule
     { key: "scheduled_visit", label: "Scheduled Visit", category: "Schedule" },
     { key: "actual_arrival", label: "Actual Arrival", category: "Schedule" },
+    { key: "jd_shared_date", label: "JD Shared Date", category: "Schedule" },
 
     // Statistics & Positions
     { key: "total_selected", label: "Total Selected", category: "Statistics" },
@@ -127,9 +139,7 @@ export default function ExportCompanyModal({ companies, onClose }) {
             break;
           case "glassdoor_rating":
           case "min_cgpa":
-            row[key] = company[key]
-              ? parseFloat(company[key]).toFixed(2)
-              : "N/A";
+            row[key] = company[key] ? parseFloat(company[key]) : "N/A";
             break;
           case "scheduled_visit":
           case "actual_arrival":
@@ -160,11 +170,13 @@ export default function ExportCompanyModal({ companies, onClose }) {
           case "package_ranges":
             row[key] =
               company.positions
-                ?.map((p) =>
-                  p.package_range
-                    ? `₹${(p.package_range / 100000).toFixed(1)}L`
-                    : "N/A"
-                )
+                ?.map((p) => {
+                  if (p.package === -1) return "Not Disclosed";
+                  if (p.has_range) {
+                    return `₹${p.package}L - ₹${p.package_end}L`;
+                  }
+                  return `₹${p.package}L`;
+                })
                 .join(", ") || "N/A";
             break;
           case "internship_stipends":
@@ -218,6 +230,15 @@ export default function ExportCompanyModal({ companies, onClose }) {
             } else {
               row[key] = "N/A";
             }
+            break;
+          case "eligibility_10th":
+          case "eligibility_12th":
+            row[key] = company[key] ? `${parseFloat(company[key])}%` : "N/A";
+            break;
+          case "jd_shared_date":
+            row[key] = company[key]
+              ? new Date(company[key]).toLocaleDateString()
+              : "N/A";
             break;
           default:
             row[key] = company[key] || "N/A";
@@ -308,6 +329,9 @@ export default function ExportCompanyModal({ companies, onClose }) {
       "scheduled_visit",
       "rounds_start_date",
       "rounds_end_date",
+      "eligibility_10th",
+      "eligibility_12th",
+      "jd_shared_date",
     ];
     const initialSelection = {};
     exportableColumns.forEach((col) => {

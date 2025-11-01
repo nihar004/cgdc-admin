@@ -74,28 +74,13 @@ routes.post("/", async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    const { title, type, event_id, batch_year } = req.body;
+    const { title, event_id, batch_year } = req.body;
 
     // 1️ Validate required fields
-    if (!title || !type || !batch_year) {
+    if (!title || !batch_year) {
       return res.status(400).json({
         success: false,
-        message: "Title, type, and batch_year are required fields",
-      });
-    }
-
-    // 2 Validate form type
-    const validTypes = [
-      "application",
-      "feedback",
-      "survey",
-      "attendance",
-      "custom",
-    ];
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid form type. Must be one of: ${validTypes.join(", ")}`,
+        message: "Title, and batch_year are required fields",
       });
     }
 
@@ -160,18 +145,16 @@ routes.post("/", async (req, res) => {
     // 6️ Insert new form
     const insertQuery = `
       INSERT INTO forms (
-        title, 
-        type, 
+        title,
         event_id, 
         batch_year, 
         created_at
       )
-      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-      RETURNING id, title, type, event_id, batch_year, created_at
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+      RETURNING id, title, event_id, batch_year, created_at
     `;
     const result = await client.query(insertQuery, [
       title,
-      type,
       event_id || null,
       batch_year,
     ]);
@@ -183,7 +166,6 @@ routes.post("/", async (req, res) => {
       SELECT 
         f.id,
         f.title,
-        f.type,
         f.batch_year,
         f.created_at,
         e.title AS event_title,
@@ -242,7 +224,7 @@ routes.put("/:id", async (req, res) => {
     await client.query("BEGIN");
 
     const { id } = req.params;
-    const { title, type, event_id, batch_year } = req.body;
+    const { title, event_id, batch_year } = req.body;
 
     if (!id || isNaN(id)) {
       return res.status(400).json({
@@ -272,28 +254,6 @@ routes.put("/:id", async (req, res) => {
     if (title !== undefined) {
       updates.push(`title = $${paramCounter}`);
       values.push(title);
-      paramCounter++;
-    }
-
-    if (type !== undefined) {
-      const validTypes = [
-        "application",
-        "feedback",
-        "survey",
-        "attendance",
-        "custom",
-      ];
-      if (!validTypes.includes(type)) {
-        await client.query("ROLLBACK");
-        return res.status(400).json({
-          success: false,
-          message: `Invalid form type. Must be one of: ${validTypes.join(
-            ", "
-          )}`,
-        });
-      }
-      updates.push(`type = $${paramCounter}`);
-      values.push(type);
       paramCounter++;
     }
 
@@ -376,7 +336,7 @@ routes.put("/:id", async (req, res) => {
       UPDATE forms 
       SET ${updates.join(", ")}
       WHERE id = $${paramCounter}
-      RETURNING id, title, type, batch_year, event_id, created_at
+      RETURNING id, title, batch_year, event_id, created_at
     `;
 
     const result = await client.query(updateQuery, values);
@@ -418,7 +378,6 @@ routes.get("/:year", async (req, res) => {
       SELECT 
         f.id,
         f.title,
-        f.type,
         f.batch_year,
         f.created_at,
         e.title AS event_title,
@@ -478,7 +437,7 @@ routes.post("/:id/upload", upload.single("file"), async (req, res) => {
 
     // Get form details including batch_year AND event_id
     const formResult = await client.query(
-      `SELECT id, title, batch_year, type, event_id FROM forms WHERE id = $1`,
+      `SELECT id, title, batch_year, event_id FROM forms WHERE id = $1`,
       [formId]
     );
 
@@ -969,6 +928,7 @@ routes.get("/events/:year", async (req, res) => {
           e.event_date,
           e.event_type,
           e.position_ids,
+          e.company_id,
           c.company_name,
           CASE 
             WHEN array_length(e.position_ids, 1) = 1 THEN 
@@ -986,7 +946,7 @@ routes.get("/events/:year", async (req, res) => {
         WHERE b.year = $1
         AND (f.id IS NULL OR e.id = $2)
         AND array_length(e.position_ids, 1) > 0
-        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name
+        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name,e.company_id
         ORDER BY
           CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
           e.event_date DESC NULLS LAST
@@ -1008,6 +968,7 @@ routes.get("/events/:year", async (req, res) => {
           e.event_date,
           e.event_type,
           e.position_ids,
+          e.company_id,
           c.company_name,
           CASE 
             WHEN array_length(e.position_ids, 1) = 1 THEN 
@@ -1025,7 +986,7 @@ routes.get("/events/:year", async (req, res) => {
         WHERE b.year = $1
         AND f.id IS NULL
         AND array_length(e.position_ids, 1) > 0
-        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name
+        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name,e.company_id
         ORDER BY
           CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
           e.event_date DESC NULLS LAST

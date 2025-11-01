@@ -78,17 +78,23 @@ export default function StudentTable({ filteredStudents }) {
     fetchStudents(); // Refresh student data
   };
 
-  const formatPackage = (amount) => {
-    if (amount == null || isNaN(amount)) {
+  const formatPackage = (amount, hasRange = false, packageEnd = null) => {
+    if (amount == null || isNaN(amount) || amount === -1) {
       return "Not Disclosed";
     }
 
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(1)} Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)} LPA`;
+    const formatSingleAmount = (value) => {
+      if (value >= 100) {
+        return `₹${(value / 100).toFixed(1)} Cr`;
+      }
+      return `₹${value.toFixed(2)} LPA`;
+    };
+
+    if (hasRange && packageEnd) {
+      return `${formatSingleAmount(amount)} - ${formatSingleAmount(packageEnd)}`;
     }
-    return `₹${amount.toLocaleString()}`;
+
+    return formatSingleAmount(amount);
   };
 
   // Update the handleConfirmDelete function
@@ -275,7 +281,11 @@ export default function StudentTable({ filteredStudents }) {
                             .map((offer, idx) => (
                               <div key={idx} className="text-xs text-gray-500">
                                 {offer.company_name} -{" "}
-                                {formatPackage(offer.package)}
+                                {formatPackage(
+                                  offer.package,
+                                  offer.has_range,
+                                  offer.package_end
+                                )}
                               </div>
                             ))}
                         </div>

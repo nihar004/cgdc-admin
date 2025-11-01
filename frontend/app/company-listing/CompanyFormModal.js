@@ -49,16 +49,23 @@ const CompanyFormModal = ({
     glassdoor_rating: editData?.glassdoor_rating ?? "",
     work_locations: editData?.work_locations ?? "",
     min_cgpa: editData?.min_cgpa ?? "",
-    max_backlogs: editData?.max_backlogs ?? "",
+    max_backlogs: editData?.max_backlogs ?? false,
     bond_required: editData?.bond_required ?? false,
     account_owner: editData?.account_owner ?? "",
+    office_address: editData?.office_address ?? "", // ADD
+    jd_shared_date: formatDateForInput(editData?.jd_shared_date) ?? "", // ADD
+    eligibility_10th: editData?.eligibility_10th ?? "", // ADD
+    eligibility_12th: editData?.eligibility_12th ?? "", // ADD
     allowed_specializations: editData?.allowed_specializations ?? [],
     positions: (editData?.positions ?? []).map((position) => ({
+      id: position?.id || null,
       position_title: position?.position_title ?? "",
       job_type: position?.job_type ?? "full_time",
       company_type: position?.company_type ?? "tech", // Add here instead
-      package_range: position?.package_range ?? 0,
-      internship_stipend_monthly: position?.internship_stipend_monthly ?? -1,
+      package: position?.package ?? -1,
+      has_range: position?.has_range ?? false, // ADDED
+      package_end: position?.package_end ?? -1, // ADDED
+      internship_stipend_monthly: position?.internship_stipend_monthly ?? null,
       selected_students: position?.selected_students ?? -1,
       rounds_start_date: formatDateForInput(position?.rounds_start_date) ?? "",
       rounds_end_date: formatDateForInput(position?.rounds_end_date) ?? "",
@@ -116,9 +123,11 @@ const CompanyFormModal = ({
   const handleSpecializationToggle = (spec) => {
     setFormData((prev) => ({
       ...prev,
-      allowed_specializations: prev.allowed_specializations.includes(spec)
-        ? prev.allowed_specializations.filter((s) => s !== spec)
-        : [...prev.allowed_specializations, spec],
+      allowed_specializations: Array.isArray(prev.allowed_specializations)
+        ? prev.allowed_specializations.includes(spec)
+          ? prev.allowed_specializations.filter((s) => s !== spec)
+          : [...prev.allowed_specializations, spec]
+        : [spec], // Initialize as array if it's not
     }));
   };
 
@@ -130,9 +139,11 @@ const CompanyFormModal = ({
         {
           position_title: "",
           job_type: "full_time",
-          company_type: "tech", // Add here instead
-          package_range: 0,
-          internship_stipend_monthly: 0,
+          company_type: "tech",
+          package: -1,
+          has_range: false,
+          package_end: -1,
+          internship_stipend_monthly: null,
           selected_students: 0,
           rounds_start_date: "",
           rounds_end_date: "",
@@ -253,10 +264,6 @@ const CompanyFormModal = ({
 
     if (!formData.company_name) {
       newErrors.company_name = "Company name is required";
-    }
-
-    if (!formData.scheduled_visit) {
-      newErrors.scheduled_visit = "Scheduled visit date is required";
     }
 
     // Validate that actual_arrival is after scheduled_visit if both exist
@@ -791,6 +798,21 @@ const CompanyFormModal = ({
                 />
               </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Office Address
+                </label>
+                <textarea
+                  name="office_address"
+                  value={formData.office_address}
+                  onChange={handleInputChange}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                  placeholder="Enter office address"
+                />
+              </div>
+            </div>
           </section>
 
           {/* Visit Details */}
@@ -804,10 +826,21 @@ const CompanyFormModal = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Scheduled Visit*
+                  JD Shared Date
                 </label>
                 <input
-                  required
+                  type="date"
+                  name="jd_shared_date"
+                  value={formData.jd_shared_date}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Scheduled Visit
+                </label>
+                <input
                   type="date"
                   name="scheduled_visit"
                   value={formData.scheduled_visit}
@@ -853,20 +886,20 @@ const CompanyFormModal = ({
                   </p>
                 )}
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                <MapPin size={16} className="inline mr-1" />
-                Work Locations
-              </label>
-              <input
-                type="text"
-                name="work_locations"
-                value={formData.work_locations}
-                onChange={handleInputChange}
-                placeholder="e.g., Bangalore, Hyderabad, Mumbai"
-                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
-              />
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  <MapPin size={16} className="inline mr-1" />
+                  Work Locations
+                </label>
+                <input
+                  type="text"
+                  name="work_locations"
+                  value={formData.work_locations}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Bangalore, Hyderabad, Mumbai"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                />
+              </div>
             </div>
           </section>
 
@@ -897,19 +930,50 @@ const CompanyFormModal = ({
                   <p className="text-red-500 text-xs mt-1">{errors.min_cgpa}</p>
                 )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Maximum Backlogs
+                  10th Eligibility (%)
                 </label>
                 <input
                   type="number"
-                  name="max_backlogs"
-                  value={formData.max_backlogs}
+                  name="eligibility_10th"
+                  value={formData.eligibility_10th}
                   onChange={handleInputChange}
                   min="0"
-                  max="999"
+                  max="100"
+                  step="0.01"
                   className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                  placeholder="e.g., 60.00"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  12th Eligibility (%)
+                </label>
+                <input
+                  type="number"
+                  name="eligibility_12th"
+                  value={formData.eligibility_12th}
+                  onChange={handleInputChange}
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
+                  placeholder="e.g., 60.00"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="max_backlogs"
+                  checked={formData.max_backlogs}
+                  onChange={handleInputChange}
+                  className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label className="text-sm font-medium text-neutral-700">
+                  Backlogs Allowed
+                </label>
               </div>
               <div className="flex items-center space-x-2 mt-2 md:mt-0">
                 <input
@@ -967,6 +1031,7 @@ const CompanyFormModal = ({
                 key={positionIndex}
                 className="border border-neutral-200 rounded-lg p-4 space-y-4 bg-neutral-50"
               >
+                {console.log("Rendering position:", positionIndex, position)}
                 <div className="flex justify-between items-start">
                   <h4 className="text-md font-medium text-neutral-800">
                     Position {positionIndex + 1}
@@ -1003,7 +1068,7 @@ const CompanyFormModal = ({
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">
                       Position Title*
-                      {editData && (
+                      {editData && position.id && (
                         <div className="inline-block ml-2 group relative">
                           <Info size={14} className="inline text-blue-500" />
                           <div className="hidden group-hover:block absolute left-0 top-6 w-64 p-2 bg-neutral-800 text-white text-xs rounded shadow-lg z-20">
@@ -1026,14 +1091,14 @@ const CompanyFormModal = ({
                           e.target.value
                         )
                       }
-                      disabled={!!editData}
+                      disabled={!!editData && !!position.id}
                       className={`w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        editData
+                        !!editData && !!position.id
                           ? "bg-neutral-100 cursor-not-allowed opacity-75"
                           : "bg-white"
                       }`}
                     />
-                    {editData && (
+                    {!!editData && !!position.id && (
                       <p className="mt-1 text-xs text-neutral-600 bg-neutral-100 px-2 py-1 rounded">
                         💡 To change position title, delete this position and
                         create a new one
@@ -1067,32 +1132,81 @@ const CompanyFormModal = ({
                   {/* Conditional Compensation Fields */}
                   {(position.job_type === "full_time" ||
                     position.job_type === "internship_plus_ppo") && (
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-1">
-                        Package Range *
-                      </label>
-                      <input
-                        type="number"
-                        min="-1"
-                        max="999999999"
-                        value={position.package_range}
-                        onChange={(e) =>
-                          updatePosition(
-                            positionIndex,
-                            "package_range",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                        required={
-                          position.job_type === "full_time" ||
-                          position.job_type === "internship_plus_ppo"
-                        }
-                      />
-                      <p className="mt-1 text-xs text-red-500 bg-red-100 px-2 py-1 rounded inline-block">
-                        💡 Enter{" "}
-                        <span className="font-medium text-red-700">-1</span> if
-                        not disclosed
+                    <div className="md:col-span-2 space-y-3">
+                      {/* Package Range Toggle */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={position.has_range}
+                          onChange={(e) =>
+                            updatePosition(
+                              positionIndex,
+                              "has_range",
+                              e.target.checked
+                            )
+                          }
+                          className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <label className="text-sm font-medium text-neutral-700">
+                          Package has a range
+                        </label>
+                      </div>
+
+                      {/* Package Fields */}
+                      <div
+                        className={`grid ${position.has_range ? "grid-cols-2" : "grid-cols-1"} gap-4`}
+                      >
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1">
+                            {position.has_range
+                              ? "Package (Start) in LPA *"
+                              : "Package in LPA *"}
+                          </label>
+                          <input
+                            type="number"
+                            min="-1"
+                            step="0.01"
+                            value={position.package}
+                            onChange={(e) =>
+                              updatePosition(
+                                positionIndex,
+                                "package",
+                                e.target.value
+                              )
+                            }
+                            className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            required
+                            placeholder="e.g., 12.5"
+                          />
+                        </div>
+
+                        {position.has_range && (
+                          <div>
+                            <label className="block text-sm font-medium text-neutral-700 mb-1">
+                              Package (End) in LPA *
+                            </label>
+                            <input
+                              type="number"
+                              min="-1"
+                              step="0.01"
+                              value={position.package_end}
+                              onChange={(e) =>
+                                updatePosition(
+                                  positionIndex,
+                                  "package_end",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                              required
+                              placeholder="e.g., 15.0"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded">
+                        💡 Enter <span className="font-medium">-1</span> if not
+                        disclosed. Package is in Lakhs Per Annum (LPA)
                       </p>
                     </div>
                   )}
@@ -1101,13 +1215,11 @@ const CompanyFormModal = ({
                     position.job_type === "internship_plus_ppo") && (
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-1">
-                        Internship Stipend (Monthly)*
+                        Internship Stipend (Monthly)
                       </label>
                       <input
-                        type="number"
-                        min="-1"
-                        max="99999999"
-                        value={position.internship_stipend_monthly}
+                        type="text"
+                        value={position.internship_stipend_monthly || ""}
                         onChange={(e) =>
                           updatePosition(
                             positionIndex,
@@ -1116,37 +1228,14 @@ const CompanyFormModal = ({
                           )
                         }
                         className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                        required={
-                          position.job_type === "internship" ||
-                          position.job_type === "internship_plus_ppo"
-                        }
+                        placeholder="e.g., ₹25,000 or 20k-30k or Not Disclosed"
                       />
-                      <p className="mt-1 text-xs text-red-500 bg-red-100 px-2 py-1 rounded inline-block">
-                        💡 Enter{" "}
-                        <span className="font-medium text-red-700">-1</span> if
-                        not disclosed
+                      <p className="mt-1 text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded">
+                        💡 Enter stipend as text (e.g.,
+                        "₹25,000/month","20k-30k", or "Not Disclosed")
                       </p>
                     </div>
                   )}
-
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-1">
-                      Selected Students
-                    </label>
-                    <input
-                      type="number"
-                      min="-1"
-                      value={position.selected_students}
-                      onChange={(e) =>
-                        updatePosition(
-                          positionIndex,
-                          "selected_students",
-                          parseInt(e.target.value) || 0
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    />
-                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">

@@ -1,3 +1,5 @@
+-- patch 1
+
 -- adding full name and removing first and last name
 ALTER TABLE students 
 ADD COLUMN full_name VARCHAR(200);

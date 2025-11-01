@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useBatchContext } from "./BatchContext";
 import { toast } from "react-hot-toast";
+import { format } from "path";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const CompaniesContext = createContext();
@@ -27,16 +28,31 @@ export function CompaniesProvider({ children }) {
     useState(null);
 
   const formatPackage = (amount) => {
-    if (amount == null || isNaN(amount)) {
+    if (amount == null || isNaN(amount) || amount === -1) {
       return "Not Disclosed";
     }
 
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(1)} Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)} LPA`;
+    // Amount is now already in lakhs from backend
+    if (amount >= 100) {
+      return `₹${(amount / 100).toFixed(1)} Cr`;
     }
-    return `₹${amount.toLocaleString()}`;
+    return `₹${amount.toFixed(2)} LPA`;
+  };
+
+  const formatPackageRange = (position) => {
+    if (!position.package || position.package === -1) {
+      return "Not Disclosed";
+    }
+
+    if (
+      position.has_range &&
+      position.package_end &&
+      position.package_end !== -1
+    ) {
+      return `${formatPackage(position.package)} - ${formatPackage(position.package_end)}`;
+    }
+
+    return formatPackage(position.package);
   };
 
   // Fetch companies data
@@ -204,6 +220,7 @@ export function CompaniesProvider({ children }) {
     <CompaniesContext.Provider
       value={{
         formatPackage,
+        formatPackageRange,
         selectedCompany,
         setSelectedCompany,
         companies,

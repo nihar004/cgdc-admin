@@ -116,29 +116,47 @@ export function CompanyDetailModal() {
                 </div>
               </div>
 
-              {/* Work Locations */}
-              {selectedCompany.work_locations && (
-                <div className="bg-white/60 backdrop-blur rounded-lg p-3 border border-slate-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin size={14} className="text-slate-500" />
-                    <span className="text-xs font-semibold text-slate-700">
-                      Work Locations
-                    </span>
+              {/* Location Information */}
+              <div className="space-y-3">
+                {/* Office Address */}
+                {selectedCompany.office_address && (
+                  <div className="bg-white/60 backdrop-blur rounded-lg p-3 border border-slate-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin size={14} className="text-slate-500" />
+                      <span className="text-xs font-semibold text-slate-700">
+                        Office Address
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      {selectedCompany.office_address}
+                    </p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedCompany.work_locations
-                      .split(", ")
-                      .map((location, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200"
-                        >
-                          {location.trim()}
-                        </span>
-                      ))}
+                )}
+
+                {/* Work Locations */}
+                {selectedCompany.work_locations && (
+                  <div className="bg-white/60 backdrop-blur rounded-lg p-3 border border-slate-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Building2 size={14} className="text-slate-500" />
+                      <span className="text-xs font-semibold text-slate-700">
+                        Work Locations
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedCompany.work_locations
+                        .split(", ")
+                        .map((location, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200"
+                          >
+                            {location.trim()}
+                          </span>
+                        ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
@@ -241,15 +259,22 @@ export function CompanyDetailModal() {
                             {/* Compensation Details */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                               {/* Full Time Package */}
-                              {position.job_type === "full_time" && (
+                              {(position.job_type === "full_time" ||
+                                position.job_type ===
+                                  "internship_plus_ppo") && (
                                 <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                                   <div className="text-lg font-bold text-green-600">
-                                    {position.package_range === -1
+                                    {position.package === -1
                                       ? "Not disclosed"
-                                      : formatPackage(position.package_range)}
+                                      : position.has_range
+                                        ? `${formatPackage(position.package)} - ${formatPackage(
+                                            position.package_end
+                                          )}`
+                                        : formatPackage(position.package)}
                                   </div>
                                   <div className="text-xs text-green-700 font-medium">
-                                    Annual Package
+                                    Annual Package{" "}
+                                    {position.has_range ? "(Range)" : ""}
                                   </div>
                                 </div>
                               )}
@@ -260,7 +285,7 @@ export function CompanyDetailModal() {
                                   <div className="text-lg font-bold text-blue-600">
                                     {position.internship_stipend_monthly === -1
                                       ? "Not disclosed"
-                                      : `₹${position.internship_stipend_monthly}/month`}
+                                      : `₹${position.internship_stipend_monthly}`}
                                   </div>
                                   <div className="text-xs text-blue-700 font-medium">
                                     Internship Stipend
@@ -277,7 +302,7 @@ export function CompanyDetailModal() {
                                         {position.internship_stipend_monthly ===
                                         -1
                                           ? "Not disclosed"
-                                          : `₹${position.internship_stipend_monthly}/month`}
+                                          : `₹${position.internship_stipend_monthly}`}
                                       </div>
                                       <div className="text-xs text-blue-700 font-medium">
                                         Internship Stipend
@@ -434,62 +459,83 @@ export function CompanyDetailModal() {
                       </div>
                     )}
 
-                    {/* Requirements Grid */}
-                    {(!selectedCompany.min_cgpa ||
-                      selectedCompany.min_cgpa == 0) &&
-                    (!selectedCompany.max_backlogs ||
-                      selectedCompany.max_backlogs == 999) &&
-                    !selectedCompany.bond_required ? (
-                      <div className="text-center py-6 text-slate-500 italic">
-                        No Other Specific Requirements Mentioned
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {selectedCompany.min_cgpa &&
-                          selectedCompany.min_cgpa != 0 && (
-                            <div className="bg-white rounded-lg p-3 border border-gray-300">
-                              <div className="text-2xl font-bold text-blue-600 mb-0.5">
-                                {selectedCompany.min_cgpa}
-                              </div>
-                              <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                                Minimum CGPA
-                              </div>
-                            </div>
-                          )}
-                        {selectedCompany.max_backlogs &&
-                          selectedCompany.max_backlogs != 999 && (
-                            <div className="bg-white rounded-lg p-3 border border-gray-300">
-                              <div className="text-2xl font-bold text-orange-600 mb-0.5">
-                                ≤{selectedCompany.max_backlogs}
-                              </div>
-                              <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                                Maximum Backlogs
-                              </div>
-                            </div>
-                          )}
-                      </div>
-                    )}
-
-                    {/* Bond Required Warning */}
-                    {selectedCompany.bond_required && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                        <div className="flex items-start gap-2">
-                          <AlertCircle
-                            size={16}
-                            className="text-amber-600 mt-0.5"
-                          />
-                          <div>
-                            <span className="font-bold text-amber-800 text-sm">
-                              Bond Required
-                            </span>
-                            <p className="text-amber-700 mt-0.5 text-sm font-medium">
-                              This company requires a service bond agreement
-                              upon selection.
-                            </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {/* 10th Percentage */}
+                      {selectedCompany.eligibility_10th && (
+                        <div className="bg-white rounded-lg p-3 border border-gray-300">
+                          <div className="text-2xl font-bold text-blue-600 mb-0.5">
+                            {selectedCompany.eligibility_10th}%
+                          </div>
+                          <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                            10th Percentage
                           </div>
                         </div>
+                      )}
+
+                      {/* 12th Percentage */}
+                      {selectedCompany.eligibility_12th && (
+                        <div className="bg-white rounded-lg p-3 border border-gray-300">
+                          <div className="text-2xl font-bold text-blue-600 mb-0.5">
+                            {selectedCompany.eligibility_12th}%
+                          </div>
+                          <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                            12th Percentage
+                          </div>
+                        </div>
+                      )}
+
+                      {/* CGPA */}
+                      {selectedCompany.min_cgpa &&
+                        selectedCompany.min_cgpa !== 0 && (
+                          <div className="bg-white rounded-lg p-3 border border-gray-300">
+                            <div className="text-2xl font-bold text-blue-600 mb-0.5">
+                              {selectedCompany.min_cgpa}
+                            </div>
+                            <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                              Minimum CGPA
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* Backlogs Status */}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`p-2 rounded-lg mt-2 ${
+                        selectedCompany.max_backlogs
+                          ? "bg-green-50 text-green-700 border border-green-200"
+                          : "bg-red-50 text-red-700 border border-red-200"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <AlertCircle size={16} />
+                        <span className="text-sm font-medium">
+                          {selectedCompany.max_backlogs
+                            ? "Backlogs Allowed"
+                            : "No Backlogs Allowed"}
+                        </span>
                       </div>
-                    )}
+                    </div>
+                    <div
+                      className={`p-2 rounded-lg mt-2 ${
+                        selectedCompany.max_backlogs
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "bg-green-50 text-green-700 border border-green-200"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <AlertCircle size={16} />
+                        <span className="text-sm font-medium">
+                          {selectedCompany.bond_required
+                            ? "Bond Required"
+                            : "No Bond Required"}
+                        </span>
+                      </div>
+                    </div>
+                    {/* </div> */}
+
+                    {/* Rest of the requirements section... */}
                   </div>
                 </div>
               </div>
@@ -507,19 +553,17 @@ export function CompanyDetailModal() {
                     <div className="flex items-center gap-2 mb-4 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg border border-indigo-200">
                       <UserCheck size={16} />
                       <span className="font-medium">
-                        {selectedCompany.total_eligible_students || 0} Eligible
-                        Students
+                        {selectedCompany.total_eligible || 0} Eligible Students
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
                         <div className="text-xl font-bold text-blue-600">
-                          {/* {selectedCompany.total_applications_count || 0} */}
-                          {/* TODO TODO */}
+                          {selectedCompany.total_registered || 0}
                         </div>
                         <div className="text-xs text-blue-600 font-semibold uppercase tracking-wide">
-                          Applied
+                          Registered
                         </div>
                       </div>
                       <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200">
@@ -563,6 +607,28 @@ export function CompanyDetailModal() {
                     Schedule
                   </h3>
                   <div className="space-y-3">
+                    {/* JD Shared Date */}
+                    {selectedCompany.jd_shared_date && (
+                      <div className="bg-white rounded-lg p-3 border border-slate-200">
+                        <div className="flex items-center gap-2 mb-1">
+                          <FileText size={14} className="text-purple-500" />
+                          <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                            JD Shared Date
+                          </span>
+                        </div>
+                        <div className="text-sm font-bold text-purple-600">
+                          {new Date(
+                            selectedCompany.jd_shared_date
+                          ).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="bg-white rounded-lg p-3 border border-slate-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar size={14} className="text-blue-500" />

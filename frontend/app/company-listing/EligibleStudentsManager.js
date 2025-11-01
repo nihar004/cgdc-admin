@@ -344,8 +344,8 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                 </p>
                 <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
                   <li>
-                    Students will be evaluated based on CGPA, backlogs, and
-                    branch requirements
+                    Students will be evaluated based on CGPA, 10th, 12th,
+                    backlogs, and branch requirements
                   </li>
                   <li>
                     Placement status and upgrade opportunities will be
@@ -463,14 +463,34 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                     {briefInfo.eligibility_criteria.min_cgpa || "No minimum"}
                   </span>
                 </div>
+
                 <div>
-                  <span className="text-gray-600">Maximum Backlogs:</span>
+                  <span className="text-gray-600">Backlogs:</span>
                   <span className="ml-2 font-medium text-gray-900">
-                    {briefInfo.eligibility_criteria.max_backlogs === 999
-                      ? "No limit"
-                      : briefInfo.eligibility_criteria.max_backlogs}
+                    {briefInfo.eligibility_criteria.max_backlogs === true
+                      ? "Not Allowed"
+                      : "Allowed"}
                   </span>
                 </div>
+
+                {briefInfo.eligibility_criteria.eligibility_10th && (
+                  <div>
+                    <span className="text-gray-600">Class 10th:</span>
+                    <span className="ml-2 font-medium text-gray-900">
+                      {briefInfo.eligibility_criteria.eligibility_10th}% minimum
+                    </span>
+                  </div>
+                )}
+
+                {briefInfo.eligibility_criteria.eligibility_12th && (
+                  <div>
+                    <span className="text-gray-600">Class 12th:</span>
+                    <span className="ml-2 font-medium text-gray-900">
+                      {briefInfo.eligibility_criteria.eligibility_12th}% minimum
+                    </span>
+                  </div>
+                )}
+
                 {briefInfo.eligibility_criteria.allowed_specializations && (
                   <div className="col-span-2">
                     <span className="text-gray-600">Allowed Branches:</span>
@@ -533,6 +553,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   }
 
   const eligibleStudents = eligibilityData?.eligible_students || [];
+  const placedStudents = eligibilityData?.placed_students || [];
   const ineligibleStudents = eligibilityData?.ineligible_students || [];
 
   return (
@@ -578,6 +599,16 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
               }`}
             >
               Eligible ({eligibleStudents.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("placed")}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === "placed"
+                  ? "text-blue-600 border-blue-600"
+                  : "text-gray-600 border-transparent hover:text-gray-900"
+              }`}
+            >
+              Placed ({placedStudents.length})
             </button>
             <button
               onClick={() => setActiveTab("ineligible")}
@@ -727,6 +758,141 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
               </div>
             )}
 
+            {activeTab === "placed" && (
+              <div>
+                {placedStudents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                    <p className="text-gray-500">No placed students</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-100">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Registration
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Name
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Enrollment
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Branch
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            CGPA
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Backlogs
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Academics
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Dream Status
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {placedStudents.map((student) => (
+                          <tr
+                            key={student.id}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">
+                              {student.registration_number}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {student.full_name}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {student.enrollment_number}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">
+                              {student.department} {student.branch}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                              {parseFloat(student.cgpa).toFixed(2)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-900">
+                              {student.backlogs}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="space-y-1">
+                                <div className="text-xs">
+                                  <span className="text-gray-500">10th:</span>
+                                  <span className="ml-1 text-gray-900">
+                                    {student.class_10_percentage}%
+                                  </span>
+                                </div>
+                                <div className="text-xs">
+                                  <span className="text-gray-500">12th:</span>
+                                  <span className="ml-1 text-gray-900">
+                                    {student.class_12_percentage}%
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              {student.used_dream_company ? (
+                                <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                  <XCircle className="h-3 w-3" />
+                                  Already Used
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Available
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-2">
+                                {!student.used_dream_company && (
+                                  <button
+                                    onClick={() =>
+                                      handleAddViaDreamCompany(student.id)
+                                    }
+                                    disabled={actionLoading === student.id}
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium"
+                                    title="Add via Dream Company"
+                                  >
+                                    {actionLoading === student.id ? (
+                                      <RefreshCw className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Plus className="h-3 w-3" />
+                                    )}
+                                    Dream
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() =>
+                                    handleManualOverrideClick(student)
+                                  }
+                                  disabled={actionLoading === student.id}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium"
+                                  title="Manual Override with Reason"
+                                >
+                                  <UserPlus className="h-3 w-3" />
+                                  Manual
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === "ineligible" && (
               <div>
                 {ineligibleStudents.length === 0 ? (
@@ -822,36 +988,17 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                               )}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="flex gap-2">
-                                {!student.used_dream_company && (
-                                  <button
-                                    onClick={() =>
-                                      handleAddViaDreamCompany(student.id)
-                                    }
-                                    disabled={actionLoading === student.id}
-                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium"
-                                    title="Add via Dream Company"
-                                  >
-                                    {actionLoading === student.id ? (
-                                      <RefreshCw className="h-3 w-3 animate-spin" />
-                                    ) : (
-                                      <Plus className="h-3 w-3" />
-                                    )}
-                                    Dream
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() =>
-                                    handleManualOverrideClick(student)
-                                  }
-                                  disabled={actionLoading === student.id}
-                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium"
-                                  title="Manual Override with Reason"
-                                >
-                                  <UserPlus className="h-3 w-3" />
-                                  Manual
-                                </button>
-                              </div>
+                              <button
+                                onClick={() =>
+                                  handleManualOverrideClick(student)
+                                }
+                                disabled={actionLoading === student.id}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium"
+                                title="Manual Override with Reason"
+                              >
+                                <UserPlus className="h-3 w-3" />
+                                Manual Override
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -874,6 +1021,12 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                 </span>
                 <span>
                   <strong className="text-gray-900">
+                    {placedStudents.length}
+                  </strong>{" "}
+                  Placed
+                </span>
+                <span>
+                  <strong className="text-gray-900">
                     {ineligibleStudents.length}
                   </strong>{" "}
                   Ineligible
@@ -882,7 +1035,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                   <strong className="text-gray-900">
                     {eligibilityData?.dream_company_usage_count || 0}
                   </strong>{" "}
-                  Dream Company Used
+                  Dream Used
                 </span>
               </div>
               <button

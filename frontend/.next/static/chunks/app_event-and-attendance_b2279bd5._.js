@@ -430,6 +430,7 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "default": ()=>__TURBOPACK__default__export__
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/calendar.js [app-client] (ecmascript) <export default as Calendar>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/clock.js [app-client] (ecmascript) <export default as Clock>");
@@ -451,6 +452,8 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const getEventTypeConfig = (eventType)=>{
     const configs = {
         workshop: {
@@ -562,90 +565,69 @@ function EventCard(param) {
         if (!years || years.length === 0) return "All";
         return years.join(", ");
     };
-    const getJobTypeConfig = (jobType)=>{
-        switch(jobType){
-            case "internship":
-                return {
-                    label: "Internship",
-                    color: "bg-blue-100 text-blue-700"
-                };
-            case "full_time":
-                return {
-                    label: "Full Time",
-                    color: "bg-green-100 text-green-700"
-                };
-            case "internship_plus_ppo":
-                return {
-                    label: "Internship + PPO",
-                    color: "bg-purple-100 text-purple-700"
-                };
-            default:
-                return {
-                    label: "Not Specified",
-                    color: "bg-gray-100 text-gray-700"
-                };
-        }
-    };
-    const renderCompensation = (jobType, packageRange, stipend)=>{
-        const components = [];
-        if (jobType === "internship" && stipend && parseFloat(stipend) > 0) {
-            components.push(/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                className: "text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full",
-                children: [
-                    "₹",
-                    parseFloat(stipend).toLocaleString(),
-                    " stipend"
-                ]
-            }, "stipend", true, {
-                fileName: "[project]/app/event-and-attendance/EventCard.js",
-                lineNumber: 154,
-                columnNumber: 9
-            }, this));
-        } else if (jobType === "full_time" && packageRange && parseFloat(packageRange) > 0) {
-            components.push(/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                className: "text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full",
-                children: [
-                    "₹",
-                    (parseFloat(packageRange) / 100000).toFixed(1),
-                    " LPA"
-                ]
-            }, "package", true, {
-                fileName: "[project]/app/event-and-attendance/EventCard.js",
-                lineNumber: 167,
-                columnNumber: 9
-            }, this));
-        } else if (jobType === "internship_plus_ppo") {
-            if (stipend && parseFloat(stipend) > 0) {
-                components.push(/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                    className: "text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full",
-                    children: [
-                        "₹",
-                        parseFloat(stipend).toLocaleString(),
-                        " stipend"
-                    ]
-                }, "stipend", true, {
-                    fileName: "[project]/app/event-and-attendance/EventCard.js",
-                    lineNumber: 177,
-                    columnNumber: 11
-                }, this));
-            }
-            if (packageRange && parseFloat(packageRange) > 0) {
-                components.push(/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                    className: "text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full",
-                    children: [
-                        "₹",
-                        (parseFloat(packageRange) / 100000).toFixed(1),
-                        " LPA"
-                    ]
-                }, "package", true, {
-                    fileName: "[project]/app/event-and-attendance/EventCard.js",
-                    lineNumber: 187,
-                    columnNumber: 11
-                }, this));
-            }
-        }
-        return components;
-    };
+    // const getJobTypeConfig = (jobType) => {
+    //   switch (jobType) {
+    //     case "internship":
+    //       return { label: "Internship", color: "bg-blue-100 text-blue-700" };
+    //     case "full_time":
+    //       return { label: "Full Time", color: "bg-green-100 text-green-700" };
+    //     case "internship_plus_ppo":
+    //       return {
+    //         label: "Internship + PPO",
+    //         color: "bg-purple-100 text-purple-700",
+    //       };
+    //     default:
+    //       return { label: "Not Specified", color: "bg-gray-100 text-gray-700" };
+    //   }
+    // };
+    // const renderCompensation = (jobType, packageRange, stipend) => {
+    //   const components = [];
+    //   if (jobType === "internship" && stipend && parseFloat(stipend) > 0) {
+    //     components.push(
+    //       <span
+    //         key="stipend"
+    //         className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+    //       >
+    //         ₹{parseFloat(stipend).toLocaleString()} stipend
+    //       </span>
+    //     );
+    //   } else if (
+    //     jobType === "full_time" &&
+    //     packageRange &&
+    //     parseFloat(packageRange) > 0
+    //   ) {
+    //     components.push(
+    //       <span
+    //         key="package"
+    //         className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
+    //       >
+    //         ₹{(parseFloat(packageRange) / 100000).toFixed(1)} LPA
+    //       </span>
+    //     );
+    //   } else if (jobType === "internship_plus_ppo") {
+    //     if (stipend && parseFloat(stipend) > 0) {
+    //       components.push(
+    //         <span
+    //           key="stipend"
+    //           className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+    //         >
+    //           ₹{parseFloat(stipend).toLocaleString()} stipend
+    //         </span>
+    //       );
+    //     }
+    //     if (packageRange && parseFloat(packageRange) > 0) {
+    //       components.push(
+    //         <span
+    //           key="package"
+    //           className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
+    //         >
+    //           ₹{(parseFloat(packageRange) / 100000).toFixed(1)} LPA
+    //         </span>
+    //       );
+    //     }
+    //   }
+    //   return components;
+    // };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -665,12 +647,12 @@ function EventCard(param) {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 208,
+                                                lineNumber: 210,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 207,
+                                            lineNumber: 209,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -684,7 +666,7 @@ function EventCard(param) {
                                                             children: event.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 212,
+                                                            lineNumber: 214,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -692,7 +674,7 @@ function EventCard(param) {
                                                             children: eventTypeConfig.label
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 215,
+                                                            lineNumber: 217,
                                                             columnNumber: 19
                                                         }, this),
                                                         event.roundType && event.type === "company_round" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -705,26 +687,26 @@ function EventCard(param) {
                                                                     children: event.roundType
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                                    lineNumber: 223,
+                                                                    lineNumber: 225,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 221,
+                                                            lineNumber: 223,
                                                             columnNumber: 21
                                                         }, this),
                                                         event.isMandatory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
                                                             className: "h-4 w-4 text-amber-500 fill-current flex-shrink-0"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 227,
+                                                            lineNumber: 229,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 211,
+                                                    lineNumber: 213,
                                                     columnNumber: 17
                                                 }, this),
                                                 event.company && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -732,7 +714,7 @@ function EventCard(param) {
                                                     children: event.company
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 232,
+                                                    lineNumber: 234,
                                                     columnNumber: 19
                                                 }, this),
                                                 event.position_ids && event.position_ids.length > 0 && event.type === "company_round" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -743,7 +725,7 @@ function EventCard(param) {
                                                             children: "Positions:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 240,
+                                                            lineNumber: 242,
                                                             columnNumber: 23
                                                         }, this),
                                                         event.position_ids.map((posId)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -754,25 +736,25 @@ function EventCard(param) {
                                                                 ]
                                                             }, posId, true, {
                                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                                lineNumber: 242,
+                                                                lineNumber: 244,
                                                                 columnNumber: 25
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 239,
+                                                    lineNumber: 241,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 210,
+                                            lineNumber: 212,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 206,
+                                    lineNumber: 208,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -782,25 +764,25 @@ function EventCard(param) {
                                             className: "h-3 w-3 mr-1"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 257,
+                                            lineNumber: 259,
                                             columnNumber: 15
                                         }, this),
                                         event.status.charAt(0).toUpperCase() + event.status.slice(1)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 254,
+                                    lineNumber: 256,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                            lineNumber: 205,
+                            lineNumber: 207,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                        lineNumber: 204,
+                        lineNumber: 206,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -816,7 +798,7 @@ function EventCard(param) {
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 267,
+                                                lineNumber: 269,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -824,13 +806,13 @@ function EventCard(param) {
                                                 children: formatDate(event.date)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 268,
+                                                lineNumber: 270,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 266,
+                                        lineNumber: 268,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -840,7 +822,7 @@ function EventCard(param) {
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 271,
+                                                lineNumber: 273,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -851,13 +833,13 @@ function EventCard(param) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 272,
+                                                lineNumber: 274,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 270,
+                                        lineNumber: 272,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -867,7 +849,7 @@ function EventCard(param) {
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 278,
+                                                lineNumber: 280,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -879,13 +861,13 @@ function EventCard(param) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 279,
+                                                lineNumber: 281,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 277,
+                                        lineNumber: 279,
                                         columnNumber: 13
                                     }, this),
                                     event.speakerDetails && event.speakerDetails.speaker && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -895,7 +877,7 @@ function EventCard(param) {
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 285,
+                                                lineNumber: 287,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -903,7 +885,7 @@ function EventCard(param) {
                                                 children: "Speaker: "
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 286,
+                                                lineNumber: 288,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -911,7 +893,7 @@ function EventCard(param) {
                                                 children: event.speakerDetails.speaker
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 287,
+                                                lineNumber: 289,
                                                 columnNumber: 17
                                             }, this),
                                             event.speakerDetails.designation && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -921,7 +903,7 @@ function EventCard(param) {
                                                         children: "•"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 292,
+                                                        lineNumber: 294,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -929,7 +911,7 @@ function EventCard(param) {
                                                         children: event.speakerDetails.designation
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 293,
+                                                        lineNumber: 295,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
@@ -937,13 +919,13 @@ function EventCard(param) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 284,
+                                        lineNumber: 286,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 265,
+                                lineNumber: 267,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -960,7 +942,7 @@ function EventCard(param) {
                                                         children: "Specializations: "
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 307,
+                                                        lineNumber: 309,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -968,13 +950,13 @@ function EventCard(param) {
                                                         children: formatSpecializations(event.targetSpecializations)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 308,
+                                                        lineNumber: 310,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 306,
+                                                lineNumber: 308,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -984,7 +966,7 @@ function EventCard(param) {
                                                         children: "Years: "
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 313,
+                                                        lineNumber: 315,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -992,29 +974,29 @@ function EventCard(param) {
                                                         children: formatYears(event.targetAcademicYears)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 314,
+                                                        lineNumber: 316,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 312,
+                                                lineNumber: 314,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 305,
+                                        lineNumber: 307,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 304,
+                                    lineNumber: 306,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 303,
+                                lineNumber: 305,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1029,7 +1011,7 @@ function EventCard(param) {
                                                     children: event.totalStudents || 0
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 326,
+                                                    lineNumber: 328,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1037,13 +1019,13 @@ function EventCard(param) {
                                                     children: "Total"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 329,
+                                                    lineNumber: 331,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 325,
+                                            lineNumber: 327,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1053,7 +1035,7 @@ function EventCard(param) {
                                                     children: event.attendedStudents || 0
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 332,
+                                                    lineNumber: 334,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1061,13 +1043,13 @@ function EventCard(param) {
                                                     children: "Present"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 335,
+                                                    lineNumber: 337,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 331,
+                                            lineNumber: 333,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1077,7 +1059,7 @@ function EventCard(param) {
                                                     children: event.absentStudents || 0
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 338,
+                                                    lineNumber: 340,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1085,13 +1067,13 @@ function EventCard(param) {
                                                     children: "Absent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 341,
+                                                    lineNumber: 343,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 337,
+                                            lineNumber: 339,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1104,7 +1086,7 @@ function EventCard(param) {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 344,
+                                                    lineNumber: 346,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1112,24 +1094,24 @@ function EventCard(param) {
                                                     children: "Rate"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 351,
+                                                    lineNumber: 353,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 343,
+                                            lineNumber: 345,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 324,
+                                    lineNumber: 326,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 323,
+                                lineNumber: 325,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1148,14 +1130,14 @@ function EventCard(param) {
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 364,
+                                                            lineNumber: 366,
                                                             columnNumber: 19
                                                         }, this),
                                                         "View Attendance"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 360,
+                                                    lineNumber: 362,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1166,20 +1148,20 @@ function EventCard(param) {
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 371,
+                                                            lineNumber: 373,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Mark Attendance"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 367,
+                                                    lineNumber: 369,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 359,
+                                            lineNumber: 361,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1193,14 +1175,14 @@ function EventCard(param) {
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 381,
+                                                            lineNumber: 383,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Edit"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 377,
+                                                    lineNumber: 379,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1211,43 +1193,43 @@ function EventCard(param) {
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 389,
+                                                            lineNumber: 391,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Delete"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 385,
+                                                    lineNumber: 387,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 376,
+                                            lineNumber: 378,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 358,
+                                    lineNumber: 360,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 357,
+                                lineNumber: 359,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                        lineNumber: 264,
+                        lineNumber: 266,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                lineNumber: 202,
+                lineNumber: 204,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$event$2d$and$2d$attendance$2f$DeleteEventModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1258,7 +1240,7 @@ function EventCard(param) {
                 onEventDeleted: fetchEvents
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                lineNumber: 400,
+                lineNumber: 402,
                 columnNumber: 7
             }, this)
         ]
@@ -2652,10 +2634,6 @@ function CreateEvent(param) {
                 isPlacementEvent: formData.eventCategory === "company_event",
                 isMandatory: formData.isMandatory,
                 companyId: formData.eventCategory === "company_event" ? formData.companyId : null,
-                // positionId:
-                //   formData.eventCategory === "company_event"
-                //     ? formData.positionId
-                //     : null,
                 positionIds: formData.eventCategory === "company_event" ? formData.positionIds.map(Number) : null,
                 roundType: formData.eventCategory === "company_event" ? formData.roundType : null,
                 targetSpecializations: formData.targetSpecializations,
@@ -2702,19 +2680,19 @@ function CreateEvent(param) {
                                             className: "h-6 w-6"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 403,
+                                            lineNumber: 399,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 402,
+                                        lineNumber: 398,
                                         columnNumber: 13
                                     }, this),
                                     isEditing ? "Edit Event" : "Create New Event"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 401,
+                                lineNumber: 397,
                                 columnNumber: 11
                             }, this),
                             selectedBatch && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2725,13 +2703,13 @@ function CreateEvent(param) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 408,
+                                lineNumber: 404,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 400,
+                        lineNumber: 396,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2741,18 +2719,18 @@ function CreateEvent(param) {
                             className: "h-6 w-6 group-hover:rotate-90 transition-transform duration-200"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                            lineNumber: 417,
+                            lineNumber: 413,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 413,
+                        lineNumber: 409,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                lineNumber: 399,
+                lineNumber: 395,
                 columnNumber: 7
             }, this),
             submitStatus === "success" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2764,19 +2742,19 @@ function CreateEvent(param) {
                             className: "h-5 w-5 mr-2"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                            lineNumber: 425,
+                            lineNumber: 421,
                             columnNumber: 13
                         }, this),
                         "Event created successfully! Redirecting..."
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                    lineNumber: 424,
+                    lineNumber: 420,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                lineNumber: 423,
+                lineNumber: 419,
                 columnNumber: 9
             }, this),
             submitStatus === "error" && errors.submit && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2788,19 +2766,19 @@ function CreateEvent(param) {
                             className: "h-5 w-5 mr-2"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                            lineNumber: 434,
+                            lineNumber: 430,
                             columnNumber: 13
                         }, this),
                         errors.submit
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                    lineNumber: 433,
+                    lineNumber: 429,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                lineNumber: 432,
+                lineNumber: 428,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -2817,14 +2795,14 @@ function CreateEvent(param) {
                                         className: "h-5 w-5 mr-2 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 444,
+                                        lineNumber: 440,
                                         columnNumber: 13
                                     }, this),
                                     "Event Category"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 443,
+                                lineNumber: 439,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2846,12 +2824,12 @@ function CreateEvent(param) {
                                                         className: "h-6 w-6"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 471,
+                                                        lineNumber: 467,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                    lineNumber: 464,
+                                                    lineNumber: 460,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2861,7 +2839,7 @@ function CreateEvent(param) {
                                                             children: "Company Event"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                            lineNumber: 474,
+                                                            lineNumber: 470,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2869,24 +2847,24 @@ function CreateEvent(param) {
                                                             children: "Placement drives, interviews, company visits"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                            lineNumber: 475,
+                                                            lineNumber: 471,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                    lineNumber: 473,
+                                                    lineNumber: 469,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 463,
+                                            lineNumber: 459,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 449,
+                                        lineNumber: 445,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2905,12 +2883,12 @@ function CreateEvent(param) {
                                                         className: "h-6 w-6"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 504,
+                                                        lineNumber: 500,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                    lineNumber: 497,
+                                                    lineNumber: 493,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2920,7 +2898,7 @@ function CreateEvent(param) {
                                                             children: "CGDC Event"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                            lineNumber: 507,
+                                                            lineNumber: 503,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2928,30 +2906,30 @@ function CreateEvent(param) {
                                                             children: "Workshops, seminars, training sessions"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                            lineNumber: 508,
+                                                            lineNumber: 504,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                    lineNumber: 506,
+                                                    lineNumber: 502,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 496,
+                                            lineNumber: 492,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 482,
+                                        lineNumber: 478,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 448,
+                                lineNumber: 444,
                                 columnNumber: 11
                             }, this),
                             errors.eventCategory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2961,20 +2939,20 @@ function CreateEvent(param) {
                                         className: "h-4 w-4 mr-1"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 518,
+                                        lineNumber: 514,
                                         columnNumber: 15
                                     }, this),
                                     errors.eventCategory
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 517,
+                                lineNumber: 513,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 442,
+                        lineNumber: 438,
                         columnNumber: 9
                     }, this),
                     formData.eventCategory === "company_event" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2987,14 +2965,14 @@ function CreateEvent(param) {
                                         className: "h-5 w-5 mr-2 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 528,
+                                        lineNumber: 524,
                                         columnNumber: 15
                                     }, this),
                                     "Company & Position"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 527,
+                                lineNumber: 523,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3007,7 +2985,7 @@ function CreateEvent(param) {
                                                 children: "Company *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 534,
+                                                lineNumber: 530,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3022,7 +3000,7 @@ function CreateEvent(param) {
                                                         children: "Select company"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 546,
+                                                        lineNumber: 542,
                                                         columnNumber: 19
                                                     }, this),
                                                     companiesWithPositions.map((company)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3030,13 +3008,13 @@ function CreateEvent(param) {
                                                             children: company.company_name
                                                         }, company.company_id, false, {
                                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                            lineNumber: 548,
+                                                            lineNumber: 544,
                                                             columnNumber: 21
                                                         }, this))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 537,
+                                                lineNumber: 533,
                                                 columnNumber: 17
                                             }, this),
                                             errors.companyId && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3044,13 +3022,13 @@ function CreateEvent(param) {
                                                 children: errors.companyId
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 554,
+                                                lineNumber: 550,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 533,
+                                        lineNumber: 529,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3060,7 +3038,7 @@ function CreateEvent(param) {
                                                 children: "Position(s) *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 561,
+                                                lineNumber: 557,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3076,7 +3054,7 @@ function CreateEvent(param) {
                                                                 className: "rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                                lineNumber: 570,
+                                                                lineNumber: 566,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3084,18 +3062,18 @@ function CreateEvent(param) {
                                                                 children: position.position_title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                                lineNumber: 584,
+                                                                lineNumber: 580,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, position.position_id, true, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 566,
+                                                        lineNumber: 562,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 564,
+                                                lineNumber: 560,
                                                 columnNumber: 17
                                             }, this),
                                             errors.positionIds && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3103,7 +3081,7 @@ function CreateEvent(param) {
                                                 children: errors.positionIds
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 591,
+                                                lineNumber: 587,
                                                 columnNumber: 19
                                             }, this),
                                             selectedCompanyPositions.length === 0 && formData.companyId && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3111,13 +3089,13 @@ function CreateEvent(param) {
                                                 children: "No positions available for this company"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 597,
+                                                lineNumber: 593,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 560,
+                                        lineNumber: 556,
                                         columnNumber: 15
                                     }, this),
                                     isEditing && formData.eventCategory === "company_event" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3131,7 +3109,7 @@ function CreateEvent(param) {
                                                         className: "h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 606,
+                                                        lineNumber: 602,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3142,36 +3120,36 @@ function CreateEvent(param) {
                                                                 children: "Company, Positions and Round Type are locked"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                                lineNumber: 608,
+                                                                lineNumber: 604,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 children: "Cannot modify company, positions or round type for existing placement events to maintain round sequence integrity. If you need to change these, please delete this event and create a new one."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                                lineNumber: 611,
+                                                                lineNumber: 607,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 607,
+                                                        lineNumber: 603,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 605,
+                                                lineNumber: 601,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 604,
+                                            lineNumber: 600,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 603,
+                                        lineNumber: 599,
                                         columnNumber: 17
                                     }, this),
                                     formData.eventCategory === "company_event" && selectedBatch && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3185,7 +3163,7 @@ function CreateEvent(param) {
                                                         className: "h-5 w-5 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 626,
+                                                        lineNumber: 622,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3197,35 +3175,35 @@ function CreateEvent(param) {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 627,
+                                                        lineNumber: 623,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 625,
+                                                lineNumber: 621,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 624,
+                                            lineNumber: 620,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 623,
+                                        lineNumber: 619,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 532,
+                                lineNumber: 528,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 526,
+                        lineNumber: 522,
                         columnNumber: 11
                     }, this),
                     formData.eventCategory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3238,14 +3216,14 @@ function CreateEvent(param) {
                                         className: "h-5 w-5 mr-2 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 643,
+                                        lineNumber: 639,
                                         columnNumber: 15
                                     }, this),
                                     "Basic Information"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 642,
+                                lineNumber: 638,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3259,7 +3237,7 @@ function CreateEvent(param) {
                                                 children: "Event Title *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 649,
+                                                lineNumber: 645,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3271,7 +3249,7 @@ function CreateEvent(param) {
                                                 placeholder: "Enter event title"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 652,
+                                                lineNumber: 648,
                                                 columnNumber: 17
                                             }, this),
                                             errors.title && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3281,20 +3259,20 @@ function CreateEvent(param) {
                                                         className: "h-4 w-4 mr-1"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 664,
+                                                        lineNumber: 660,
                                                         columnNumber: 21
                                                     }, this),
                                                     errors.title
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 663,
+                                                lineNumber: 659,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 648,
+                                        lineNumber: 644,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3304,7 +3282,7 @@ function CreateEvent(param) {
                                                 children: "Event Type *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 671,
+                                                lineNumber: 667,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3317,29 +3295,29 @@ function CreateEvent(param) {
                                                         children: type.label
                                                     }, type.value, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 681,
+                                                        lineNumber: 677,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 674,
+                                                lineNumber: 670,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 670,
+                                        lineNumber: 666,
                                         columnNumber: 15
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    formData.eventCategory === "company_event" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                 className: "block text-sm font-medium text-gray-700 mb-2",
                                                 children: "Round Type *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 688,
-                                                columnNumber: 17
+                                                lineNumber: 685,
+                                                columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
                                                 name: "roundType",
@@ -3353,52 +3331,52 @@ function CreateEvent(param) {
                                                         children: "Select round type"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 700,
-                                                        columnNumber: 19
+                                                        lineNumber: 697,
+                                                        columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                         value: "first",
                                                         children: "First Round"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 701,
-                                                        columnNumber: 19
+                                                        lineNumber: 698,
+                                                        columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                         value: "middle",
                                                         children: "Middle Round"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 702,
-                                                        columnNumber: 19
+                                                        lineNumber: 699,
+                                                        columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                         value: "last",
                                                         children: "Last Round"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 703,
-                                                        columnNumber: 19
+                                                        lineNumber: 700,
+                                                        columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 691,
-                                                columnNumber: 17
+                                                lineNumber: 688,
+                                                columnNumber: 19
                                             }, this),
                                             errors.roundType && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "mt-1 text-sm text-red-600",
                                                 children: errors.roundType
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 706,
-                                                columnNumber: 19
+                                                lineNumber: 703,
+                                                columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 687,
-                                        columnNumber: 15
+                                        lineNumber: 684,
+                                        columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         children: [
@@ -3407,7 +3385,7 @@ function CreateEvent(param) {
                                                 children: "Mode *"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 713,
+                                                lineNumber: 711,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3420,18 +3398,18 @@ function CreateEvent(param) {
                                                         children: mode.label
                                                     }, mode.value, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 723,
+                                                        lineNumber: 721,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 716,
+                                                lineNumber: 714,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 712,
+                                        lineNumber: 710,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3441,7 +3419,7 @@ function CreateEvent(param) {
                                                 children: "Venue"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 731,
+                                                lineNumber: 729,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3453,7 +3431,7 @@ function CreateEvent(param) {
                                                 placeholder: "e.g., Auditorium, Room 101, Online Platform"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 734,
+                                                lineNumber: 732,
                                                 columnNumber: 17
                                             }, this),
                                             errors.venue && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3463,20 +3441,20 @@ function CreateEvent(param) {
                                                         className: "h-4 w-4 mr-1"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 746,
+                                                        lineNumber: 744,
                                                         columnNumber: 21
                                                     }, this),
                                                     errors.venue
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 745,
+                                                lineNumber: 743,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 730,
+                                        lineNumber: 728,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3492,7 +3470,7 @@ function CreateEvent(param) {
                                                     className: "rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                    lineNumber: 754,
+                                                    lineNumber: 752,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3502,37 +3480,37 @@ function CreateEvent(param) {
                                                             className: "h-4 w-4 inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                            lineNumber: 762,
+                                                            lineNumber: 760,
                                                             columnNumber: 21
                                                         }, this),
                                                         "Mandatory attendance"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                    lineNumber: 761,
+                                                    lineNumber: 759,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 753,
+                                            lineNumber: 751,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 752,
+                                        lineNumber: 750,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 647,
+                                lineNumber: 643,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 641,
+                        lineNumber: 637,
                         columnNumber: 11
                     }, this),
                     formData.eventCategory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3545,14 +3523,14 @@ function CreateEvent(param) {
                                         className: "h-5 w-5 mr-2 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 775,
+                                        lineNumber: 773,
                                         columnNumber: 15
                                     }, this),
                                     "Date & Time"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 774,
+                                lineNumber: 772,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3565,7 +3543,7 @@ function CreateEvent(param) {
                                                 children: "Date"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 781,
+                                                lineNumber: 779,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3576,7 +3554,7 @@ function CreateEvent(param) {
                                                 className: "w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ".concat(errors.date ? "border-red-300" : "border-gray-300")
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 784,
+                                                lineNumber: 782,
                                                 columnNumber: 17
                                             }, this),
                                             errors.date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3584,13 +3562,13 @@ function CreateEvent(param) {
                                                 children: errors.date
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 794,
+                                                lineNumber: 792,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 780,
+                                        lineNumber: 778,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3600,7 +3578,7 @@ function CreateEvent(param) {
                                                 children: "Start Time"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 799,
+                                                lineNumber: 797,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3611,7 +3589,7 @@ function CreateEvent(param) {
                                                 className: "w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ".concat(errors.startTime ? "border-red-300" : "border-gray-300")
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 802,
+                                                lineNumber: 800,
                                                 columnNumber: 17
                                             }, this),
                                             errors.startTime && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3619,13 +3597,13 @@ function CreateEvent(param) {
                                                 children: errors.startTime
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 812,
+                                                lineNumber: 810,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 798,
+                                        lineNumber: 796,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3635,7 +3613,7 @@ function CreateEvent(param) {
                                                 children: "End Time"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 819,
+                                                lineNumber: 817,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3649,7 +3627,7 @@ function CreateEvent(param) {
                                                 min: formData.startTime
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 822,
+                                                lineNumber: 820,
                                                 columnNumber: 17
                                             }, this),
                                             !formData.startTime && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3657,7 +3635,7 @@ function CreateEvent(param) {
                                                 children: "Set start time first"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 835,
+                                                lineNumber: 833,
                                                 columnNumber: 19
                                             }, this),
                                             errors.endTime && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3665,25 +3643,25 @@ function CreateEvent(param) {
                                                 children: errors.endTime
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 840,
+                                                lineNumber: 838,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 818,
+                                        lineNumber: 816,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 779,
+                                lineNumber: 777,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 773,
+                        lineNumber: 771,
                         columnNumber: 11
                     }, this),
                     formData.eventCategory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3696,14 +3674,14 @@ function CreateEvent(param) {
                                         className: "h-5 w-5 mr-2 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 851,
+                                        lineNumber: 849,
                                         columnNumber: 15
                                     }, this),
                                     "Speaker Details (Optional)"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 850,
+                                lineNumber: 848,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3716,7 +3694,7 @@ function CreateEvent(param) {
                                                 children: "Speaker Name"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 857,
+                                                lineNumber: 855,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3728,13 +3706,13 @@ function CreateEvent(param) {
                                                 placeholder: "Enter speaker name"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 860,
+                                                lineNumber: 858,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 856,
+                                        lineNumber: 854,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3744,7 +3722,7 @@ function CreateEvent(param) {
                                                 children: "Designation"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 871,
+                                                lineNumber: 869,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3756,25 +3734,25 @@ function CreateEvent(param) {
                                                 placeholder: "e.g., Senior Engineer"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 874,
+                                                lineNumber: 872,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 870,
+                                        lineNumber: 868,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 855,
+                                lineNumber: 853,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 849,
+                        lineNumber: 847,
                         columnNumber: 11
                     }, this),
                     formData.eventCategory === "cgdc_event" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3787,14 +3765,14 @@ function CreateEvent(param) {
                                         className: "h-5 w-5 mr-2 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 891,
+                                        lineNumber: 889,
                                         columnNumber: 15
                                     }, this),
                                     "Target Audience"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 890,
+                                lineNumber: 888,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3807,7 +3785,7 @@ function CreateEvent(param) {
                                                 children: "Academic Years * (Select at least one)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 897,
+                                                lineNumber: 895,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3819,12 +3797,12 @@ function CreateEvent(param) {
                                                         children: year
                                                     }, year, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 902,
+                                                        lineNumber: 900,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 900,
+                                                lineNumber: 898,
                                                 columnNumber: 17
                                             }, this),
                                             errors.targetAcademicYears && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3834,20 +3812,20 @@ function CreateEvent(param) {
                                                         className: "h-4 w-4 mr-1"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 920,
+                                                        lineNumber: 918,
                                                         columnNumber: 21
                                                     }, this),
                                                     errors.targetAcademicYears
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 919,
+                                                lineNumber: 917,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 896,
+                                        lineNumber: 894,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3857,7 +3835,7 @@ function CreateEvent(param) {
                                                 children: "Target Specializations * (Select at least one)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 927,
+                                                lineNumber: 925,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3869,12 +3847,12 @@ function CreateEvent(param) {
                                                         children: spec
                                                     }, spec, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 932,
+                                                        lineNumber: 930,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 930,
+                                                lineNumber: 928,
                                                 columnNumber: 17
                                             }, this),
                                             errors.targetSpecializations && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3884,32 +3862,32 @@ function CreateEvent(param) {
                                                         className: "h-4 w-4 mr-1"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                        lineNumber: 950,
+                                                        lineNumber: 948,
                                                         columnNumber: 21
                                                     }, this),
                                                     errors.targetSpecializations
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                                lineNumber: 949,
+                                                lineNumber: 947,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 926,
+                                        lineNumber: 924,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 895,
+                                lineNumber: 893,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 889,
+                        lineNumber: 887,
                         columnNumber: 11
                     }, this),
                     formData.eventCategory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3922,7 +3900,7 @@ function CreateEvent(param) {
                                 children: "Cancel"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 962,
+                                lineNumber: 960,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3936,49 +3914,49 @@ function CreateEvent(param) {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                            lineNumber: 977,
+                                            lineNumber: 975,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 976,
+                                        lineNumber: 974,
                                         columnNumber: 15
                                     }, this),
                                     isEditing ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         children: loading ? "Updating..." : "Update Event"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 980,
+                                        lineNumber: 978,
                                         columnNumber: 17
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         children: loading ? "Creating..." : "Create Event"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                        lineNumber: 982,
+                                        lineNumber: 980,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                                lineNumber: 969,
+                                lineNumber: 967,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                        lineNumber: 961,
+                        lineNumber: 959,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-                lineNumber: 440,
+                lineNumber: 436,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/event-and-attendance/CreateEvent.js",
-        lineNumber: 397,
+        lineNumber: 393,
         columnNumber: 5
     }, this);
 }

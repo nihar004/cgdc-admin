@@ -24,9 +24,12 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     company_name: "",
     position_title: "",
     package: "",
+    has_range: false,
+    package_end: "",
     company_type: "tech",
     job_type: "full_time",
     offer_date: new Date().toISOString().split("T")[0],
+    joining_date: "",
     stipend: "",
     work_location: "",
     bond_details: "",
@@ -52,6 +55,8 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       company_name: "",
       position_title: "",
       package: "",
+      has_range: false,
+      package_end: "",
       company_type: "tech",
       job_type: "full_time",
       offer_date: new Date().toISOString().split("T")[0],
@@ -76,6 +81,10 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       const payload = {
         ...formData,
         package: parseFloat(formData.package),
+        package_end: formData.has_range
+          ? parseFloat(formData.package_end)
+          : null,
+        has_range: formData.has_range,
         stipend: formData.stipend ? parseFloat(formData.stipend) : null,
       };
 
@@ -117,9 +126,12 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       company_name: offer.company_name || "",
       position_title: offer.position_title || "",
       package: offer.package?.toString() || "",
+      has_range: offer.has_range || false,
+      package_end: offer.package_end?.toString() || "",
       company_type: offer.company_type || "tech",
       job_type: offer.job_type || "full_time",
       offer_date: offer.offer_date || new Date().toISOString().split("T")[0],
+      joining_date: offer.joining_date || "",
       stipend: offer.stipend?.toString() || "",
       work_location: offer.work_location || "",
       bond_details: offer.bond_details || "",
@@ -189,10 +201,22 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     }
   };
 
-  const formatPackage = (amount) => {
+  const formatPackage = (amount, hasRange = false, packageEnd = null) => {
     if (amount == null || isNaN(amount)) return "Not Disclosed";
-    if (amount === -1) return "Undisclosed";
-    return `₹${(amount / 100000).toFixed(2)} LPA`;
+    if (amount === -1) return "Not Disclosed";
+
+    const formatSingleAmount = (value) => {
+      if (value >= 100) {
+        return `₹${(value / 100).toFixed(1)} Cr`;
+      }
+      return `₹${value.toFixed(2)} LPA`;
+    };
+
+    if (hasRange && packageEnd) {
+      return `${formatSingleAmount(amount)} - ${formatSingleAmount(packageEnd)}`;
+    }
+
+    return formatSingleAmount(amount);
   };
 
   if (!isOpen) return null;
@@ -331,20 +355,81 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Package (in ₹) *
-                  </label>
-                  <input
-                    type="number"
-                    name="package"
-                    value={formData.package}
-                    onChange={handleInputChange}
-                    required
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="e.g., 1200000"
-                  />
+                {/* Package Section */}
+                <div className="col-span-2 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Package (in LPA) *
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="has_range"
+                        name="has_range"
+                        checked={formData.has_range}
+                        onChange={(e) =>
+                          handleInputChange({
+                            target: {
+                              name: "has_range",
+                              value: e.target.checked,
+                            },
+                          })
+                        }
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="has_range"
+                        className="text-sm text-slate-600"
+                      >
+                        Package has range
+                      </label>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`grid ${formData.has_range ? "grid-cols-2" : "grid-cols-1"} gap-4`}
+                  >
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
+                        {formData.has_range
+                          ? "Starting Package *"
+                          : "Package *"}
+                      </label>
+                      <input
+                        type="number"
+                        name="package"
+                        value={formData.package}
+                        onChange={handleInputChange}
+                        required
+                        step="0.01"
+                        min="-1"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="e.g., 12.5"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">
+                        Enter -1 if package is not disclosed
+                      </p>
+                    </div>
+
+                    {formData.has_range && (
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">
+                          Ending Package *
+                        </label>
+                        <input
+                          type="number"
+                          name="package_end"
+                          value={formData.package_end}
+                          onChange={handleInputChange}
+                          required
+                          step="0.01"
+                          min={parseFloat(formData.package) || 0}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                          placeholder="e.g., 15.0"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -389,6 +474,19 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                     type="date"
                     name="offer_date"
                     value={formData.offer_date}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Joining Date
+                  </label>
+                  <input
+                    type="date"
+                    name="joining_date"
+                    value={formData.joining_date}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                   />
@@ -565,7 +663,11 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                       <div className="flex items-center gap-2 text-slate-600">
                         <DollarSign className="h-4 w-4 text-blue-600" />
                         <span className="font-semibold">
-                          {formatPackage(offer.package)}
+                          {formatPackage(
+                            offer.package,
+                            offer.has_range,
+                            offer.package_end
+                          )}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600">
@@ -585,6 +687,15 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                           <MapPin className="h-4 w-4 text-red-600" />
                           <span className="font-semibold">
                             {offer.work_location}
+                          </span>
+                        </div>
+                      )}
+                      {offer.joining_date && (
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <Calendar className="h-4 w-4 text-green-600" />
+                          <span className="font-medium">
+                            Joins:{" "}
+                            {new Date(offer.joining_date).toLocaleDateString()}
                           </span>
                         </div>
                       )}

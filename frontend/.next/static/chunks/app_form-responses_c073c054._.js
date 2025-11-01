@@ -2230,18 +2230,17 @@ const CreateFormModal = (param)=>{
     _s();
     const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(initialFormData ? {
         title: initialFormData.title || "",
-        type: initialFormData.type || "application",
         event_id: ((_initialFormData_event_id = initialFormData.event_id) === null || _initialFormData_event_id === void 0 ? void 0 : _initialFormData_event_id.toString()) || "",
         batch_year: selectedBatch
     } : {
         title: "",
-        type: "application",
         event_id: "",
         batch_year: selectedBatch
     });
     const [submitting, setSubmitting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [events, setEvents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [selectedCompanyId, setSelectedCompanyId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     // Fetch fresh events when modal opens
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "CreateFormModal.useEffect": ()=>{
@@ -2274,6 +2273,40 @@ const CreateFormModal = (param)=>{
             }
         }
     }["CreateFormModal.useEffect"], []);
+    // Process events to group by company
+    const companiesMap = events.reduce((acc, event)=>{
+        const companyId = event.company_id;
+        const companyName = event.company_name || "No Company";
+        if (!acc[companyId]) {
+            acc[companyId] = {
+                id: companyId,
+                name: companyName,
+                events: []
+            };
+        }
+        acc[companyId].events.push(event);
+        return acc;
+    }, {});
+    const companies = Object.values(companiesMap);
+    // Filter events by selected company
+    const filteredEvents = selectedCompanyId ? events.filter((event)=>event.company_id == selectedCompanyId) : [];
+    // Auto-select company if editing and event has a company
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "CreateFormModal.useEffect": ()=>{
+            if (isEditing && formData.event_id && events.length > 0) {
+                const selectedEvent = events.find({
+                    "CreateFormModal.useEffect.selectedEvent": (e)=>e.id == formData.event_id
+                }["CreateFormModal.useEffect.selectedEvent"]);
+                if (selectedEvent === null || selectedEvent === void 0 ? void 0 : selectedEvent.company_id) {
+                    setSelectedCompanyId(selectedEvent.company_id.toString());
+                }
+            }
+        }
+    }["CreateFormModal.useEffect"], [
+        isEditing,
+        formData.event_id,
+        events
+    ]);
     const handleSubmit = async (e)=>{
         e.preventDefault();
         if (!formData.title.trim()) {
@@ -2325,12 +2358,12 @@ const CreateFormModal = (param)=>{
                                         className: "h-5 w-5 text-blue-600"
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                        lineNumber: 127,
+                                        lineNumber: 159,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 126,
+                                    lineNumber: 158,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2340,7 +2373,7 @@ const CreateFormModal = (param)=>{
                                             children: isEditing ? "Edit Form" : "Create New Form"
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 130,
+                                            lineNumber: 162,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2351,19 +2384,19 @@ const CreateFormModal = (param)=>{
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 133,
+                                            lineNumber: 165,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 129,
+                                    lineNumber: 161,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 125,
+                            lineNumber: 157,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2374,18 +2407,18 @@ const CreateFormModal = (param)=>{
                                 className: "h-5 w-5 text-slate-400"
                             }, void 0, false, {
                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                lineNumber: 143,
+                                lineNumber: 175,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 138,
+                            lineNumber: 170,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                    lineNumber: 124,
+                    lineNumber: 156,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2400,14 +2433,14 @@ const CreateFormModal = (param)=>{
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 152,
+                                            lineNumber: 184,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         "Form Title *"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 151,
+                                    lineNumber: 183,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2422,76 +2455,13 @@ const CreateFormModal = (param)=>{
                                     disabled: submitting
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 155,
+                                    lineNumber: 187,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 150,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0)),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                    className: "block text-sm font-semibold text-slate-700 mb-2",
-                                    children: "Form Type"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 169,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "grid grid-cols-2 gap-2",
-                                    children: [
-                                        {
-                                            value: "application",
-                                            label: "Application",
-                                            color: "purple-500"
-                                        },
-                                        {
-                                            value: "survey",
-                                            label: "Survey",
-                                            color: "blue-500"
-                                        },
-                                        {
-                                            value: "feedback",
-                                            label: "Feedback",
-                                            color: "green-500"
-                                        },
-                                        {
-                                            value: "attendance",
-                                            label: "Attendance",
-                                            color: "orange-500"
-                                        },
-                                        {
-                                            value: "custom",
-                                            label: "Custom",
-                                            color: "gray-500"
-                                        }
-                                    ].map((type)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                            type: "button",
-                                            onClick: ()=>setFormData({
-                                                    ...formData,
-                                                    type: type.value
-                                                }),
-                                            disabled: submitting,
-                                            className: "p-3 rounded-xl border-2 text-sm font-medium transition-all duration-200 ".concat(formData.type === type.value ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"),
-                                            children: type.label
-                                        }, type.value, false, {
-                                            fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 188,
-                                            columnNumber: 17
-                                        }, ("TURBOPACK compile-time value", void 0)))
-                                }, void 0, false, {
-                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 172,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0))
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 168,
+                            lineNumber: 182,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2503,50 +2473,142 @@ const CreateFormModal = (param)=>{
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 208,
+                                            lineNumber: 202,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         "Related Event"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 207,
+                                    lineNumber: 201,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                    className: "w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm bg-white",
-                                    value: formData.event_id,
-                                    onChange: (e)=>setFormData({
-                                            ...formData,
-                                            event_id: e.target.value
-                                        }),
-                                    disabled: submitting,
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "mb-3",
                                     children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                            value: "",
-                                            children: "No event (standalone form)"
-                                        }, void 0, false, {
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            className: "flex items-center gap-2 text-xs font-medium text-slate-600 mb-1.5",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$building$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Building2$3e$__["Building2"], {
+                                                    className: "h-3.5 w-3.5"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                                    lineNumber: 209,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                "Select Company First"
+                                            ]
+                                        }, void 0, true, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 219,
+                                            lineNumber: 208,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
-                                        events.map((event)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: event.id,
-                                                children: [
-                                                    event.title,
-                                                    event.company_name && " - ".concat(event.company_name),
-                                                    event.position_title && " (".concat(event.position_title, ")")
-                                                ]
-                                            }, event.id, true, {
-                                                fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                lineNumber: 221,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0)))
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                            className: "w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm bg-white",
+                                            value: selectedCompanyId,
+                                            onChange: (e)=>{
+                                                setSelectedCompanyId(e.target.value);
+                                                setFormData({
+                                                    ...formData,
+                                                    event_id: ""
+                                                }); // Reset event when company changes
+                                            },
+                                            disabled: submitting,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    value: "",
+                                                    children: "Select a company..."
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                                    lineNumber: 221,
+                                                    columnNumber: 17
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                companies.map((company)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                        value: company.id,
+                                                        children: [
+                                                            company.name,
+                                                            " (",
+                                                            company.events.length,
+                                                            " event",
+                                                            company.events.length !== 1 ? "s" : "",
+                                                            ")"
+                                                        ]
+                                                    }, company.id, true, {
+                                                        fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                                        lineNumber: 223,
+                                                        columnNumber: 19
+                                                    }, ("TURBOPACK compile-time value", void 0)))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                            lineNumber: 212,
+                                            columnNumber: 15
+                                        }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 211,
+                                    lineNumber: 207,
                                     columnNumber: 13
+                                }, ("TURBOPACK compile-time value", void 0)),
+                                selectedCompanyId && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            className: "flex items-center gap-2 text-xs font-medium text-slate-600 mb-1.5",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__["Calendar"], {
+                                                    className: "h-3.5 w-3.5"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                                    lineNumber: 235,
+                                                    columnNumber: 19
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                "Select Event"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                            lineNumber: 234,
+                                            columnNumber: 17
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                            className: "w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm bg-white",
+                                            value: formData.event_id,
+                                            onChange: (e)=>setFormData({
+                                                    ...formData,
+                                                    event_id: e.target.value
+                                                }),
+                                            disabled: submitting,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                    value: "",
+                                                    children: "No event (standalone form)"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                                    lineNumber: 246,
+                                                    columnNumber: 19
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                filteredEvents.map((event)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                        value: event.id,
+                                                        children: [
+                                                            event.title,
+                                                            event.position_info && " - ".concat(event.position_info),
+                                                            event.event_date && " (".concat(new Date(event.event_date).toLocaleDateString(), ")")
+                                                        ]
+                                                    }, event.id, true, {
+                                                        fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                                        lineNumber: 248,
+                                                        columnNumber: 21
+                                                    }, ("TURBOPACK compile-time value", void 0)))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                            lineNumber: 238,
+                                            columnNumber: 17
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/form-responses/CreateFormModal.js",
+                                    lineNumber: 233,
+                                    columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 selectedEvent && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200",
@@ -2560,14 +2622,14 @@ const CreateFormModal = (param)=>{
                                                         className: "h-3 w-3"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                        lineNumber: 234,
+                                                        lineNumber: 264,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     selectedEvent.title
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                lineNumber: 233,
+                                                lineNumber: 263,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2580,43 +2642,43 @@ const CreateFormModal = (param)=>{
                                                                 className: "h-3 w-3"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                                lineNumber: 240,
+                                                                lineNumber: 270,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 children: selectedEvent.company_name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                                lineNumber: 241,
+                                                                lineNumber: 271,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                        lineNumber: 239,
+                                                        lineNumber: 269,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
-                                                    selectedEvent.position_title && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    selectedEvent.position_info && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex items-center gap-2 text-blue-700",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$briefcase$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Briefcase$3e$__["Briefcase"], {
                                                                 className: "h-3 w-3"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                                lineNumber: 246,
+                                                                lineNumber: 276,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                children: selectedEvent.position_title
+                                                                children: selectedEvent.position_info
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                                lineNumber: 247,
+                                                                lineNumber: 277,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                        lineNumber: 245,
+                                                        lineNumber: 275,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     selectedEvent.event_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2628,30 +2690,30 @@ const CreateFormModal = (param)=>{
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                        lineNumber: 251,
+                                                        lineNumber: 281,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                lineNumber: 237,
+                                                lineNumber: 267,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                        lineNumber: 232,
+                                        lineNumber: 262,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 231,
+                                    lineNumber: 261,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 206,
+                            lineNumber: 200,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2661,7 +2723,7 @@ const CreateFormModal = (param)=>{
                                     className: "h-5 w-5 text-red-500 flex-shrink-0 mt-0.5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 267,
+                                    lineNumber: 297,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2671,7 +2733,7 @@ const CreateFormModal = (param)=>{
                                             children: "Error"
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 269,
+                                            lineNumber: 299,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2679,19 +2741,19 @@ const CreateFormModal = (param)=>{
                                             children: error
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                            lineNumber: 270,
+                                            lineNumber: 300,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 268,
+                                    lineNumber: 298,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 266,
+                            lineNumber: 296,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2705,7 +2767,7 @@ const CreateFormModal = (param)=>{
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 277,
+                                    lineNumber: 307,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2720,46 +2782,46 @@ const CreateFormModal = (param)=>{
                                                 className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                                lineNumber: 293,
+                                                lineNumber: 323,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             isEditing ? "Updating..." : "Creating..."
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                        lineNumber: 292,
+                                        lineNumber: 322,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)) : isEditing ? "Update Form" : "Create Form"
                                 }, void 0, false, {
                                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                                    lineNumber: 285,
+                                    lineNumber: 315,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/form-responses/CreateFormModal.js",
-                            lineNumber: 276,
+                            lineNumber: 306,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/form-responses/CreateFormModal.js",
-                    lineNumber: 148,
+                    lineNumber: 180,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/app/form-responses/CreateFormModal.js",
-            lineNumber: 122,
+            lineNumber: 154,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/app/form-responses/CreateFormModal.js",
-        lineNumber: 121,
+        lineNumber: 153,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(CreateFormModal, "Gm42LLIO6kt3Flw6LuxvAvTfj8Y=");
+_s(CreateFormModal, "l8xZ8e8IATo0a5NLp1Yec0h6apE=");
 _c = CreateFormModal;
 const __TURBOPACK__default__export__ = CreateFormModal;
 var _c;
@@ -3322,16 +3384,12 @@ const FormManagementSystem = ()=>{
     const filteredForms = forms.filter((form)=>{
         var _form_company_name, _form_event_title;
         const matchesSearch = form.title.toLowerCase().includes(searchTerm.toLowerCase()) || ((_form_company_name = form.company_name) === null || _form_company_name === void 0 ? void 0 : _form_company_name.toLowerCase().includes(searchTerm.toLowerCase())) || ((_form_event_title = form.event_title) === null || _form_event_title === void 0 ? void 0 : _form_event_title.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesType = filterType === "all" || form.type === filterType;
         const matchesCompany = filterCompany === "all" || form.company_name === filterCompany;
-        const matchesPosition = filterPosition === "all" || form.position_title === filterPosition;
-        return matchesSearch && matchesType && matchesCompany && matchesPosition;
+        return matchesSearch && matchesCompany;
     });
     const clearAllFilters = ()=>{
-        setSearchTerm("");
         setFilterType("all");
         setFilterCompany("all");
-        setFilterPosition("all");
     };
     const getTypeColor = (type)=>{
         const colors = {
@@ -3417,12 +3475,12 @@ const FormManagementSystem = ()=>{
                                             className: "h-6 w-6 text-gray-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/form-responses/page.js",
-                                            lineNumber: 223,
+                                            lineNumber: 218,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 219,
+                                        lineNumber: 214,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3432,7 +3490,7 @@ const FormManagementSystem = ()=>{
                                                 children: "Form Management"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 226,
+                                                lineNumber: 221,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3443,19 +3501,19 @@ const FormManagementSystem = ()=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 229,
+                                                lineNumber: 224,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 225,
+                                        lineNumber: 220,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 218,
+                                lineNumber: 213,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3469,14 +3527,14 @@ const FormManagementSystem = ()=>{
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 241,
+                                                lineNumber: 236,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             "Export Forms"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 237,
+                                        lineNumber: 232,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3490,31 +3548,31 @@ const FormManagementSystem = ()=>{
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 251,
+                                                lineNumber: 246,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             "Create Form"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 244,
+                                        lineNumber: 239,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 236,
+                                lineNumber: 231,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/form-responses/page.js",
-                        lineNumber: 217,
+                        lineNumber: 212,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 216,
+                    lineNumber: 211,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3532,7 +3590,7 @@ const FormManagementSystem = ()=>{
                                                 className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 263,
+                                                lineNumber: 258,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3543,64 +3601,13 @@ const FormManagementSystem = ()=>{
                                                 className: "w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 264,
+                                                lineNumber: 259,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 262,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                        value: filterType,
-                                        onChange: (e)=>setFilterType(e.target.value),
-                                        className: "px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: "all",
-                                                children: "All Types"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 278,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: "application",
-                                                children: "Application"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 279,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: "survey",
-                                                children: "Survey"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 280,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: "feedback",
-                                                children: "Feedback"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 281,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: "registration",
-                                                children: "Registration"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 282,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0))
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 273,
+                                        lineNumber: 257,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3613,7 +3620,7 @@ const FormManagementSystem = ()=>{
                                                 children: "All Companies"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 290,
+                                                lineNumber: 273,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             uniqueCompanies.map((company)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3621,47 +3628,19 @@ const FormManagementSystem = ()=>{
                                                     children: company
                                                 }, company, false, {
                                                     fileName: "[project]/app/form-responses/page.js",
-                                                    lineNumber: 292,
+                                                    lineNumber: 275,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 285,
-                                        columnNumber: 15
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                        value: filterPosition,
-                                        onChange: (e)=>setFilterPosition(e.target.value),
-                                        disabled: filterCompany === "all",
-                                        className: "px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-50 disabled:text-slate-500",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                value: "all",
-                                                children: filterCompany === "all" ? "Select company first" : "All Positions"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 304,
-                                                columnNumber: 17
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            uniquePositions.map((position)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                    value: position,
-                                                    children: position
-                                                }, position, false, {
-                                                    fileName: "[project]/app/form-responses/page.js",
-                                                    lineNumber: 310,
-                                                    columnNumber: 19
-                                                }, ("TURBOPACK compile-time value", void 0)))
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 298,
+                                        lineNumber: 268,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 261,
+                                lineNumber: 256,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             hasActiveFilters && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3672,25 +3651,25 @@ const FormManagementSystem = ()=>{
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 322,
+                                        lineNumber: 287,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     "Clear Filters"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 318,
+                                lineNumber: 283,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/form-responses/page.js",
-                        lineNumber: 260,
+                        lineNumber: 255,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 259,
+                    lineNumber: 254,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3703,12 +3682,12 @@ const FormManagementSystem = ()=>{
                                 children: "Forms"
                             }, void 0, false, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 332,
+                                lineNumber: 297,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/form-responses/page.js",
-                            lineNumber: 331,
+                            lineNumber: 296,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3720,7 +3699,7 @@ const FormManagementSystem = ()=>{
                                         className: "animate-spin rounded-full h-8 w-8 border-2 border-blue-200 border-t-blue-600 mx-auto mb-3"
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 338,
+                                        lineNumber: 303,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3728,13 +3707,13 @@ const FormManagementSystem = ()=>{
                                         children: "Loading forms..."
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 339,
+                                        lineNumber: 304,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 337,
+                                lineNumber: 302,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)) : filteredForms.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "p-8 text-center",
@@ -3743,7 +3722,7 @@ const FormManagementSystem = ()=>{
                                         className: "h-8 w-8 text-slate-300 mx-auto mb-3"
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 343,
+                                        lineNumber: 308,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3751,7 +3730,7 @@ const FormManagementSystem = ()=>{
                                         children: "No forms found"
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 344,
+                                        lineNumber: 309,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     hasActiveFilters && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3760,13 +3739,13 @@ const FormManagementSystem = ()=>{
                                         children: "Clear filters to see all forms"
                                     }, void 0, false, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 346,
+                                        lineNumber: 311,
                                         columnNumber: 19
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/form-responses/page.js",
-                                lineNumber: 342,
+                                lineNumber: 307,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)) : filteredForms.map((form)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "p-4 hover:bg-slate-50 transition-colors",
@@ -3784,7 +3763,7 @@ const FormManagementSystem = ()=>{
                                                                 children: form.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 363,
+                                                                lineNumber: 328,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3792,7 +3771,7 @@ const FormManagementSystem = ()=>{
                                                                 children: form.type
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 366,
+                                                                lineNumber: 331,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3803,13 +3782,13 @@ const FormManagementSystem = ()=>{
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 371,
+                                                                lineNumber: 336,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/page.js",
-                                                        lineNumber: 362,
+                                                        lineNumber: 327,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3822,20 +3801,20 @@ const FormManagementSystem = ()=>{
                                                                         className: "h-3 w-3"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/form-responses/page.js",
-                                                                        lineNumber: 380,
+                                                                        lineNumber: 345,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         children: form.company_name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/form-responses/page.js",
-                                                                        lineNumber: 381,
+                                                                        lineNumber: 346,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 379,
+                                                                lineNumber: 344,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3845,20 +3824,20 @@ const FormManagementSystem = ()=>{
                                                                         className: "h-3 w-3"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/form-responses/page.js",
-                                                                        lineNumber: 384,
+                                                                        lineNumber: 349,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         children: form.position_title
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/form-responses/page.js",
-                                                                        lineNumber: 385,
+                                                                        lineNumber: 350,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 383,
+                                                                lineNumber: 348,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3868,32 +3847,32 @@ const FormManagementSystem = ()=>{
                                                                         className: "h-3 w-3"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/form-responses/page.js",
-                                                                        lineNumber: 388,
+                                                                        lineNumber: 353,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         children: new Date(form.created_at).toLocaleDateString()
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/form-responses/page.js",
-                                                                        lineNumber: 389,
+                                                                        lineNumber: 354,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 387,
+                                                                lineNumber: 352,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/page.js",
-                                                        lineNumber: 378,
+                                                        lineNumber: 343,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 361,
+                                                lineNumber: 326,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3910,14 +3889,14 @@ const FormManagementSystem = ()=>{
                                                                 className: "h-3 w-3"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 405,
+                                                                lineNumber: 370,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             "View"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/page.js",
-                                                        lineNumber: 398,
+                                                        lineNumber: 363,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3931,14 +3910,14 @@ const FormManagementSystem = ()=>{
                                                                 className: "h-3 w-3"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 416,
+                                                                lineNumber: 381,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             "Upload"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/page.js",
-                                                        lineNumber: 409,
+                                                        lineNumber: 374,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3952,14 +3931,14 @@ const FormManagementSystem = ()=>{
                                                                 className: "h-3 w-3"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 426,
+                                                                lineNumber: 391,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             "Edit"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/page.js",
-                                                        lineNumber: 419,
+                                                        lineNumber: 384,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3970,42 +3949,42 @@ const FormManagementSystem = ()=>{
                                                                 className: "h-3 w-3"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/form-responses/page.js",
-                                                                lineNumber: 433,
+                                                                lineNumber: 398,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             "Delete"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/form-responses/page.js",
-                                                        lineNumber: 429,
+                                                        lineNumber: 394,
                                                         columnNumber: 23
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/form-responses/page.js",
-                                                lineNumber: 397,
+                                                lineNumber: 362,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/form-responses/page.js",
-                                        lineNumber: 360,
+                                        lineNumber: 325,
                                         columnNumber: 19
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, form.id, false, {
                                     fileName: "[project]/app/form-responses/page.js",
-                                    lineNumber: 356,
+                                    lineNumber: 321,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)))
                         }, void 0, false, {
                             fileName: "[project]/app/form-responses/page.js",
-                            lineNumber: 335,
+                            lineNumber: 300,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 330,
+                    lineNumber: 295,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 (showCreateForm || showEditForm) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$form$2d$responses$2f$CreateFormModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4016,7 +3995,7 @@ const FormManagementSystem = ()=>{
                     formData: showEditForm ? selectedForm : null
                 }, void 0, false, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 446,
+                    lineNumber: 411,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0)),
                 showUploadModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$form$2d$responses$2f$UploadModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4026,7 +4005,7 @@ const FormManagementSystem = ()=>{
                     selectedBatch: selectedBatch
                 }, void 0, false, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 457,
+                    lineNumber: 422,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0)),
                 showDataModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$form$2d$responses$2f$DataViewModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4035,7 +4014,7 @@ const FormManagementSystem = ()=>{
                     selectedBatch: selectedBatch
                 }, void 0, false, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 465,
+                    lineNumber: 430,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0)),
                 showDeleteModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$form$2d$responses$2f$DeleteFormModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -4045,18 +4024,18 @@ const FormManagementSystem = ()=>{
                     onFormDeleted: fetchForms
                 }, void 0, false, {
                     fileName: "[project]/app/form-responses/page.js",
-                    lineNumber: 472,
+                    lineNumber: 437,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/app/form-responses/page.js",
-            lineNumber: 214,
+            lineNumber: 209,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/app/form-responses/page.js",
-        lineNumber: 213,
+        lineNumber: 208,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

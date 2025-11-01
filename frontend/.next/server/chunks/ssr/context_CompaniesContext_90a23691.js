@@ -12,6 +12,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/axios/lib/axios.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$BatchContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/BatchContext.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hot-toast/dist/index.mjs [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/path [external] (path, cjs)");
+;
 ;
 ;
 ;
@@ -38,15 +40,23 @@ function CompaniesProvider({ children }) {
     const [showEligibilityModal, setShowEligibilityModal] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [selectedCompanyForEligibility, setSelectedCompanyForEligibility] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const formatPackage = (amount)=>{
-        if (amount == null || isNaN(amount)) {
+        if (amount == null || isNaN(amount) || amount === -1) {
             return "Not Disclosed";
         }
-        if (amount >= 10000000) {
-            return `₹${(amount / 10000000).toFixed(1)} Cr`;
-        } else if (amount >= 100000) {
-            return `₹${(amount / 100000).toFixed(1)} LPA`;
+        // Amount is now already in lakhs from backend
+        if (amount >= 100) {
+            return `₹${(amount / 100).toFixed(1)} Cr`;
         }
-        return `₹${amount.toLocaleString()}`;
+        return `₹${amount.toFixed(2)} LPA`;
+    };
+    const formatPackageRange = (position)=>{
+        if (!position.package || position.package === -1) {
+            return "Not Disclosed";
+        }
+        if (position.has_range && position.package_end && position.package_end !== -1) {
+            return `${formatPackage(position.package)} - ${formatPackage(position.package_end)}`;
+        }
+        return formatPackage(position.package);
     };
     // Fetch companies data
     const fetchCompanies = async ()=>{
@@ -167,6 +177,7 @@ function CompaniesProvider({ children }) {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CompaniesContext.Provider, {
         value: {
             formatPackage,
+            formatPackageRange,
             selectedCompany,
             setSelectedCompany,
             companies,
@@ -210,7 +221,7 @@ function CompaniesProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/context/CompaniesContext.js",
-        lineNumber: 204,
+        lineNumber: 220,
         columnNumber: 5
     }, this);
 }

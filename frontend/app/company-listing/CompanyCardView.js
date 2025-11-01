@@ -32,7 +32,7 @@ export default function CompanyCardView({
   onEditClick,
 }) {
   const {
-    formatPackage,
+    formatPackageRange,
     setSelectedCompany,
     getCompanyStatus,
     setShowEligibilityModal,
@@ -224,7 +224,7 @@ export default function CompanyCardView({
 
             {/* Show "No requirements" message or requirements */}
             {(!company.min_cgpa || company.min_cgpa == 0) &&
-            (!company.max_backlogs || company.max_backlogs == 999) &&
+            !company.max_backlogs &&
             !company.bond_required ? (
               <div className="text-center py-3 text-slate-500 italic">
                 No Other Specific Requirements Mentioned
@@ -239,12 +239,10 @@ export default function CompanyCardView({
                     </span>
                   </div>
                 )}
-                {company.max_backlogs && company.max_backlogs != 999 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600">Maximum Backlogs</span>
-                    <span className="font-semibold text-slate-900">
-                      ≤{company.max_backlogs}
-                    </span>
+                {company.max_backlogs && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-2 rounded-lg">
+                    <AlertCircle size={14} />
+                    <span className="font-medium">Backlogs Allowed</span>
                   </div>
                 )}
                 {company.bond_required && (
@@ -320,14 +318,14 @@ export default function CompanyCardView({
                         <div className="bg-blue-50 rounded-lg p-3">
                           <div
                             className={`text-sm font-semibold ${
-                              position.internship_stipend_monthly === -1
+                              !position.internship_stipend_monthly
                                 ? "text-gray-500"
                                 : "text-blue-700"
                             }`}
                           >
-                            {position.internship_stipend_monthly === -1
+                            {!position.internship_stipend_monthly
                               ? "Not disclosed"
-                              : `₹${position.internship_stipend_monthly}/month`}
+                              : `₹${position.internship_stipend_monthly}`}
                           </div>
                           <div className="text-xs text-blue-600">
                             Internship Stipend
@@ -335,20 +333,19 @@ export default function CompanyCardView({
                         </div>
                       )}
 
-                      {/* Full-time or PPO Package */}
                       {(position.job_type === "full_time" ||
                         position.job_type === "internship_plus_ppo") && (
                         <div className="bg-emerald-50 rounded-lg p-3">
                           <div
                             className={`text-sm font-semibold ${
-                              position.package_range === -1
+                              position.package === -1
                                 ? "text-gray-500"
                                 : "text-emerald-700"
                             }`}
                           >
-                            {position.package_range === -1
+                            {position.package === -1
                               ? "Not disclosed"
-                              : formatPackage(position.package_range)}
+                              : formatPackageRange(position)}
                           </div>
                           <div className="text-xs text-emerald-600">
                             {position.job_type === "internship_plus_ppo"

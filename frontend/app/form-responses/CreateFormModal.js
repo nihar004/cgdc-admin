@@ -23,13 +23,11 @@ const CreateFormModal = ({
     initialFormData
       ? {
           title: initialFormData.title || "",
-          type: initialFormData.type || "application",
           event_id: initialFormData.event_id?.toString() || "",
           batch_year: selectedBatch,
         }
       : {
           title: "",
-          type: "application",
           event_id: "",
           batch_year: selectedBatch,
         }
@@ -38,6 +36,7 @@ const CreateFormModal = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [events, setEvents] = useState([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState("");
 
   // Fetch fresh events when modal opens
   useEffect(() => {
@@ -68,6 +67,39 @@ const CreateFormModal = ({
       console.log("Form Data set:", formData);
     }
   }, []);
+
+  // Process events to group by company
+  const companiesMap = events.reduce((acc, event) => {
+    const companyId = event.company_id;
+    const companyName = event.company_name || "No Company";
+
+    if (!acc[companyId]) {
+      acc[companyId] = {
+        id: companyId,
+        name: companyName,
+        events: [],
+      };
+    }
+    acc[companyId].events.push(event);
+    return acc;
+  }, {});
+
+  const companies = Object.values(companiesMap);
+
+  // Filter events by selected company
+  const filteredEvents = selectedCompanyId
+    ? events.filter((event) => event.company_id == selectedCompanyId)
+    : [];
+
+  // Auto-select company if editing and event has a company
+  useEffect(() => {
+    if (isEditing && formData.event_id && events.length > 0) {
+      const selectedEvent = events.find((e) => e.id == formData.event_id);
+      if (selectedEvent?.company_id) {
+        setSelectedCompanyId(selectedEvent.company_id.toString());
+      }
+    }
+  }, [isEditing, formData.event_id, events]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,67 +196,65 @@ const CreateFormModal = ({
             />
           </div>
 
-          {/* Form Type */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Form Type
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                {
-                  value: "application",
-                  label: "Application",
-                  color: "purple-500",
-                },
-                { value: "survey", label: "Survey", color: "blue-500" },
-                { value: "feedback", label: "Feedback", color: "green-500" },
-                {
-                  value: "attendance",
-                  label: "Attendance",
-                  color: "orange-500",
-                },
-                { value: "custom", label: "Custom", color: "gray-500" },
-              ].map((type) => (
-                <button
-                  key={type.value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, type: type.value })}
-                  disabled={submitting}
-                  className={`p-3 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
-                    formData.type === type.value
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Event Selection */}
           <div>
             <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
               <Calendar className="h-4 w-4" />
               Related Event
             </label>
-            <select
-              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm bg-white"
-              value={formData.event_id}
-              onChange={(e) =>
-                setFormData({ ...formData, event_id: e.target.value })
-              }
-              disabled={submitting}
-            >
-              <option value="">No event (standalone form)</option>
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.title}
-                  {event.company_name && ` - ${event.company_name}`}
-                  {event.position_title && ` (${event.position_title})`}
-                </option>
-              ))}
-            </select>
+
+            {/* Company Selection */}
+            <div className="mb-3">
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-1.5">
+                <Building2 className="h-3.5 w-3.5" />
+                Select Company First
+              </label>
+              <select
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm bg-white"
+                value={selectedCompanyId}
+                onChange={(e) => {
+                  setSelectedCompanyId(e.target.value);
+                  setFormData({ ...formData, event_id: "" }); // Reset event when company changes
+                }}
+                disabled={submitting}
+              >
+                <option value="">Select a company...</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name} ({company.events.length} event
+                    {company.events.length !== 1 ? "s" : ""})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Event Selection - Only show when company is selected */}
+            {selectedCompanyId && (
+              <div>
+                <label className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Select Event
+                </label>
+                <select
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm bg-white"
+                  value={formData.event_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, event_id: e.target.value })
+                  }
+                  disabled={submitting}
+                >
+                  <option value="">No event (standalone form)</option>
+                  {filteredEvents.map((event) => (
+                    <option key={event.id} value={event.id}>
+                      {event.title}
+                      {event.position_info && ` - ${event.position_info}`}
+                      {event.event_date &&
+                        ` (${new Date(event.event_date).toLocaleDateString()})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Event Details Preview */}
             {selectedEvent && (
@@ -241,10 +271,10 @@ const CreateFormModal = ({
                         <span>{selectedEvent.company_name}</span>
                       </div>
                     )}
-                    {selectedEvent.position_title && (
+                    {selectedEvent.position_info && (
                       <div className="flex items-center gap-2 text-blue-700">
                         <Briefcase className="h-3 w-3" />
-                        <span>{selectedEvent.position_title}</span>
+                        <span>{selectedEvent.position_info}</span>
                       </div>
                     )}
                     {selectedEvent.event_date && (

@@ -38,6 +38,7 @@ export function CompanyTableView({
 }) {
   const {
     formatPackage,
+    formatPackageRange,
     setSelectedCompany,
     fetchCompanies,
     loading,
@@ -243,38 +244,30 @@ export function CompanyTableView({
                         </td>
 
                         {/* Requirements */}
-                        <td className="px-2 py-5 flex flex-col items-center ">
-                          <div className="space-y-1 text-xs flex flex-col items-center">
-                            {/* Allowed Specializations */}
-                            {company.allowed_specializations && (
-                              <div className="flex flex-wrap gap-1 justify-center">
-                                {company.allowed_specializations
-                                  .replace(/[{}]/g, "") // Remove curly braces
-                                  .split(",")
-                                  .map((spec, index) => (
-                                    <span
-                                      key={index}
-                                      className="bg-purple-100 text-purple-700 px-1 py-1 rounded text-xs font-medium"
-                                    >
-                                      {spec.trim()}
-                                    </span>
-                                  ))}
+                        <td className="px-4 py-5 w-[15%]">
+                          <div className="space-y-2">
+                            {/* Eligibility */}
+                            {(company.eligibility_10th ||
+                              company.eligibility_12th) && (
+                              <div className="space-y-1">
+                                {company.eligibility_10th && (
+                                  <div className="text-xs">
+                                    <span className="font-medium">10th:</span>{" "}
+                                    {company.eligibility_10th}%
+                                  </div>
+                                )}
+                                {company.eligibility_12th && (
+                                  <div className="text-xs">
+                                    <span className="font-medium">12th:</span>{" "}
+                                    {company.eligibility_12th}%
+                                  </div>
+                                )}
                               </div>
                             )}
 
-                            {/* If all requirements are missing */}
-                            {(!company.min_cgpa || company.min_cgpa == 0) &&
-                              (!company.max_backlogs ||
-                                company.max_backlogs == 999) &&
-                              !company.bond_required && (
-                                <div className="font-medium text-gray-600 italic text-center px-5">
-                                  No other Requirements
-                                </div>
-                              )}
-
                             {/* CGPA */}
-                            {company.min_cgpa && company.min_cgpa != 0 && (
-                              <div className="flex gap-1">
+                            {company.min_cgpa && company.min_cgpa !== 0 && (
+                              <div className="flex items-center gap-1 text-xs">
                                 <GraduationCap
                                   size={12}
                                   className="text-blue-500"
@@ -286,24 +279,35 @@ export function CompanyTableView({
                             )}
 
                             {/* Backlogs */}
-                            {company.max_backlogs &&
-                              company.max_backlogs != 999 && (
-                                <div className="flex gap-1">
-                                  <AlertCircle
-                                    size={12}
-                                    className="text-orange-500"
-                                  />
-                                  <span>Backlogs: ≤{company.max_backlogs}</span>
-                                </div>
-                              )}
+                            {company.max_backlogs && (
+                              <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded">
+                                <AlertCircle size={12} />
+                                <span>Backlogs Allowed</span>
+                              </div>
+                            )}
 
-                            {/* Bond Required */}
+                            {/* Bond */}
                             {company.bond_required && (
-                              <div className="flex items-center gap-1 bg-orange-50 text-orange-700 px-2 py-1 rounded">
+                              <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded">
                                 <FileText size={12} />
-                                <span className="font-medium">
-                                  Bond Required
-                                </span>
+                                <span>Bond Required</span>
+                              </div>
+                            )}
+
+                            {/* Specializations */}
+                            {company.allowed_specializations && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {company.allowed_specializations
+                                  .replace(/[{}]/g, "")
+                                  .split(",")
+                                  .map((spec, index) => (
+                                    <span
+                                      key={index}
+                                      className="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-xs font-medium"
+                                    >
+                                      {spec.trim()}
+                                    </span>
+                                  ))}
                               </div>
                             )}
                           </div>
@@ -319,9 +323,24 @@ export function CompanyTableView({
                             </span>
 
                             <div className="space-y-1 text-xs">
+                              {company.jd_shared_date && (
+                                <div className="flex items-center gap-1">
+                                  <FileText
+                                    size={12}
+                                    className="text-blue-500"
+                                  />
+                                  <span>
+                                    JD Shared:{" "}
+                                    {new Date(
+                                      company.jd_shared_date
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              )}
                               <div className="flex items-center gap-1">
                                 <Calendar size={12} className="text-gray-400" />
                                 <span>
+                                  Visit:{" "}
                                   {new Date(
                                     company.scheduled_visit
                                   ).toLocaleDateString()}
@@ -331,6 +350,7 @@ export function CompanyTableView({
                                 <div className="flex items-center gap-1">
                                   <Clock size={12} className="text-green-500" />
                                   <span>
+                                    Arrived:{" "}
                                     {new Date(
                                       company.actual_arrival
                                     ).toLocaleDateString()}
@@ -532,77 +552,46 @@ export function CompanyTableView({
 
                                           {/* Conditional Compensation Display */}
                                           <div className="flex items-center gap-2">
-                                            {/* Full Time - Show only package_range (annual) */}
-                                            {position.job_type ===
-                                              "full_time" && (
+                                            {/* Full Time Package */}
+                                            {(position.job_type ===
+                                              "full_time" ||
+                                              position.job_type ===
+                                                "internship_plus_ppo") && (
                                               <span
                                                 className={`text-sm font-medium ${
-                                                  position.package_range === -1
+                                                  position.package === -1
                                                     ? "text-gray-500"
                                                     : "text-green-600"
                                                 }`}
                                               >
-                                                {position.package_range === -1
+                                                {position.package === -1
                                                   ? "Package: Not disclosed"
-                                                  : formatPackage(
-                                                      position.package_range
-                                                    )}
+                                                  : position.has_range
+                                                    ? formatPackageRange(
+                                                        position
+                                                      )
+                                                    : formatPackage(
+                                                        position.package
+                                                      )}
                                               </span>
                                             )}
 
-                                            {/* Internship - Show only stipend (monthly) */}
-                                            {position.job_type ===
-                                              "internship" && (
+                                            {/* Internship Stipend */}
+                                            {(position.job_type ===
+                                              "internship" ||
+                                              position.job_type ===
+                                                "internship_plus_ppo") && (
                                               <span
                                                 className={`text-sm font-medium ${
-                                                  position.internship_stipend_monthly ===
-                                                  -1
+                                                  !position.internship_stipend_monthly
                                                     ? "text-gray-500"
                                                     : "text-green-600"
                                                 }`}
                                               >
-                                                {position.internship_stipend_monthly ===
-                                                -1
+                                                {!position.internship_stipend_monthly
                                                   ? "Stipend: Not disclosed"
-                                                  : `₹${position.internship_stipend_monthly}/month`}
+                                                  : `₹${position.internship_stipend_monthly}`}
                                               </span>
-                                            )}
-
-                                            {/* Internship + PPO - Show both */}
-                                            {position.job_type ===
-                                              "internship_plus_ppo" && (
-                                              <>
-                                                {position.internship_stipend_monthly && (
-                                                  <span
-                                                    className={`text-sm font-medium ${
-                                                      position.internship_stipend_monthly ===
-                                                      -1
-                                                        ? "text-gray-500"
-                                                        : "text-blue-600"
-                                                    }`}
-                                                  >
-                                                    {position.internship_stipend_monthly ===
-                                                    -1
-                                                      ? "Stipend: Not disclosed"
-                                                      : `₹${position.internship_stipend_monthly}/month`}
-                                                  </span>
-                                                )}
-                                                {position.package_range && (
-                                                  <span
-                                                    className={`text-sm font-medium ${
-                                                      position.package_range ===
-                                                      -1
-                                                        ? "text-gray-500"
-                                                        : "text-green-600"
-                                                    }`}
-                                                  >
-                                                    {position.package_range ===
-                                                    -1
-                                                      ? "PPO: Not disclosed"
-                                                      : `+ ${formatPackage(position.package_range)}`}
-                                                  </span>
-                                                )}
-                                              </>
                                             )}
                                           </div>
                                         </div>

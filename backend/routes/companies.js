@@ -85,10 +85,12 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
         position_title,
         job_type,
         company_type, // Add this
-        package_range,
+        package,
         internship_stipend_monthly,
         rounds_start_date,
         rounds_end_date,
+        has_range,
+        package_end,
       } = position;
 
       // Process optional fields to handle empty strings
@@ -96,16 +98,11 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
         position_title: position_title?.trim() || null,
         job_type: job_type || "full_time",
         company_type: company_type || "tech", // Add default
-        package_range:
-          package_range && package_range !== "" && !isNaN(package_range)
-            ? parseFloat(package_range)
+        package:
+          package && package !== "" && !isNaN(package)
+            ? parseFloat(package)
             : -1,
-        internship_stipend_monthly:
-          internship_stipend_monthly &&
-          internship_stipend_monthly !== "" &&
-          !isNaN(internship_stipend_monthly)
-            ? parseFloat(internship_stipend_monthly)
-            : -1,
+        internship_stipend_monthly: internship_stipend_monthly?.trim() || null,
         rounds_start_date:
           rounds_start_date?.trim() && rounds_start_date.trim() !== ""
             ? rounds_start_date.trim()
@@ -114,13 +111,18 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
           rounds_end_date?.trim() && rounds_end_date.trim() !== ""
             ? rounds_end_date.trim()
             : null,
+        has_range: has_range === "true" || has_range === true,
+        package_end:
+          package_end && package_end !== "" && !isNaN(package_end)
+            ? parseFloat(package_end)
+            : -1,
       };
 
       // Relaxed compensation validation - only validate if values are provided
       // This allows positions to be created without compensation details initially
       if (
         processedPosition.job_type === "internship" &&
-        processedPosition.package_range !== null &&
+        processedPosition.package !== null &&
         processedPosition.internship_stipend_monthly === null
       ) {
         throw new Error(
@@ -131,10 +133,10 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
       if (
         processedPosition.job_type === "full_time" &&
         processedPosition.internship_stipend_monthly !== null &&
-        processedPosition.package_range === null
+        processedPosition.package === null
       ) {
         throw new Error(
-          "package_range should be provided for full_time positions when compensation is specified"
+          "package should be provided for full_time positions when compensation is specified"
         );
       }
 
@@ -142,10 +144,11 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
       const positionInsertQuery = `
         INSERT INTO company_positions (
           company_id, position_title, job_type, company_type,
-          package_range, internship_stipend_monthly, 
-          rounds_start_date, rounds_end_date
+          package, internship_stipend_monthly, 
+          rounds_start_date, rounds_end_date,
+          has_range, package_end
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *
       `;
 
@@ -155,10 +158,12 @@ async function createPositionsWithoutDocuments(client, companyId, positions) {
           processedPosition.position_title,
           processedPosition.job_type,
           processedPosition.company_type,
-          processedPosition.package_range,
+          processedPosition.package,
           processedPosition.internship_stipend_monthly,
           processedPosition.rounds_start_date,
           processedPosition.rounds_end_date,
+          processedPosition.has_range,
+          processedPosition.package_end,
         ]);
         insertedPositions.push(positionResult.rows[0]);
       } catch (err) {
@@ -218,10 +223,12 @@ async function updatePositionsEfficiently(
           position_title = $2,
           job_type = $3,
           company_type = $4,
-          package_range = $5,
+          package = $5,
           internship_stipend_monthly = $6,
           rounds_start_date = $7,
           rounds_end_date = $8,
+          has_range = $10,
+          package_end = $11,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = $1 AND company_id = $9
         RETURNING *
@@ -233,11 +240,13 @@ async function updatePositionsEfficiently(
           processedPosition.position_title,
           processedPosition.job_type,
           processedPosition.company_type,
-          processedPosition.package_range,
+          processedPosition.package,
           processedPosition.internship_stipend_monthly,
           processedPosition.rounds_start_date,
           processedPosition.rounds_end_date,
           companyId,
+          processedPosition.has_range,
+          processedPosition.package_end,
         ]);
 
         updatedPositions.push(result.rows[0]);
@@ -252,10 +261,11 @@ async function updatePositionsEfficiently(
       const insertQuery = `
         INSERT INTO company_positions (
           company_id, position_title, job_type, company_type, 
-          package_range, internship_stipend_monthly, 
-          rounds_start_date, rounds_end_date
+          package, internship_stipend_monthly, 
+          rounds_start_date, rounds_end_date,
+          has_range, package_end
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *
       `;
 
@@ -265,10 +275,12 @@ async function updatePositionsEfficiently(
           processedPosition.position_title,
           processedPosition.job_type,
           processedPosition.company_type,
-          processedPosition.package_range,
+          processedPosition.package,
           processedPosition.internship_stipend_monthly,
           processedPosition.rounds_start_date,
           processedPosition.rounds_end_date,
+          processedPosition.has_range,
+          processedPosition.package_end,
         ]);
         updatedPositions.push(result.rows[0]);
       } catch (err) {
@@ -318,18 +330,12 @@ function processPositionData(position) {
     position_title: position.position_title?.trim() || null,
     job_type: position.job_type || "full_time",
     company_type: position.company_type || "tech",
-    package_range:
-      position.package_range &&
-      position.package_range !== "" &&
-      !isNaN(position.package_range)
-        ? parseFloat(position.package_range)
+    package:
+      position.package && position.package !== "" && !isNaN(position.package)
+        ? parseFloat(position.package)
         : -1,
     internship_stipend_monthly:
-      position.internship_stipend_monthly &&
-      position.internship_stipend_monthly !== "" &&
-      !isNaN(position.internship_stipend_monthly)
-        ? parseFloat(position.internship_stipend_monthly)
-        : -1,
+      position.internship_stipend_monthly?.trim() || null,
     rounds_start_date:
       position.rounds_start_date?.trim() &&
       position.rounds_start_date.trim() !== ""
@@ -339,12 +345,19 @@ function processPositionData(position) {
       position.rounds_end_date?.trim() && position.rounds_end_date.trim() !== ""
         ? position.rounds_end_date.trim()
         : null,
+    has_range: position.has_range === "true" || position.has_range === true,
+    package_end:
+      position.package_end &&
+      position.package_end !== "" &&
+      !isNaN(position.package_end)
+        ? parseFloat(position.package_end)
+        : -1,
   };
 
   // Validation
   if (
     processedPosition.job_type === "internship" &&
-    processedPosition.package_range !== null &&
+    processedPosition.package !== null &&
     processedPosition.internship_stipend_monthly === null
   ) {
     throw new Error(
@@ -355,10 +368,10 @@ function processPositionData(position) {
   if (
     processedPosition.job_type === "full_time" &&
     processedPosition.internship_stipend_monthly !== null &&
-    processedPosition.package_range === null
+    processedPosition.package === null
   ) {
     throw new Error(
-      "package_range should be provided for full_time positions when compensation is specified"
+      "package should be provided for full_time positions when compensation is specified"
     );
   }
 
@@ -394,7 +407,6 @@ routes.get("/batch/:batchYear", async (req, res) => {
           INNER JOIN company_positions cp_inner ON (fr.response_data->>'position_id')::INTEGER = cp_inner.id
           WHERE cp_inner.company_id = c.id 
             AND f.batch_year = $1
-            AND f.type = 'application'
         ) as total_registered,
         JSON_AGG(
           JSON_BUILD_OBJECT(
@@ -402,7 +414,9 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'position_title', cp.position_title,
             'job_type', cp.job_type,
             'company_type', cp.company_type,
-            'package_range', cp.package_range,
+            'package', cp.package,
+            'has_range', cp.has_range,
+            'package_end', cp.package_end,
             'internship_stipend_monthly', cp.internship_stipend_monthly,
             'rounds_start_date', cp.rounds_start_date,
             'rounds_end_date', cp.rounds_end_date,
@@ -422,7 +436,6 @@ routes.get("/batch/:batchYear", async (req, res) => {
               INNER JOIN forms f ON fr.form_id = f.id
               WHERE (fr.response_data->>'position_id')::INTEGER = cp.id
                 AND f.batch_year = $1
-                AND f.type = 'application'
             ),
             'documents', (
               SELECT JSON_AGG(
@@ -437,7 +450,7 @@ routes.get("/batch/:batchYear", async (req, res) => {
                   'original_filename', pd.original_filename,
                   'download_url', CONCAT('${req.protocol}://${req.get(
       "host"
-    )}/companies/documents/', REPLACE(pd.document_path, 'cgdc-docs/documents/', ''))
+    )}/api/companies/documents/', REPLACE(pd.document_path, 'cgdc-docs/documents/', ''))
                 ) ORDER BY pd.display_order, pd.uploaded_at
               )
               FROM position_documents pd 
@@ -502,13 +515,16 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
     bond_required = false,
     allowed_specializations = [],
     positions = [],
+    office_address,
+    jd_shared_date,
+    eligibility_10th,
+    eligibility_12th,
   } = req.body;
 
   // Basic validation - only truly required fields
-  if (!company_name || !scheduled_visit || !batchYear) {
+  if (!company_name || !batchYear) {
     return res.status(400).json({
-      error:
-        "Missing required fields: company_name, scheduled_visit, batchYear",
+      error: "Missing required fields: company_name, batchYear",
     });
   }
 
@@ -534,8 +550,7 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
         : null,
     work_locations: work_locations?.trim() || null,
     min_cgpa: min_cgpa && min_cgpa !== "" ? parseFloat(min_cgpa) : 0.0,
-    max_backlogs:
-      max_backlogs && max_backlogs !== "" ? parseInt(max_backlogs) : 999,
+    max_backlogs: max_backlogs === "true" || max_backlogs === true,
   };
 
   // Validate allowed_specializations
@@ -553,15 +568,17 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
     // Get batch ID
     const batchId = await getBatchIdFromYear(parseInt(batchYear));
 
-    // Insert company
     const companyInsertQuery = `
       INSERT INTO companies (
         company_name, company_description, sector, is_marquee,
         website_url, linkedin_url, primary_hr_name, primary_hr_designation,
         primary_hr_email, primary_hr_phone, scheduled_visit, actual_arrival,
         glassdoor_rating, work_locations, min_cgpa, max_backlogs, bond_required,
-        allowed_specializations, account_owner
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+        allowed_specializations, account_owner, office_address, jd_shared_date,
+        eligibility_10th, eligibility_12th
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+              $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
       RETURNING *
     `;
 
@@ -585,6 +602,10 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
       bond_required,
       allowed_specializations,
       req.body.account_owner || null,
+      office_address?.trim() || null,
+      jd_shared_date || null,
+      eligibility_10th ? parseFloat(eligibility_10th) : null,
+      eligibility_12th ? parseFloat(eligibility_12th) : null,
     ];
 
     const companyResult = await client.query(companyInsertQuery, companyValues);
@@ -623,11 +644,31 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
 // PUT - Update company for a specific batch (documents handled separately)
 routes.put("/:id/batch/:batchYear", async (req, res) => {
   const { id, batchYear } = req.params;
+  // const {
+  //   company_name,
+  //   company_description,
+  //   sector,
+  //   is_marquee,
+  //   website_url,
+  //   linkedin_url,
+  //   primary_hr_name,
+  //   primary_hr_designation,
+  //   primary_hr_email,
+  //   primary_hr_phone,
+  //   scheduled_visit,
+  //   actual_arrival,
+  //   glassdoor_rating,
+  //   work_locations,
+  //   min_cgpa,
+  //   max_backlogs,
+  //   bond_required,
+  //   positions = [],
+  // } = req.body;
   const {
     company_name,
     company_description,
     sector,
-    is_marquee,
+    is_marquee = false,
     website_url,
     linkedin_url,
     primary_hr_name,
@@ -640,8 +681,13 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
     work_locations,
     min_cgpa,
     max_backlogs,
-    bond_required,
+    bond_required = false,
+    allowed_specializations = [],
     positions = [],
+    office_address,
+    jd_shared_date,
+    eligibility_10th,
+    eligibility_12th,
   } = req.body;
 
   if (!id || isNaN(id) || !batchYear || isNaN(batchYear)) {
@@ -668,8 +714,7 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
         : null,
     work_locations: work_locations?.trim() || null,
     min_cgpa: min_cgpa && min_cgpa !== "" ? parseFloat(min_cgpa) : null,
-    max_backlogs:
-      max_backlogs && max_backlogs !== "" ? parseInt(max_backlogs) : null,
+    max_backlogs: max_backlogs === "true" || max_backlogs === true,
     bond_required: bond_required,
   };
 
@@ -719,7 +764,12 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
         min_cgpa = $16,
         max_backlogs = $17,
         bond_required = $18,
-        account_owner = $19,
+        allowed_specializations = $19,
+        account_owner = $20,
+        office_address = $21, 
+        jd_shared_date = $22,
+        eligibility_10th = $23, 
+        eligibility_12th = $24, 
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
@@ -744,7 +794,12 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
       processedData.min_cgpa,
       processedData.max_backlogs,
       processedData.bond_required,
+      allowed_specializations,
       req.body.account_owner || null,
+      office_address?.trim() || null,
+      jd_shared_date || null,
+      eligibility_10th ? parseFloat(eligibility_10th) : null,
+      eligibility_12th ? parseFloat(eligibility_12th) : null,
     ];
 
     const updateResult = await client.query(updateQuery, updateValues);

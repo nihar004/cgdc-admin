@@ -33,7 +33,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$
 ;
 ;
 function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick }) {
-    const { formatPackage, setSelectedCompany, getCompanyStatus, setShowEligibilityModal, setSelectedCompanyForEligibility } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
+    const { formatPackageRange, setSelectedCompany, getCompanyStatus, setShowEligibilityModal, setSelectedCompanyForEligibility } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$CompaniesContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCompaniesContext"])();
     // Individual expand state for this specific card
     const [isExpanded, setIsExpanded] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const status = getCompanyStatus(company);
@@ -511,7 +511,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                         lineNumber: 205,
                                         columnNumber: 15
                                     }, this),
-                                    (!company.min_cgpa || company.min_cgpa == 0) && (!company.max_backlogs || company.max_backlogs == 999) && !company.bond_required ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    (!company.min_cgpa || company.min_cgpa == 0) && !company.max_backlogs && !company.bond_required ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-center py-3 text-slate-500 italic",
                                         children: "No Other Specific Requirements Mentioned"
                                     }, void 0, false, {
@@ -546,24 +546,20 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                 lineNumber: 235,
                                                 columnNumber: 19
                                             }, this),
-                                            company.max_backlogs && company.max_backlogs != 999 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-center justify-between text-sm",
+                                            company.max_backlogs && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-2 rounded-lg",
                                                 children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-slate-600",
-                                                        children: "Maximum Backlogs"
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
+                                                        size: 14
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
                                                         lineNumber: 244,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "font-semibold text-slate-900",
-                                                        children: [
-                                                            "≤",
-                                                            company.max_backlogs
-                                                        ]
-                                                    }, void 0, true, {
+                                                        className: "font-medium",
+                                                        children: "Backlogs Allowed"
+                                                    }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
                                                         lineNumber: 245,
                                                         columnNumber: 21
@@ -581,7 +577,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                         size: 14
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 252,
+                                                        lineNumber: 250,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -589,13 +585,13 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                         children: "Bond Required"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 253,
+                                                        lineNumber: 251,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 251,
+                                                lineNumber: 249,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -631,7 +627,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                 className: "text-slate-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 269,
+                                                lineNumber: 267,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -643,13 +639,13 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 270,
+                                                lineNumber: 268,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 268,
+                                        lineNumber: 266,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -663,32 +659,32 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 275,
+                                                lineNumber: 273,
                                                 columnNumber: 17
                                             }, this),
                                             isExpanded ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$up$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUp$3e$__["ChevronUp"], {
                                                 size: 16
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 279,
+                                                lineNumber: 277,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
                                                 size: 16
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 281,
+                                                lineNumber: 279,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 274,
+                                        lineNumber: 272,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 264,
+                                lineNumber: 262,
                                 columnNumber: 13
                             }, this),
                             isExpanded && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -705,7 +701,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                             children: position.position_title
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                            lineNumber: 296,
+                                                            lineNumber: 294,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -716,7 +712,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                     children: position.company_type?.toUpperCase()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                    lineNumber: 301,
+                                                                    lineNumber: 299,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -724,24 +720,24 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                     children: position.job_type?.replace("_", " ").toUpperCase()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                    lineNumber: 308,
+                                                                    lineNumber: 306,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                            lineNumber: 299,
+                                                            lineNumber: 297,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                    lineNumber: 295,
+                                                    lineNumber: 293,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 294,
+                                                lineNumber: 292,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -751,11 +747,11 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                         className: "bg-blue-50 rounded-lg p-3",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: `text-sm font-semibold ${position.internship_stipend_monthly === -1 ? "text-gray-500" : "text-blue-700"}`,
-                                                                children: position.internship_stipend_monthly === -1 ? "Not disclosed" : `₹${position.internship_stipend_monthly}/month`
+                                                                className: `text-sm font-semibold ${!position.internship_stipend_monthly ? "text-gray-500" : "text-blue-700"}`,
+                                                                children: !position.internship_stipend_monthly ? "Not disclosed" : `₹${position.internship_stipend_monthly}`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 321,
+                                                                lineNumber: 319,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -763,24 +759,24 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                 children: "Internship Stipend"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 332,
+                                                                lineNumber: 330,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 320,
+                                                        lineNumber: 318,
                                                         columnNumber: 25
                                                     }, this),
                                                     (position.job_type === "full_time" || position.job_type === "internship_plus_ppo") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "bg-emerald-50 rounded-lg p-3",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: `text-sm font-semibold ${position.package_range === -1 ? "text-gray-500" : "text-emerald-700"}`,
-                                                                children: position.package_range === -1 ? "Not disclosed" : formatPackage(position.package_range)
+                                                                className: `text-sm font-semibold ${position.package === -1 ? "text-gray-500" : "text-emerald-700"}`,
+                                                                children: position.package === -1 ? "Not disclosed" : formatPackageRange(position)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 342,
+                                                                lineNumber: 339,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -788,19 +784,19 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                 children: position.job_type === "internship_plus_ppo" ? "PPO Package" : "Annual Package"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 353,
+                                                                lineNumber: 350,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 341,
+                                                        lineNumber: 338,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 316,
+                                                lineNumber: 314,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -814,7 +810,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                 children: position.applications_count || 0
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 365,
+                                                                lineNumber: 362,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -822,13 +818,13 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                 children: "Registered"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 368,
+                                                                lineNumber: 365,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 364,
+                                                        lineNumber: 361,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -839,7 +835,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                 children: position.selected_students || 0
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 371,
+                                                                lineNumber: 368,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -847,19 +843,19 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                 children: "Selected"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 374,
+                                                                lineNumber: 371,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 370,
+                                                        lineNumber: 367,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 363,
+                                                lineNumber: 360,
                                                 columnNumber: 21
                                             }, this),
                                             (position.rounds_start_date || position.rounds_end_date) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -870,7 +866,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                         children: "Rounds Schedule"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 382,
+                                                        lineNumber: 379,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -884,7 +880,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                         className: "text-orange-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 388,
+                                                                        lineNumber: 385,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -896,13 +892,13 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 389,
+                                                                        lineNumber: 386,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 387,
+                                                                lineNumber: 384,
                                                                 columnNumber: 29
                                                             }, this),
                                                             position.rounds_end_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -913,7 +909,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                         className: "text-orange-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 399,
+                                                                        lineNumber: 396,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -925,25 +921,25 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 400,
+                                                                        lineNumber: 397,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 398,
+                                                                lineNumber: 395,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 385,
+                                                        lineNumber: 382,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 381,
+                                                lineNumber: 378,
                                                 columnNumber: 23
                                             }, this),
                                             position.documents && position.documents.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -954,7 +950,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                         children: "Documents:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 415,
+                                                        lineNumber: 412,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -969,7 +965,7 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                         size: 12
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 427,
+                                                                        lineNumber: 424,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     doc.document_title,
@@ -977,41 +973,41 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                                                         size: 10
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                        lineNumber: 429,
+                                                                        lineNumber: 426,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, doc.id, true, {
                                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                                lineNumber: 420,
+                                                                lineNumber: 417,
                                                                 columnNumber: 29
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                        lineNumber: 418,
+                                                        lineNumber: 415,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                                lineNumber: 414,
+                                                lineNumber: 411,
                                                 columnNumber: 23
                                             }, this)
                                         ]
                                     }, position.id, true, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 289,
+                                        lineNumber: 287,
                                         columnNumber: 19
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 287,
+                                lineNumber: 285,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                        lineNumber: 263,
+                        lineNumber: 261,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1030,12 +1026,12 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 453,
+                                            lineNumber: 450,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 446,
+                                        lineNumber: 443,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "p-2 text-red-500 opacity-60 cursor-not-allowed",
@@ -1044,12 +1040,12 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 460,
+                                            lineNumber: 457,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 456,
+                                        lineNumber: 453,
                                         columnNumber: 15
                                     }, this),
                                     company.linkedin_url ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -1062,12 +1058,12 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 472,
+                                            lineNumber: 469,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 465,
+                                        lineNumber: 462,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "p-2 text-red-500 opacity-60 cursor-not-allowed",
@@ -1076,18 +1072,18 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 479,
+                                            lineNumber: 476,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 475,
+                                        lineNumber: 472,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 444,
+                                lineNumber: 441,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1101,12 +1097,12 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 490,
+                                            lineNumber: 487,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 485,
+                                        lineNumber: 482,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1120,12 +1116,12 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 500,
+                                            lineNumber: 497,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 492,
+                                        lineNumber: 489,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1136,12 +1132,12 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 507,
+                                            lineNumber: 504,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 502,
+                                        lineNumber: 499,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1151,24 +1147,24 @@ function CompanyCardView({ company, statusColors, companyTypeColors, onEditClick
                                             size: 16
                                         }, void 0, false, {
                                             fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                            lineNumber: 513,
+                                            lineNumber: 510,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                        lineNumber: 509,
+                                        lineNumber: 506,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/CompanyCardView.js",
-                                lineNumber: 484,
+                                lineNumber: 481,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/CompanyCardView.js",
-                        lineNumber: 443,
+                        lineNumber: 440,
                         columnNumber: 9
                     }, this)
                 ]
@@ -1993,6 +1989,11 @@ function ExportCompanyModal({ companies, onClose }) {
             category: "HR Contact"
         },
         {
+            key: "office_address",
+            label: "Office Address",
+            category: "HR Contact"
+        },
+        {
             key: "account_owner",
             label: "Account Owner",
             category: "HR Contact"
@@ -2023,6 +2024,16 @@ function ExportCompanyModal({ companies, onClose }) {
             label: "Total Eligible Students",
             category: "Requirements"
         },
+        {
+            key: "eligibility_10th",
+            label: "10th Percentage",
+            category: "Requirements"
+        },
+        {
+            key: "eligibility_12th",
+            label: "12th Percentage",
+            category: "Requirements"
+        },
         // Schedule
         {
             key: "scheduled_visit",
@@ -2032,6 +2043,11 @@ function ExportCompanyModal({ companies, onClose }) {
         {
             key: "actual_arrival",
             label: "Actual Arrival",
+            category: "Schedule"
+        },
+        {
+            key: "jd_shared_date",
+            label: "JD Shared Date",
             category: "Schedule"
         },
         // Statistics & Positions
@@ -2116,7 +2132,7 @@ function ExportCompanyModal({ companies, onClose }) {
                         break;
                     case "glassdoor_rating":
                     case "min_cgpa":
-                        row[key] = company[key] ? parseFloat(company[key]).toFixed(2) : "N/A";
+                        row[key] = company[key] ? parseFloat(company[key]) : "N/A";
                         break;
                     case "scheduled_visit":
                     case "actual_arrival":
@@ -2137,7 +2153,13 @@ function ExportCompanyModal({ companies, onClose }) {
                         row[key] = company.positions?.filter((p)=>p.job_type === "full_time").length || 0;
                         break;
                     case "package_ranges":
-                        row[key] = company.positions?.map((p)=>p.package_range ? `₹${(p.package_range / 100000).toFixed(1)}L` : "N/A").join(", ") || "N/A";
+                        row[key] = company.positions?.map((p)=>{
+                            if (p.package === -1) return "Not Disclosed";
+                            if (p.has_range) {
+                                return `₹${p.package}L - ₹${p.package_end}L`;
+                            }
+                            return `₹${p.package}L`;
+                        }).join(", ") || "N/A";
                         break;
                     case "internship_stipends":
                         row[key] = company.positions?.map((p)=>p.internship_stipend_monthly ? `₹${p.internship_stipend_monthly}` : "N/A").join(", ") || "N/A";
@@ -2170,6 +2192,13 @@ function ExportCompanyModal({ companies, onClose }) {
                         } else {
                             row[key] = "N/A";
                         }
+                        break;
+                    case "eligibility_10th":
+                    case "eligibility_12th":
+                        row[key] = company[key] ? `${parseFloat(company[key])}%` : "N/A";
+                        break;
+                    case "jd_shared_date":
+                        row[key] = company[key] ? new Date(company[key]).toLocaleDateString() : "N/A";
                         break;
                     default:
                         row[key] = company[key] || "N/A";
@@ -2244,7 +2273,10 @@ function ExportCompanyModal({ companies, onClose }) {
             "total_selected",
             "scheduled_visit",
             "rounds_start_date",
-            "rounds_end_date"
+            "rounds_end_date",
+            "eligibility_10th",
+            "eligibility_12th",
+            "jd_shared_date"
         ];
         const initialSelection = {};
         exportableColumns.forEach((col)=>{
@@ -2269,7 +2301,7 @@ function ExportCompanyModal({ companies, onClose }) {
                                         children: "Export Companies Data"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 326,
+                                        lineNumber: 350,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2283,13 +2315,13 @@ function ExportCompanyModal({ companies, onClose }) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 329,
+                                        lineNumber: 353,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 325,
+                                lineNumber: 349,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2299,23 +2331,23 @@ function ExportCompanyModal({ companies, onClose }) {
                                     className: "h-6 w-6 text-gray-500"
                                 }, void 0, false, {
                                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                    lineNumber: 338,
+                                    lineNumber: 362,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 334,
+                                lineNumber: 358,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                        lineNumber: 324,
+                        lineNumber: 348,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                    lineNumber: 323,
+                    lineNumber: 347,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2331,14 +2363,14 @@ function ExportCompanyModal({ companies, onClose }) {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 350,
+                                        lineNumber: 374,
                                         columnNumber: 15
                                     }, this),
                                     "Select All"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 346,
+                                lineNumber: 370,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2349,14 +2381,14 @@ function ExportCompanyModal({ companies, onClose }) {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 357,
+                                        lineNumber: 381,
                                         columnNumber: 15
                                     }, this),
                                     "Deselect All"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 353,
+                                lineNumber: 377,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2369,18 +2401,18 @@ function ExportCompanyModal({ companies, onClose }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 360,
+                                lineNumber: 384,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                        lineNumber: 345,
+                        lineNumber: 369,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                    lineNumber: 344,
+                    lineNumber: 368,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2400,7 +2432,7 @@ function ExportCompanyModal({ companies, onClose }) {
                                                 children: category
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                lineNumber: 377,
+                                                lineNumber: 401,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2411,24 +2443,24 @@ function ExportCompanyModal({ companies, onClose }) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                    lineNumber: 394,
+                                                    lineNumber: 418,
                                                     columnNumber: 25
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                    lineNumber: 396,
+                                                    lineNumber: 420,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                lineNumber: 380,
+                                                lineNumber: 404,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 376,
+                                        lineNumber: 400,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2450,12 +2482,12 @@ function ExportCompanyModal({ companies, onClose }) {
                                                             className: "w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                            lineNumber: 409,
+                                                            lineNumber: 433,
                                                             columnNumber: 29
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                        lineNumber: 408,
+                                                        lineNumber: 432,
                                                         columnNumber: 27
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2463,35 +2495,35 @@ function ExportCompanyModal({ companies, onClose }) {
                                                         children: column.label
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                        lineNumber: 421,
+                                                        lineNumber: 445,
                                                         columnNumber: 27
                                                     }, this)
                                                 ]
                                             }, column.key, true, {
                                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                lineNumber: 404,
+                                                lineNumber: 428,
                                                 columnNumber: 25
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 400,
+                                        lineNumber: 424,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, category, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 372,
+                                lineNumber: 396,
                                 columnNumber: 17
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                        lineNumber: 368,
+                        lineNumber: 392,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                    lineNumber: 367,
+                    lineNumber: 391,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2511,7 +2543,7 @@ function ExportCompanyModal({ companies, onClose }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 436,
+                                lineNumber: 460,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2523,7 +2555,7 @@ function ExportCompanyModal({ companies, onClose }) {
                                         children: "Cancel"
                                     }, void 0, false, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 441,
+                                        lineNumber: 465,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2535,7 +2567,7 @@ function ExportCompanyModal({ companies, onClose }) {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                                lineNumber: 452,
+                                                lineNumber: 476,
                                                 columnNumber: 17
                                             }, this),
                                             "Export Excel (",
@@ -2544,35 +2576,35 @@ function ExportCompanyModal({ companies, onClose }) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                        lineNumber: 447,
+                                        lineNumber: 471,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                                lineNumber: 440,
+                                lineNumber: 464,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                        lineNumber: 435,
+                        lineNumber: 459,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-                    lineNumber: 434,
+                    lineNumber: 458,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-            lineNumber: 321,
+            lineNumber: 345,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/company-listing/ExportCompanyModal.js",
-        lineNumber: 320,
+        lineNumber: 344,
         columnNumber: 5
     }, this);
 }

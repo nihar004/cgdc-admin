@@ -126,20 +126,15 @@ const FormManagementSystem = () => {
       form.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       form.event_title?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesType = filterType === "all" || form.type === filterType;
     const matchesCompany =
       filterCompany === "all" || form.company_name === filterCompany;
-    const matchesPosition =
-      filterPosition === "all" || form.position_title === filterPosition;
 
-    return matchesSearch && matchesType && matchesCompany && matchesPosition;
+    return matchesSearch && matchesCompany;
   });
 
   const clearAllFilters = () => {
-    setSearchTerm("");
     setFilterType("all");
     setFilterCompany("all");
-    setFilterPosition("all");
   };
 
   const getTypeColor = (type) => {
@@ -271,18 +266,6 @@ const FormManagementSystem = () => {
               </div>
 
               <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Types</option>
-                <option value="application">Application</option>
-                <option value="survey">Survey</option>
-                <option value="feedback">Feedback</option>
-                <option value="registration">Registration</option>
-              </select>
-
-              <select
                 value={filterCompany}
                 onChange={(e) => setFilterCompany(e.target.value)}
                 className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -291,24 +274,6 @@ const FormManagementSystem = () => {
                 {uniqueCompanies.map((company) => (
                   <option key={company} value={company}>
                     {company}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filterPosition}
-                onChange={(e) => setFilterPosition(e.target.value)}
-                disabled={filterCompany === "all"}
-                className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-50 disabled:text-slate-500"
-              >
-                <option value="all">
-                  {filterCompany === "all"
-                    ? "Select company first"
-                    : "All Positions"}
-                </option>
-                {uniquePositions.map((position) => (
-                  <option key={position} value={position}>
-                    {position}
                   </option>
                 ))}
               </select>

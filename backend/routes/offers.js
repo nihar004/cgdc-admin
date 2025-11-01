@@ -21,7 +21,10 @@ routes.post("/students/:studentId/offers/manual", async (req, res) => {
       company_name,
       position_title,
       package: offerPackage,
+      has_range, // Add this
+      package_end, // Add this
       offer_date,
+      joining_date, // Add this
       company_type, // 'tech' or 'non-tech'
       job_type, // 'internship', 'full_time', 'internship_plus_ppo'
       stipend,
@@ -36,6 +39,17 @@ routes.post("/students/:studentId/offers/manual", async (req, res) => {
         success: false,
         error:
           "Missing required fields: company_name, position_title, package, company_type",
+      });
+    }
+
+    // Add package range validation
+    if (
+      has_range &&
+      (!package_end || parseFloat(package_end) <= parseFloat(offerPackage))
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "Package end range must be greater than start package",
       });
     }
 
@@ -97,7 +111,10 @@ routes.post("/students/:studentId/offers/manual", async (req, res) => {
       company_name,
       position_title,
       package: parseFloat(offerPackage),
+      has_range: has_range || false,
+      package_end: has_range ? parseFloat(package_end) : null,
       offer_date: offer_date || new Date().toISOString().split("T")[0],
+      joining_date: joining_date || null,
       acceptance_date: null, // Set only when accepting offer
       company_type,
       job_type: job_type || "full_time",
@@ -437,11 +454,28 @@ async function addCampusOffer(
     await client.query("BEGIN");
 
     // 1️⃣ Fetch position and company details
+    // const positionResult = await client.query(
+    //   `
+    //   SELECT
+    //     cp.position_title,
+    //     cp.package_range,
+    //     cp.job_type,
+    //     cp.internship_stipend_monthly,
+    //     cp.company_type,
+    //     c.company_name
+    //   FROM company_positions cp
+    //   JOIN companies c ON c.id = cp.company_id
+    //   WHERE cp.id = $1 AND cp.company_id = $2
+    //   `,
+    //   [positionId, companyId]
+    // );
     const positionResult = await client.query(
       `
       SELECT 
         cp.position_title, 
-        cp.package_range, 
+        cp.package, 
+        cp.has_range,
+        cp.package_end,
         cp.job_type, 
         cp.internship_stipend_monthly, 
         cp.company_type,
@@ -476,13 +510,33 @@ async function addCampusOffer(
     const currentOffer = studentResult.rows[0]?.current_offer || null;
 
     // 3️⃣ Create the new offer object
+    // const campusOffer = {
+    //   offer_id: `CAMPUS_${companyId}_${positionId}_${Date.now()}`,
+    //   company_id: companyId,
+    //   position_id: positionId,
+    //   company_name: position.company_name,
+    //   position_title: position.position_title,
+    //   package: offerDetails.package || position.package_range,
+    //   offer_date:
+    //     offerDetails.offer_date || new Date().toISOString().split("T")[0],
+    //   acceptance_date: null,
+    //   company_type: position.company_type,
+    //   job_type: position.job_type,
+    //   stipend: position.internship_stipend_monthly,
+    //   work_location: offerDetails.work_location || null,
+    //   source: "campus",
+    //   is_accepted: false,
+    //   created_at: new Date().toISOString(),
+    // };
     const campusOffer = {
       offer_id: `CAMPUS_${companyId}_${positionId}_${Date.now()}`,
       company_id: companyId,
       position_id: positionId,
       company_name: position.company_name,
       position_title: position.position_title,
-      package: offerDetails.package || position.package_range,
+      package: offerDetails.package || position.package,
+      package_end: position.has_range ? position.package_end : null,
+      has_range: position.has_range || false,
       offer_date:
         offerDetails.offer_date || new Date().toISOString().split("T")[0],
       acceptance_date: null,
