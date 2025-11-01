@@ -36,18 +36,37 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     additional_details: "",
   });
 
+  const [showPositionChange, setShowPositionChange] = useState(false);
+  const [changingOffer, setChangingOffer] = useState(null);
+  const [availablePositions, setAvailablePositions] = useState([]);
+
   useEffect(() => {
     if (isOpen && student) {
       loadStudentOffers();
     }
   }, [isOpen, student]);
 
-  const loadStudentOffers = () => {
+  const loadStudentOffers = async () => {
     const studentOffers = Array.isArray(student.offers_received)
       ? student.offers_received
       : [];
-    setOffers(studentOffers);
-    setCurrentOffer(student.current_offer || null);
+
+    // Fetch full details for campus offers
+    const offersWithDetails = await Promise.all(
+      studentOffers.map((offer) => fetchOfferDetails(offer))
+    );
+
+    setOffers(offersWithDetails);
+
+    // Also fetch details for current offer if it's campus
+    if (student.current_offer) {
+      const currentOfferDetails = await fetchOfferDetails(
+        student.current_offer
+      );
+      setCurrentOffer(currentOfferDetails);
+    } else {
+      setCurrentOffer(null);
+    }
   };
 
   const resetForm = () => {
@@ -115,6 +134,138 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     }
   };
 
+  const handleChangePosition = async (offer) => {
+    setChangingOffer(offer);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.get(
+        `${backendUrl}/companies/${offer.company_id}/positions`
+      );
+
+      const positions = response.data.success
+        ? response.data.data.positions
+        : response.data;
+
+      // Filter out current position
+      const availablePositions = positions.filter(
+        (p) => p.position_id !== offer.position_id
+      );
+
+      if (availablePositions.length === 0) {
+        toast.error("No other positions available for this company");
+        return;
+      }
+
+      setAvailablePositions(availablePositions);
+      setShowPositionChange(true);
+    } catch (error) {
+      console.error("Error loading positions:", error);
+      toast.error("Failed to load available positions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePositionChangeSubmit = async (newPositionId) => {
+    try {
+      await axios.put(
+        `${backendUrl}/offers/students/${student.id}/offers/campus/${changingOffer.offer_id}/change-position`,
+        { new_position_id: newPositionId }
+      );
+
+      toast.success("Position changed successfully");
+      await loadStudentOffers();
+      setShowPositionChange(false);
+      onSuccess?.();
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to change position");
+    }
+  };
+
+  // Position Change Modal
+  const PositionChangeModal = () => {
+    const [selectedPositionId, setSelectedPositionId] = useState("");
+
+    if (!showPositionChange || !changingOffer) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Change Position
+            </h3>
+            <button
+              onClick={() => {
+                setShowPositionChange(false);
+                setChangingOffer(null);
+                setSelectedPositionId("");
+              }}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-900 font-medium">
+              Current: {changingOffer.position_title}
+            </p>
+            <p className="text-xs text-blue-700 mt-1">
+              {changingOffer.company_name}
+            </p>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Select New Position
+            </label>
+            <select
+              value={selectedPositionId}
+              onChange={(e) => setSelectedPositionId(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            >
+              <option value="">-- Select Position --</option>
+              {availablePositions.map((pos) => (
+                <option key={pos.position_id} value={pos.position_id}>
+                  {pos.position_title} -{" "}
+                  {formatPackage(pos.package, pos.has_range, pos.package_end)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                if (!selectedPositionId) {
+                  toast.error("Please select a position");
+                  return;
+                }
+                handlePositionChangeSubmit(parseInt(selectedPositionId));
+              }}
+              disabled={!selectedPositionId || isLoading}
+              className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Changing..." : "Change Position"}
+            </button>
+            <button
+              onClick={() => {
+                setShowPositionChange(false);
+                setChangingOffer(null);
+                setSelectedPositionId("");
+              }}
+              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const handleEditOffer = (offer) => {
     if (offer.source !== "manual") {
       toast.error("Cannot edit campus offers");
@@ -138,6 +289,47 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       additional_details: offer.additional_details || "",
     });
     setShowOfferForm(true);
+  };
+
+  const fetchOfferDetails = async (offer) => {
+    if (offer.source !== "campus" || !offer.company_id || !offer.position_id) {
+      return offer;
+    }
+
+    try {
+      const response = await axios.get(
+        `${backendUrl}/companies/${offer.company_id}/positions/${offer.position_id}`
+      );
+
+      const positionData = response.data.success
+        ? response.data.data
+        : response.data;
+
+      return {
+        ...offer,
+        company_name: positionData.company_name,
+        position_title: positionData.position_title,
+        package: parseFloat(positionData.package),
+        has_range: positionData.has_range,
+        package_end: positionData.package_end
+          ? parseFloat(positionData.package_end)
+          : null,
+        job_type: positionData.job_type,
+        company_type: positionData.company_type,
+        stipend: positionData.internship_stipend_monthly
+          ? parseFloat(positionData.internship_stipend_monthly)
+          : null,
+      };
+    } catch (error) {
+      console.error("Error fetching offer details:", error);
+      // Return offer with indication that fetch failed
+      return {
+        ...offer,
+        company_name: "Unknown Company",
+        position_title: "Position Unavailable",
+        _fetch_error: true,
+      };
+    }
   };
 
   const handleDeleteOffer = async (offer) => {
@@ -201,22 +393,32 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
     }
   };
 
-  const formatPackage = (amount, hasRange = false, packageEnd = null) => {
-    if (amount == null || isNaN(amount)) return "Not Disclosed";
-    if (amount === -1) return "Not Disclosed";
-
-    const formatSingleAmount = (value) => {
-      if (value >= 100) {
-        return `₹${(value / 100).toFixed(1)} Cr`;
-      }
-      return `₹${value.toFixed(2)} LPA`;
-    };
-
-    if (hasRange && packageEnd) {
-      return `${formatSingleAmount(amount)} - ${formatSingleAmount(packageEnd)}`;
+  const formatPackage = (amount) => {
+    // Check if amount is null, undefined or not a number
+    if (amount == null || isNaN(amount) || amount === -1) {
+      return "Not Disclosed";
     }
 
-    return formatSingleAmount(amount);
+    // Convert to number if it's a string
+    const numAmount = Number(amount);
+
+    // Format based on amount
+    if (numAmount >= 100) {
+      return `₹${(numAmount / 100).toFixed(1)} Cr`;
+    }
+    return `₹${numAmount.toFixed(2)} LPA`;
+  };
+
+  const formatPackageRange = (amount, hasRange = false, packageEnd = null) => {
+    if (amount == null || isNaN(amount) || amount === -1) {
+      return "Not Disclosed";
+    }
+
+    if (hasRange && packageEnd && packageEnd !== -1) {
+      return `${formatPackage(amount)} - ${formatPackage(packageEnd)}`;
+    }
+
+    return formatPackage(amount);
   };
 
   if (!isOpen) return null;
@@ -275,7 +477,7 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                     Package
                   </p>
                   <p className="text-base font-semibold text-slate-900">
-                    {formatPackage(currentOffer.package)}
+                    {formatPackageRange(currentOffer.package)}
                   </p>
                 </div>
                 <div>
@@ -648,6 +850,15 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                             </button>
                           </>
                         )}
+                        {offer.source === "campus" && (
+                          <button
+                            onClick={() => handleChangePosition(offer)}
+                            className="p-2 bg-purple-500 text-white hover:bg-purple-400 rounded-lg transition-colors"
+                            title="Change Position"
+                          >
+                            Change Position
+                          </button>
+                        )}
                         {!offer.is_accepted && (
                           <button
                             onClick={() => handleAcceptOffer(offer.offer_id)}
@@ -663,7 +874,7 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                       <div className="flex items-center gap-2 text-slate-600">
                         <DollarSign className="h-4 w-4 text-blue-600" />
                         <span className="font-semibold">
-                          {formatPackage(
+                          {formatPackageRange(
                             offer.package,
                             offer.has_range,
                             offer.package_end
@@ -717,6 +928,8 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
           </button>
         </div>
       </div>
+
+      <PositionChangeModal />
     </div>
   );
 };

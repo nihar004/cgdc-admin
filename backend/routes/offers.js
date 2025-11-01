@@ -245,22 +245,25 @@ routes.put("/students/:studentId/offers/current", async (req, res) => {
           : offer.acceptance_date,
     }));
 
-    // Create current_offer object with consistent structure
     const currentOffer = {
       offer_id: selectedOffer.offer_id,
       company_id: selectedOffer.company_id,
       position_id: selectedOffer.position_id,
-      company_name: selectedOffer.company_name,
-      position_title: selectedOffer.position_title,
-      package: selectedOffer.package,
-      offer_date: selectedOffer.offer_date,
+      source: selectedOffer.source,
       acceptance_date:
         acceptance_date || new Date().toISOString().split("T")[0],
-      company_type: selectedOffer.company_type,
-      source: selectedOffer.source, // 'manual' or 'campus'
-      job_type: selectedOffer.job_type,
-      stipend: selectedOffer.stipend,
       work_location: selectedOffer.work_location,
+      // Only include full details if it's a manual offer
+      ...(selectedOffer.source === "manual" && {
+        company_name: selectedOffer.company_name,
+        position_title: selectedOffer.position_title,
+        package: selectedOffer.package,
+        has_range: selectedOffer.has_range,
+        package_end: selectedOffer.package_end,
+        job_type: selectedOffer.job_type,
+        company_type: selectedOffer.company_type,
+        stipend: selectedOffer.stipend,
+      }),
     };
 
     // Update placement status to 'placed'
@@ -434,13 +437,9 @@ routes.delete(
   }
 );
 
-// ============================================
-// HELPER: When campus placement happens
-// ============================================
 /**
  * This function should be called when a student gets placed through campus
  * It adds the offer to offers_received with source='campus'
- * This is just for reference - integrate into your placement result workflow
  */
 async function addCampusOffer(
   studentId,
@@ -453,22 +452,6 @@ async function addCampusOffer(
   try {
     await client.query("BEGIN");
 
-    // 1️⃣ Fetch position and company details
-    // const positionResult = await client.query(
-    //   `
-    //   SELECT
-    //     cp.position_title,
-    //     cp.package_range,
-    //     cp.job_type,
-    //     cp.internship_stipend_monthly,
-    //     cp.company_type,
-    //     c.company_name
-    //   FROM company_positions cp
-    //   JOIN companies c ON c.id = cp.company_id
-    //   WHERE cp.id = $1 AND cp.company_id = $2
-    //   `,
-    //   [positionId, companyId]
-    // );
     const positionResult = await client.query(
       `
       SELECT 
@@ -509,44 +492,18 @@ async function addCampusOffer(
     const currentStatus = studentResult.rows[0]?.placement_status || "unplaced";
     const currentOffer = studentResult.rows[0]?.current_offer || null;
 
-    // 3️⃣ Create the new offer object
-    // const campusOffer = {
-    //   offer_id: `CAMPUS_${companyId}_${positionId}_${Date.now()}`,
-    //   company_id: companyId,
-    //   position_id: positionId,
-    //   company_name: position.company_name,
-    //   position_title: position.position_title,
-    //   package: offerDetails.package || position.package_range,
-    //   offer_date:
-    //     offerDetails.offer_date || new Date().toISOString().split("T")[0],
-    //   acceptance_date: null,
-    //   company_type: position.company_type,
-    //   job_type: position.job_type,
-    //   stipend: position.internship_stipend_monthly,
-    //   work_location: offerDetails.work_location || null,
-    //   source: "campus",
-    //   is_accepted: false,
-    //   created_at: new Date().toISOString(),
-    // };
     const campusOffer = {
       offer_id: `CAMPUS_${companyId}_${positionId}_${Date.now()}`,
       company_id: companyId,
       position_id: positionId,
-      company_name: position.company_name,
-      position_title: position.position_title,
-      package: offerDetails.package || position.package,
-      package_end: position.has_range ? position.package_end : null,
-      has_range: position.has_range || false,
+      source: "campus",
       offer_date:
         offerDetails.offer_date || new Date().toISOString().split("T")[0],
       acceptance_date: null,
-      company_type: position.company_type,
-      job_type: position.job_type,
-      stipend: position.internship_stipend_monthly,
-      work_location: offerDetails.work_location || null,
-      source: "campus",
       is_accepted: false,
+      work_location: offerDetails.work_location || null, // Student-specific override
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
     // 4️⃣ Prevent duplicate offers
@@ -603,6 +560,131 @@ async function addCampusOffer(
     client.release();
   }
 }
+
+/**
+ * PUT /api/students/:studentId/offers/campus/:offerId/change-position
+ * Change the position for a campus offer
+ */
+routes.put(
+  "/students/:studentId/offers/campus/:offerId/change-position",
+  async (req, res) => {
+    const client = await db.connect();
+
+    try {
+      const { studentId, offerId } = req.params;
+      const { new_position_id } = req.body;
+
+      if (!new_position_id) {
+        return res.status(400).json({
+          success: false,
+          error: "new_position_id is required",
+        });
+      }
+
+      await client.query("BEGIN");
+
+      // Get student data
+      const studentResult = await client.query(
+        "SELECT offers_received, current_offer FROM students WHERE id = $1",
+        [studentId]
+      );
+
+      if (studentResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ success: false, error: "Student not found" });
+      }
+
+      let offersReceived = studentResult.rows[0].offers_received || [];
+      const offerIndex = offersReceived.findIndex(
+        (o) => o.offer_id === offerId
+      );
+
+      if (offerIndex === -1) {
+        await client.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ success: false, error: "Offer not found" });
+      }
+
+      const offer = offersReceived[offerIndex];
+
+      if (offer.source !== "campus") {
+        await client.query("ROLLBACK");
+        return res.status(403).json({
+          success: false,
+          error: "Can only change position for campus offers",
+        });
+      }
+
+      // Verify new position belongs to same company
+      const positionCheck = await client.query(
+        "SELECT company_id FROM company_positions WHERE id = $1",
+        [new_position_id]
+      );
+
+      if (positionCheck.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ success: false, error: "Position not found" });
+      }
+
+      if (positionCheck.rows[0].company_id !== offer.company_id) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          error: "New position must belong to the same company",
+        });
+      }
+
+      // Update offer with new position
+      offersReceived[offerIndex] = {
+        ...offer,
+        position_id: new_position_id,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Update current_offer if this was the accepted offer
+      let currentOffer = studentResult.rows[0].current_offer;
+      if (currentOffer && currentOffer.offer_id === offerId) {
+        currentOffer = {
+          ...currentOffer,
+          position_id: new_position_id,
+          updated_at: new Date().toISOString(),
+        };
+      }
+
+      await client.query(
+        `UPDATE students 
+       SET offers_received = $1, 
+           current_offer = $2,
+           updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $3`,
+        [
+          JSON.stringify(offersReceived),
+          currentOffer ? JSON.stringify(currentOffer) : null,
+          studentId,
+        ]
+      );
+
+      await client.query("COMMIT");
+
+      res.json({
+        success: true,
+        message: "Position changed successfully",
+        data: { offer: offersReceived[offerIndex] },
+      });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.error("Error changing position:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  }
+);
 
 module.exports = routes;
 

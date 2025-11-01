@@ -644,12 +644,7 @@ routes.post("/events/:eventId/results", async (req, res) => {
 
         // Remove the campus offer(s) associated with this event/company/positions
         const updatedOffers = student.offers_received.filter(
-          (o) =>
-            !(
-              o.source === "campus" &&
-              o.company_id === event.company_id &&
-              positionIds.includes(o.position_id)
-            )
+          (o) => !(o.source === "campus" && o.company_id === event.company_id)
         );
 
         // Check if current_offer is the one being removed
@@ -657,8 +652,7 @@ routes.post("/events/:eventId/results", async (req, res) => {
         const removedCurrentOffer =
           student.current_offer &&
           student.current_offer.source === "campus" &&
-          student.current_offer.company_id === event.company_id &&
-          positionIds.includes(student.current_offer.position_id);
+          student.current_offer.company_id === event.company_id;
 
         if (removedCurrentOffer) {
           newCurrentOffer = updatedOffers.length > 0 ? updatedOffers[0] : null;
@@ -828,12 +822,17 @@ routes.get("/events/:eventId/details", async (req, res) => {
         job_type: position?.job_type,
         package: position?.package ? parseFloat(position.package) : null,
         has_range: position?.has_range || false,
-        package_end: position?.package_end ? parseFloat(position.package_end) : null,
-        internship_stipend_monthly: position?.internship_stipend_monthly || null,
-        applied: event.round_number === 1 ? parseInt(counts.applied_count) || 0 : 0,
-        eligible: event.round_number === 1
-          ? parseInt(counts.applied_count) || 0
-          : parseInt(counts.eligible_count) || 0,
+        package_end: position?.package_end
+          ? parseFloat(position.package_end)
+          : null,
+        internship_stipend_monthly:
+          position?.internship_stipend_monthly || null,
+        applied:
+          event.round_number === 1 ? parseInt(counts.applied_count) || 0 : 0,
+        eligible:
+          event.round_number === 1
+            ? parseInt(counts.applied_count) || 0
+            : parseInt(counts.eligible_count) || 0,
         attended: parseInt(counts.attended_count) || 0,
         qualified: parseInt(counts.qualified_count) || 0,
         not_qualified: parseInt(counts.not_qualified_count) || 0,
@@ -1094,12 +1093,7 @@ routes.post(
 
           // Remove the campus offer(s) associated with this event/company/positions
           const updatedOffers = student.offers_received.filter(
-            (o) =>
-              !(
-                o.source === "campus" &&
-                o.company_id === event.company_id &&
-                positionIds.includes(o.position_id)
-              )
+            (o) => !(o.source === "campus" && o.company_id === event.company_id)
           );
 
           console.log(
@@ -1112,8 +1106,7 @@ routes.post(
           const removedCurrentOffer =
             student.current_offer &&
             student.current_offer.source === "campus" &&
-            student.current_offer.company_id === event.company_id &&
-            positionIds.includes(student.current_offer.position_id);
+            student.current_offer.company_id === event.company_id;
 
           if (removedCurrentOffer) {
             console.log(

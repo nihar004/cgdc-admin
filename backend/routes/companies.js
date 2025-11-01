@@ -644,26 +644,6 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
 // PUT - Update company for a specific batch (documents handled separately)
 routes.put("/:id/batch/:batchYear", async (req, res) => {
   const { id, batchYear } = req.params;
-  // const {
-  //   company_name,
-  //   company_description,
-  //   sector,
-  //   is_marquee,
-  //   website_url,
-  //   linkedin_url,
-  //   primary_hr_name,
-  //   primary_hr_designation,
-  //   primary_hr_email,
-  //   primary_hr_phone,
-  //   scheduled_visit,
-  //   actual_arrival,
-  //   glassdoor_rating,
-  //   work_locations,
-  //   min_cgpa,
-  //   max_backlogs,
-  //   bond_required,
-  //   positions = [],
-  // } = req.body;
   const {
     company_name,
     company_description,
@@ -1279,6 +1259,96 @@ routes.get("/with-active-positions/:batchYear", async (req, res) => {
   } catch (error) {
     console.error("Error fetching companies with active positions:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+/**
+ * GET /api/companies/:companyId/positions
+ * Get all positions for a specific company
+ * Returns minimal data needed for selection dropdown - in students/ManualOffersModal.js
+ */
+routes.get("/:companyId/positions", async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const result = await db.query(
+      `SELECT 
+        id as position_id,
+        position_title,
+        package,
+        has_range,
+        package_end,
+        job_type,
+        company_type,
+        internship_stipend_monthly as stipend
+      FROM company_positions 
+      WHERE company_id = $1
+      ORDER BY position_title ASC`,
+      [companyId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "No positions found for this company",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        company_id: parseInt(companyId),
+        positions: result.rows,
+        total: result.rows.length,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching company positions:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/companies/:companyId/positions/:positionId
+ * Get full details of a specific position
+ * Used for fetching complete offer details
+ */
+routes.get("/:companyId/positions/:positionId", async (req, res) => {
+  try {
+    const { companyId, positionId } = req.params;
+
+    const result = await db.query(
+      `SELECT 
+        cp.*,
+        c.company_name
+      FROM company_positions cp
+      JOIN companies c ON c.id = cp.company_id
+      WHERE cp.id = $1 AND cp.company_id = $2`,
+      [positionId, companyId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Position not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error fetching position details:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+      details: error.message,
+    });
   }
 });
 

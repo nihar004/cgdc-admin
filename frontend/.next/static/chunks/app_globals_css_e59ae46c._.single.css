@@ -4794,6 +4794,12 @@
   }
 
   @media (hover: hover) {
+    .hover\:bg-purple-400:hover {
+      background-color: var(--color-purple-400);
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:bg-purple-700:hover {
       background-color: var(--color-purple-700);
     }

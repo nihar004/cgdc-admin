@@ -1,1 +1,9 @@
-{}
+{
+  "/auth/page": "app/auth/page.js",
+  "/company-listing/page": "app/company-listing/page.js",
+  "/event-and-attendance/page": "app/event-and-attendance/page.js",
+  "/form-responses/page": "app/form-responses/page.js",
+  "/page": "app/page.js",
+  "/round-tracking/page": "app/round-tracking/page.js",
+  "/students/page": "app/students/page.js"
+}

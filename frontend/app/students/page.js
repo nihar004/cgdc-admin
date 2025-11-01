@@ -182,9 +182,7 @@ function StudentManagementContent() {
     let medianPackage = 0;
 
     if (validStudents.length > 0) {
-      const packages = validStudents.map(
-        (s) => s.current_offer.package / 100000
-      );
+      const packages = validStudents.map((s) => s.current_offer.package);
       packages.sort((a, b) => a - b);
 
       highestPackage = packages[packages.length - 1];
