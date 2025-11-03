@@ -108,7 +108,7 @@ function AuthProvider(param) {
         children: children
     }, void 0, false, {
         fileName: "[project]/context/AuthContext.js",
-        lineNumber: 77,
+        lineNumber: 79,
         columnNumber: 5
     }, this);
 }

@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter, usePathname } from "next/navigation";
+
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const AuthContext = createContext({});
@@ -25,6 +26,7 @@ export function AuthProvider({ children }) {
       // Only redirect if we're sure about the auth state
       if (pathname === "/auth" && user) {
         router.push("/");
+
       } else if (!user && pathname !== "/auth") {
         router.push("/auth");
       }
