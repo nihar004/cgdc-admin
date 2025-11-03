@@ -15,12 +15,9 @@ import {
   ChevronUp,
   ExternalLink,
   Users,
-  Book,
   Building2,
   GraduationCap,
-  Target,
   CheckCircle,
-  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { useCompaniesContext } from "../../context/CompaniesContext";

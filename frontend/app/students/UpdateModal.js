@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { Upload, X, Download, FileText } from "lucide-react";
+import { useState } from "react";
+import { Upload, X, FileText } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useStudentContext } from "../../context/StudentContext"; // Adjust the import based on your file structure

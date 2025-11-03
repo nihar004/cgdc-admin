@@ -1,13 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, Users, Building, DollarSign, Calendar, Download, Filter, RefreshCw, Target } from 'lucide-react';
+import { useState } from "react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  TrendingUp,
+  Building,
+  DollarSign,
+  Download,
+  RefreshCw,
+  Target,
+} from "lucide-react";
 
 const AnalyticsDashboard = () => {
-  const [selectedYear, setSelectedYear] = useState('2024');
-  const [selectedDepartment, setSelectedDepartment] = useState('all');
-  const [timeRange, setTimeRange] = useState('6months');
+  const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [timeRange, setTimeRange] = useState("6months");
 
   // Sample data for analytics
   const overallStats = {
@@ -20,73 +41,127 @@ const AnalyticsDashboard = () => {
     expectedCompanies: 85,
     actualCompanies: 68,
     companyFulfillmentRate: 80.0,
-    offersGenerated: 385
+    offersGenerated: 385,
   };
 
   // Company data - Expected vs Actual
   const companyData = [
-    { month: 'Jul', expected: 12, actual: 10, offers: 45 },
-    { month: 'Aug', expected: 15, actual: 12, offers: 52 },
-    { month: 'Sep', expected: 18, actual: 15, offers: 68 },
-    { month: 'Oct', expected: 20, actual: 16, offers: 72 },
-    { month: 'Nov', expected: 10, actual: 8, offers: 38 },
-    { month: 'Dec', expected: 10, actual: 7, offers: 30 }
+    { month: "Jul", expected: 12, actual: 10, offers: 45 },
+    { month: "Aug", expected: 15, actual: 12, offers: 52 },
+    { month: "Sep", expected: 18, actual: 15, offers: 68 },
+    { month: "Oct", expected: 20, actual: 16, offers: 72 },
+    { month: "Nov", expected: 10, actual: 8, offers: 38 },
+    { month: "Dec", expected: 10, actual: 7, offers: 30 },
   ];
 
   // Placement trends over months
   const placementTrends = [
-    { month: 'Jul', placed: 25, offers: 28, avgPackage: 5.2 },
-    { month: 'Aug', placed: 45, offers: 52, avgPackage: 6.1 },
-    { month: 'Sep', placed: 68, offers: 75, avgPackage: 6.8 },
-    { month: 'Oct', placed: 95, offers: 108, avgPackage: 7.2 },
-    { month: 'Nov', placed: 65, offers: 72, avgPackage: 6.5 },
-    { month: 'Dec', placed: 22, offers: 25, avgPackage: 8.1 }
+    { month: "Jul", placed: 25, offers: 28, avgPackage: 5.2 },
+    { month: "Aug", placed: 45, offers: 52, avgPackage: 6.1 },
+    { month: "Sep", placed: 68, offers: 75, avgPackage: 6.8 },
+    { month: "Oct", placed: 95, offers: 108, avgPackage: 7.2 },
+    { month: "Nov", placed: 65, offers: 72, avgPackage: 6.5 },
+    { month: "Dec", placed: 22, offers: 25, avgPackage: 8.1 },
   ];
 
   // Department-wise placement data
   const departmentData = [
-    { department: 'CSE', total: 120, placed: 98, rate: 81.7, avgPackage: 8.2 },
-    { department: 'ECE', total: 100, placed: 75, rate: 75.0, avgPackage: 6.8 },
-    { department: 'ME', total: 80, placed: 55, rate: 68.8, avgPackage: 5.9 },
+    { department: "CSE", total: 120, placed: 98, rate: 81.7, avgPackage: 8.2 },
+    { department: "ECE", total: 100, placed: 75, rate: 75.0, avgPackage: 6.8 },
+    { department: "ME", total: 80, placed: 55, rate: 68.8, avgPackage: 5.9 },
   ];
 
   // Package distribution
   const packageData = [
-    { range: '0-3 LPA', count: 45, percentage: 14.1 },
-    { range: '3-5 LPA', count: 85, percentage: 26.6 },
-    { range: '5-8 LPA', count: 120, percentage: 37.5 },
-    { range: '8-12 LPA', count: 55, percentage: 17.2 },
-    { range: '12+ LPA', count: 15, percentage: 4.7 }
+    { range: "0-3 LPA", count: 45, percentage: 14.1 },
+    { range: "3-5 LPA", count: 85, percentage: 26.6 },
+    { range: "5-8 LPA", count: 120, percentage: 37.5 },
+    { range: "8-12 LPA", count: 55, percentage: 17.2 },
+    { range: "12+ LPA", count: 15, percentage: 4.7 },
   ];
 
   // Top companies by offers
   const topCompanies = [
-    { name: 'TCS', offers: 45, students: 42, avgPackage: 4.2, category: 'Mass Recruiter' },
-    { name: 'Infosys', offers: 38, students: 35, avgPackage: 4.8, category: 'Mass Recruiter' },
-    { name: 'Wipro', offers: 32, students: 28, avgPackage: 5.2, category: 'Mass Recruiter' },
-    { name: 'Accenture', offers: 25, students: 23, avgPackage: 6.5, category: 'Service' },
-    { name: 'Amazon', offers: 8, students: 8, avgPackage: 18.5, category: 'Product' },
-    { name: 'Microsoft', offers: 5, students: 5, avgPackage: 25.0, category: 'Product' },
-    { name: 'Google', offers: 3, students: 3, avgPackage: 22.0, category: 'Product' }
+    {
+      name: "TCS",
+      offers: 45,
+      students: 42,
+      avgPackage: 4.2,
+      category: "Mass Recruiter",
+    },
+    {
+      name: "Infosys",
+      offers: 38,
+      students: 35,
+      avgPackage: 4.8,
+      category: "Mass Recruiter",
+    },
+    {
+      name: "Wipro",
+      offers: 32,
+      students: 28,
+      avgPackage: 5.2,
+      category: "Mass Recruiter",
+    },
+    {
+      name: "Accenture",
+      offers: 25,
+      students: 23,
+      avgPackage: 6.5,
+      category: "Service",
+    },
+    {
+      name: "Amazon",
+      offers: 8,
+      students: 8,
+      avgPackage: 18.5,
+      category: "Product",
+    },
+    {
+      name: "Microsoft",
+      offers: 5,
+      students: 5,
+      avgPackage: 25.0,
+      category: "Product",
+    },
+    {
+      name: "Google",
+      offers: 3,
+      students: 3,
+      avgPackage: 22.0,
+      category: "Product",
+    },
   ];
 
   // Round-wise elimination data
   const eliminationData = [
-    { round: 'Applied', students: 1200 },
-    { round: 'Online Test', students: 650 },
-    { round: 'Technical', students: 420 },
-    { round: 'HR Round', students: 320 },
-    { round: 'Final Selected', students: 320 }
+    { round: "Applied", students: 1200 },
+    { round: "Online Test", students: 650 },
+    { round: "Technical", students: 420 },
+    { round: "HR Round", students: 320 },
+    { round: "Final Selected", students: 320 },
   ];
 
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4'];
+  const COLORS = [
+    "#3B82F6",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#F97316",
+    "#06B6D4",
+  ];
 
   const getCompanyTypeColor = (category) => {
     switch (category) {
-      case 'Product': return 'bg-purple-100 text-purple-800';
-      case 'Service': return 'bg-blue-100 text-blue-800';
-      case 'Mass Recruiter': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "Product":
+        return "bg-purple-100 text-purple-800";
+      case "Service":
+        return "bg-blue-100 text-blue-800";
+      case "Mass Recruiter":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -97,8 +172,12 @@ const AnalyticsDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-              <p className="mt-2 text-gray-600">Comprehensive placement analysis and insights</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Analytics Dashboard
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Comprehensive placement analysis and insights
+              </p>
             </div>
             <div className="flex space-x-3">
               <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
@@ -160,10 +239,15 @@ const AnalyticsDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Placement Rate</p>
-                <p className="text-3xl font-bold text-green-600">{overallStats.placementRate}%</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Placement Rate
+                </p>
+                <p className="text-3xl font-bold text-green-600">
+                  {overallStats.placementRate}%
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {overallStats.placedStudents}/{overallStats.totalStudents} students
+                  {overallStats.placedStudents}/{overallStats.totalStudents}{" "}
+                  students
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -176,7 +260,9 @@ const AnalyticsDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Package</p>
-                <p className="text-3xl font-bold text-blue-600">₹{overallStats.avgPackage} LPA</p>
+                <p className="text-3xl font-bold text-blue-600">
+                  ₹{overallStats.avgPackage} LPA
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Highest: ₹{overallStats.highestPackage} LPA
                 </p>
@@ -190,10 +276,15 @@ const AnalyticsDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Companies Visited</p>
-                <p className="text-3xl font-bold text-purple-600">{overallStats.actualCompanies}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Companies Visited
+                </p>
+                <p className="text-3xl font-bold text-purple-600">
+                  {overallStats.actualCompanies}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Expected: {overallStats.expectedCompanies} ({overallStats.companyFulfillmentRate}%)
+                  Expected: {overallStats.expectedCompanies} (
+                  {overallStats.companyFulfillmentRate}%)
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -205,10 +296,15 @@ const AnalyticsDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Offers</p>
-                <p className="text-3xl font-bold text-orange-600">{overallStats.offersGenerated}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Offers
+                </p>
+                <p className="text-3xl font-bold text-orange-600">
+                  {overallStats.offersGenerated}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Multiple offers: {overallStats.offersGenerated - overallStats.placedStudents}
+                  Multiple offers:{" "}
+                  {overallStats.offersGenerated - overallStats.placedStudents}
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -222,7 +318,9 @@ const AnalyticsDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Expected vs Actual Companies */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Expected vs Actual Companies</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Expected vs Actual Companies
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={companyData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -238,7 +336,9 @@ const AnalyticsDashboard = () => {
 
           {/* Placement Trends */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Placement Trends</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Placement Trends
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={placementTrends}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -247,9 +347,30 @@ const AnalyticsDashboard = () => {
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip />
                 <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="placed" stroke="#10B981" strokeWidth={3} name="Students Placed" />
-                <Line yAxisId="left" type="monotone" dataKey="offers" stroke="#3B82F6" strokeWidth={2} name="Offers Generated" />
-                <Line yAxisId="right" type="monotone" dataKey="avgPackage" stroke="#F59E0B" strokeWidth={2} name="Avg Package (LPA)" />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="placed"
+                  stroke="#10B981"
+                  strokeWidth={3}
+                  name="Students Placed"
+                />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="offers"
+                  stroke="#3B82F6"
+                  strokeWidth={2}
+                  name="Offers Generated"
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="avgPackage"
+                  stroke="#F59E0B"
+                  strokeWidth={2}
+                  name="Avg Package (LPA)"
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -259,17 +380,31 @@ const AnalyticsDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Department-wise Placement */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Department-wise Analysis</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Department-wise Analysis
+            </h3>
             <div className="space-y-4">
               {departmentData.map((dept, index) => (
-                <div key={dept.department} className="flex items-center justify-between">
+                <div
+                  key={dept.department}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: COLORS[index] }}></div>
-                    <span className="text-sm font-medium text-gray-900">{dept.department}</span>
+                    <div
+                      className={`w-3 h-3 rounded-full`}
+                      style={{ backgroundColor: COLORS[index] }}
+                    ></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      {dept.department}
+                    </span>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-bold text-gray-900">{dept.rate}%</div>
-                    <div className="text-xs text-gray-500">{dept.placed}/{dept.total}</div>
+                    <div className="text-sm font-bold text-gray-900">
+                      {dept.rate}%
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {dept.placed}/{dept.total}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -278,7 +413,9 @@ const AnalyticsDashboard = () => {
 
           {/* Package Distribution */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Package Distribution</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Package Distribution
+            </h3>
             <ResponsiveContainer width="85%" height={250}>
               <PieChart>
                 <Pie
@@ -291,7 +428,10 @@ const AnalyticsDashboard = () => {
                   label={({ range, percentage }) => `${range}: ${percentage}%`}
                 >
                   {packageData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -303,35 +443,58 @@ const AnalyticsDashboard = () => {
         {/* Top Companies Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Top Recruiting Companies</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Top Recruiting Companies
+            </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Offers</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students Hired</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Package</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Company
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Offers
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Students Hired
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Avg Package
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Success Rate
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {topCompanies.map((company, index) => (
-                  <tr key={company.name} className={index < 3 ? 'bg-blue-50' : ''}>
+                  <tr
+                    key={company.name}
+                    className={index < 3 ? "bg-blue-50" : ""}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-gray-600">#{index + 1}</span>
+                          <span className="text-xs font-medium text-gray-600">
+                            #{index + 1}
+                          </span>
                         </div>
                         <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">{company.name}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {company.name}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getCompanyTypeColor(company.category)}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getCompanyTypeColor(company.category)}`}
+                      >
                         {company.category}
                       </span>
                     </td>

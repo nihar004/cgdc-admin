@@ -15,8 +15,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import DeleteEventModal from "./DeleteEventModal"; // Adjust the import path as necessary
-import axios from "axios";
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const getEventTypeConfig = (eventType) => {
   const configs = {
@@ -67,7 +65,6 @@ const getEventTypeConfig = (eventType) => {
 
 function EventCard({
   event,
-  selectedBatch,
   setSelectedEvent,
   setEditingEvent,
   fetchEvents,
@@ -131,73 +128,6 @@ function EventCard({
     if (!years || years.length === 0) return "All";
     return years.join(", ");
   };
-
-  // const getJobTypeConfig = (jobType) => {
-  //   switch (jobType) {
-  //     case "internship":
-  //       return { label: "Internship", color: "bg-blue-100 text-blue-700" };
-  //     case "full_time":
-  //       return { label: "Full Time", color: "bg-green-100 text-green-700" };
-  //     case "internship_plus_ppo":
-  //       return {
-  //         label: "Internship + PPO",
-  //         color: "bg-purple-100 text-purple-700",
-  //       };
-  //     default:
-  //       return { label: "Not Specified", color: "bg-gray-100 text-gray-700" };
-  //   }
-  // };
-
-  // const renderCompensation = (jobType, packageRange, stipend) => {
-  //   const components = [];
-
-  //   if (jobType === "internship" && stipend && parseFloat(stipend) > 0) {
-  //     components.push(
-  //       <span
-  //         key="stipend"
-  //         className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-  //       >
-  //         ₹{parseFloat(stipend).toLocaleString()} stipend
-  //       </span>
-  //     );
-  //   } else if (
-  //     jobType === "full_time" &&
-  //     packageRange &&
-  //     parseFloat(packageRange) > 0
-  //   ) {
-  //     components.push(
-  //       <span
-  //         key="package"
-  //         className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
-  //       >
-  //         ₹{(parseFloat(packageRange) / 100000).toFixed(1)} LPA
-  //       </span>
-  //     );
-  //   } else if (jobType === "internship_plus_ppo") {
-  //     if (stipend && parseFloat(stipend) > 0) {
-  //       components.push(
-  //         <span
-  //           key="stipend"
-  //           className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-  //         >
-  //           ₹{parseFloat(stipend).toLocaleString()} stipend
-  //         </span>
-  //       );
-  //     }
-  //     if (packageRange && parseFloat(packageRange) > 0) {
-  //       components.push(
-  //         <span
-  //           key="package"
-  //           className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
-  //         >
-  //           ₹{(parseFloat(packageRange) / 100000).toFixed(1)} LPA
-  //         </span>
-  //       );
-  //     }
-  //   }
-
-  //   return components;
-  // };
 
   return (
     <>

@@ -70,13 +70,6 @@ const CompanyListing = () => {
     nontech: "bg-rose-100 text-rose-800",
   };
 
-  // TODO START
-  const handleAddSuccess = (newCompany) => {
-    // Refresh your companies list
-    fetchCompanies();
-  };
-  // TODO END
-
   // Update the add button click handler
   const handleAddClick = () => {
     setEditingCompany(null);
@@ -90,7 +83,7 @@ const CompanyListing = () => {
   };
 
   // Update the success handler
-  const handleFormSuccess = (companyData) => {
+  const handleFormSuccess = () => {
     fetchCompanies();
     setShowFormModal(false);
     setEditingCompany(null);

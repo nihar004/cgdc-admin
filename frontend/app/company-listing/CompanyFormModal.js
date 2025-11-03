@@ -1232,7 +1232,8 @@ const CompanyFormModal = ({
                       />
                       <p className="mt-1 text-xs text-neutral-600 bg-blue-50 px-2 py-1 rounded">
                         💡 Enter stipend as text (e.g.,
-                        "₹25,000/month","20k-30k", or "Not Disclosed")
+                        &quot;₹25,000/month&quot;,&quot;20k-30k&quot;, or
+                        &quot;Not Disclosed&quot;)
                       </p>
                     </div>
                   )}
