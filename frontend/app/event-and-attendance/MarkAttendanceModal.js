@@ -36,42 +36,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
   const eventData = event;
 
-  const getEventStatus = () => {
-    if (!eventData?.date || !eventData?.time || !eventData?.endTime) {
-      return "no_time";
-    }
-
-    const now = new Date();
-    const eventDate = new Date(eventData.date);
-    const startTime = new Date(
-      `${eventData.date}T${convertTo24Hour(eventData.time)}`
-    );
-    const endTime = new Date(
-      `${eventData.date}T${convertTo24Hour(eventData.endTime)}`
-    );
-
-    if (now < startTime) return "upcoming";
-    if (now >= startTime && now <= endTime) return "ongoing";
-    if (now > endTime) return "completed";
-
-    return "upcoming";
-  };
-
-  const convertTo24Hour = (time12h) => {
-    const [time, modifier] = time12h.split(" ");
-    let [hours, minutes] = time.split(":");
-
-    if (hours === "12") {
-      hours = "00";
-    }
-
-    if (modifier === "PM") {
-      hours = parseInt(hours, 10) + 12;
-    }
-
-    return `${hours}:${minutes}:00`;
-  };
-
   const canMarkAttendance = eventStatus === "ongoing";
   const isEditMode = eventStatus === "completed";
 
@@ -349,6 +313,48 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
     }
   };
 
+  // Add: mark all visible students as present (only during ongoing event)
+  const handleMarkAllPresent = () => {
+    if (!canMarkAttendance) {
+      alert("Can only mark attendance while event is ongoing");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Mark all visible students as PRESENT? This will set check-in time to now."
+      )
+    ) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const lower = searchTerm.toLowerCase();
+
+    setAttendance((prev) => {
+      const updated = { ...prev };
+
+      students.forEach((student) => {
+        // apply same filtering logic as filteredStudents
+        const matches =
+          student.registration_number?.toLowerCase().includes(lower) ||
+          student.full_name?.toLowerCase().includes(lower) ||
+          student.enrollment_number?.toLowerCase().includes(lower);
+
+        if (matches) {
+          updated[student.id] = {
+            ...(updated[student.id] || {}),
+            status: "present",
+            check_in_time: now,
+            reason_for_change: null,
+          };
+        }
+      });
+
+      return updated;
+    });
+  };
+
   const filteredStudents = students.filter(
     (student) =>
       student.registration_number
@@ -460,9 +466,17 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                     {positionDetails.length > 0 && (
                       <div className="text-slate-300 text-sm mt-2">
                         <span className="font-medium">Positions: </span>
-                        {positionDetails
-                          .map((p) => p.position_title)
-                          .join(", ")}
+                        {positionDetails.map((position, index) => (
+                          <span
+                            key={
+                              position.id ||
+                              `position-${position.position_title}-${index}`
+                            }
+                            className="mr-2"
+                          >
+                            {position.position_title}
+                          </span>
+                        ))}
                       </div>
                     )}
                     <div className="text-slate-400 text-sm flex items-center gap-4">
@@ -571,6 +585,17 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
             </div>
 
             <div className="p-6">
+              {canMarkAttendance && !isEditMode && (
+                <div className="flex items-center justify-end mb-4">
+                  <button
+                    onClick={handleMarkAllPresent}
+                    disabled={saving || loading}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    Mark All Present
+                  </button>
+                </div>
+              )}
               {!canMarkAttendance && !isEditMode ? (
                 <div className="flex items-center justify-center py-16">
                   <div className="text-center">
@@ -591,7 +616,10 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                 <div className="space-y-3">
                   {filteredStudents.map((student) => (
                     <StudentCard
-                      key={student.id}
+                      key={
+                        student.id ||
+                        `${student.registration_number}-${student.enrollment_number}`
+                      }
                       student={student}
                       attendance={attendance[student.id]}
                       onUpdate={handleAttendanceUpdate}

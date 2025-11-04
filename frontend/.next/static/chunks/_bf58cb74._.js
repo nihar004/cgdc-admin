@@ -6537,33 +6537,6 @@ function StudentTable(param) {
     // State for manual offers modal
     const [showOffersModal, setShowOffersModal] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [selectedStudent, setSelectedStudent] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [enrichedOffers, setEnrichedOffers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
-    // Add this near the top of the component, after the state declarations
-    const enrichOfferWithDetails = async (offer)=>{
-        if (offer.source !== "campus" || !offer.company_id || !offer.position_id) {
-            return offer; // Manual offers already have all details
-        }
-        try {
-            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("".concat(backendUrl, "/companies/").concat(offer.company_id, "/positions/").concat(offer.position_id));
-            const positionData = response.data.success ? response.data.data : response.data;
-            return {
-                ...offer,
-                company_name: positionData.company_name,
-                position_title: positionData.position_title,
-                package: parseFloat(positionData.package),
-                has_range: positionData.has_range,
-                package_end: positionData.package_end ? parseFloat(positionData.package_end) : null
-            };
-        } catch (error) {
-            console.error("Error fetching offer details:", error);
-            return {
-                ...offer,
-                company_name: "Unknown Company",
-                package: 0,
-                _fetch_error: true
-            };
-        }
-    };
     const handleEditStudent = (student)=>{
         setEditingStudent(student);
         setStudentFormData({
@@ -6674,36 +6647,6 @@ function StudentTable(param) {
                 return "bg-red-100 text-red-800  ";
         }
     };
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "StudentTable.useEffect": ()=>{
-            const enrichAllOffers = {
-                "StudentTable.useEffect.enrichAllOffers": async ()=>{
-                    const enrichedData = {};
-                    for (const student of filteredStudents){
-                        var _student_offers_received;
-                        enrichedData[student.id] = {};
-                        // Enrich offers_received
-                        if (((_student_offers_received = student.offers_received) === null || _student_offers_received === void 0 ? void 0 : _student_offers_received.length) > 0) {
-                            const enriched = await Promise.all(student.offers_received.slice(0, 2).map({
-                                "StudentTable.useEffect.enrichAllOffers": (offer)=>enrichOfferWithDetails(offer)
-                            }["StudentTable.useEffect.enrichAllOffers"]));
-                            enrichedData[student.id].offers = enriched;
-                        }
-                        // Enrich current_offer
-                        if (student.current_offer) {
-                            enrichedData[student.id].currentOffer = await enrichOfferWithDetails(student.current_offer);
-                        }
-                    }
-                    setEnrichedOffers(enrichedData);
-                }
-            }["StudentTable.useEffect.enrichAllOffers"];
-            if (filteredStudents.length > 0) {
-                enrichAllOffers();
-            }
-        }
-    }["StudentTable.useEffect"], [
-        filteredStudents
-    ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "space-y-6 mb-10",
@@ -6721,25 +6664,10 @@ function StudentTable(param) {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
                                                 className: "px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                    type: "checkbox",
-                                                    className: "rounded border-gray-300"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 236,
-                                                    columnNumber: 21
-                                                }, this)
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 235,
-                                                columnNumber: 19
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                                                className: "px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider",
                                                 children: "Student Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 241,
+                                                lineNumber: 165,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -6747,7 +6675,7 @@ function StudentTable(param) {
                                                 children: "Academic Info"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 244,
+                                                lineNumber: 168,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -6755,7 +6683,7 @@ function StudentTable(param) {
                                                 children: "Contact Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 247,
+                                                lineNumber: 171,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -6763,7 +6691,7 @@ function StudentTable(param) {
                                                 children: "Status"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 250,
+                                                lineNumber: 174,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -6771,7 +6699,7 @@ function StudentTable(param) {
                                                 children: "Placement Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 253,
+                                                lineNumber: 177,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -6779,7 +6707,7 @@ function StudentTable(param) {
                                                 children: "Board Marks"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 256,
+                                                lineNumber: 180,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -6787,42 +6715,27 @@ function StudentTable(param) {
                                                 children: "Actions"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                lineNumber: 259,
+                                                lineNumber: 183,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/StudentTable.js",
-                                        lineNumber: 234,
+                                        lineNumber: 164,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/StudentTable.js",
-                                    lineNumber: 233,
+                                    lineNumber: 163,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
                                     className: "bg-white divide-y divide-gray-50",
                                     children: filteredStudents.map((student)=>{
-                                        var _enrichedOffers_student_id, _student_offers_received, _enrichedOffers_student_id1;
+                                        var _student_offers_received;
                                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                                             className: "hover:bg-slate-50 transition-all duration-200",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                    className: "px-6 py-5",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                        type: "checkbox",
-                                                        className: "rounded border-gray-300"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 271,
-                                                        columnNumber: 23
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 270,
-                                                    columnNumber: 21
-                                                }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                     className: "px-6 py-5",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6836,12 +6749,12 @@ function StudentTable(param) {
                                                                         children: formatStudentName(student)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                                        lineNumber: 280,
+                                                                        lineNumber: 198,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 279,
+                                                                    lineNumber: 197,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6849,7 +6762,7 @@ function StudentTable(param) {
                                                                     children: student.registration_number
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 284,
+                                                                    lineNumber: 202,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6857,7 +6770,7 @@ function StudentTable(param) {
                                                                     children: student.college_email
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 287,
+                                                                    lineNumber: 205,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6865,23 +6778,23 @@ function StudentTable(param) {
                                                                     children: student.personal_email
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 290,
+                                                                    lineNumber: 208,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/students/StudentTable.js",
-                                                            lineNumber: 278,
+                                                            lineNumber: 196,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 277,
+                                                        lineNumber: 195,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 276,
+                                                    lineNumber: 194,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6898,7 +6811,7 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 298,
+                                                                lineNumber: 216,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6912,12 +6825,12 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 302,
+                                                                    lineNumber: 220,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 301,
+                                                                lineNumber: 219,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6931,18 +6844,18 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 309,
+                                                                lineNumber: 227,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 297,
+                                                        lineNumber: 215,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 296,
+                                                    lineNumber: 214,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6958,7 +6871,7 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 317,
+                                                                lineNumber: 235,
                                                                 columnNumber: 25
                                                             }, this),
                                                             student.alternate_phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6969,18 +6882,18 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 321,
+                                                                lineNumber: 239,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 316,
+                                                        lineNumber: 234,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 315,
+                                                    lineNumber: 233,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6988,12 +6901,12 @@ function StudentTable(param) {
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "space-y-2",
                                                         children: [
-                                                            ((_enrichedOffers_student_id = enrichedOffers[student.id]) === null || _enrichedOffers_student_id === void 0 ? void 0 : _enrichedOffers_student_id.currentOffer) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            student.current_offer && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: "text-xs text-gray-600",
-                                                                children: enrichedOffers[student.id].currentOffer.company_name
+                                                                children: student.current_offer.company_name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 330,
+                                                                lineNumber: 248,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7001,18 +6914,18 @@ function StudentTable(param) {
                                                                 children: student.placement_status.replace("_", " ")
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 337,
+                                                                lineNumber: 252,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 328,
+                                                        lineNumber: 246,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 327,
+                                                    lineNumber: 245,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7028,10 +6941,10 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 349,
+                                                                lineNumber: 264,
                                                                 columnNumber: 27
                                                             }, this),
-                                                            ((_enrichedOffers_student_id1 = enrichedOffers[student.id]) === null || _enrichedOffers_student_id1 === void 0 ? void 0 : _enrichedOffers_student_id1.offers) ? enrichedOffers[student.id].offers.map((offer, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            student.offers_received.slice(0, 2).map((offer, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "text-xs text-gray-500",
                                                                     children: [
                                                                         offer.company_name,
@@ -7041,32 +6954,25 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, idx, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 355,
-                                                                    columnNumber: 33
-                                                                }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "text-xs text-gray-400",
-                                                                children: "Loading offers..."
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 369,
-                                                                columnNumber: 29
-                                                            }, this)
+                                                                    lineNumber: 270,
+                                                                    columnNumber: 31
+                                                                }, this))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 348,
+                                                        lineNumber: 263,
                                                         columnNumber: 25
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "text-xs text-gray-400",
                                                         children: "No offers yet"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 375,
+                                                        lineNumber: 281,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 346,
+                                                    lineNumber: 261,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7085,12 +6991,12 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 383,
+                                                                    lineNumber: 289,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 382,
+                                                                lineNumber: 288,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7104,12 +7010,12 @@ function StudentTable(param) {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 388,
+                                                                    lineNumber: 294,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 387,
+                                                                lineNumber: 293,
                                                                 columnNumber: 25
                                                             }, this),
                                                             student.drives_skipped > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7120,18 +7026,18 @@ function StudentTable(param) {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 393,
+                                                                lineNumber: 299,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 381,
+                                                        lineNumber: 287,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 380,
+                                                    lineNumber: 286,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7147,12 +7053,12 @@ function StudentTable(param) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 406,
+                                                                    lineNumber: 312,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 401,
+                                                                lineNumber: 307,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7163,12 +7069,12 @@ function StudentTable(param) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 413,
+                                                                    lineNumber: 319,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 408,
+                                                                lineNumber: 314,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7179,51 +7085,51 @@ function StudentTable(param) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                                    lineNumber: 420,
+                                                                    lineNumber: 326,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/StudentTable.js",
-                                                                lineNumber: 415,
+                                                                lineNumber: 321,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/StudentTable.js",
-                                                        lineNumber: 400,
+                                                        lineNumber: 306,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/StudentTable.js",
-                                                    lineNumber: 399,
+                                                    lineNumber: 305,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, student.id, true, {
                                             fileName: "[project]/app/students/StudentTable.js",
-                                            lineNumber: 266,
+                                            lineNumber: 190,
                                             columnNumber: 19
                                         }, this);
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/StudentTable.js",
-                                    lineNumber: 264,
+                                    lineNumber: 188,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/students/StudentTable.js",
-                            lineNumber: 232,
+                            lineNumber: 162,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/students/StudentTable.js",
-                        lineNumber: 231,
+                        lineNumber: 161,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/students/StudentTable.js",
-                    lineNumber: 230,
+                    lineNumber: 160,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$students$2f$DeleteConfirmationModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -7234,7 +7140,7 @@ function StudentTable(param) {
                     isDeleting: isDeleting
                 }, void 0, false, {
                     fileName: "[project]/app/students/StudentTable.js",
-                    lineNumber: 432,
+                    lineNumber: 338,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$students$2f$ManualOffersModal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -7244,18 +7150,18 @@ function StudentTable(param) {
                     onSuccess: handleOffersSuccess
                 }, void 0, false, {
                     fileName: "[project]/app/students/StudentTable.js",
-                    lineNumber: 441,
+                    lineNumber: 347,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/students/StudentTable.js",
-            lineNumber: 229,
+            lineNumber: 159,
             columnNumber: 7
         }, this)
     }, void 0, false);
 }
-_s(StudentTable, "iDRPv0JfN+99sZj4mKldxISW1r0=", false, function() {
+_s(StudentTable, "vrjcuUDPraQRLTk71PzJEgB3Sks=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"]
     ];

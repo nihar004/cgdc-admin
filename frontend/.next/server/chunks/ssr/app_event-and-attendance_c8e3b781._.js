@@ -431,8 +431,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$event$2d$and$2d$atten
 ;
 ;
 ;
-;
-const backendUrl = ("TURBOPACK compile-time value", "http://localhost:5000/api");
 const getEventTypeConfig = (eventType)=>{
     const configs = {
         workshop: {
@@ -478,7 +476,7 @@ const getEventTypeConfig = (eventType)=>{
     };
     return configs[eventType] || configs.other;
 };
-function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fetchEvents, onAttendanceClick }) {
+function EventCard({ event, setSelectedEvent, setEditingEvent, fetchEvents, onAttendanceClick }) {
     const [showDeleteModal, setShowDeleteModal] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isDeleting, setIsDeleting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     // Handle view details - now the event already has attendance data
@@ -542,69 +540,6 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
         if (!years || years.length === 0) return "All";
         return years.join(", ");
     };
-    // const getJobTypeConfig = (jobType) => {
-    //   switch (jobType) {
-    //     case "internship":
-    //       return { label: "Internship", color: "bg-blue-100 text-blue-700" };
-    //     case "full_time":
-    //       return { label: "Full Time", color: "bg-green-100 text-green-700" };
-    //     case "internship_plus_ppo":
-    //       return {
-    //         label: "Internship + PPO",
-    //         color: "bg-purple-100 text-purple-700",
-    //       };
-    //     default:
-    //       return { label: "Not Specified", color: "bg-gray-100 text-gray-700" };
-    //   }
-    // };
-    // const renderCompensation = (jobType, packageRange, stipend) => {
-    //   const components = [];
-    //   if (jobType === "internship" && stipend && parseFloat(stipend) > 0) {
-    //     components.push(
-    //       <span
-    //         key="stipend"
-    //         className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-    //       >
-    //         ₹{parseFloat(stipend).toLocaleString()} stipend
-    //       </span>
-    //     );
-    //   } else if (
-    //     jobType === "full_time" &&
-    //     packageRange &&
-    //     parseFloat(packageRange) > 0
-    //   ) {
-    //     components.push(
-    //       <span
-    //         key="package"
-    //         className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
-    //       >
-    //         ₹{(parseFloat(packageRange) / 100000).toFixed(1)} LPA
-    //       </span>
-    //     );
-    //   } else if (jobType === "internship_plus_ppo") {
-    //     if (stipend && parseFloat(stipend) > 0) {
-    //       components.push(
-    //         <span
-    //           key="stipend"
-    //           className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-    //         >
-    //           ₹{parseFloat(stipend).toLocaleString()} stipend
-    //         </span>
-    //       );
-    //     }
-    //     if (packageRange && parseFloat(packageRange) > 0) {
-    //       components.push(
-    //         <span
-    //           key="package"
-    //           className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
-    //         >
-    //           ₹{(parseFloat(packageRange) / 100000).toFixed(1)} LPA
-    //         </span>
-    //       );
-    //     }
-    //   }
-    //   return components;
-    // };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -624,12 +559,12 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 210,
+                                                lineNumber: 140,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 209,
+                                            lineNumber: 139,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -643,7 +578,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             children: event.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 214,
+                                                            lineNumber: 144,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -651,7 +586,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             children: eventTypeConfig.label
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 217,
+                                                            lineNumber: 147,
                                                             columnNumber: 19
                                                         }, this),
                                                         event.roundType && event.type === "company_round" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -664,26 +599,26 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                                     children: event.roundType
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                                    lineNumber: 225,
+                                                                    lineNumber: 155,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 223,
+                                                            lineNumber: 153,
                                                             columnNumber: 21
                                                         }, this),
                                                         event.isMandatory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
                                                             className: "h-4 w-4 text-amber-500 fill-current flex-shrink-0"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 229,
+                                                            lineNumber: 159,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 213,
+                                                    lineNumber: 143,
                                                     columnNumber: 17
                                                 }, this),
                                                 event.company && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -691,7 +626,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: event.company
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 234,
+                                                    lineNumber: 164,
                                                     columnNumber: 19
                                                 }, this),
                                                 event.position_ids && event.position_ids.length > 0 && event.type === "company_round" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -702,7 +637,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             children: "Positions:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 242,
+                                                            lineNumber: 172,
                                                             columnNumber: 23
                                                         }, this),
                                                         event.position_ids.map((posId)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -713,25 +648,25 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                                 ]
                                                             }, posId, true, {
                                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                                lineNumber: 244,
+                                                                lineNumber: 174,
                                                                 columnNumber: 25
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 241,
+                                                    lineNumber: 171,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 212,
+                                            lineNumber: 142,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 208,
+                                    lineNumber: 138,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -741,25 +676,25 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                             className: "h-3 w-3 mr-1"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 259,
+                                            lineNumber: 189,
                                             columnNumber: 15
                                         }, this),
                                         event.status.charAt(0).toUpperCase() + event.status.slice(1)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 256,
+                                    lineNumber: 186,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                            lineNumber: 207,
+                            lineNumber: 137,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                        lineNumber: 206,
+                        lineNumber: 136,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -775,7 +710,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 269,
+                                                lineNumber: 199,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -783,13 +718,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 children: formatDate(event.date)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 270,
+                                                lineNumber: 200,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 268,
+                                        lineNumber: 198,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -799,7 +734,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 273,
+                                                lineNumber: 203,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -810,13 +745,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 274,
+                                                lineNumber: 204,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 272,
+                                        lineNumber: 202,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -826,7 +761,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 280,
+                                                lineNumber: 210,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -838,13 +773,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 281,
+                                                lineNumber: 211,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 279,
+                                        lineNumber: 209,
                                         columnNumber: 13
                                     }, this),
                                     event.speakerDetails && event.speakerDetails.speaker && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -854,7 +789,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 className: "h-3 w-3 text-gray-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 287,
+                                                lineNumber: 217,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -862,7 +797,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 children: "Speaker: "
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 288,
+                                                lineNumber: 218,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -870,7 +805,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                 children: event.speakerDetails.speaker
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 289,
+                                                lineNumber: 219,
                                                 columnNumber: 17
                                             }, this),
                                             event.speakerDetails.designation && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -880,7 +815,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                         children: "•"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 294,
+                                                        lineNumber: 224,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -888,7 +823,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                         children: event.speakerDetails.designation
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 295,
+                                                        lineNumber: 225,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
@@ -896,13 +831,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 286,
+                                        lineNumber: 216,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 267,
+                                lineNumber: 197,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -919,7 +854,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                         children: "Specializations: "
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 309,
+                                                        lineNumber: 239,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -927,13 +862,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                         children: formatSpecializations(event.targetSpecializations)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 310,
+                                                        lineNumber: 240,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 308,
+                                                lineNumber: 238,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -943,7 +878,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                         children: "Years: "
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 315,
+                                                        lineNumber: 245,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -951,29 +886,29 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                         children: formatYears(event.targetAcademicYears)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                        lineNumber: 316,
+                                                        lineNumber: 246,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                lineNumber: 314,
+                                                lineNumber: 244,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                        lineNumber: 307,
+                                        lineNumber: 237,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 306,
+                                    lineNumber: 236,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 305,
+                                lineNumber: 235,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -988,7 +923,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: event.totalStudents || 0
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 328,
+                                                    lineNumber: 258,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -996,13 +931,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: "Total"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 331,
+                                                    lineNumber: 261,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 327,
+                                            lineNumber: 257,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1012,7 +947,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: event.attendedStudents || 0
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 334,
+                                                    lineNumber: 264,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1020,13 +955,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: "Present"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 337,
+                                                    lineNumber: 267,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 333,
+                                            lineNumber: 263,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1036,7 +971,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: event.absentStudents || 0
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 340,
+                                                    lineNumber: 270,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1044,13 +979,13 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: "Absent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 343,
+                                                    lineNumber: 273,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 339,
+                                            lineNumber: 269,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1063,7 +998,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 346,
+                                                    lineNumber: 276,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1071,24 +1006,24 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                     children: "Rate"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 353,
+                                                    lineNumber: 283,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 345,
+                                            lineNumber: 275,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 326,
+                                    lineNumber: 256,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 325,
+                                lineNumber: 255,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1107,14 +1042,14 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 366,
+                                                            lineNumber: 296,
                                                             columnNumber: 19
                                                         }, this),
                                                         "View Attendance"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 362,
+                                                    lineNumber: 292,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1125,20 +1060,20 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 373,
+                                                            lineNumber: 303,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Mark Attendance"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 369,
+                                                    lineNumber: 299,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 361,
+                                            lineNumber: 291,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1152,14 +1087,14 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 383,
+                                                            lineNumber: 313,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Edit"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 379,
+                                                    lineNumber: 309,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1170,43 +1105,43 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                                                             className: "h-3 w-3 mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                            lineNumber: 391,
+                                                            lineNumber: 321,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Delete"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                                    lineNumber: 387,
+                                                    lineNumber: 317,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                            lineNumber: 378,
+                                            lineNumber: 308,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                    lineNumber: 360,
+                                    lineNumber: 290,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                                lineNumber: 359,
+                                lineNumber: 289,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/EventCard.js",
-                        lineNumber: 266,
+                        lineNumber: 196,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                lineNumber: 204,
+                lineNumber: 134,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$event$2d$and$2d$attendance$2f$DeleteEventModal$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1217,7 +1152,7 @@ function EventCard({ event, selectedBatch, setSelectedEvent, setEditingEvent, fe
                 onEventDeleted: fetchEvents
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/EventCard.js",
-                lineNumber: 402,
+                lineNumber: 332,
                 columnNumber: 7
             }, this)
         ]
@@ -1799,12 +1734,12 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                     children: student.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 252,
+                                                    lineNumber: 258,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 251,
+                                                lineNumber: 257,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1814,12 +1749,12 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                     children: student.registrationNumber
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 257,
+                                                    lineNumber: 263,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 256,
+                                                lineNumber: 262,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1829,12 +1764,12 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                     children: student.enrollmentNumber
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 262,
+                                                    lineNumber: 268,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 261,
+                                                lineNumber: 267,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1844,12 +1779,12 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                     children: student.department
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 267,
+                                                    lineNumber: 273,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 266,
+                                                lineNumber: 272,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1859,12 +1794,12 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                     children: student.batchYear
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 272,
+                                                    lineNumber: 278,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 271,
+                                                lineNumber: 277,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1877,25 +1812,25 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                             getAttendanceStatusIcon(student.status),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 children: student.status.charAt(0).toUpperCase() + student.status.slice(1)
-                                                            }, void 0, false, {
+                                                            }, `status-${student.id}-${student.status}`, false, {
                                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                                lineNumber: 280,
+                                                                lineNumber: 286,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                        lineNumber: 278,
+                                                        lineNumber: 284,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 277,
+                                                    lineNumber: 283,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 276,
+                                                lineNumber: 282,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1905,12 +1840,12 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                     children: student.checkInTime || "-"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 288,
+                                                    lineNumber: 294,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 287,
+                                                lineNumber: 293,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1922,28 +1857,28 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                                         children: student.reasonForChange
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                        lineNumber: 295,
+                                                        lineNumber: 301,
                                                         columnNumber: 25
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         className: "text-gray-500 italic",
                                                         children: "Not excused"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                        lineNumber: 299,
+                                                        lineNumber: 305,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                    lineNumber: 293,
+                                                    lineNumber: 299,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                                lineNumber: 292,
+                                                lineNumber: 298,
                                                 columnNumber: 19
                                             }, this)
                                         ]
-                                    }, student.id, true, {
+                                    }, student.id || `${student.registrationNumber}-${student.enrollmentNumber}`, true, {
                                         fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
                                         lineNumber: 250,
                                         columnNumber: 17
@@ -1982,7 +1917,7 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                            lineNumber: 313,
+                            lineNumber: 319,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1994,7 +1929,7 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                     children: "Export Attendance"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                    lineNumber: 320,
+                                    lineNumber: 326,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2003,19 +1938,19 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                                     children: "Close"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                                    lineNumber: 326,
+                                    lineNumber: 332,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                            lineNumber: 319,
+                            lineNumber: 325,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/StudentDetailModel.js",
-                    lineNumber: 312,
+                    lineNumber: 318,
                     columnNumber: 9
                 }, this)
             ]
@@ -3931,30 +3866,6 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
     const [positionDetails, setPositionDetails] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [roundInfo, setRoundInfo] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const eventData = event;
-    const getEventStatus = ()=>{
-        if (!eventData?.date || !eventData?.time || !eventData?.endTime) {
-            return "no_time";
-        }
-        const now = new Date();
-        const eventDate = new Date(eventData.date);
-        const startTime = new Date(`${eventData.date}T${convertTo24Hour(eventData.time)}`);
-        const endTime = new Date(`${eventData.date}T${convertTo24Hour(eventData.endTime)}`);
-        if (now < startTime) return "upcoming";
-        if (now >= startTime && now <= endTime) return "ongoing";
-        if (now > endTime) return "completed";
-        return "upcoming";
-    };
-    const convertTo24Hour = (time12h)=>{
-        const [time, modifier] = time12h.split(" ");
-        let [hours, minutes] = time.split(":");
-        if (hours === "12") {
-            hours = "00";
-        }
-        if (modifier === "PM") {
-            hours = parseInt(hours, 10) + 12;
-        }
-        return `${hours}:${minutes}:00`;
-    };
     const canMarkAttendance = eventStatus === "ongoing";
     const isEditMode = eventStatus === "completed";
     const fetchStudentData = async ()=>{
@@ -4180,6 +4091,36 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
             alert("Attendance can only be marked when event is ongoing or completed");
         }
     };
+    // Add: mark all visible students as present (only during ongoing event)
+    const handleMarkAllPresent = ()=>{
+        if (!canMarkAttendance) {
+            alert("Can only mark attendance while event is ongoing");
+            return;
+        }
+        if (!confirm("Mark all visible students as PRESENT? This will set check-in time to now.")) {
+            return;
+        }
+        const now = new Date().toISOString();
+        const lower = searchTerm.toLowerCase();
+        setAttendance((prev)=>{
+            const updated = {
+                ...prev
+            };
+            students.forEach((student)=>{
+                // apply same filtering logic as filteredStudents
+                const matches = student.registration_number?.toLowerCase().includes(lower) || student.full_name?.toLowerCase().includes(lower) || student.enrollment_number?.toLowerCase().includes(lower);
+                if (matches) {
+                    updated[student.id] = {
+                        ...updated[student.id] || {},
+                        status: "present",
+                        check_in_time: now,
+                        reason_for_change: null
+                    };
+                }
+            });
+            return updated;
+        });
+    };
     const filteredStudents = students.filter((student)=>student.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()) || student.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) || student.enrollment_number?.toLowerCase().includes(searchTerm.toLowerCase()));
     const getStatusMessage = ()=>{
         switch(eventStatus){
@@ -4191,7 +4132,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 370,
+                        lineNumber: 376,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4203,7 +4144,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 376,
+                        lineNumber: 382,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4215,7 +4156,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 383,
+                        lineNumber: 389,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4227,7 +4168,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 389,
+                        lineNumber: 395,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 };
@@ -4270,12 +4211,12 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                             className: "h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 427,
+                                            lineNumber: 433,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 423,
+                                        lineNumber: 429,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4287,12 +4228,12 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                     className: "h-6 w-6"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 432,
+                                                    lineNumber: 438,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 431,
+                                                lineNumber: 437,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4302,7 +4243,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                         children: isEditMode ? "Edit Attendance" : "Mark Attendance"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                        lineNumber: 435,
+                                                        lineNumber: 441,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4313,7 +4254,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                 children: eventData?.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 439,
+                                                                lineNumber: 445,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4324,7 +4265,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 442,
+                                                                lineNumber: 448,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             eventData?.type === "company_round" && eventData?.roundNumber && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4338,7 +4279,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 450,
+                                                                        lineNumber: 456,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     eventData?.roundType && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4346,13 +4287,13 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                         children: eventData.roundType
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 454,
+                                                                        lineNumber: 460,
                                                                         columnNumber: 29
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 449,
+                                                                lineNumber: 455,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             positionDetails.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4363,14 +4304,21 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                         children: "Positions: "
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 462,
+                                                                        lineNumber: 468,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
-                                                                    positionDetails.map((p)=>p.position_title).join(", ")
+                                                                    positionDetails.map((position, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            className: "mr-2",
+                                                                            children: position.position_title
+                                                                        }, position.id || `position-${position.position_title}-${index}`, false, {
+                                                                            fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                                            lineNumber: 470,
+                                                                            columnNumber: 27
+                                                                        }, ("TURBOPACK compile-time value", void 0)))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 461,
+                                                                lineNumber: 467,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4380,7 +4328,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                         children: eventData?.date && new Date(eventData.date).toLocaleDateString()
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 469,
+                                                                        lineNumber: 483,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4391,38 +4339,38 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 473,
+                                                                        lineNumber: 487,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         children: eventData?.venue
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                        lineNumber: 476,
+                                                                        lineNumber: 490,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                                lineNumber: 468,
+                                                                lineNumber: 482,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                        lineNumber: 438,
+                                                        lineNumber: 444,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 434,
+                                                lineNumber: 440,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 430,
+                                        lineNumber: 436,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4435,7 +4383,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                 children: "Start Event"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 483,
+                                                lineNumber: 497,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4445,19 +4393,19 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                 children: "End Event"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 494,
+                                                lineNumber: 508,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 482,
+                                        lineNumber: 496,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 422,
+                                lineNumber: 428,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4469,13 +4417,13 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         children: statusInfo.message
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 512,
+                                        lineNumber: 526,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 508,
+                                lineNumber: 522,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4485,7 +4433,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         className: "h-4 w-4 text-orange-600 mt-0.5"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 516,
+                                        lineNumber: 530,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4496,26 +4444,26 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                 children: "Important Note"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 518,
+                                                lineNumber: 532,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 children: "Students are marked as absent by default. Only mark present for those who attended."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 519,
+                                                lineNumber: 533,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 517,
+                                        lineNumber: 531,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 515,
+                                lineNumber: 529,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             roundInfo && eventData?.type === "company_round" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4528,7 +4476,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                             children: "Round Information"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 529,
+                                            lineNumber: 543,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4541,7 +4489,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 531,
+                                                    lineNumber: 545,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4551,14 +4499,14 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 532,
+                                                    lineNumber: 546,
                                                     columnNumber: 21
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 roundInfo.roundNumber === 1 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: "• Source: Students who applied via registration forms"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 534,
+                                                    lineNumber: 548,
                                                     columnNumber: 23
                                                 }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: [
@@ -4568,24 +4516,24 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                    lineNumber: 538,
+                                                    lineNumber: 552,
                                                     columnNumber: 23
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 530,
+                                            lineNumber: 544,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 528,
+                                    lineNumber: 542,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 527,
+                                lineNumber: 541,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4596,7 +4544,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         value: stats.total
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 549,
+                                        lineNumber: 563,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4605,7 +4553,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         color: "green"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 550,
+                                        lineNumber: 564,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4614,7 +4562,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         color: "amber"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 551,
+                                        lineNumber: 565,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4623,7 +4571,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         color: "red"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 552,
+                                        lineNumber: 566,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(StatCard, {
@@ -4632,13 +4580,13 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                         color: "gray"
                                     }, void 0, false, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 553,
+                                        lineNumber: 567,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 548,
+                                lineNumber: 562,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4650,7 +4598,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                             className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 562,
+                                            lineNumber: 576,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -4661,138 +4609,157 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                             className: "w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 563,
+                                            lineNumber: 577,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 561,
+                                    lineNumber: 575,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 560,
+                                lineNumber: 574,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "p-6",
-                                children: !canMarkAttendance && !isEditMode ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex items-center justify-center py-16",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "text-center",
+                                children: [
+                                    canMarkAttendance && !isEditMode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center justify-end mb-4",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: handleMarkAllPresent,
+                                            disabled: saving || loading,
+                                            className: "px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium",
+                                            children: "Mark All Present"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                            lineNumber: 590,
+                                            columnNumber: 19
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                        lineNumber: 589,
+                                        columnNumber: 17
+                                    }, ("TURBOPACK compile-time value", void 0)),
+                                    !canMarkAttendance && !isEditMode ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center justify-center py-16",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "text-center",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
+                                                    className: "h-16 w-16 text-slate-300 mx-auto mb-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                    lineNumber: 602,
+                                                    columnNumber: 21
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                    className: "text-lg font-medium text-slate-700 mb-2",
+                                                    children: "Attendance marking is not available yet"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                    lineNumber: 603,
+                                                    columnNumber: 21
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-slate-500",
+                                                    children: "Please wait for the event to start"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                    lineNumber: 606,
+                                                    columnNumber: 21
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                            lineNumber: 601,
+                                            columnNumber: 19
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                        lineNumber: 600,
+                                        columnNumber: 17
+                                    }, ("TURBOPACK compile-time value", void 0)) : loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center justify-center py-12",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                            lineNumber: 613,
+                                            columnNumber: 19
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                        lineNumber: 612,
+                                        columnNumber: 17
+                                    }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "space-y-3",
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
-                                                className: "h-16 w-16 text-slate-300 mx-auto mb-4"
+                                            filteredStudents.map((student)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(StudentCard, {
+                                                    student: student,
+                                                    attendance: attendance[student.id],
+                                                    onUpdate: handleAttendanceUpdate,
+                                                    isEditMode: isEditMode,
+                                                    canMarkAttendance: canMarkAttendance || isEditMode
+                                                }, student.id || `${student.registration_number}-${student.enrollment_number}`, false, {
+                                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                    lineNumber: 618,
+                                                    columnNumber: 21
+                                                }, ("TURBOPACK compile-time value", void 0))),
+                                            (canMarkAttendance || isEditMode) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "mt-8 pt-6 border-t border-slate-200",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    onClick: handleSave,
+                                                    disabled: saving,
+                                                    className: "w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
+                                                            className: "h-5 w-5 mr-2"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                            lineNumber: 638,
+                                                            columnNumber: 25
+                                                        }, ("TURBOPACK compile-time value", void 0)),
+                                                        saving ? "Saving..." : isEditMode ? "Update Attendance" : "Save Attendance"
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
+                                                    lineNumber: 633,
+                                                    columnNumber: 23
+                                                }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 577,
-                                                columnNumber: 21
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                className: "text-lg font-medium text-slate-700 mb-2",
-                                                children: "Attendance marking is not available yet"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 578,
-                                                columnNumber: 21
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-slate-500",
-                                                children: "Please wait for the event to start"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 581,
+                                                lineNumber: 632,
                                                 columnNumber: 21
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 576,
-                                        columnNumber: 19
+                                        lineNumber: 616,
+                                        columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
-                                }, void 0, false, {
-                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 575,
-                                    columnNumber: 17
-                                }, ("TURBOPACK compile-time value", void 0)) : loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex items-center justify-center py-12",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                        lineNumber: 588,
-                                        columnNumber: 19
-                                    }, ("TURBOPACK compile-time value", void 0))
-                                }, void 0, false, {
-                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 587,
-                                    columnNumber: 17
-                                }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "space-y-3",
-                                    children: [
-                                        filteredStudents.map((student)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(StudentCard, {
-                                                student: student,
-                                                attendance: attendance[student.id],
-                                                onUpdate: handleAttendanceUpdate,
-                                                isEditMode: isEditMode,
-                                                canMarkAttendance: canMarkAttendance || isEditMode
-                                            }, student.id, false, {
-                                                fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 593,
-                                                columnNumber: 21
-                                            }, ("TURBOPACK compile-time value", void 0))),
-                                        (canMarkAttendance || isEditMode) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "mt-8 pt-6 border-t border-slate-200",
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                onClick: handleSave,
-                                                disabled: saving,
-                                                className: "w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
-                                                        className: "h-5 w-5 mr-2"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                        lineNumber: 610,
-                                                        columnNumber: 25
-                                                    }, ("TURBOPACK compile-time value", void 0)),
-                                                    saving ? "Saving..." : isEditMode ? "Update Attendance" : "Save Attendance"
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                                lineNumber: 605,
-                                                columnNumber: 23
-                                            }, ("TURBOPACK compile-time value", void 0))
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 604,
-                                            columnNumber: 21
-                                        }, ("TURBOPACK compile-time value", void 0))
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 591,
-                                    columnNumber: 17
-                                }, ("TURBOPACK compile-time value", void 0))
-                            }, void 0, false, {
+                                ]
+                            }, void 0, true, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 573,
+                                lineNumber: 587,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 421,
+                        lineNumber: 427,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 420,
+                    lineNumber: 426,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 419,
+                lineNumber: 425,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             showReasonModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4809,7 +4776,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                     children: "Reason for Change Required"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 631,
+                                    lineNumber: 659,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4817,7 +4784,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                     children: "Since the event has ended, please provide a reason for this attendance change:"
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 634,
+                                    lineNumber: 662,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -4828,7 +4795,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                     rows: 4
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 638,
+                                    lineNumber: 666,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4844,7 +4811,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 646,
+                                            lineNumber: 674,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4854,34 +4821,34 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked })=>{
                                             children: "Confirm Change"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 656,
+                                            lineNumber: 684,
                                             columnNumber: 19
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 645,
+                                    lineNumber: 673,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 630,
+                            lineNumber: 658,
                             columnNumber: 15
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                        lineNumber: 629,
+                        lineNumber: 657,
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 628,
+                    lineNumber: 656,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 627,
+                lineNumber: 655,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         ]
@@ -4903,7 +4870,7 @@ const StatCard = ({ title, value, color = "blue" })=>{
                 children: value
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 686,
+                lineNumber: 714,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4911,13 +4878,13 @@ const StatCard = ({ title, value, color = "blue" })=>{
                 children: title
             }, void 0, false, {
                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                lineNumber: 687,
+                lineNumber: 715,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-        lineNumber: 683,
+        lineNumber: 711,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -4935,12 +4902,12 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                 className: "h-6 w-6 text-slate-400"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 703,
+                                lineNumber: 731,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 702,
+                            lineNumber: 730,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4950,7 +4917,7 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                     children: student.full_name
                                 }, void 0, false, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 706,
+                                    lineNumber: 734,
                                     columnNumber: 11
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4963,7 +4930,7 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 710,
+                                            lineNumber: 738,
                                             columnNumber: 13
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4973,7 +4940,7 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 711,
+                                            lineNumber: 739,
                                             columnNumber: 13
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4984,13 +4951,13 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 712,
+                                            lineNumber: 740,
                                             columnNumber: 13
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 709,
+                                    lineNumber: 737,
                                     columnNumber: 11
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 attendance?.check_in_time && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5000,7 +4967,7 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                             className: "h-3 w-3 inline mr-1"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 718,
+                                            lineNumber: 746,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         "Check-in: ",
@@ -5008,7 +4975,7 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 717,
+                                    lineNumber: 745,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 attendance?.reason_for_change && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5019,7 +4986,7 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                             children: "Reason:"
                                         }, void 0, false, {
                                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                            lineNumber: 724,
+                                            lineNumber: 752,
                                             columnNumber: 15
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " ",
@@ -5027,19 +4994,19 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                    lineNumber: 723,
+                                    lineNumber: 751,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 705,
+                            lineNumber: 733,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 701,
+                    lineNumber: 729,
                     columnNumber: 7
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5054,13 +5021,13 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 737,
+                                lineNumber: 765,
                                 columnNumber: 17
                             }, void 0),
                             label: "Present"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 732,
+                            lineNumber: 760,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttendanceButton, {
@@ -5072,13 +5039,13 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 745,
+                                lineNumber: 773,
                                 columnNumber: 17
                             }, void 0),
                             label: "Late"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 740,
+                            lineNumber: 768,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttendanceButton, {
@@ -5090,30 +5057,30 @@ const StudentCard = ({ student, attendance, onUpdate, isEditMode, canMarkAttenda
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                                lineNumber: 753,
+                                lineNumber: 781,
                                 columnNumber: 17
                             }, void 0),
                             label: "Absent"
                         }, void 0, false, {
                             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                            lineNumber: 748,
+                            lineNumber: 776,
                             columnNumber: 9
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-                    lineNumber: 731,
+                    lineNumber: 759,
                     columnNumber: 7
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-            lineNumber: 700,
+            lineNumber: 728,
             columnNumber: 5
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-        lineNumber: 699,
+        lineNumber: 727,
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0));
 const AttendanceButton = ({ status, currentStatus, onClick, disabled, icon, label })=>{
@@ -5135,7 +5102,7 @@ const AttendanceButton = ({ status, currentStatus, onClick, disabled, icon, labe
         ]
     }, void 0, true, {
         fileName: "[project]/app/event-and-attendance/MarkAttendanceModal.js",
-        lineNumber: 790,
+        lineNumber: 818,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

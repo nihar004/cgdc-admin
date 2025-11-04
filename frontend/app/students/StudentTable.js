@@ -24,43 +24,6 @@ export default function StudentTable({ filteredStudents }) {
   // State for manual offers modal
   const [showOffersModal, setShowOffersModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [enrichedOffers, setEnrichedOffers] = useState({});
-
-  // Add this near the top of the component, after the state declarations
-  const enrichOfferWithDetails = async (offer) => {
-    if (offer.source !== "campus" || !offer.company_id || !offer.position_id) {
-      return offer; // Manual offers already have all details
-    }
-
-    try {
-      const response = await axios.get(
-        `${backendUrl}/companies/${offer.company_id}/positions/${offer.position_id}`
-      );
-
-      const positionData = response.data.success
-        ? response.data.data
-        : response.data;
-
-      return {
-        ...offer,
-        company_name: positionData.company_name,
-        position_title: positionData.position_title,
-        package: parseFloat(positionData.package),
-        has_range: positionData.has_range,
-        package_end: positionData.package_end
-          ? parseFloat(positionData.package_end)
-          : null,
-      };
-    } catch (error) {
-      console.error("Error fetching offer details:", error);
-      return {
-        ...offer,
-        company_name: "Unknown Company",
-        package: 0,
-        _fetch_error: true,
-      };
-    }
-  };
 
   const handleEditStudent = (student) => {
     setEditingStudent(student);
@@ -191,39 +154,6 @@ export default function StudentTable({ filteredStudents }) {
     }
   };
 
-  useEffect(() => {
-    const enrichAllOffers = async () => {
-      const enrichedData = {};
-
-      for (const student of filteredStudents) {
-        enrichedData[student.id] = {};
-
-        // Enrich offers_received
-        if (student.offers_received?.length > 0) {
-          const enriched = await Promise.all(
-            student.offers_received
-              .slice(0, 2)
-              .map((offer) => enrichOfferWithDetails(offer))
-          );
-          enrichedData[student.id].offers = enriched;
-        }
-
-        // Enrich current_offer
-        if (student.current_offer) {
-          enrichedData[student.id].currentOffer = await enrichOfferWithDetails(
-            student.current_offer
-          );
-        }
-      }
-
-      setEnrichedOffers(enrichedData);
-    };
-
-    if (filteredStudents.length > 0) {
-      enrichAllOffers();
-    }
-  }, [filteredStudents]);
-
   return (
     <>
       <div className="space-y-6 mb-10">
@@ -232,12 +162,6 @@ export default function StudentTable({ filteredStudents }) {
             <table className="w-full">
               <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300"
-                    />
-                  </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Student Details
                   </th>
@@ -267,12 +191,6 @@ export default function StudentTable({ filteredStudents }) {
                     key={student.id}
                     className="hover:bg-slate-50 transition-all duration-200"
                   >
-                    <td className="px-6 py-5">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300"
-                      />
-                    </td>
                     <td className="px-6 py-5">
                       <div className="flex items-start gap-3">
                         <div>
@@ -326,12 +244,9 @@ export default function StudentTable({ filteredStudents }) {
                     </td>
                     <td className="px-6 py-5">
                       <div className="space-y-2">
-                        {enrichedOffers[student.id]?.currentOffer && (
+                        {student.current_offer && (
                           <div className="text-xs text-gray-600">
-                            {
-                              enrichedOffers[student.id].currentOffer
-                                .company_name
-                            }
+                            {student.current_offer.company_name}
                           </div>
                         )}
                         <span
@@ -349,27 +264,18 @@ export default function StudentTable({ filteredStudents }) {
                           <div className="text-sm font-medium text-gray-900">
                             {student.offers_received.length} Offer(s)
                           </div>
-                          {enrichedOffers[student.id]?.offers ? (
-                            enrichedOffers[student.id].offers.map(
-                              (offer, idx) => (
-                                <div
-                                  key={idx}
-                                  className="text-xs text-gray-500"
-                                >
-                                  {offer.company_name} -{" "}
-                                  {formatPackage(
-                                    offer.package,
-                                    offer.has_range,
-                                    offer.package_end
-                                  )}
-                                </div>
-                              )
-                            )
-                          ) : (
-                            <div className="text-xs text-gray-400">
-                              Loading offers...
-                            </div>
-                          )}
+                          {student.offers_received
+                            .slice(0, 2)
+                            .map((offer, idx) => (
+                              <div key={idx} className="text-xs text-gray-500">
+                                {offer.company_name} -{" "}
+                                {formatPackage(
+                                  offer.package,
+                                  offer.has_range,
+                                  offer.package_end
+                                )}
+                              </div>
+                            ))}
                         </div>
                       ) : (
                         <span className="text-xs text-gray-400">

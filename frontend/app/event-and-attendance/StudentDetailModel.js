@@ -247,7 +247,13 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {selectedEvent.students.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50">
+                <tr
+                  key={
+                    student.id ||
+                    `${student.registrationNumber}-${student.enrollmentNumber}`
+                  }
+                  className="hover:bg-gray-50"
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {student.name}
@@ -277,7 +283,7 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                     <span className={getStatusBadge(student.status)}>
                       <div className="flex items-center space-x-1">
                         {getAttendanceStatusIcon(student.status)}
-                        <span>
+                        <span key={`status-${student.id}-${student.status}`}>
                           {student.status.charAt(0).toUpperCase() +
                             student.status.slice(1)}
                         </span>

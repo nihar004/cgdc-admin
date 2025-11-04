@@ -43,9 +43,60 @@ const upload = multer({
   },
 });
 
+// Helper function to enrich offers with company/position details
+async function enrichOfferWithDetails(offer) {
+  if (offer.source !== "campus" || !offer.company_id || !offer.position_id) {
+    return offer; // Manual offers already have all details
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT 
+        c.company_name as company_name,
+        p.position_title as position_title,
+        p.package,
+        p.has_range,
+        p.package_end
+       FROM companies c
+       JOIN company_positions p ON p.company_id = c.id
+       WHERE c.id = $1 AND p.id = $2`,
+      [offer.company_id, offer.position_id]
+    );
+
+    if (result.rows.length > 0) {
+      const positionData = result.rows[0];
+      return {
+        ...offer,
+        company_name: positionData.company_name,
+        position_title: positionData.position_title,
+        package: parseFloat(positionData.package),
+        has_range: positionData.has_range,
+        package_end: positionData.package_end
+          ? parseFloat(positionData.package_end)
+          : null,
+      };
+    }
+
+    return {
+      ...offer,
+      company_name: "Unknown Company",
+      package: 0,
+      _fetch_error: true,
+    };
+  } catch (error) {
+    console.error("Error enriching offer:", error);
+    return {
+      ...offer,
+      company_name: "Unknown Company",
+      package: 0,
+      _fetch_error: true,
+    };
+  }
+}
+
 // Get all students
 routes.get("/", async (req, res) => {
-  const { batch } = req.query; // e.g. ?batch=2024
+  const { batch } = req.query;
   try {
     if (!batch) {
       return res.status(400).json({
@@ -57,7 +108,31 @@ routes.get("/", async (req, res) => {
     const values = [batch];
 
     const result = await db.query(query, values);
-    res.json(result.rows);
+
+    // Enrich offers for all students
+    const enrichedStudents = await Promise.all(
+      result.rows.map(async (student) => {
+        // Enrich offers_received
+        if (student.offers_received?.length > 0) {
+          student.offers_received = await Promise.all(
+            student.offers_received.map((offer) =>
+              enrichOfferWithDetails(offer)
+            )
+          );
+        }
+
+        // Enrich current_offer
+        if (student.current_offer) {
+          student.current_offer = await enrichOfferWithDetails(
+            student.current_offer
+          );
+        }
+
+        return student;
+      })
+    );
+
+    res.json(enrichedStudents);
   } catch (error) {
     console.error("Error fetching students:", error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -40,7 +40,7 @@ const DeleteConfirmationModal = ({
           `${type === "company" ? "Company" : "Position"} deleted successfully`
         );
       } catch (error) {
-        toast.error(`Failed to delete ${type}`);
+        toast.error(`Failed to del  ete ${type}`);
       }
     } else {
       toast.error("Please type the confirmation text correctly");
