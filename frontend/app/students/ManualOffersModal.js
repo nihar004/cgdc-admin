@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useStudentContext } from "../../context/StudentContext";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
@@ -39,33 +40,64 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
   const [showPositionChange, setShowPositionChange] = useState(false);
   const [changingOffer, setChangingOffer] = useState(null);
   const [availablePositions, setAvailablePositions] = useState([]);
+  const { fetchStudents } = useStudentContext();
 
-  useEffect(() => {
-    if (isOpen && student) {
-      loadStudentOffers();
-    }
-  }, [isOpen, student]);
-
-  const loadStudentOffers = async () => {
-    const studentOffers = Array.isArray(student.offers_received)
-      ? student.offers_received
-      : [];
-
-    // Fetch full details for campus offers
-    const offersWithDetails = await Promise.all(
-      studentOffers.map((offer) => fetchOfferDetails(offer))
-    );
-
-    setOffers(offersWithDetails);
-
-    // Also fetch details for current offer if it's campus
-    if (student.current_offer) {
-      const currentOfferDetails = await fetchOfferDetails(
-        student.current_offer
+  // Modify handlePositionChangeSubmit to include refetching
+  const handlePositionChangeSubmit = async (newPositionId) => {
+    try {
+      await axios.put(
+        `${backendUrl}/offers/students/${student.id}/offers/campus/${changingOffer.offer_id}/change-position`,
+        { new_position_id: newPositionId }
       );
-      setCurrentOffer(currentOfferDetails);
-    } else {
-      setCurrentOffer(null);
+
+      toast.success("Position changed successfully");
+
+      // Refetch all data
+      await Promise.all([
+        loadStudentOffers(),
+        fetchStudents(), // Refresh the main student list
+      ]);
+
+      setShowPositionChange(false);
+      setChangingOffer(null);
+      onSuccess?.(); // Notify parent component
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to change position");
+    }
+  };
+
+  // Modify loadStudentOffers to be more comprehensive
+  const loadStudentOffers = async () => {
+    try {
+      // Get fresh student data
+      const response = await axios.get(
+        `${backendUrl}/offers/students/${student.id}`
+      );
+      const freshStudentData = response.data;
+
+      const studentOffers = Array.isArray(freshStudentData.offers_received)
+        ? freshStudentData.offers_received
+        : [];
+
+      // Fetch full details for campus offers
+      const offersWithDetails = await Promise.all(
+        studentOffers.map((offer) => fetchOfferDetails(offer))
+      );
+
+      setOffers(offersWithDetails);
+
+      // Update current offer if exists
+      if (freshStudentData.current_offer) {
+        const currentOfferDetails = await fetchOfferDetails(
+          freshStudentData.current_offer
+        );
+        setCurrentOffer(currentOfferDetails);
+      } else {
+        setCurrentOffer(null);
+      }
+    } catch (error) {
+      console.error("Error loading student offers:", error);
+      toast.error("Failed to refresh offers data");
     }
   };
 
@@ -118,14 +150,15 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
 
       toast.success(response.data.message);
 
-      const updatedStudent = await axios.get(
-        `${backendUrl}/offers/students/${student.id}`
-      );
-      setOffers(updatedStudent.data.offers_received || []);
+      // Refresh all data
+      await Promise.all([
+        loadStudentOffers(),
+        fetchStudents(), // Refresh the main student list
+      ]);
 
       resetForm();
       setShowOfferForm(false);
-      onSuccess?.();
+      onSuccess?.(); // Notify parent component
     } catch (error) {
       console.error("Error saving offer:", error);
       toast.error(error.response?.data?.error || "Failed to save offer");
@@ -164,22 +197,6 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
       toast.error("Failed to load available positions");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handlePositionChangeSubmit = async (newPositionId) => {
-    try {
-      await axios.put(
-        `${backendUrl}/offers/students/${student.id}/offers/campus/${changingOffer.offer_id}/change-position`,
-        { new_position_id: newPositionId }
-      );
-
-      toast.success("Position changed successfully");
-      await loadStudentOffers();
-      setShowPositionChange(false);
-      onSuccess?.();
-    } catch (error) {
-      toast.error(error.response?.data?.error || "Failed to change position");
     }
   };
 
@@ -420,6 +437,12 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
 
     return formatPackage(amount);
   };
+
+  useEffect(() => {
+    if (isOpen && student) {
+      loadStudentOffers();
+    }
+  }, [isOpen, student]);
 
   if (!isOpen) return null;
 

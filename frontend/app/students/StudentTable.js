@@ -1,7 +1,7 @@
 import { Edit, Trash, Briefcase } from "lucide-react";
 import { useStudentContext } from "../../context/StudentContext";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ManualOffersModal from "./ManualOffersModal";

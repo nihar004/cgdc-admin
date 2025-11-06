@@ -4893,8 +4893,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/axios/lib/axios.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hot-toast/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/StudentContext.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
+;
 ;
 ;
 ;
@@ -4927,27 +4929,47 @@ const ManualOffersModal = (param)=>{
     const [showPositionChange, setShowPositionChange] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [changingOffer, setChangingOffer] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [availablePositions, setAvailablePositions] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "ManualOffersModal.useEffect": ()=>{
-            if (isOpen && student) {
-                loadStudentOffers();
-            }
+    const { fetchStudents } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"])();
+    // Modify handlePositionChangeSubmit to include refetching
+    const handlePositionChangeSubmit = async (newPositionId)=>{
+        try {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put("".concat(backendUrl, "/offers/students/").concat(student.id, "/offers/campus/").concat(changingOffer.offer_id, "/change-position"), {
+                new_position_id: newPositionId
+            });
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].success("Position changed successfully");
+            // Refetch all data
+            await Promise.all([
+                loadStudentOffers(),
+                fetchStudents()
+            ]);
+            setShowPositionChange(false);
+            setChangingOffer(null);
+            onSuccess === null || onSuccess === void 0 ? void 0 : onSuccess(); // Notify parent component
+        } catch (error) {
+            var _error_response_data, _error_response;
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].error(((_error_response = error.response) === null || _error_response === void 0 ? void 0 : (_error_response_data = _error_response.data) === null || _error_response_data === void 0 ? void 0 : _error_response_data.error) || "Failed to change position");
         }
-    }["ManualOffersModal.useEffect"], [
-        isOpen,
-        student
-    ]);
+    };
+    // Modify loadStudentOffers to be more comprehensive
     const loadStudentOffers = async ()=>{
-        const studentOffers = Array.isArray(student.offers_received) ? student.offers_received : [];
-        // Fetch full details for campus offers
-        const offersWithDetails = await Promise.all(studentOffers.map((offer)=>fetchOfferDetails(offer)));
-        setOffers(offersWithDetails);
-        // Also fetch details for current offer if it's campus
-        if (student.current_offer) {
-            const currentOfferDetails = await fetchOfferDetails(student.current_offer);
-            setCurrentOffer(currentOfferDetails);
-        } else {
-            setCurrentOffer(null);
+        try {
+            // Get fresh student data
+            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("".concat(backendUrl, "/offers/students/").concat(student.id));
+            const freshStudentData = response.data;
+            const studentOffers = Array.isArray(freshStudentData.offers_received) ? freshStudentData.offers_received : [];
+            // Fetch full details for campus offers
+            const offersWithDetails = await Promise.all(studentOffers.map((offer)=>fetchOfferDetails(offer)));
+            setOffers(offersWithDetails);
+            // Update current offer if exists
+            if (freshStudentData.current_offer) {
+                const currentOfferDetails = await fetchOfferDetails(freshStudentData.current_offer);
+                setCurrentOffer(currentOfferDetails);
+            } else {
+                setCurrentOffer(null);
+            }
+        } catch (error) {
+            console.error("Error loading student offers:", error);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].error("Failed to refresh offers data");
         }
     };
     const resetForm = ()=>{
@@ -4990,11 +5012,14 @@ const ManualOffersModal = (param)=>{
             }
             const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("".concat(backendUrl, "/offers/students/").concat(student.id, "/offers/manual"), payload);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].success(response.data.message);
-            const updatedStudent = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("".concat(backendUrl, "/offers/students/").concat(student.id));
-            setOffers(updatedStudent.data.offers_received || []);
+            // Refresh all data
+            await Promise.all([
+                loadStudentOffers(),
+                fetchStudents()
+            ]);
             resetForm();
             setShowOfferForm(false);
-            onSuccess === null || onSuccess === void 0 ? void 0 : onSuccess();
+            onSuccess === null || onSuccess === void 0 ? void 0 : onSuccess(); // Notify parent component
         } catch (error) {
             var _error_response_data, _error_response;
             console.error("Error saving offer:", error);
@@ -5024,20 +5049,6 @@ const ManualOffersModal = (param)=>{
             setIsLoading(false);
         }
     };
-    const handlePositionChangeSubmit = async (newPositionId)=>{
-        try {
-            await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put("".concat(backendUrl, "/offers/students/").concat(student.id, "/offers/campus/").concat(changingOffer.offer_id, "/change-position"), {
-                new_position_id: newPositionId
-            });
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].success("Position changed successfully");
-            await loadStudentOffers();
-            setShowPositionChange(false);
-            onSuccess === null || onSuccess === void 0 ? void 0 : onSuccess();
-        } catch (error) {
-            var _error_response_data, _error_response;
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].error(((_error_response = error.response) === null || _error_response === void 0 ? void 0 : (_error_response_data = _error_response.data) === null || _error_response_data === void 0 ? void 0 : _error_response_data.error) || "Failed to change position");
-        }
-    };
     // Position Change Modal
     const PositionChangeModal = ()=>{
         _s1();
@@ -5056,7 +5067,7 @@ const ManualOffersModal = (param)=>{
                                 children: "Change Position"
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 196,
+                                lineNumber: 213,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5070,18 +5081,18 @@ const ManualOffersModal = (param)=>{
                                     className: "h-5 w-5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 207,
+                                    lineNumber: 224,
                                     columnNumber: 15
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 199,
+                                lineNumber: 216,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 195,
+                        lineNumber: 212,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5095,7 +5106,7 @@ const ManualOffersModal = (param)=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 212,
+                                lineNumber: 229,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5103,13 +5114,13 @@ const ManualOffersModal = (param)=>{
                                 children: changingOffer.company_name
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 215,
+                                lineNumber: 232,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 211,
+                        lineNumber: 228,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5120,7 +5131,7 @@ const ManualOffersModal = (param)=>{
                                 children: "Select New Position"
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 221,
+                                lineNumber: 238,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -5133,7 +5144,7 @@ const ManualOffersModal = (param)=>{
                                         children: "-- Select Position --"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 229,
+                                        lineNumber: 246,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     availablePositions.map((pos)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -5146,19 +5157,19 @@ const ManualOffersModal = (param)=>{
                                             ]
                                         }, pos.position_id, true, {
                                             fileName: "[project]/app/students/ManualOffersModal.js",
-                                            lineNumber: 231,
+                                            lineNumber: 248,
                                             columnNumber: 17
                                         }, ("TURBOPACK compile-time value", void 0)))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 224,
+                                lineNumber: 241,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 220,
+                        lineNumber: 237,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5177,7 +5188,7 @@ const ManualOffersModal = (param)=>{
                                 children: isLoading ? "Changing..." : "Change Position"
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 240,
+                                lineNumber: 257,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5190,24 +5201,24 @@ const ManualOffersModal = (param)=>{
                                 children: "Cancel"
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 253,
+                                lineNumber: 270,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 239,
+                        lineNumber: 256,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/students/ManualOffersModal.js",
-                lineNumber: 194,
+                lineNumber: 211,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         }, void 0, false, {
             fileName: "[project]/app/students/ManualOffersModal.js",
-            lineNumber: 193,
+            lineNumber: 210,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0));
     };
@@ -5332,6 +5343,16 @@ const ManualOffersModal = (param)=>{
         }
         return formatPackage(amount);
     };
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "ManualOffersModal.useEffect": ()=>{
+            if (isOpen && student) {
+                loadStudentOffers();
+            }
+        }
+    }["ManualOffersModal.useEffect"], [
+        isOpen,
+        student
+    ]);
     if (!isOpen) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4",
@@ -5349,7 +5370,7 @@ const ManualOffersModal = (param)=>{
                                         children: "Manage Offers"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 432,
+                                        lineNumber: 455,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5361,13 +5382,13 @@ const ManualOffersModal = (param)=>{
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 433,
+                                        lineNumber: 456,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 431,
+                                lineNumber: 454,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5377,18 +5398,18 @@ const ManualOffersModal = (param)=>{
                                     className: "h-5 w-5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                    lineNumber: 441,
+                                    lineNumber: 464,
                                     columnNumber: 13
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 437,
+                                lineNumber: 460,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 430,
+                        lineNumber: 453,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5406,12 +5427,12 @@ const ManualOffersModal = (param)=>{
                                                     className: "h-5 w-5 text-emerald-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 452,
+                                                    lineNumber: 475,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 451,
+                                                lineNumber: 474,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -5419,13 +5440,13 @@ const ManualOffersModal = (param)=>{
                                                 children: "Current Accepted Offer"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 454,
+                                                lineNumber: 477,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 450,
+                                        lineNumber: 473,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5438,7 +5459,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Company"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 460,
+                                                        lineNumber: 483,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5446,13 +5467,13 @@ const ManualOffersModal = (param)=>{
                                                         children: currentOffer.company_name
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 463,
+                                                        lineNumber: 486,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 459,
+                                                lineNumber: 482,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5462,7 +5483,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Position"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 468,
+                                                        lineNumber: 491,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5470,13 +5491,13 @@ const ManualOffersModal = (param)=>{
                                                         children: currentOffer.position_title
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 471,
+                                                        lineNumber: 494,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 467,
+                                                lineNumber: 490,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5486,7 +5507,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Package"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 476,
+                                                        lineNumber: 499,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5494,13 +5515,13 @@ const ManualOffersModal = (param)=>{
                                                         children: formatPackageRange(currentOffer.package)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 479,
+                                                        lineNumber: 502,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 475,
+                                                lineNumber: 498,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5510,7 +5531,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Type"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 484,
+                                                        lineNumber: 507,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5518,25 +5539,25 @@ const ManualOffersModal = (param)=>{
                                                         children: currentOffer.source === "campus" ? "Campus" : "Off-Campus"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 487,
+                                                        lineNumber: 510,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 483,
+                                                lineNumber: 506,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 458,
+                                        lineNumber: 481,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 449,
+                                lineNumber: 472,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             !showOfferForm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5547,14 +5568,14 @@ const ManualOffersModal = (param)=>{
                                         className: "h-5 w-5"
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 507,
+                                        lineNumber: 530,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     "Add Manual Offer"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 503,
+                                lineNumber: 526,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             showOfferForm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5568,7 +5589,7 @@ const ManualOffersModal = (param)=>{
                                                 children: editingOffer ? "Edit Manual Offer" : "Add New Manual Offer"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 516,
+                                                lineNumber: 539,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5582,18 +5603,18 @@ const ManualOffersModal = (param)=>{
                                                     className: "h-5 w-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                    lineNumber: 527,
+                                                    lineNumber: 550,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 519,
+                                                lineNumber: 542,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 515,
+                                        lineNumber: 538,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5606,7 +5627,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Company Name *"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 533,
+                                                        lineNumber: 556,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5618,13 +5639,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 536,
+                                                        lineNumber: 559,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 532,
+                                                lineNumber: 555,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5634,7 +5655,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Position Title *"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 547,
+                                                        lineNumber: 570,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5646,13 +5667,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 550,
+                                                        lineNumber: 573,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 546,
+                                                lineNumber: 569,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5666,7 +5687,7 @@ const ManualOffersModal = (param)=>{
                                                                 children: "Package (in LPA) *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 563,
+                                                                lineNumber: 586,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5686,7 +5707,7 @@ const ManualOffersModal = (param)=>{
                                                                         className: "rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 567,
+                                                                        lineNumber: 590,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5695,19 +5716,19 @@ const ManualOffersModal = (param)=>{
                                                                         children: "Package has range"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 582,
+                                                                        lineNumber: 605,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 566,
+                                                                lineNumber: 589,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 562,
+                                                        lineNumber: 585,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5720,7 +5741,7 @@ const ManualOffersModal = (param)=>{
                                                                         children: formData.has_range ? "Starting Package *" : "Package *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 595,
+                                                                        lineNumber: 618,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5735,7 +5756,7 @@ const ManualOffersModal = (param)=>{
                                                                         placeholder: "e.g., 12.5"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 600,
+                                                                        lineNumber: 623,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5743,13 +5764,13 @@ const ManualOffersModal = (param)=>{
                                                                         children: "Enter -1 if package is not disclosed"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 611,
+                                                                        lineNumber: 634,
                                                                         columnNumber: 23
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 594,
+                                                                lineNumber: 617,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             formData.has_range && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5759,7 +5780,7 @@ const ManualOffersModal = (param)=>{
                                                                         children: "Ending Package *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 618,
+                                                                        lineNumber: 641,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5774,25 +5795,25 @@ const ManualOffersModal = (param)=>{
                                                                         placeholder: "e.g., 15.0"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 621,
+                                                                        lineNumber: 644,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 617,
+                                                                lineNumber: 640,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 591,
+                                                        lineNumber: 614,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 561,
+                                                lineNumber: 584,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5802,7 +5823,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Company Type *"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 638,
+                                                        lineNumber: 661,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -5817,7 +5838,7 @@ const ManualOffersModal = (param)=>{
                                                                 children: "Tech"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 648,
+                                                                lineNumber: 671,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -5825,19 +5846,19 @@ const ManualOffersModal = (param)=>{
                                                                 children: "Non-Tech"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 649,
+                                                                lineNumber: 672,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 641,
+                                                        lineNumber: 664,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 637,
+                                                lineNumber: 660,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5847,7 +5868,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Job Type"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 654,
+                                                        lineNumber: 677,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -5861,7 +5882,7 @@ const ManualOffersModal = (param)=>{
                                                                 children: "Full Time"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 663,
+                                                                lineNumber: 686,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -5869,7 +5890,7 @@ const ManualOffersModal = (param)=>{
                                                                 children: "Internship"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 664,
+                                                                lineNumber: 687,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -5877,19 +5898,19 @@ const ManualOffersModal = (param)=>{
                                                                 children: "Internship + PPO"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 665,
+                                                                lineNumber: 688,
                                                                 columnNumber: 21
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 657,
+                                                        lineNumber: 680,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 653,
+                                                lineNumber: 676,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5899,7 +5920,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Offer Date"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 672,
+                                                        lineNumber: 695,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5910,13 +5931,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 675,
+                                                        lineNumber: 698,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 671,
+                                                lineNumber: 694,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5926,7 +5947,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Joining Date"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 685,
+                                                        lineNumber: 708,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5937,13 +5958,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 688,
+                                                        lineNumber: 711,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 684,
+                                                lineNumber: 707,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5953,7 +5974,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Monthly Stipend (if applicable)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 698,
+                                                        lineNumber: 721,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5965,13 +5986,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 701,
+                                                        lineNumber: 724,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 697,
+                                                lineNumber: 720,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5981,7 +6002,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Work Location"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 712,
+                                                        lineNumber: 735,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -5992,13 +6013,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 715,
+                                                        lineNumber: 738,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 711,
+                                                lineNumber: 734,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6009,7 +6030,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Bond Details"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 725,
+                                                        lineNumber: 748,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -6020,13 +6041,13 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 728,
+                                                        lineNumber: 751,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 724,
+                                                lineNumber: 747,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6037,7 +6058,7 @@ const ManualOffersModal = (param)=>{
                                                         children: "Additional Details"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 738,
+                                                        lineNumber: 761,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -6048,19 +6069,19 @@ const ManualOffersModal = (param)=>{
                                                         className: "w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 741,
+                                                        lineNumber: 764,
                                                         columnNumber: 19
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 737,
+                                                lineNumber: 760,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 531,
+                                        lineNumber: 554,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6074,7 +6095,7 @@ const ManualOffersModal = (param)=>{
                                                 children: isLoading ? "Saving..." : editingOffer ? "Update Offer" : "Add Offer"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 752,
+                                                lineNumber: 775,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6087,19 +6108,19 @@ const ManualOffersModal = (param)=>{
                                                 children: "Cancel"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 764,
+                                                lineNumber: 787,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 751,
+                                        lineNumber: 774,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 514,
+                                lineNumber: 537,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6118,13 +6139,13 @@ const ManualOffersModal = (param)=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 782,
+                                                lineNumber: 805,
                                                 columnNumber: 15
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 780,
+                                        lineNumber: 803,
                                         columnNumber: 13
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     offers.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6134,7 +6155,7 @@ const ManualOffersModal = (param)=>{
                                                 className: "h-12 w-12 mx-auto mb-3 opacity-30"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 789,
+                                                lineNumber: 812,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6142,7 +6163,7 @@ const ManualOffersModal = (param)=>{
                                                 children: "No offers found"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 790,
+                                                lineNumber: 813,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6150,13 +6171,13 @@ const ManualOffersModal = (param)=>{
                                                 children: "Add a manual offer to get started"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 791,
+                                                lineNumber: 814,
                                                 columnNumber: 17
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 788,
+                                        lineNumber: 811,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "space-y-3",
@@ -6179,7 +6200,7 @@ const ManualOffersModal = (param)=>{
                                                                                 children: offer.company_name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 809,
+                                                                                lineNumber: 832,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6187,7 +6208,7 @@ const ManualOffersModal = (param)=>{
                                                                                 children: offer.source === "campus" ? "Campus" : "Off-Campus"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 812,
+                                                                                lineNumber: 835,
                                                                                 columnNumber: 27
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             offer.is_accepted && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6197,20 +6218,20 @@ const ManualOffersModal = (param)=>{
                                                                                         className: "h-3 w-3"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                        lineNumber: 825,
+                                                                                        lineNumber: 848,
                                                                                         columnNumber: 31
                                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                                     " Accepted"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 824,
+                                                                                lineNumber: 847,
                                                                                 columnNumber: 29
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 808,
+                                                                        lineNumber: 831,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6218,13 +6239,13 @@ const ManualOffersModal = (param)=>{
                                                                         children: offer.position_title
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 829,
+                                                                        lineNumber: 852,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 807,
+                                                                lineNumber: 830,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6240,12 +6261,12 @@ const ManualOffersModal = (param)=>{
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                    lineNumber: 842,
+                                                                                    lineNumber: 865,
                                                                                     columnNumber: 31
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 837,
+                                                                                lineNumber: 860,
                                                                                 columnNumber: 29
                                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6256,12 +6277,12 @@ const ManualOffersModal = (param)=>{
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                    lineNumber: 849,
+                                                                                    lineNumber: 872,
                                                                                     columnNumber: 31
                                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                                lineNumber: 844,
+                                                                                lineNumber: 867,
                                                                                 columnNumber: 29
                                                                             }, ("TURBOPACK compile-time value", void 0))
                                                                         ]
@@ -6273,7 +6294,7 @@ const ManualOffersModal = (param)=>{
                                                                         children: "Change Position"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 854,
+                                                                        lineNumber: 877,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     !offer.is_accepted && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6282,19 +6303,19 @@ const ManualOffersModal = (param)=>{
                                                                         children: "Accept"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 863,
+                                                                        lineNumber: 886,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 834,
+                                                                lineNumber: 857,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 806,
+                                                        lineNumber: 829,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6307,7 +6328,7 @@ const ManualOffersModal = (param)=>{
                                                                         className: "h-4 w-4 text-blue-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 875,
+                                                                        lineNumber: 898,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6315,13 +6336,13 @@ const ManualOffersModal = (param)=>{
                                                                         children: formatPackageRange(offer.package, offer.has_range, offer.package_end)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 876,
+                                                                        lineNumber: 899,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 874,
+                                                                lineNumber: 897,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6331,7 +6352,7 @@ const ManualOffersModal = (param)=>{
                                                                         className: "h-4 w-4 text-purple-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 885,
+                                                                        lineNumber: 908,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6339,13 +6360,13 @@ const ManualOffersModal = (param)=>{
                                                                         children: (_offer_job_type = offer.job_type) === null || _offer_job_type === void 0 ? void 0 : _offer_job_type.replace("_", " ")
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 886,
+                                                                        lineNumber: 909,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 884,
+                                                                lineNumber: 907,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6355,7 +6376,7 @@ const ManualOffersModal = (param)=>{
                                                                         className: "h-4 w-4 text-amber-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 891,
+                                                                        lineNumber: 914,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6363,13 +6384,13 @@ const ManualOffersModal = (param)=>{
                                                                         children: offer.offer_date
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 892,
+                                                                        lineNumber: 915,
                                                                         columnNumber: 25
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 890,
+                                                                lineNumber: 913,
                                                                 columnNumber: 23
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             offer.work_location && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6379,7 +6400,7 @@ const ManualOffersModal = (param)=>{
                                                                         className: "h-4 w-4 text-red-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 898,
+                                                                        lineNumber: 921,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6387,13 +6408,13 @@ const ManualOffersModal = (param)=>{
                                                                         children: offer.work_location
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 899,
+                                                                        lineNumber: 922,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 897,
+                                                                lineNumber: 920,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0)),
                                                             offer.joining_date && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6403,7 +6424,7 @@ const ManualOffersModal = (param)=>{
                                                                         className: "h-4 w-4 text-green-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 906,
+                                                                        lineNumber: 929,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6415,43 +6436,43 @@ const ManualOffersModal = (param)=>{
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                        lineNumber: 907,
+                                                                        lineNumber: 930,
                                                                         columnNumber: 27
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                                lineNumber: 905,
+                                                                lineNumber: 928,
                                                                 columnNumber: 25
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                                        lineNumber: 873,
+                                                        lineNumber: 896,
                                                         columnNumber: 21
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, offer.offer_id, true, {
                                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                                lineNumber: 798,
+                                                lineNumber: 821,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0));
                                         })
                                     }, void 0, false, {
                                         fileName: "[project]/app/students/ManualOffersModal.js",
-                                        lineNumber: 796,
+                                        lineNumber: 819,
                                         columnNumber: 15
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/students/ManualOffersModal.js",
-                                lineNumber: 779,
+                                lineNumber: 802,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 446,
+                        lineNumber: 469,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6462,33 +6483,37 @@ const ManualOffersModal = (param)=>{
                             children: "Close"
                         }, void 0, false, {
                             fileName: "[project]/app/students/ManualOffersModal.js",
-                            lineNumber: 923,
+                            lineNumber: 946,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/app/students/ManualOffersModal.js",
-                        lineNumber: 922,
+                        lineNumber: 945,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/students/ManualOffersModal.js",
-                lineNumber: 428,
+                lineNumber: 451,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PositionChangeModal, {}, void 0, false, {
                 fileName: "[project]/app/students/ManualOffersModal.js",
-                lineNumber: 932,
+                lineNumber: 955,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/students/ManualOffersModal.js",
-        lineNumber: 427,
+        lineNumber: 450,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(ManualOffersModal, "LTWL7AVVuf0SUeb4KcqrxYSqcFk=");
+_s(ManualOffersModal, "ROe/uVEMZZv7HrjCCGGhUPQiyRQ=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$StudentContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStudentContext"]
+    ];
+});
 _c = ManualOffersModal;
 const __TURBOPACK__default__export__ = ManualOffersModal;
 var _c;
