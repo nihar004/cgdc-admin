@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
+const path = require("path");
 require("dotenv").config();
 
 const {
@@ -80,6 +81,12 @@ app.use("/api/offers", isAuthenticated, offers);
 
 // ============ PUBLIC + AUTH ROUTES ============
 app.use("/api/users", users); // NO isAuthenticated here!
+
+// ===== Serve React App for all non-API routes =====
+app.use(express.static(path.join(__dirname, "frontend/build")));
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend/build", "index.html"));
+});
 
 // 404 handler
 app.use((req, res) => {
