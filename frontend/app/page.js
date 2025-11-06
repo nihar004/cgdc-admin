@@ -108,7 +108,7 @@ function HomeContent() {
     },
 
     {
-      title: "Events & Attendance",
+      title: "Round Creation and Attendance",
       description: "Manage placement events and track attendance",
       icon: <MdEventAvailable className="w-5 h-5" />,
       link: "/event-and-attendance",
@@ -116,7 +116,7 @@ function HomeContent() {
     },
 
     {
-      title: "Round Tracking",
+      title: "Round Results",
       description: "Monitor selection rounds and candidate progress",
       icon: <MdTrackChanges className="w-5 h-5" />,
       link: "/round-tracking",

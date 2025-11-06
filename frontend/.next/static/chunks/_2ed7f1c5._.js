@@ -281,7 +281,7 @@ function HomeContent() {
             color: "bg-green-500"
         },
         {
-            title: "Events & Attendance",
+            title: "Round Creation and Attendance",
             description: "Manage placement events and track attendance",
             icon: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$md$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MdEventAvailable"], {
                 className: "w-5 h-5"
@@ -294,7 +294,7 @@ function HomeContent() {
             color: "bg-red-500"
         },
         {
-            title: "Round Tracking",
+            title: "Round Results",
             description: "Monitor selection rounds and candidate progress",
             icon: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$md$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MdTrackChanges"], {
                 className: "w-5 h-5"
