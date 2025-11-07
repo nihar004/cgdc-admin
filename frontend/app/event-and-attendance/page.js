@@ -28,10 +28,12 @@ const EventAttendancePage = () => {
   const { selectedBatch } = useBatchContext();
   const [selectedEventType, setSelectedEventType] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [allEvents, setAllEvents] = useState([]);
   const [events, setEvents] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [stats, setStats] = useState({
     totalEvents: 0,
     completedEvents: 0,
@@ -86,6 +88,19 @@ const EventAttendancePage = () => {
         });
 
         setAllEvents(eventsWithStats);
+
+        // Extract unique companies for filter dropdown
+        const uniqueCompanies = [
+          ...new Set(
+            eventsWithStats
+              .filter(
+                (event) => event.company && event.type === "company_round"
+              )
+              .map((event) => event.company)
+          ),
+        ].sort();
+
+        setCompanies(uniqueCompanies);
         filterAndPaginateEvents(eventsWithStats);
       }
     } catch (error) {
@@ -114,6 +129,13 @@ const EventAttendancePage = () => {
     if (selectedStatus !== "all") {
       filteredEvents = filteredEvents.filter(
         (event) => event.status === selectedStatus
+      );
+    }
+
+    // Apply company filter
+    if (selectedCompany !== "all") {
+      filteredEvents = filteredEvents.filter(
+        (event) => event.company === selectedCompany
       );
     }
 
@@ -203,7 +225,13 @@ const EventAttendancePage = () => {
   // Effect for filtering
   useEffect(() => {
     filterAndPaginateEvents(allEvents, 1);
-  }, [selectedEventType, selectedStatus, searchTerm, allEvents]);
+  }, [
+    selectedEventType,
+    selectedStatus,
+    selectedCompany,
+    searchTerm,
+    allEvents,
+  ]);
 
   const handlePageChange = (newPage) => {
     filterAndPaginateEvents(allEvents, newPage);
@@ -299,7 +327,7 @@ const EventAttendancePage = () => {
                 </button>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Event & Attendance Management
+                    Round Creation and Attendance
                   </h1>
                   <p className="text-gray-600">
                     Track attendance for company rounds and CDGC events - Batch{" "}
@@ -483,6 +511,20 @@ const EventAttendancePage = () => {
                   <option value="ongoing">Ongoing</option>
                   <option value="completed">Completed</option>
                   <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div className="sm:w-48">
+                <select
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={selectedCompany}
+                  onChange={(e) => setSelectedCompany(e.target.value)}
+                >
+                  <option value="all">All Companies</option>
+                  {companies.map((company) => (
+                    <option key={company} value={company}>
+                      {company}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

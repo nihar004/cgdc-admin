@@ -476,7 +476,6 @@ async function addCampusOffer(
 
     const position = positionResult.rows[0];
 
-    // 2️⃣ Get student's current offers, placement status, and current offer
     const studentResult = await client.query(
       `SELECT offers_received, placement_status, current_offer FROM students WHERE id = $1`,
       [studentId]
@@ -492,6 +491,9 @@ async function addCampusOffer(
     const currentStatus = studentResult.rows[0]?.placement_status || "unplaced";
     const currentOffer = studentResult.rows[0]?.current_offer || null;
 
+    // ✅ Determine if this is the student's first offer
+    const isFirstOffer = offersReceived.length === 0;
+
     const campusOffer = {
       offer_id: `CAMPUS_${companyId}_${positionId}_${Date.now()}`,
       company_id: companyId,
@@ -499,14 +501,15 @@ async function addCampusOffer(
       source: "campus",
       offer_date:
         offerDetails.offer_date || new Date().toISOString().split("T")[0],
-      acceptance_date: null,
-      is_accepted: false,
-      work_location: offerDetails.work_location || null, // Student-specific override
+      acceptance_date: isFirstOffer
+        ? new Date().toISOString().split("T")[0]
+        : null, // Accept date if first
+      is_accepted: isFirstOffer, // ✅ Mark first offer as accepted
+      work_location: offerDetails.work_location || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
-    // 4️⃣ Prevent duplicate offers
     const alreadyExists = offersReceived.some(
       (o) =>
         o.source === "campus" &&
@@ -518,13 +521,11 @@ async function addCampusOffer(
       offersReceived.push(campusOffer);
     }
 
-    // 5️⃣ Determine if this should become the student's current offer
     let newCurrentOffer = currentOffer;
     if (!currentOffer || offersReceived.length === 1) {
       newCurrentOffer = campusOffer;
     }
 
-    // 6️⃣ Update student record
     await client.query(
       `
       UPDATE students 
@@ -548,8 +549,8 @@ async function addCampusOffer(
       success: true,
       offer: campusOffer,
       current_offer: newCurrentOffer,
-      message: !currentOffer
-        ? `Offer added and set as current offer. Student marked as placed.`
+      message: isFirstOffer
+        ? `First offer added and automatically accepted. Student marked as placed.`
         : `Offer added successfully. Student already placed.`,
     };
   } catch (error) {

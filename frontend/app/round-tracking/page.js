@@ -240,7 +240,7 @@ const RoundTrackingPage = () => {
               </button>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Round Tracking
+                  Round Results
                 </h1>
                 <p className="text-gray-600">
                   Monitor student progress through interview rounds

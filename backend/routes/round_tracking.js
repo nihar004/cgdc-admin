@@ -619,9 +619,35 @@ routes.post("/events/:eventId/results", async (req, res) => {
     // Add campus offers for newly selected students if last round
     if (isLastRound && companyId && positionIds.length > 0) {
       for (const studentId of studentsToAddOffer) {
-        for (const positionId of positionIds) {
-          await addCampusOffer(studentId, companyId, positionId, {});
-        }
+        // First, check which position the student originally applied for
+        const appliedPositionQuery = `
+          SELECT (fr.response_data->>'position_id')::int as position_id
+          FROM form_responses fr
+          JOIN forms f ON fr.form_id = f.id
+          WHERE fr.student_id = $1 
+          AND f.event_id IN (
+            SELECT id FROM events 
+            WHERE company_id = $2 
+            AND round_number = 1
+          )
+          LIMIT 1
+        `;
+
+        const positionResult = await client.query(appliedPositionQuery, [
+          studentId,
+          companyId,
+        ]);
+
+        // Use either the position they applied for, or the first available position
+        const positionId =
+          positionResult.rows[0]?.position_id || positionIds[0];
+
+        // Add single offer with the determined position
+        await addCampusOffer(studentId, companyId, positionId, {});
+
+        console.log(
+          `[RoundTracking] Added campus offer for student ${studentId} - Company: ${companyId}, Position: ${positionId}`
+        );
       }
     }
 
@@ -1073,9 +1099,31 @@ routes.post(
       // ✅ Handle campus offers
       if (isLastRound && event.company_id && positionIds.length > 0) {
         for (const studentId of studentsToAddOffer) {
-          for (const posId of positionIds) {
-            await addCampusOffer(studentId, event.company_id, posId, {});
-          }
+          // First, check which position the student originally applied for
+          const appliedPositionQuery = `
+            SELECT (fr.response_data->>'position_id')::int as position_id
+            FROM form_responses fr
+            JOIN forms f ON fr.form_id = f.id
+            WHERE fr.student_id = $1 
+            AND f.event_id IN (
+              SELECT id FROM events 
+              WHERE company_id = $2 
+              AND round_number = 1
+            )
+            LIMIT 1
+          `;
+
+          const positionResult = await client.query(appliedPositionQuery, [
+            studentId,
+            event.company_id,
+          ]);
+
+          // Use either the position they applied for, or the first available position
+          const positionId =
+            positionResult.rows[0]?.position_id || positionIds[0];
+
+          // Add single offer with the determined position
+          await addCampusOffer(studentId, event.company_id, positionId, {});
         }
       }
 
@@ -1098,22 +1146,9 @@ routes.post(
           if (!Array.isArray(student.offers_received))
             student.offers_received = [];
 
-          console.log(
-            `[RoundTracking] Processing student ${studentId} (${student.registration_number})`
-          );
-          console.log(
-            `[RoundTracking] Original offers_received:`,
-            student.offers_received
-          );
-
           // Remove the campus offer(s) associated with this event/company/positions
           const updatedOffers = student.offers_received.filter(
             (o) => !(o.source === "campus" && o.company_id === event.company_id)
-          );
-
-          console.log(
-            `[RoundTracking] Updated offers_received:`,
-            updatedOffers
           );
 
           // Check if current_offer is the one being removed
@@ -1124,18 +1159,11 @@ routes.post(
             student.current_offer.company_id === event.company_id;
 
           if (removedCurrentOffer) {
-            console.log(
-              `[RoundTracking] Current offer for student ${studentId} is being removed.`
-            );
             newCurrentOffer =
               updatedOffers.length > 0 ? updatedOffers[0] : null;
-            console.log(`[RoundTracking] New current_offer:`, newCurrentOffer);
           }
 
           const newStatus = updatedOffers.length > 0 ? "placed" : "unplaced";
-          console.log(
-            `[RoundTracking] New placement_status for student ${studentId}: ${newStatus}`
-          );
 
           await client.query(
             `UPDATE students
@@ -1151,8 +1179,6 @@ routes.post(
               studentId,
             ]
           );
-
-          console.log(`[RoundTracking] Student ${studentId} updated in DB.`);
         }
       }
 

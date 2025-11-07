@@ -83,9 +83,12 @@ app.use("/api/offers", isAuthenticated, offers);
 app.use("/api/users", users); // NO isAuthenticated here!
 
 // ===== Serve React App for all non-API routes =====
-app.use(express.static(path.join(__dirname, "frontend/build")));
+const frontendPath = path.join(__dirname, "..", "frontend", "build");
+
+app.use(express.static(frontendPath));
+
 app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend/build", "index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 // 404 handler

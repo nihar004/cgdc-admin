@@ -165,17 +165,17 @@ function EventCard({
                     {event.company}
                   </p>
                 )}
-                {event.position_ids &&
-                  event.position_ids.length > 0 &&
+                {event.positions &&
+                  event.positions.length > 0 &&
                   event.type === "company_round" && (
                     <div className="flex items-center flex-wrap gap-2 mt-2">
                       <span className="text-sm text-gray-500">Positions:</span>
-                      {event.position_ids.map((posId) => (
+                      {event.positions.map((position) => (
                         <span
-                          key={posId}
+                          key={position.id}
                           className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full"
                         >
-                          Position {posId}
+                          {position.title}
                         </span>
                       ))}
                     </div>
