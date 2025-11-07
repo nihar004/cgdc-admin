@@ -1,3 +1,72 @@
+// Helper function to enrich offer with company and position details
+async function enrichOfferWithDetails(db, offer) {
+  if (!offer || (offer.source === "manual" && offer.company_name)) {
+    return offer; // Manual offers already have all details
+  }
+
+  if (offer.source !== "campus" || !offer.company_id || !offer.position_id) {
+    return {
+      ...offer,
+      company_name: "Unknown Company",
+      package: 0,
+      company_type: "unknown",
+      _fetch_error: true,
+    };
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT 
+        c.company_name,
+        c.is_marquee,
+        p.position_title,
+        p.package,
+        p.has_range,
+        p.package_end,
+        p.company_type,
+        p.job_type
+       FROM companies c
+       JOIN company_positions p ON p.company_id = c.id
+       WHERE c.id = $1 AND p.id = $2`,
+      [offer.company_id, offer.position_id]
+    );
+
+    if (result.rows.length > 0) {
+      const positionData = result.rows[0];
+      return {
+        ...offer,
+        company_name: positionData.company_name,
+        position_title: positionData.position_title,
+        package: parseFloat(positionData.package) || 0,
+        has_range: positionData.has_range,
+        package_end: positionData.package_end
+          ? parseFloat(positionData.package_end)
+          : null,
+        company_type: positionData.company_type || "unknown",
+        job_type: positionData.job_type,
+        is_marquee: positionData.is_marquee,
+      };
+    }
+
+    return {
+      ...offer,
+      company_name: "Unknown Company",
+      package: 0,
+      company_type: "unknown",
+      _fetch_error: true,
+    };
+  } catch (error) {
+    console.error("Error enriching offer:", error);
+    return {
+      ...offer,
+      company_name: "Unknown Company",
+      package: 0,
+      company_type: "unknown",
+      _fetch_error: true,
+    };
+  }
+}
+
 // Calculate eligible students based on company criteria -- initial eligibility calculation
 async function calculateEligibleStudents(db, companyId, batchId) {
   try {
@@ -23,7 +92,7 @@ async function calculateEligibleStudents(db, companyId, batchId) {
     if (positionsRes.rows.length === 0)
       throw new Error("No positions found for this company");
 
-    // 2️⃣ Fetch batch year
+    // Fetch batch year
     const batchQuery = `SELECT year FROM batches WHERE id = $1`;
     const batchRes = await db.query(batchQuery, [batchId]);
     if (batchRes.rows.length === 0)
@@ -48,14 +117,12 @@ async function calculateEligibleStudents(db, companyId, batchId) {
         s.class_10_percentage,
         s.class_12_percentage
       FROM students s
-      WHERE 
-        s.batch_year = $1
-        AND s.placement_status IN ('placed', 'unplaced')
+      WHERE s.batch_year = $1
     `;
 
     const studentsRes = await db.query(studentsQuery, [batchYear]);
 
-    // 4️⃣ Separate students into three categories
+    // Separate students into three categories
     const eligibleIds = new Set();
     const placedIds = new Set();
     const ineligibleIds = new Set();
@@ -102,39 +169,56 @@ async function calculateEligibleStudents(db, companyId, batchId) {
 
         // Student passes academic criteria, now check placement status
 
+        // If student is not placed or unplaced → directly ineligible
+        // (e.g. higher studies, entrepreneurship, debarred, etc.)
+        const validStatuses = ["placed", "unplaced"];
+        if (!validStatuses.includes(student.placement_status)) {
+          // e.g. higher_studies, entrepreneurship, debarred, etc.
+          ineligibleIds.add(student.student_id);
+          continue;
+        }
+
+        // If the company is marquee, all academically eligible students are eligible
+        if (company.is_marquee) {
+          eligibleIds.add(student.student_id);
+          continue;
+        }
+
         // Unplaced → directly eligible
         if (student.placement_status === "unplaced") {
           eligibleIds.add(student.student_id);
           continue;
         }
 
-        // Parse current offer if placed
-        if (typeof student.current_offer === "string") {
+        // At this point student.placement_status === "placed"
+        // Parse and enrich current offer
+        let offer = student.current_offer;
+        if (typeof offer === "string") {
           try {
-            student.current_offer = JSON.parse(student.current_offer);
+            offer = JSON.parse(offer);
           } catch {
-            student.current_offer = null;
+            offer = null;
           }
         }
 
-        const offer = student.current_offer;
+        // Enrich the offer with company/position details
+        if (offer) {
+          offer = await enrichOfferWithDetails(db, offer);
+        }
 
-        // No offer but marked as placed → add to placed list (they can use dream company)
-        if (!offer) {
-          if (company.is_marquee) {
-            eligibleIds.add(student.student_id);
-          } else {
-            placedIds.add(student.student_id);
-          }
+        // No offer or failed to enrich → add to placed list (they need dream company)
+        if (!offer || offer._fetch_error) {
+          placedIds.add(student.student_id);
           continue;
         }
 
-        const currentPackage = offer.package || 0;
-        const currentType = offer.company_type;
+        // Now we have enriched offer with package and company_type
+        const currentPackage = Number(offer.package) || 0;
+        const currentType = offer.company_type || "unknown";
 
-        // If placed at non-tech → add to placed list (can use dream company)
+        // If placed at non-tech → eligible directly without using dream company
         if (currentType === "nontech") {
-          placedIds.add(student.student_id);
+          eligibleIds.add(student.student_id);
           continue;
         }
 
@@ -158,18 +242,12 @@ async function calculateEligibleStudents(db, companyId, batchId) {
           continue;
         }
 
-        // Marquee exception
-        if (company.is_marquee) {
-          eligibleIds.add(student.student_id);
-          continue;
-        }
-
         // Otherwise, they're placed and need dream company
         placedIds.add(student.student_id);
       }
     }
 
-    // 5️⃣ Get company-level criteria (same for all positions)
+    // Get company-level criteria (same for all positions)
     const criteria = {
       company_id: companyId,
       batch_year: batchYear,
@@ -181,7 +259,7 @@ async function calculateEligibleStudents(db, companyId, batchId) {
       is_marquee: positionsRes.rows[0].is_marquee,
     };
 
-    // 6️⃣ Return three separate lists
+    // Return three separate lists
     return {
       eligibleStudents: Array.from(eligibleIds),
       placedStudents: Array.from(placedIds),
@@ -264,14 +342,35 @@ async function isStudentEligible(db, companyId, studentId) {
 
     // --- UNPLACED STUDENT ---
     if (placement_status === "unplaced") {
+      // Still check academic criteria
+      for (const pos of positionsRes.rows) {
+        if (cgpa < (pos.min_cgpa || 0)) continue;
+        if (pos.max_backlogs === true && backlogs > 0) continue;
+        if (pos.eligibility_10th && class_10_percentage < pos.eligibility_10th)
+          continue;
+        if (pos.eligibility_12th && class_12_percentage < pos.eligibility_12th)
+          continue;
+        if (
+          pos.allowed_specializations?.length > 0 &&
+          !pos.allowed_specializations.includes(branch)
+        )
+          continue;
+
+        return {
+          isEligible: true,
+          reason: "Unplaced student meeting academic criteria",
+          dreamCompanyUsed: dream_company_used,
+        };
+      }
+
       return {
-        isEligible: true,
-        reason: "Unplaced student",
+        isEligible: false,
+        reason: "Does not meet academic criteria",
         dreamCompanyUsed: dream_company_used,
       };
     }
 
-    // --- PARSE CURRENT OFFER ---
+    // --- PARSE AND ENRICH CURRENT OFFER ---
     let offer = current_offer;
     if (typeof offer === "string") {
       try {
@@ -279,6 +378,11 @@ async function isStudentEligible(db, companyId, studentId) {
       } catch {
         offer = null;
       }
+    }
+
+    // Enrich offer with details
+    if (offer) {
+      offer = await enrichOfferWithDetails(db, offer);
     }
 
     const currentPackage = offer?.package || 0;
@@ -325,7 +429,7 @@ async function isStudentEligible(db, companyId, studentId) {
           dreamCompanyUsed: dream_company_used,
         };
 
-      // --- UNPLACED already handled above, now handle PLACED cases ---
+      // --- PLACED STUDENT CHECKS ---
       if (currentType === "nontech") {
         return {
           isEligible: true,
@@ -372,6 +476,116 @@ async function isStudentEligible(db, companyId, studentId) {
   }
 }
 
+// async function manuallyAddEligibleStudent(
+//   db,
+//   companyId,
+//   batchId,
+//   studentId,
+//   reason
+// ) {
+//   try {
+//     // Ensure the record exists first
+//     await db.query(
+//       `
+//       INSERT INTO company_eligibility (
+//         company_id,
+//         batch_id,
+//         eligible_student_ids,
+//         placed_student_ids,
+//         ineligible_student_ids,
+//         manual_override_reasons
+//       )
+//       VALUES ($1, $2, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '{}'::jsonb)
+//       ON CONFLICT (company_id, batch_id) DO NOTHING
+//       `,
+//       [companyId, batchId]
+//     );
+
+//     // Get the current state
+//     const getCurrentQuery = `
+//       SELECT
+//         eligible_student_ids,
+//         placed_student_ids,
+//         ineligible_student_ids,
+//         manual_override_reasons
+//       FROM company_eligibility
+//       WHERE company_id = $1 AND batch_id = $2
+//     `;
+
+//     const currentResult = await db.query(getCurrentQuery, [companyId, batchId]);
+
+//     if (currentResult.rows.length === 0) {
+//       return {
+//         success: false,
+//         message: "No record found for company and batch.",
+//       };
+//     }
+
+//     const current = currentResult.rows[0];
+//     let eligibleIds = current.eligible_student_ids || [];
+//     let placedIds = current.placed_student_ids || [];
+//     let ineligibleIds = current.ineligible_student_ids || [];
+//     let manualReasons = current.manual_override_reasons || {};
+
+//     // Remove from placed list if present
+//     placedIds = placedIds.filter((id) => id !== parseInt(studentId));
+
+//     // Remove from ineligible list if present (manual override for academic failures)
+//     ineligibleIds = ineligibleIds.filter((id) => id !== parseInt(studentId));
+
+//     // Add to eligible if not already present
+//     if (!eligibleIds.includes(parseInt(studentId))) {
+//       eligibleIds.push(parseInt(studentId));
+//     }
+
+//     // Add manual override reason
+//     manualReasons[studentId.toString()] = reason;
+
+//     // Update the record
+//     const updateQuery = `
+//       UPDATE company_eligibility
+//       SET
+//         eligible_student_ids = $3::jsonb,
+//         placed_student_ids = $4::jsonb,
+//         ineligible_student_ids = $5::jsonb,
+//         manual_override_reasons = $6::jsonb,
+//         total_eligible_count = $7,
+//         total_placed_count = $8,
+//         total_ineligible_count = $9,
+//         updated_at = NOW()
+//       WHERE company_id = $1 AND batch_id = $2
+//       RETURNING *;
+//     `;
+
+//     const result = await db.query(updateQuery, [
+//       companyId,
+//       batchId,
+//       JSON.stringify(eligibleIds),
+//       JSON.stringify(placedIds),
+//       JSON.stringify(ineligibleIds),
+//       JSON.stringify(manualReasons),
+//       eligibleIds.length,
+//       placedIds.length,
+//       ineligibleIds.length,
+//     ]);
+
+//     if (result.rowCount === 0) {
+//       return {
+//         success: false,
+//         message: "Failed to update record.",
+//       };
+//     }
+
+//     return {
+//       success: true,
+//       message: `Student ${studentId} manually added to eligible list.`,
+//       data: result.rows[0],
+//     };
+//   } catch (error) {
+//     console.error("Error in manuallyAddEligibleStudent:", error);
+//     throw new Error("Failed to manually add eligible student.");
+//   }
+// }
 async function manuallyAddEligibleStudent(
   db,
   companyId,
@@ -380,7 +594,6 @@ async function manuallyAddEligibleStudent(
   reason
 ) {
   try {
-    // Ensure the record exists first
     await db.query(
       `
       INSERT INTO company_eligibility (
@@ -397,7 +610,6 @@ async function manuallyAddEligibleStudent(
       [companyId, batchId]
     );
 
-    // First, get the current state
     const getCurrentQuery = `
       SELECT 
         eligible_student_ids,
@@ -409,7 +621,6 @@ async function manuallyAddEligibleStudent(
     `;
 
     const currentResult = await db.query(getCurrentQuery, [companyId, batchId]);
-
     if (currentResult.rows.length === 0) {
       return {
         success: false,
@@ -423,21 +634,24 @@ async function manuallyAddEligibleStudent(
     let ineligibleIds = current.ineligible_student_ids || [];
     let manualReasons = current.manual_override_reasons || {};
 
-    // Remove from placed list if present
-    placedIds = placedIds.filter((id) => id !== parseInt(studentId));
+    const sid = parseInt(studentId);
 
-    // Remove from ineligible list if present (manual override for academic failures)
-    ineligibleIds = ineligibleIds.filter((id) => id !== parseInt(studentId));
+    // Detect origin before removing
+    let origin = null;
+    if (placedIds.includes(sid)) origin = "placed";
+    else if (ineligibleIds.includes(sid)) origin = "ineligible";
 
-    // Add to eligible if not already present
-    if (!eligibleIds.includes(parseInt(studentId))) {
-      eligibleIds.push(parseInt(studentId));
-    }
+    // Remove student from other lists
+    placedIds = placedIds.filter((id) => id !== sid);
+    ineligibleIds = ineligibleIds.filter((id) => id !== sid);
 
-    // Add manual override reason
-    manualReasons[studentId.toString()] = reason;
+    // Add to eligible if not already there
+    if (!eligibleIds.includes(sid)) eligibleIds.push(sid);
 
-    // Update the record
+    // Record reason + origin
+    manualReasons[sid.toString()] = { reason, from: origin };
+
+    // Update DB
     const updateQuery = `
       UPDATE company_eligibility
       SET 
@@ -464,13 +678,6 @@ async function manuallyAddEligibleStudent(
       placedIds.length,
       ineligibleIds.length,
     ]);
-
-    if (result.rowCount === 0) {
-      return {
-        success: false,
-        message: "Failed to update record.",
-      };
-    }
 
     return {
       success: true,
@@ -513,8 +720,9 @@ async function removeManuallyAddedStudent(db, companyId, batchId, studentId) {
     let manualReasons = current.manual_override_reasons || {};
     let dreamCompanyIds = current.dream_company_student_ids || [];
 
-    // Check if student was manually added
     const studentIdStr = studentId.toString();
+
+    // Check if student was manually added
     if (!manualReasons[studentIdStr]) {
       return {
         success: false,
@@ -522,103 +730,26 @@ async function removeManuallyAddedStudent(db, companyId, batchId, studentId) {
       };
     }
 
-    // Remove from eligible
+    // Determine origin (where the student was before manual add)
+    const origin = manualReasons[studentIdStr]?.from;
+
+    // Remove from eligible list
     eligibleIds = eligibleIds.filter((id) => id !== parseInt(studentId));
 
     // Remove manual override reason
     delete manualReasons[studentIdStr];
 
-    // Determine where to put the student back
-    // Check if they were originally in placed or ineligible list
-    // We need to check student's academic criteria and placement status
-    const studentQuery = `
-      SELECT 
-        placement_status,
-        cgpa,
-        backlogs,
-        branch,
-        class_10_percentage,
-        class_12_percentage
-      FROM students
-      WHERE id = $1
-    `;
-
-    const studentResult = await db.query(studentQuery, [studentId]);
-
-    if (studentResult.rows.length === 0) {
-      return {
-        success: false,
-        message: "Student not found.",
-      };
-    }
-
-    const student = studentResult.rows[0];
-
-    // Get company criteria
-    const companyQuery = `
-      SELECT 
-        min_cgpa,
-        max_backlogs,
-        allowed_specializations,
-        eligibility_10th,
-        eligibility_12th
-      FROM companies
-      WHERE id = $1
-    `;
-
-    const companyResult = await db.query(companyQuery, [companyId]);
-
-    if (companyResult.rows.length === 0) {
-      return {
-        success: false,
-        message: "Company not found.",
-      };
-    }
-
-    const company = companyResult.rows[0];
-
-    // Check if student passes academic criteria
-    let passesAcademic = true;
-
-    if (student.cgpa < (company.min_cgpa || 0)) passesAcademic = false;
-    if (company.max_backlogs === true && student.backlogs > 0)
-      passesAcademic = false;
-    if (
-      company.eligibility_10th &&
-      student.class_10_percentage < company.eligibility_10th
-    )
-      passesAcademic = false;
-    if (
-      company.eligibility_12th &&
-      student.class_12_percentage < company.eligibility_12th
-    )
-      passesAcademic = false;
-    if (
-      company.allowed_specializations?.length > 0 &&
-      !company.allowed_specializations.includes(student.branch)
-    )
-      passesAcademic = false;
-
-    // Put student back in appropriate list
-    if (!passesAcademic) {
-      // Failed academic criteria - goes to ineligible
-      if (!ineligibleIds.includes(parseInt(studentId))) {
-        ineligibleIds.push(parseInt(studentId));
-      }
-    } else if (student.placement_status === "placed") {
-      // Passes academic but is placed - goes to placed list
-      if (!placedIds.includes(parseInt(studentId))) {
+    // Put student back to the original list
+    if (origin === "placed") {
+      if (!placedIds.includes(parseInt(studentId)))
         placedIds.push(parseInt(studentId));
-      }
     } else {
-      // This shouldn't happen (unplaced student should be auto-eligible)
-      // But put in placed list as safeguard
-      if (!placedIds.includes(parseInt(studentId))) {
-        placedIds.push(parseInt(studentId));
-      }
+      // Default to ineligible if origin unknown or was "ineligible"
+      if (!ineligibleIds.includes(parseInt(studentId)))
+        ineligibleIds.push(parseInt(studentId));
     }
 
-    // Update the record
+    // Update the record in DB
     const updateQuery = `
       UPDATE company_eligibility
       SET 
@@ -655,7 +786,7 @@ async function removeManuallyAddedStudent(db, companyId, batchId, studentId) {
 
     return {
       success: true,
-      message: `Student ${studentId} removed from eligible list and manual override cleared.`,
+      message: `Student ${studentId} removed from eligible list and returned to original list.`,
       data: result.rows[0],
     };
   } catch (error) {
@@ -796,6 +927,7 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
 }
 
 module.exports = {
+  enrichOfferWithDetails,
   calculateEligibleStudents,
   isStudentEligible,
   getCompanyEligibility,

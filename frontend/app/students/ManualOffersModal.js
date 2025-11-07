@@ -909,6 +909,9 @@ const ManualOffersModal = ({ isOpen, onClose, student, onSuccess }) => {
                         <span className="capitalize font-semibold">
                           {offer.job_type?.replace("_", " ")}
                         </span>
+                        <span className="capitalize font-semibold bg-slate-300 px-2 py-1 rounded-full text-xs text-slate-700">
+                          {offer.company_type?.replace("_", " ")}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600">
                         <Calendar className="h-4 w-4 text-amber-600" />

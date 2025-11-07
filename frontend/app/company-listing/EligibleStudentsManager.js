@@ -712,7 +712,9 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     Manual Override
                                   </span>
                                   <p className="text-xs text-gray-600 italic line-clamp-2">
-                                    &quot;{student.manual_override_reason}&quot;
+                                    &quot;
+                                    {student.manual_override_reason.reason}
+                                    &quot;
                                   </p>
                                 </div>
                               ) : student.used_dream_company ? (
