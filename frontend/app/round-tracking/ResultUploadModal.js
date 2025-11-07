@@ -600,7 +600,9 @@ const ResultUploadModal = ({
                   type="button"
                   className="mt-3 inline-flex items-center px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={csvProcessing}
-                  onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                  onClick={() =>
+                    fileInputRef.current && fileInputRef.current.click()
+                  }
                 >
                   {csvProcessing ? "Processing..." : "Choose File"}
                 </button>
