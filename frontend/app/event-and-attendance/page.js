@@ -18,7 +18,7 @@ import * as XLSX from "xlsx";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 import EventCard from "./EventCard";
-import StudentDetailModel from "./StudentDetailModel";
+import StudentDetailModel from "./Student DetailModel";
 import PaginationBar from "./PaginationBar";
 import { useBatchContext } from "../../context/BatchContext";
 import CreateEvent from "./CreateEvent";
