@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FileText,
   X,
@@ -31,6 +31,7 @@ const ResultUploadModal = ({
   const [csvProcessing, setCsvProcessing] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchEventStudents();
@@ -582,33 +583,33 @@ const ResultUploadModal = ({
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
                   <Upload className="h-8 w-8 text-blue-600" />
                 </div>
-                <label htmlFor="file-upload" className="cursor-pointer block">
-                  <p className="text-base font-medium text-gray-900 mb-2">
-                    Upload Results File
-                  </p>
-                  <input
-                    id="file-upload"
-                    name="file-upload"
-                    type="file"
-                    accept=".csv,.xlsx,.xls"
-                    className="sr-only"
-                    onChange={handleFileUpload}
-                    disabled={csvProcessing}
-                  />
-                  <button
-                    type="button"
-                    className="mt-3 inline-flex items-center px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={csvProcessing}
-                  >
-                    {csvProcessing ? "Processing..." : "Choose File"}
-                  </button>
-                  {file && !csvProcessing && (
-                    <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-50 text-green-700 rounded-lg">
-                      <Check size={16} className="mr-2" />
-                      <span className="text-sm font-medium">{file.name}</span>
-                    </div>
-                  )}
-                </label>
+                <p className="text-base font-medium text-gray-900 mb-2">
+                  Upload Results File
+                </p>
+                <input
+                  ref={fileInputRef}
+                  id="file-upload"
+                  name="file-upload"
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  className="sr-only"
+                  onChange={handleFileUpload}
+                  disabled={csvProcessing}
+                />
+                <button
+                  type="button"
+                  className="mt-3 inline-flex items-center px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={csvProcessing}
+                  onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                >
+                  {csvProcessing ? "Processing..." : "Choose File"}
+                </button>
+                {file && !csvProcessing && (
+                  <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-50 text-green-700 rounded-lg">
+                    <Check size={16} className="mr-2" />
+                    <span className="text-sm font-medium">{file.name}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

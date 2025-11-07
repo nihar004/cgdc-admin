@@ -909,10 +909,25 @@ routes.post(
 
         registrationNumbers = sheetData
           .map((row) => {
-            if (row.registration_number) return row.registration_number.trim();
-            if (row.reg_number) return row.reg_number.trim();
-            if (row["Registration Number"])
+            if (
+              row.registration_number &&
+              typeof row.registration_number === "string"
+            )
+              return row.registration_number.trim();
+            if (row.reg_number && typeof row.reg_number === "string")
+              return row.reg_number.trim();
+            if (
+              row["Registration Number"] &&
+              typeof row["Registration Number"] === "string"
+            )
               return row["Registration Number"].trim();
+            // If it's a number, convert to string
+            if (typeof row.registration_number === "number")
+              return String(row.registration_number).trim();
+            if (typeof row.reg_number === "number")
+              return String(row.reg_number).trim();
+            if (typeof row["Registration Number"] === "number")
+              return String(row["Registration Number"]).trim();
             return null;
           })
           .filter(Boolean);
