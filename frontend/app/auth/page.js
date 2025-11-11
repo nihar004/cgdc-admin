@@ -185,7 +185,7 @@ export default function CGDCAuth() {
               Verify Your Email
             </h2>
             <p className="text-gray-600">
-              We've sent a verification code to
+              We&apos;ve sent a verification code to
               <br />
               <span className="font-semibold">{verificationEmail}</span>
             </p>
@@ -223,7 +223,7 @@ export default function CGDCAuth() {
                 disabled={loading}
                 className="text-sm text-blue-600 hover:text-blue-500 disabled:opacity-50"
               >
-                Didn't receive the code? Resend
+                Didn&apos;t receive the code? Resend
               </button>
               <br />
               <button

@@ -17,24 +17,14 @@ import {
 } from "recharts";
 import {
   TrendingUp,
-  Users,
-  Briefcase,
   Award,
-  Calendar,
-  Target,
   CheckCircle,
   XCircle,
   Clock,
   Download,
   ArrowLeft,
-  Building2,
-  GraduationCap,
-  DollarSign,
   Building,
 } from "lucide-react";
-
-// Dummy Data
-const batchYears = [2024, 2025, 2026];
 
 const batchOverviewData = {
   2025: {
@@ -355,16 +345,13 @@ const packageDistribution = [
 ];
 
 export default function PlacementAnalyticsDashboard() {
-  const [selectedBatchYear, setSelectedBatchYear] = useState(2025);
+  const [selectedBatchYear] = useState(2025);
   const [view, setView] = useState("batch");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [batchTab, setBatchTab] = useState("overview");
   const [studentTab, setStudentTab] = useState("overview");
   const [selectedCompanyDetail, setSelectedCompanyDetail] = useState(null);
   const [expandedStudentCompany, setExpandedStudentCompany] = useState(null);
-  const [selectedYear, setSelectedYear] = useState("2024");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [timeRange, setTimeRange] = useState("6months");
 
   // Sample data for analytics
   const overallStats = {

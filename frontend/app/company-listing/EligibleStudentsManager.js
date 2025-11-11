@@ -148,7 +148,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
 
   useEffect(() => {
     fetchEligibilityBrief();
-  }, [companyId, batchYear]);
+  }, [companyId, batchYear, fetchEligibilityBrief]);
 
   const fetchEligibilityBrief = async () => {
     try {
