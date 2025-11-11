@@ -10,14 +10,14 @@ const { isAdmin } = require("../middleware/role");
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
-  service: "gmail", // or your email service
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-// Signup
+// Signup - Send verification email
 routes.post("/signup", async (req, res) => {
   const client = await db.connect();
   try {
@@ -60,32 +60,60 @@ routes.post("/signup", async (req, res) => {
     // Hash password
     const password_hash = await bcrypt.hash(password, 10);
 
-    // Insert new user (default role: placement_officer)
+    // Insert new user with is_active = false (unverified)
     const result = await client.query(
       `INSERT INTO users (username, password_hash, email, role, is_active) 
-       VALUES ($1, $2, $3, $4, true) 
+       VALUES ($1, $2, $3, $4, false) 
        RETURNING id, username, email, role`,
       [username, password_hash, email, "pending"]
     );
 
-    await client.query("COMMIT");
-
     const user = result.rows[0];
 
-    // Create session
-    req.session.userId = user.id;
-    req.session.username = user.username;
-    req.session.userRole = user.role;
+    // Generate 6-digit verification code
+    const verificationCode = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    // Store verification code in password_resets table
+    await client.query(
+      `INSERT INTO password_resets (user_id, reset_code, expires_at) 
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET reset_code = $2, expires_at = $3, created_at = CURRENT_TIMESTAMP`,
+      [user.id, verificationCode, expiresAt]
+    );
+
+    await client.query("COMMIT");
+
+    // Send verification email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Email Verification - CGDC Portal",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1e293b;">Welcome to CGDC Portal!</h2>
+          <p>Hello ${username},</p>
+          <p>Thank you for signing up. Please verify your email address using the code below:</p>
+          <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <h1 style="color: #1e293b; font-size: 32px; letter-spacing: 8px; margin: 0;">${verificationCode}</h1>
+          </div>
+          <p>This code will expire in 30 minutes.</p>
+          <p>If you didn't create this account, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+          <p style="color: #64748b; font-size: 12px;">Career Guidance & Development Cell</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
 
     return res.status(201).json({
       success: true,
-      message: "Account created successfully",
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      message:
+        "Account created! Please check your email for verification code.",
+      requiresVerification: true,
+      email: email,
     });
   } catch (error) {
     await client.query("ROLLBACK");
@@ -96,6 +124,160 @@ routes.post("/signup", async (req, res) => {
     });
   } finally {
     client.release();
+  }
+});
+
+// Verify email with code
+routes.post("/verify-email", async (req, res) => {
+  const client = await db.connect();
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and verification code are required",
+      });
+    }
+
+    await client.query("BEGIN");
+
+    // Check verification code
+    const result = await client.query(
+      `SELECT pr.user_id, u.username, u.role, u.is_active
+       FROM password_resets pr
+       JOIN users u ON pr.user_id = u.id
+       WHERE u.email = $1 AND pr.reset_code = $2 AND pr.expires_at > NOW()`,
+      [email, code]
+    );
+
+    if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification code",
+      });
+    }
+
+    const user = result.rows[0];
+
+    // Activate user account
+    await client.query("UPDATE users SET is_active = true WHERE id = $1", [
+      user.user_id,
+    ]);
+
+    // Delete verification code
+    await client.query("DELETE FROM password_resets WHERE user_id = $1", [
+      user.user_id,
+    ]);
+
+    await client.query("COMMIT");
+
+    // Create session
+    req.session.userId = user.user_id;
+    req.session.username = user.username;
+    req.session.userRole = user.role;
+
+    return res.json({
+      success: true,
+      message: "Email verified successfully!",
+      user: {
+        id: user.user_id,
+        username: user.username,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Verify email error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  } finally {
+    client.release();
+  }
+});
+
+// Resend verification code
+routes.post("/resend-verification", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    // Check if user exists and is not verified
+    const userResult = await db.query(
+      "SELECT id, username, email, is_active FROM users WHERE email = $1",
+      [email]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.is_active) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified",
+      });
+    }
+
+    // Generate new verification code
+    const verificationCode = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    // Update verification code
+    await db.query(
+      `INSERT INTO password_resets (user_id, reset_code, expires_at) 
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET reset_code = $2, expires_at = $3, created_at = CURRENT_TIMESTAMP`,
+      [user.id, verificationCode, expiresAt]
+    );
+
+    // Send verification email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Email Verification - CGDC Portal",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1e293b;">Email Verification</h2>
+          <p>Hello ${user.username},</p>
+          <p>Here's your new verification code:</p>
+          <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <h1 style="color: #1e293b; font-size: 32px; letter-spacing: 8px; margin: 0;">${verificationCode}</h1>
+          </div>
+          <p>This code will expire in 30 minutes.</p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+          <p style="color: #64748b; font-size: 12px;">Career Guidance & Development Cell</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.json({
+      success: true,
+      message: "Verification code resent to your email",
+    });
+  } catch (error) {
+    console.error("Resend verification error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to resend verification code",
+    });
   }
 });
 

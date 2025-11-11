@@ -12,6 +12,9 @@ export default function CGDCAuth() {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -23,6 +26,7 @@ export default function CGDCAuth() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleInputChange = (e) => {
     setFormData({
@@ -34,6 +38,7 @@ export default function CGDCAuth() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
     setLoading(true);
 
     if (isLogin) {
@@ -60,23 +65,75 @@ export default function CGDCAuth() {
           `${backendUrl}/users/signup`,
           {
             username: formData.username,
-            email: formData.email, // Use separate email field
+            email: formData.email,
             password: formData.password,
             name: formData.name,
           },
           { withCredentials: true }
         );
 
-        if (response.data.success) {
-          // Auto login after signup - use username for login
-          const result = await login(formData.username, formData.password);
-          if (!result.success) {
-            setError(result.message);
-          }
+        if (response.data.success && response.data.requiresVerification) {
+          setVerificationEmail(formData.email);
+          setShowEmailVerification(true);
+          setSuccessMessage(response.data.message);
         }
       } catch (err) {
         setError(err.response?.data?.message || "Signup failed");
       }
+    }
+
+    setLoading(false);
+  };
+
+  const handleVerifyEmail = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMessage("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${backendUrl}/users/verify-email`,
+        {
+          email: verificationEmail,
+          code: verificationCode,
+        },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setSuccessMessage("Email verified successfully! Redirecting...");
+        // Refresh the page or redirect after successful verification
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Verification failed");
+    }
+
+    setLoading(false);
+  };
+
+  const handleResendCode = async () => {
+    setError("");
+    setSuccessMessage("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${backendUrl}/users/resend-verification`,
+        {
+          email: verificationEmail,
+        },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setSuccessMessage(response.data.message);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to resend code");
     }
 
     setLoading(false);
@@ -94,6 +151,105 @@ export default function CGDCAuth() {
           <div className="p-8">
             <ForgotPassword onBack={() => setShowForgotPassword(false)} />
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-600 to-slate-900 flex items-center justify-center p-4">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative w-full max-w-md bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden p-8">
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-10 h-10 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Verify Your Email
+            </h2>
+            <p className="text-gray-600">
+              We've sent a verification code to
+              <br />
+              <span className="font-semibold">{verificationEmail}</span>
+            </p>
+          </div>
+
+          <form onSubmit={handleVerifyEmail} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Verification Code
+              </label>
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-center text-2xl tracking-widest"
+                placeholder="000000"
+                maxLength={6}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-slate-800 to-gray-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-slate-900 hover:to-gray-700 transition-all duration-200 transform hover:scale-[1.02] focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Verifying..." : "Verify Email"}
+            </button>
+
+            <div className="text-center space-y-2">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={loading}
+                className="text-sm text-blue-600 hover:text-blue-500 disabled:opacity-50"
+              >
+                Didn't receive the code? Resend
+              </button>
+              <br />
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmailVerification(false);
+                  setVerificationCode("");
+                }}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Back to signup
+              </button>
+            </div>
+          </form>
+
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 text-green-600 rounded-xl text-sm">
+              {successMessage}
+            </div>
+          )}
         </div>
       </div>
     );
