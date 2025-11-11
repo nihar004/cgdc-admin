@@ -24,6 +24,7 @@ import {
   Download,
   ArrowLeft,
   Building,
+  Target,
 } from "lucide-react";
 
 const batchOverviewData = {
@@ -320,28 +321,12 @@ const studentData = {
   },
 };
 
-const monthlyPlacementTrend = [
-  { month: "Aug", placed: 5, drives: 3 },
-  { month: "Sep", placed: 32, drives: 12 },
-  { month: "Oct", placed: 48, drives: 18 },
-  { month: "Nov", placed: 40, drives: 15 },
-];
-
 const specializationWisePlacement = [
   { name: "Basic CSE", placed: 45, unplaced: 8, total: 53 },
   { name: "Data Science & AI", placed: 38, unplaced: 10, total: 48 },
   { name: "Cyber Security", placed: 25, unplaced: 8, total: 33 },
   { name: "Basic E.Com", placed: 12, unplaced: 6, total: 18 },
   { name: "Basic Mechanical", placed: 5, unplaced: 3, total: 8 },
-];
-
-const packageDistribution = [
-  { range: "0-5 LPA", count: 8 },
-  { range: "5-10 LPA", count: 25 },
-  { range: "10-15 LPA", count: 42 },
-  { range: "15-20 LPA", count: 28 },
-  { range: "20-25 LPA", count: 15 },
-  { range: "25+ LPA", count: 7 },
 ];
 
 export default function PlacementAnalyticsDashboard() {
@@ -454,15 +439,6 @@ export default function PlacementAnalyticsDashboard() {
       avgPackage: 22.0,
       category: "Product",
     },
-  ];
-
-  // Round-wise elimination data
-  const eliminationData = [
-    { round: "Applied", students: 1200 },
-    { round: "Online Test", students: 650 },
-    { round: "Technical", students: 420 },
-    { round: "HR Round", students: 320 },
-    { round: "Final Selected", students: 320 },
   ];
 
   const COLORS = [
