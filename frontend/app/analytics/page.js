@@ -17,15 +17,19 @@ import {
 } from "recharts";
 import {
   TrendingUp,
+  Briefcase,
   Award,
+  Target,
   CheckCircle,
   XCircle,
   Clock,
   Download,
   ArrowLeft,
   Building,
-  Target,
 } from "lucide-react";
+
+// Dummy Data
+const batchYears = [2024, 2025, 2026];
 
 const batchOverviewData = {
   2025: {
@@ -321,6 +325,13 @@ const studentData = {
   },
 };
 
+const monthlyPlacementTrend = [
+  { month: "Aug", placed: 5, drives: 3 },
+  { month: "Sep", placed: 32, drives: 12 },
+  { month: "Oct", placed: 48, drives: 18 },
+  { month: "Nov", placed: 40, drives: 15 },
+];
+
 const specializationWisePlacement = [
   { name: "Basic CSE", placed: 45, unplaced: 8, total: 53 },
   { name: "Data Science & AI", placed: 38, unplaced: 10, total: 48 },
@@ -329,14 +340,26 @@ const specializationWisePlacement = [
   { name: "Basic Mechanical", placed: 5, unplaced: 3, total: 8 },
 ];
 
+const packageDistribution = [
+  { range: "0-5 LPA", count: 8 },
+  { range: "5-10 LPA", count: 25 },
+  { range: "10-15 LPA", count: 42 },
+  { range: "15-20 LPA", count: 28 },
+  { range: "20-25 LPA", count: 15 },
+  { range: "25+ LPA", count: 7 },
+];
+
 export default function PlacementAnalyticsDashboard() {
-  const [selectedBatchYear] = useState(2025);
+  const [selectedBatchYear, setSelectedBatchYear] = useState(2025);
   const [view, setView] = useState("batch");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [batchTab, setBatchTab] = useState("overview");
   const [studentTab, setStudentTab] = useState("overview");
   const [selectedCompanyDetail, setSelectedCompanyDetail] = useState(null);
   const [expandedStudentCompany, setExpandedStudentCompany] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [timeRange, setTimeRange] = useState("6months");
 
   // Sample data for analytics
   const overallStats = {
@@ -439,6 +462,15 @@ export default function PlacementAnalyticsDashboard() {
       avgPackage: 22.0,
       category: "Product",
     },
+  ];
+
+  // Round-wise elimination data
+  const eliminationData = [
+    { round: "Applied", students: 1200 },
+    { round: "Online Test", students: 650 },
+    { round: "Technical", students: 420 },
+    { round: "HR Round", students: 320 },
+    { round: "Final Selected", students: 320 },
   ];
 
   const COLORS = [
