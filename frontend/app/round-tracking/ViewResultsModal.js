@@ -31,7 +31,6 @@ const ViewResultsModal = ({
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedResults, setEditedResults] = useState({});
-  const [saving, setSaving] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     resultStatus: "all",
@@ -40,11 +39,11 @@ const ViewResultsModal = ({
   useEffect(() => {
     fetchEventDetails();
     fetchStudents();
-  }, [eventId, positionId]);
+  }, [eventId, positionId, fetchEventDetails]);
 
   useEffect(() => {
     applyFilters();
-  }, [students, filters]);
+  }, [students, filters, applyFilters]);
 
   const fetchEventDetails = async () => {
     try {
@@ -126,48 +125,6 @@ const ViewResultsModal = ({
       ...prev,
       [studentId]: newStatus,
     }));
-  };
-
-  const handleSaveResults = async () => {
-    try {
-      setSaving(true);
-      setError(null);
-
-      // Get qualified student registration numbers
-      const qualifiedRegistrationNumbers = students
-        .filter((student) => editedResults[student.id] === "selected")
-        .map((student) => student.registration_number);
-
-      const response = await axios.post(
-        `${backendUrl}/round-tracking/events/${eventId}/results`,
-        {
-          qualifiedRegistrationNumbers,
-          method: "manual",
-        }
-      );
-
-      if (response.data.success) {
-        // Refresh data
-        await fetchStudents();
-        await fetchEventDetails();
-        setEditMode(false);
-      }
-    } catch (error) {
-      console.error("Error saving results:", error);
-      setError(error.response?.data?.message || "Failed to save results");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    // Reset to original results
-    const originalResults = {};
-    students.forEach((student) => {
-      originalResults[student.id] = student.result_status || "pending";
-    });
-    setEditedResults(originalResults);
-    setEditMode(false);
   };
 
   const handleBulkAction = (action) => {

@@ -338,7 +338,7 @@ export default function ExportCompanyModal({ companies, onClose }) {
       initialSelection[col.key] = commonColumns.includes(col.key);
     });
     setSelectedColumns(initialSelection);
-  }, [exportableColumns]);
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
