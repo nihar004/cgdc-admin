@@ -494,10 +494,12 @@ async function addCampusOffer(
     // ✅ Determine if this is the student's first offer
     const isFirstOffer = offersReceived.length === 0;
 
+    // 🔵 CHANGE 1: Always set original_position_id to the position being offered
     const campusOffer = {
       offer_id: `CAMPUS_${companyId}_${positionId}_${Date.now()}`,
       company_id: companyId,
       position_id: positionId,
+      original_position_id: offerDetails.original_position_id || positionId, // Store original position
       source: "campus",
       offer_date:
         offerDetails.offer_date || new Date().toISOString().split("T")[0],
@@ -510,15 +512,34 @@ async function addCampusOffer(
       updated_at: new Date().toISOString(),
     };
 
+    // 🔵 CHANGE 2: Check for existing offer using original_position_id
+    // This prevents duplicate offers when position is changed
     const alreadyExists = offersReceived.some(
       (o) =>
         o.source === "campus" &&
         o.company_id === companyId &&
-        o.position_id === positionId
+        (o.original_position_id === positionId || o.position_id === positionId)
     );
 
     if (!alreadyExists) {
       offersReceived.push(campusOffer);
+    } else {
+      // 🔵 CHANGE 3: If offer exists, update it instead of skipping
+      const existingIndex = offersReceived.findIndex(
+        (o) =>
+          o.source === "campus" &&
+          o.company_id === companyId &&
+          (o.original_position_id === positionId ||
+            o.position_id === positionId)
+      );
+
+      if (existingIndex !== -1) {
+        offersReceived[existingIndex] = {
+          ...offersReceived[existingIndex],
+          ...campusOffer,
+          offer_id: offersReceived[existingIndex].offer_id, // Keep original offer_id
+        };
+      }
     }
 
     let newCurrentOffer = currentOffer;
@@ -551,6 +572,8 @@ async function addCampusOffer(
       current_offer: newCurrentOffer,
       message: isFirstOffer
         ? `First offer added and automatically accepted. Student marked as placed.`
+        : alreadyExists
+        ? `Offer updated successfully.`
         : `Offer added successfully. Student already placed.`,
     };
   } catch (error) {
@@ -640,29 +663,33 @@ routes.put(
         });
       }
 
-      // Update offer with new position
+      // 🔵 CHANGE 4: Preserve original_position_id when changing position
+      // Only set it if it doesn't exist yet
       offersReceived[offerIndex] = {
         ...offer,
-        position_id: new_position_id,
+        original_position_id: offer.original_position_id || offer.position_id,
+        position_id: parseInt(new_position_id),
         updated_at: new Date().toISOString(),
       };
 
-      // Update current_offer if this was the accepted offer
+      // 🔵 CHANGE 5: Update current_offer with same logic
       let currentOffer = studentResult.rows[0].current_offer;
       if (currentOffer && currentOffer.offer_id === offerId) {
         currentOffer = {
           ...currentOffer,
-          position_id: new_position_id,
+          original_position_id:
+            currentOffer.original_position_id || currentOffer.position_id,
+          position_id: parseInt(new_position_id),
           updated_at: new Date().toISOString(),
         };
       }
 
       await client.query(
         `UPDATE students 
-       SET offers_received = $1, 
-           current_offer = $2,
-           updated_at = CURRENT_TIMESTAMP 
-       WHERE id = $3`,
+         SET offers_received = $1, 
+             current_offer = $2,
+             updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $3`,
         [
           JSON.stringify(offersReceived),
           currentOffer ? JSON.stringify(currentOffer) : null,

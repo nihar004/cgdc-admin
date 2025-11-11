@@ -495,18 +495,29 @@ routes.get("/events/:eventId/students", async (req, res) => {
   }
 });
 
-// POST /round-tracking/events/:eventId/results - Update round results
 routes.post("/events/:eventId/results", async (req, res) => {
   const client = await db.connect();
 
   try {
     const { eventId } = req.params;
-    const { qualifiedRegistrationNumbers = [], method = "manual" } = req.body;
+    const {
+      qualifiedRegistrationNumbers = [],
+      method = "manual",
+      positionId, // NEW: Required position_id for which results are being posted
+    } = req.body;
 
+    // Validate required fields
     if (!Array.isArray(qualifiedRegistrationNumbers)) {
       return res.status(400).json({
         success: false,
         message: "qualifiedRegistrationNumbers must be an array",
+      });
+    }
+
+    if (!positionId) {
+      return res.status(400).json({
+        success: false,
+        message: "positionId is required",
       });
     }
 
@@ -529,31 +540,68 @@ routes.post("/events/:eventId/results", async (req, res) => {
     const event = eventResult.rows[0];
     const isLastRound = event.round_type === "last";
     const companyId = event.company_id;
-
     const positionIds = parseIntegerArray(event.position_ids);
 
-    // Get all students who attended this event
+    // Verify that the position_id is part of this event
+    if (!positionIds.includes(parseInt(positionId))) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        success: false,
+        message: "position_id is not associated with this event",
+      });
+    }
+
+    // Get all students who attended this event AND applied for this specific position
     const attendedStudentsQuery = `
-      SELECT s.id, s.registration_number, s.offers_received
+      SELECT DISTINCT s.id, s.registration_number, s.offers_received
       FROM students s
       JOIN event_attendance ea ON s.id = ea.student_id
-      WHERE ea.event_id = $1 AND ea.status = 'present'
+      JOIN form_responses fr ON s.id = fr.student_id
+      JOIN forms f ON fr.form_id = f.id
+      WHERE ea.event_id = $1 
+      AND ea.status = 'present'
+      AND f.event_id IN (
+        SELECT id FROM events 
+        WHERE company_id = $2 
+        AND round_number = 1
+      )
+      AND (fr.response_data->>'position_id')::int = $3
     `;
-    const attendedResult = await client.query(attendedStudentsQuery, [eventId]);
+    const attendedResult = await client.query(attendedStudentsQuery, [
+      eventId,
+      companyId,
+      positionId,
+    ]);
     const attendedStudents = attendedResult.rows;
 
     const studentMap = Object.fromEntries(
       attendedStudents.map((s) => [s.registration_number, s.id])
     );
 
-    // Fetch existing round results
+    // Fetch existing round results FOR THIS SPECIFIC POSITION
+    // We need to track position_id in student_round_results
+    // For now, we'll filter based on the students who applied for this position
     const existingResultsQuery = `
-      SELECT student_id, result_status
-      FROM student_round_results
-      WHERE event_id = $1
+      SELECT srr.student_id, srr.result_status
+      FROM student_round_results srr
+      WHERE srr.event_id = $1
+      AND srr.student_id IN (
+        SELECT DISTINCT s.id
+        FROM students s
+        JOIN form_responses fr ON s.id = fr.student_id
+        JOIN forms f ON fr.form_id = f.id
+        WHERE f.event_id IN (
+          SELECT id FROM events 
+          WHERE company_id = $2 
+          AND round_number = 1
+        )
+        AND (fr.response_data->>'position_id')::int = $3
+      )
     `;
     const existingResultsResult = await client.query(existingResultsQuery, [
       eventId,
+      companyId,
+      positionId,
     ]);
     const existingSelectedStudentIds = existingResultsResult.rows
       .filter((r) => r.result_status === "selected")
@@ -588,15 +636,12 @@ routes.post("/events/:eventId/results", async (req, res) => {
       selectedCount++;
     }
 
-    // Mark non-selected students as rejected
+    // Mark non-selected students as rejected (only for this position)
     const nonSelectedStudentIds = attendedStudents
       .map((s) => s.id)
       .filter((id) => !newSelectedStudentIds.includes(id));
 
     if (nonSelectedStudentIds.length > 0) {
-      const placeholders = nonSelectedStudentIds
-        .map((_, i) => `$${i + 2}`)
-        .join(",");
       await client.query(
         `
         INSERT INTO student_round_results (student_id, event_id, result_status, created_at, updated_at)
@@ -617,68 +662,46 @@ routes.post("/events/:eventId/results", async (req, res) => {
     }
 
     // Add campus offers for newly selected students if last round
-    if (isLastRound && companyId && positionIds.length > 0) {
+    if (isLastRound && companyId && studentsToAddOffer.length > 0) {
       for (const studentId of studentsToAddOffer) {
-        // First, check which position the student originally applied for
-        const appliedPositionQuery = `
-          SELECT (fr.response_data->>'position_id')::int as position_id
-          FROM form_responses fr
-          JOIN forms f ON fr.form_id = f.id
-          WHERE fr.student_id = $1 
-          AND f.event_id IN (
-            SELECT id FROM events 
-            WHERE company_id = $2 
-            AND round_number = 1
-          )
-          LIMIT 1
-        `;
-
-        const positionResult = await client.query(appliedPositionQuery, [
-          studentId,
-          companyId,
-        ]);
-
-        // Use either the position they applied for, or the first available position
-        const positionId =
-          positionResult.rows[0]?.position_id || positionIds[0];
-
-        // Add single offer with the determined position
-        await addCampusOffer(studentId, companyId, positionId, {});
-
-        console.log(
-          `[RoundTracking] Added campus offer for student ${studentId} - Company: ${companyId}, Position: ${positionId}`
-        );
+        // Add offer with the specific position_id
+        await addCampusOffer(studentId, companyId, positionId, {
+          original_position_id: positionId,
+        });
       }
     }
 
     // Remove campus offers for students deselected in last round
+    // IMPORTANT: Only remove offers for THIS SPECIFIC POSITION
     if (isLastRound && studentsToRemoveOffer.length > 0) {
       for (const studentId of studentsToRemoveOffer) {
-        // Fetch student with offers_received and current_offer from DB
         const studentResult = await client.query(
-          `SELECT offers_received, current_offer, registration_number FROM students WHERE id = $1`,
+          `SELECT offers_received, current_offer FROM students WHERE id = $1`,
           [studentId]
         );
 
-        if (studentResult.rows.length === 0) {
-          continue;
-        }
+        if (studentResult.rows.length === 0) continue;
 
         const student = studentResult.rows[0];
         if (!Array.isArray(student.offers_received))
           student.offers_received = [];
 
-        // Remove the campus offer(s) associated with this event/company/positions
+        // Only remove offers for THIS SPECIFIC POSITION
         const updatedOffers = student.offers_received.filter(
-          (o) => !(o.source === "campus" && o.company_id === event.company_id)
+          (o) =>
+            !(
+              o.source === "campus" &&
+              o.company_id === companyId &&
+              o.original_position_id === parseInt(positionId)
+            )
         );
 
-        // Check if current_offer is the one being removed
         let newCurrentOffer = student.current_offer;
         const removedCurrentOffer =
           student.current_offer &&
           student.current_offer.source === "campus" &&
-          student.current_offer.company_id === event.company_id;
+          student.current_offer.company_id === companyId &&
+          student.current_offer.original_position_id === parseInt(positionId);
 
         if (removedCurrentOffer) {
           newCurrentOffer = updatedOffers.length > 0 ? updatedOffers[0] : null;
@@ -703,7 +726,7 @@ routes.post("/events/:eventId/results", async (req, res) => {
       }
     }
 
-    // Update event status to completed
+    // Mark event as completed
     await client.query(
       `UPDATE events SET status = 'completed', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
       [eventId]
@@ -716,6 +739,7 @@ routes.post("/events/:eventId/results", async (req, res) => {
       message: "Round results updated successfully",
       data: {
         eventId: parseInt(eventId),
+        positionId: parseInt(positionId),
         totalAttended: attendedStudents.length,
         selectedCount,
         rejectedCount,
@@ -895,14 +919,15 @@ routes.get("/events/:eventId/details", async (req, res) => {
   }
 });
 
+// POST /round-tracking/events/:eventId/upload-results - Upload CSV/Excel of qualified registration numbers
 routes.post(
   "/events/:eventId/upload-results",
   upload.single("file"),
   async (req, res) => {
     const client = await db.connect();
-
     try {
       const { eventId } = req.params;
+      const { positionId } = req.body; // Get positionId from form data
       const file = req.file;
 
       if (!file) {
@@ -912,10 +937,20 @@ routes.post(
         });
       }
 
+      if (!positionId) {
+        require("fs").unlinkSync(file.path);
+        return res.status(400).json({
+          success: false,
+          message: "positionId is required",
+        });
+      }
+
+      const position_id = parseInt(positionId);
+
       // Read file and extract registration numbers
       let registrationNumbers = [];
-
       const ext = path.extname(file.originalname).toLowerCase();
+
       if (ext === ".csv") {
         // Parse CSV
         const csvData = require("fs")
@@ -932,7 +967,6 @@ routes.post(
         const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
           defval: "",
         });
-
         registrationNumbers = sheetData
           .map((row) => {
             if (
@@ -976,33 +1010,6 @@ routes.post(
 
       await client.query("BEGIN");
 
-      // Validate registration numbers
-      const validStudentsQuery = `
-        SELECT id, registration_number, offers_received
-        FROM students
-        WHERE registration_number = ANY($1::text[])
-      `;
-      const validResult = await client.query(validStudentsQuery, [
-        registrationNumbers,
-      ]);
-      const validStudents = validResult.rows;
-
-      const validRegistrationNumbers = validStudents.map(
-        (s) => s.registration_number
-      );
-      const invalidNumbers = registrationNumbers.filter(
-        (num) => !validRegistrationNumbers.includes(num)
-      );
-
-      if (invalidNumbers.length > 0) {
-        await client.query("ROLLBACK");
-        return res.status(400).json({
-          success: false,
-          message: "Invalid registration numbers found in file.",
-          invalidNumbers,
-        });
-      }
-
       // Fetch event details
       const eventQuery = `
         SELECT id, round_number, round_type, company_id, position_ids
@@ -1019,17 +1026,79 @@ routes.post(
 
       const event = eventResult.rows[0];
       const isLastRound = event.round_type === "last";
+      const companyId = event.company_id;
       const positionIds = parseIntegerArray(event.position_ids);
 
-      // Fetch attended students
-      const attendedStudentsQuery = `
-        SELECT s.id, s.registration_number, s.offers_received
+      // Verify that the position_id is part of this event
+      if (!positionIds.includes(position_id)) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message: "positionId is not associated with this event",
+        });
+      }
+
+      // Validate registration numbers AND check if they applied for this position
+      const validStudentsQuery = `
+        SELECT DISTINCT s.id, s.registration_number, s.offers_received
         FROM students s
         JOIN event_attendance ea ON s.id = ea.student_id
-        WHERE ea.event_id = $1 AND ea.status = 'present'
+        JOIN form_responses fr ON s.id = fr.student_id
+        JOIN forms f ON fr.form_id = f.id
+        WHERE s.registration_number = ANY($1::text[])
+        AND ea.event_id = $2
+        AND ea.status = 'present'
+        AND f.event_id IN (
+          SELECT id FROM events 
+          WHERE company_id = $3 
+          AND round_number = 1
+        )
+        AND (fr.response_data->>'position_id')::int = $4
+      `;
+      const validResult = await client.query(validStudentsQuery, [
+        registrationNumbers,
+        eventId,
+        companyId,
+        position_id,
+      ]);
+      const validStudents = validResult.rows;
+      const validRegistrationNumbers = validStudents.map(
+        (s) => s.registration_number
+      );
+      const invalidNumbers = registrationNumbers.filter(
+        (num) => !validRegistrationNumbers.includes(num)
+      );
+
+      if (invalidNumbers.length > 0) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          success: false,
+          message:
+            "Some registration numbers are invalid, not present in the event, or didn't apply for this position.",
+          invalidNumbers,
+        });
+      }
+
+      // Fetch attended students for THIS POSITION
+      const attendedStudentsQuery = `
+        SELECT DISTINCT s.id, s.registration_number, s.offers_received
+        FROM students s
+        JOIN event_attendance ea ON s.id = ea.student_id
+        JOIN form_responses fr ON s.id = fr.student_id
+        JOIN forms f ON fr.form_id = f.id
+        WHERE ea.event_id = $1 
+        AND ea.status = 'present'
+        AND f.event_id IN (
+          SELECT id FROM events 
+          WHERE company_id = $2 
+          AND round_number = 1
+        )
+        AND (fr.response_data->>'position_id')::int = $3
       `;
       const attendedResult = await client.query(attendedStudentsQuery, [
         eventId,
+        companyId,
+        position_id,
       ]);
       const attendedStudents = attendedResult.rows;
 
@@ -1037,14 +1106,28 @@ routes.post(
         attendedStudents.map((s) => [s.registration_number, s.id])
       );
 
-      // Fetch existing round results
+      // Fetch existing round results FOR THIS POSITION
       const existingResultsQuery = `
-        SELECT student_id, result_status
-        FROM student_round_results
-        WHERE event_id = $1
+        SELECT srr.student_id, srr.result_status
+        FROM student_round_results srr
+        WHERE srr.event_id = $1
+        AND srr.student_id IN (
+          SELECT DISTINCT s.id
+          FROM students s
+          JOIN form_responses fr ON s.id = fr.student_id
+          JOIN forms f ON fr.form_id = f.id
+          WHERE f.event_id IN (
+            SELECT id FROM events 
+            WHERE company_id = $2 
+            AND round_number = 1
+          )
+          AND (fr.response_data->>'position_id')::int = $3
+        )
       `;
       const existingResultsResult = await client.query(existingResultsQuery, [
         eventId,
+        companyId,
+        position_id,
       ]);
       const existingSelectedStudentIds = existingResultsResult.rows
         .filter((r) => r.result_status === "selected")
@@ -1096,40 +1179,19 @@ routes.post(
         rejectedCount = nonSelectedStudentIds.length;
       }
 
-      // ✅ Handle campus offers
-      if (isLastRound && event.company_id && positionIds.length > 0) {
+      // Handle campus offers for last round
+      if (isLastRound && companyId && studentsToAddOffer.length > 0) {
         for (const studentId of studentsToAddOffer) {
-          // First, check which position the student originally applied for
-          const appliedPositionQuery = `
-            SELECT (fr.response_data->>'position_id')::int as position_id
-            FROM form_responses fr
-            JOIN forms f ON fr.form_id = f.id
-            WHERE fr.student_id = $1 
-            AND f.event_id IN (
-              SELECT id FROM events 
-              WHERE company_id = $2 
-              AND round_number = 1
-            )
-            LIMIT 1
-          `;
-
-          const positionResult = await client.query(appliedPositionQuery, [
-            studentId,
-            event.company_id,
-          ]);
-
-          // Use either the position they applied for, or the first available position
-          const positionId =
-            positionResult.rows[0]?.position_id || positionIds[0];
-
-          // Add single offer with the determined position
-          await addCampusOffer(studentId, event.company_id, positionId, {});
+          // Add offer with the specific position_id
+          await addCampusOffer(studentId, companyId, position_id, {
+            original_position_id: position_id,
+          });
         }
       }
 
+      // Remove campus offers ONLY for this specific position
       if (isLastRound && studentsToRemoveOffer.length > 0) {
         for (const studentId of studentsToRemoveOffer) {
-          // Fetch student with offers_received and current_offer from DB
           const studentResult = await client.query(
             `SELECT offers_received, current_offer, registration_number FROM students WHERE id = $1`,
             [studentId]
@@ -1146,17 +1208,22 @@ routes.post(
           if (!Array.isArray(student.offers_received))
             student.offers_received = [];
 
-          // Remove the campus offer(s) associated with this event/company/positions
+          // Only remove offers for THIS SPECIFIC POSITION
           const updatedOffers = student.offers_received.filter(
-            (o) => !(o.source === "campus" && o.company_id === event.company_id)
+            (o) =>
+              !(
+                o.source === "campus" &&
+                o.company_id === companyId &&
+                o.original_position_id === position_id
+              )
           );
 
-          // Check if current_offer is the one being removed
           let newCurrentOffer = student.current_offer;
           const removedCurrentOffer =
             student.current_offer &&
             student.current_offer.source === "campus" &&
-            student.current_offer.company_id === event.company_id;
+            student.current_offer.company_id === companyId &&
+            student.current_offer.original_position_id === position_id;
 
           if (removedCurrentOffer) {
             newCurrentOffer =
@@ -1194,6 +1261,7 @@ routes.post(
         message: "File processed successfully and results updated.",
         data: {
           eventId: parseInt(eventId),
+          positionId: position_id,
           totalAttended: attendedStudents.length,
           selectedCount,
           rejectedCount,
@@ -1215,7 +1283,6 @@ routes.post(
   }
 );
 
-// Safely parse Postgres integer[] to JS array
 const parseIntegerArray = (pgArray) => {
   if (!pgArray) return [];
   if (Array.isArray(pgArray)) return pgArray; // Already an array

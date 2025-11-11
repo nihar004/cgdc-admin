@@ -3,6 +3,7 @@ const cors = require("cors");
 const session = require("express-session");
 const path = require("path");
 require("dotenv").config();
+const fs = require("fs");
 
 const {
   isAuthenticated,
@@ -21,6 +22,7 @@ const emails = require("./routes/emails");
 const eligibility = require("./routes/eligibility");
 const offers = require("./routes/offers");
 const users = require("./routes/users");
+const student_analytics = require("./routes/student_analytics");
 
 const app = express();
 
@@ -44,7 +46,6 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 12 * 60 * 60 * 1000, // 24 hours
@@ -78,22 +79,50 @@ app.use("/api/round-tracking", isAuthenticated, round_tracking);
 app.use("/api/emails", isAuthenticated, emails);
 app.use("/api/eligibility", isAuthenticated, eligibility);
 app.use("/api/offers", isAuthenticated, offers);
+app.use("/api/student-analytics", isAuthenticated, student_analytics);
 
 // ============ PUBLIC + AUTH ROUTES ============
 app.use("/api/users", users); // NO isAuthenticated here!
 
-// ===== Serve React App for all non-API routes =====
-const frontendPath = path.join(__dirname, "..", "frontend", "build");
-
-app.use(express.static(frontendPath));
-
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
+//  ONLY for /api/* routes
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ success: false, message: "API route not found" });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: "Route not found" });
+// ===== Serve Next.js Static Export =====
+const frontendPath = path.join(__dirname, "../frontend/out");
+
+// Serve static files (CSS, JS, images, etc.)
+app.use(express.static(frontendPath));
+
+// Catch-all for Next.js pages
+app.get("*", (req, res) => {
+  let requestedPath = req.path;
+
+  // Remove trailing slash for processing (Next.js adds it back)
+  const cleanPath = requestedPath.replace(/\/$/, "") || "/";
+
+  // Try different file locations in order
+  const possiblePaths = [
+    path.join(frontendPath, cleanPath, "index.html"), // /page/helloworld/index.html
+    path.join(frontendPath, cleanPath + ".html"), // /page/helloworld.html
+    path.join(frontendPath, requestedPath, "index.html"), // with trailing slash
+    path.join(frontendPath, requestedPath + "index.html"), // edge case
+  ];
+
+  for (const filePath of possiblePaths) {
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+  }
+
+  // Fallback to 404.html or root index.html
+  const notFoundPage = path.join(frontendPath, "404.html");
+  if (fs.existsSync(notFoundPage)) {
+    return res.status(404).sendFile(notFoundPage);
+  }
+
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 // Error handler

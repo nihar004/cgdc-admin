@@ -175,6 +175,7 @@ const ResultUploadModal = ({
           qualifiedRegistrationNumbers,
           deselectedRegistrationNumbers,
           method: "manual",
+          positionId,
         };
       } else {
         if (qualifiedRegistrationNumbers.length === 0) {
@@ -185,6 +186,7 @@ const ResultUploadModal = ({
         payload = {
           qualifiedRegistrationNumbers,
           method: "manual",
+          positionId,
         };
       }
 

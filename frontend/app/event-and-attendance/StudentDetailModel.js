@@ -1,6 +1,7 @@
 import { XCircle, CheckCircle, AlertCircle, Clock, User } from "lucide-react";
 import * as XLSX from "xlsx";
 
+// Student View Modal for Event Attendance
 function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
   const getAttendanceStatusIcon = (status) => {
     switch (status) {

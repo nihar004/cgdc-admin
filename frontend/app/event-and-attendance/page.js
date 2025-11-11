@@ -18,11 +18,12 @@ import * as XLSX from "xlsx";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 import EventCard from "./EventCard";
-import StudentDetailModel from "./Student DetailModel";
+import StudentDetailModel from "./StudentDetailModel";
 import PaginationBar from "./PaginationBar";
 import { useBatchContext } from "../../context/BatchContext";
 import CreateEvent from "./CreateEvent";
 import MarkAttendanceModal from "./MarkAttendanceModal";
+import EmailTargetModal from "./EmailTargetModal";
 
 const EventAttendancePage = () => {
   const { selectedBatch } = useBatchContext();
@@ -53,6 +54,10 @@ const EventAttendancePage = () => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
 
+  // Email Modal State
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailEvent, setEmailEvent] = useState(null);
+
   // Fetch all events from backend with attendance data for specific batch
   const fetchEvents = async () => {
     try {
@@ -70,6 +75,9 @@ const EventAttendancePage = () => {
             (student) =>
               student.status === "present" || student.status === "late"
           ).length;
+          const lateStudents = event.attendance.filter(
+            (student) => student.status === "late"
+          ).length;
           const absentStudents = event.attendance.filter(
             (student) => student.status === "absent"
           ).length;
@@ -82,6 +90,7 @@ const EventAttendancePage = () => {
             ...event,
             totalStudents,
             attendedStudents,
+            lateStudents,
             absentStudents,
             attendanceRate,
           };
@@ -308,6 +317,11 @@ const EventAttendancePage = () => {
       console.error("Error exporting report:", error);
       alert("Failed to export events report");
     }
+  };
+
+  const handleEmailClick = (event) => {
+    setEmailEvent(event); // event already has attendance data
+    setShowEmailModal(true);
   };
 
   return (
@@ -568,6 +582,7 @@ const EventAttendancePage = () => {
                         setSelectedEvent(event);
                         setShowAttendanceModal(true);
                       }}
+                      onEmailClick={handleEmailClick}
                     />
                   ))
                 )}
@@ -619,6 +634,14 @@ const EventAttendancePage = () => {
             // Refresh your data if needed
             fetchEvents();
           }}
+        />
+      )}
+
+      {/* Email Target Modal */}
+      {showEmailModal && (
+        <EmailTargetModal
+          selectedEvent={emailEvent}
+          onClose={() => setShowEmailModal(false)}
         />
       )}
     </div>

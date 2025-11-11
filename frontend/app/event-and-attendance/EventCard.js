@@ -12,6 +12,7 @@ import {
   Mic,
   Trash2,
   Edit,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import DeleteEventModal from "./DeleteEventModal"; // Adjust the import path as necessary
@@ -69,6 +70,7 @@ function EventCard({
   setEditingEvent,
   fetchEvents,
   onAttendanceClick,
+  onEmailClick, // Add this prop
 }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -251,7 +253,7 @@ function EventCard({
             </div>
           </div>
 
-          {/* Attendance Summary - Now using real data from API */}
+          {/* Attendance Summary */}
           <div className="bg-gray-50 rounded-lg p-3 mb-4">
             <div className="grid grid-cols-4 gap-3 text-center">
               <div>
@@ -265,6 +267,11 @@ function EventCard({
                   {event.attendedStudents || 0}
                 </div>
                 <div className="text-xs text-gray-500">Present</div>
+                {event.lateStudents > 0 && (
+                  <div className="text-xs text-yellow-600 mt-1">
+                    (+{event.lateStudents} late)
+                  </div>
+                )}
               </div>
               <div>
                 <div className="text-lg font-bold text-red-500">
@@ -274,9 +281,7 @@ function EventCard({
               </div>
               <div>
                 <div
-                  className={`text-lg font-bold ${getAttendanceColor(
-                    event.attendanceRate || 0
-                  )}`}
+                  className={`text-lg font-bold ${getAttendanceColor(event.attendanceRate || 0)}`}
                 >
                   {event.attendanceRate || 0}%
                 </div>
@@ -307,8 +312,15 @@ function EventCard({
 
               <div className="flex items-center space-x-2">
                 <button
+                  onClick={() => onEmailClick(event)}
+                  className="p-2 text-sky-600 bg-sky-100 hover:text-sky-800 hover:bg-sky-200 rounded-lg transition-all duration-200"
+                  title="Send Email To Students"
+                >
+                  <Mail size={16} />
+                </button>
+                <button
                   onClick={() => setEditingEvent(event)}
-                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
                 >
                   <Edit className="h-3 w-3 mr-1" />
                   Edit

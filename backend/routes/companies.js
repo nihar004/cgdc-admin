@@ -420,14 +420,17 @@ routes.get("/batch/:batchYear", async (req, res) => {
             'internship_stipend_monthly', cp.internship_stipend_monthly,
             'rounds_start_date', cp.rounds_start_date,
             'rounds_end_date', cp.rounds_end_date,
-            -- Count selected students from final round results
             'selected_students', (
-              SELECT COUNT(DISTINCT srr.student_id)
-              FROM student_round_results srr
-              INNER JOIN events e ON srr.event_id = e.id
-              WHERE e.position_ids @> ARRAY[cp.id]
-                AND e.round_type = 'last'
-                AND srr.result_status = 'selected'
+              SELECT COUNT(DISTINCT s.id)
+              FROM students s
+              WHERE EXISTS (
+                SELECT 1
+                FROM jsonb_array_elements(s.offers_received) AS offer
+                WHERE 
+                  offer->>'source' = 'campus'
+                  AND (offer->>'company_id')::INT = c.id
+                  AND (offer->>'position_id')::INT = cp.id
+              )
             ),
             -- Count registered students for this specific position
             'registered_students', (

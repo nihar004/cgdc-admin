@@ -38,7 +38,8 @@ routes.get("/batch/:batch_year", async (req, res) => {
             'batch_year', s.batch_year,
             'attendance_status', COALESCE(ea.status, 'absent'),
             'marked_at', ea.marked_at,
-            'reason_for_change', ea.reason_for_change
+            'reason_for_change', ea.reason_for_change,
+            'college_email', s.college_email
           )) FILTER (WHERE s.id IS NOT NULL),
           '[]'::json
         ) AS attendance_data
@@ -147,6 +148,7 @@ routes.get("/batch/:batch_year", async (req, res) => {
           registrationNumber: student.registration_number,
           enrollmentNumber: student.enrollment_number,
           department: student.department,
+          college_email: student.college_email,
           batchYear: student.batch_year,
           status: student.attendance_status,
           checkInTime: student.marked_at

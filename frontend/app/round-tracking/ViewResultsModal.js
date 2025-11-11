@@ -503,13 +503,19 @@ const ViewResultsModal = ({
                           : "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {student.attendance_status === "present" ? (
+                        {student.attendance_status === "present" && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Present
                           </span>
-                        ) : (
+                        )}
+                        {student.attendance_status === "absent" && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                             Absent
+                          </span>
+                        )}
+                        {student.attendance_status === "late" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Late
                           </span>
                         )}
                       </td>

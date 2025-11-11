@@ -105,25 +105,51 @@ function CreateEvent({
   const [submitStatus, setSubmitStatus] = useState("");
   const { selectedBatch } = useBatchContext();
 
-  // Event types for different categories
+  // Placement-focused events (company-related)
   const companyEventTypes = [
-    { value: "other", label: "Other" }, // Add "other" as first option
+    // General
+    { value: "other", label: "Other" },
+    { value: "student_registration", label: "Student Registration" },
+
+    // Pre-placement & Presentation
+    { value: "pre_placement_talk", label: "Pre-Placement Talk" },
+    { value: "company_presentation", label: "Company Presentation" },
+
+    // Resume & Screening
+    { value: "resume_screening", label: "Resume Screening" },
+
+    // Assessments
+    { value: "online_assessment", label: "Online Assessment" },
     { value: "aptitude_test", label: "Aptitude Test" },
-    { value: "technical_round", label: "Technical Round" },
-    { value: "hr_round", label: "HR Round" },
+    { value: "coding_test", label: "Coding Test" },
+    { value: "technical_mcq", label: "Technical MCQ" },
+
+    // Interviews
+    { value: "technical_round_1", label: "Technical Round 1" },
+    { value: "technical_round_2", label: "Technical Round 2" },
+    { value: "technical_round_3", label: "Technical Round 3" },
     { value: "group_discussion", label: "Group Discussion" },
-    { value: "final_interview", label: "Final Interview" },
+    { value: "case_study", label: "Case Study" },
+    { value: "presentation_round", label: "Presentation Round" },
+    { value: "hr_round", label: "HR Round" },
+    { value: "final_round", label: "Final Round" },
   ];
 
+  // CGDC-organized or non-placement events
   const cgdcEventTypes = [
-    { value: "other", label: "Other" }, // Add "other" as first option
+    { value: "other", label: "Other" },
+
+    // Training & Development
     { value: "workshop", label: "Workshop" },
     { value: "seminar", label: "Seminar" },
-    { value: "training", label: "Training Session" },
-    { value: "career_guidance", label: "Career Guidance" },
     { value: "skill_development", label: "Skill Development" },
+    { value: "career_guidance", label: "Career Guidance" },
+    { value: "mock_interview", label: "Mock Interview" },
+    { value: "resume_building", label: "Resume Building" },
+
+    // Awareness or Talks
     { value: "pre_placement_talk", label: "Pre-Placement Talk" },
-    { value: "company_visit", label: "Company Visit" },
+    { value: "company_presentation", label: "Company Presentation" },
   ];
 
   const specializations = ["CSE", "E.Com", "ME"];
