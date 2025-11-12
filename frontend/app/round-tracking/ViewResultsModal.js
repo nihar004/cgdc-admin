@@ -39,11 +39,11 @@ const ViewResultsModal = ({
   useEffect(() => {
     fetchEventDetails();
     fetchStudents();
-  }, [eventId, positionId, fetchEventDetails]);
+  }, [eventId, positionId]);
 
   useEffect(() => {
     applyFilters();
-  }, [students, filters, applyFilters]);
+  }, [students, filters]);
 
   const fetchEventDetails = async () => {
     try {
