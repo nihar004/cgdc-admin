@@ -233,7 +233,7 @@ export default function ExportModal({ filteredStudents }) {
       allSelected[col.key] = true;
     });
     setSelectedColumns(allSelected);
-  }, [exportableColumns]);
+  }, []);
 
   const categoryColors = {
     Basic: "bg-blue-50 border-blue-200",

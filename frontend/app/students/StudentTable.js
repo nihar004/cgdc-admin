@@ -57,6 +57,20 @@ export default function StudentTable({ filteredStudents }) {
       ps2_project_title: student.ps2_project_title || "",
       ps2_certificate_url: student.ps2_certificate_url || "",
       placement_status: student.placement_status || "eligible",
+      father_name: student.father_name || "",
+      father_mobile: student.father_mobile || "",
+      father_email: student.father_email || "",
+      mother_name: student.mother_name || "",
+      mother_mobile: student.mother_mobile || "",
+      aadhar_number: student.aadhar_number || "",
+      pan_number: student.pan_number || "",
+      domicile_state: student.domicile_state || "",
+      board_10_name: student.board_10_name || "",
+      board_10_passing_year: student.board_10_passing_year || "",
+      board_12_name: student.board_12_name || "",
+      board_12_passing_year: student.board_12_passing_year || "",
+      specialization: student.specialization_id || "",
+      specialization_name: student.specialization_name || "",
     });
     setShowEditStudentModal(true);
   };

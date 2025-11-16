@@ -45,6 +45,20 @@ export const StudentProvider = ({ children }) => {
     ps2_project_title: "",
     ps2_certificate_url: "",
     placement_status: "unplaced",
+    father_name: "",
+    father_mobile: "",
+    father_email: "",
+    mother_name: "",
+    mother_mobile: "",
+    aadhar_number: "",
+    pan_number: "",
+    domicile_state: "",
+    board_10_name: "",
+    board_10_passing_year: "",
+    board_12_name: "",
+    board_12_passing_year: "",
+    specialization: "",
+    specialization_name: "",
   });
 
   // new TODO

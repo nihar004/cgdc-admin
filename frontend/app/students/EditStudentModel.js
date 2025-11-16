@@ -32,56 +32,21 @@ export default function EditStudentModel() {
   const [newSpecialization, setNewSpecialization] = useState("");
 
   // Update the useEffect where initial data is set
+  // Form data is initialized by StudentTable.js handleEditStudent function
+  // This useEffect ensures data is properly formatted on mount
   useEffect(() => {
-    if (editingStudent) {
+    if (editingStudent && studentFormData.enrollment_number === "") {
       setStudentFormData({
-        ...editingStudent,
+        ...studentFormData,
         specialization: editingStudent.specialization_id || "",
-        enrollment_number: editingStudent.enrollment_number || "",
-        full_name: editingStudent.full_name || "",
-        phone: editingStudent.phone || "",
-        alternate_phone: editingStudent.alternate_phone || "",
-        college_email: editingStudent.college_email || "",
-        personal_email: editingStudent.personal_email || "",
-        department: editingStudent.department || "",
-        branch: editingStudent.branch || "",
-        batch_year: editingStudent.batch_year || new Date().getFullYear(),
-        current_semester: editingStudent.current_semester || "",
-        cgpa: editingStudent.cgpa || "",
-        backlogs: editingStudent.backlogs || 0,
-        resume_url: editingStudent.resume_url || "",
-        linkedin_url: editingStudent.linkedin_url || "",
-        github_url: editingStudent.github_url || "",
         date_of_birth:
           editingStudent.date_of_birth &&
           dayjs(editingStudent.date_of_birth).isValid()
             ? dayjs(editingStudent.date_of_birth).format("YYYY-MM-DD")
             : "",
-        gender: editingStudent.gender || "",
-        registration_number: editingStudent.registration_number || "",
-        class_10_percentage: editingStudent.class_10_percentage || "",
-        class_12_percentage: editingStudent.class_12_percentage || "",
-        permanent_address: editingStudent.permanent_address || "", // THIS IS THE KEY ONE FOR TEXTAREA
-        permanent_city: editingStudent.permanent_city || "",
-        permanent_state: editingStudent.permanent_state || "",
-        ps2_company_name: editingStudent.ps2_company_name || "",
-        ps2_project_title: editingStudent.ps2_project_title || "",
-        placement_status: editingStudent.placement_status || "eligible",
-        father_name: editingStudent.father_name || "",
-        father_mobile: editingStudent.father_mobile || "",
-        father_email: editingStudent.father_email || "",
-        mother_name: editingStudent.mother_name || "",
-        mother_mobile: editingStudent.mother_mobile || "",
-        aadhar_number: editingStudent.aadhar_number || "",
-        pan_number: editingStudent.pan_number || "",
-        domicile_state: editingStudent.domicile_state || "",
-        board_10_name: editingStudent.board_10_name || "",
-        board_10_passing_year: editingStudent.board_10_passing_year || "",
-        board_12_name: editingStudent.board_12_name || "",
-        board_12_passing_year: editingStudent.board_12_passing_year || "",
       });
     }
-  }, [editingStudent, setStudentFormData]); // Add setStudentFormData to dependency array
+  }, []);
 
   // Add this useEffect to fetch specializations
   useEffect(() => {
