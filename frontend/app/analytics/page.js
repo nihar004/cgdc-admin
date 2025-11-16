@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
@@ -8,6 +9,9 @@ import Companies from "./components/Companies";
 import Students from "./components/Students";
 import StudentOverview from "./components/StudentOverview";
 import { useBatchContext } from "../../context/BatchContext";
+import { useRouter } from "next/navigation";
+
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // ==================== MAIN DASHBOARD ====================
 export default function PlacementAnalyticsDashboard() {
@@ -19,7 +23,47 @@ export default function PlacementAnalyticsDashboard() {
   const [selectedCompanyDetail, setSelectedCompanyDetail] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [timeRange, setTimeRange] = useState("6months");
+  const [exporting, setExporting] = useState(false);
   const { selectedBatch } = useBatchContext();
+
+  // Function to handle export
+  const handleExportRounds = async (studentId = null) => {
+    try {
+      setExporting(true);
+
+      // Build the API URL
+      const batchYear = selectedBatch; // Assuming `selectedBatch` is already defined
+      const endpoint = `${backendUrl}/student-analytics/batch/${batchYear}/students/rounds-export`;
+      const params = studentId ? { studentIds: studentId } : {};
+
+      // Call the API
+      const response = await axios.get(endpoint, {
+        params,
+        responseType: "blob", // Ensure the response is treated as a file
+      });
+
+      // Create a download link for the file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Set the filename
+      const filename = studentId
+        ? `student_${studentId}_rounds.xlsx`
+        : `all_students_rounds.xlsx`;
+      link.setAttribute("download", filename);
+
+      // Trigger the download
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error exporting student rounds:", error);
+      alert("Failed to export student rounds. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (view === "batch") {
     return (
@@ -118,16 +162,16 @@ export default function PlacementAnalyticsDashboard() {
                   Student Analytics
                 </h1>
                 <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
-                  <span className="font-semibold">{student.fullName}</span>
+                  <span className="font-semibold">{student?.fullName}</span>
                   <span>•</span>
-                  <span>{student.registrationNumber}</span>
-                  {student.specialization && (
+                  <span>{student?.registrationNumber}</span>
+                  {student?.specialization && (
                     <>
                       <span>•</span>
                       <span>{student.specialization}</span>
                     </>
                   )}
-                  {student.email && (
+                  {student?.email && (
                     <>
                       <span>•</span>
                       <span>{student.email}</span>
@@ -136,10 +180,43 @@ export default function PlacementAnalyticsDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Export Buttons */}
+            <div className="flex gap-4">
+              {/* Export for Selected Student */}
+              <button
+                onClick={() => handleExportRounds(student?.id)}
+                disabled={exporting || !student}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  exporting || !student
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+              >
+                {exporting && student?.id
+                  ? "Exporting..."
+                  : "Export Student Rounds"}
+              </button>
+
+              {/* Export for All Students */}
+              <button
+                onClick={() => handleExportRounds()}
+                disabled={exporting}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  exporting
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-green-700"
+                }`}
+              >
+                {exporting && !student?.id
+                  ? "Exporting..."
+                  : "Export All Rounds"}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Tab Content - StudentOverview contains all tabs */}
+        {/* Tab Content */}
         <StudentOverview student={student} studentId={student?.id} />
       </div>
     </div>

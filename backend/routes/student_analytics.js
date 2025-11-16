@@ -3,6 +3,7 @@ const express = require("express");
 const routes = express.Router();
 const db = require("../db");
 require("dotenv").config();
+const ExcelJS = require("exceljs");
 
 routes.get("/batch/:batchYear/companies/:companyId", async (req, res, next) => {
   try {
@@ -1176,5 +1177,647 @@ routes.get("/batch/:batchYear/company-timeline", async (req, res, next) => {
     next(error);
   }
 });
+
+// // EXPORT STUDENT ROUNDS DATA TO EXCEL
+routes.get(
+  "/batch/:batchYear/students/rounds-export",
+  async (req, res, next) => {
+    try {
+      const { batchYear } = req.params;
+      const { studentIds } = req.query;
+
+      // Build filters
+      let whereClause = "WHERE s.batch_year = $1";
+      const params = [batchYear];
+      let paramCount = 1;
+
+      if (studentIds) {
+        paramCount++;
+        const ids = studentIds.split(",").map((id) => parseInt(id.trim()));
+        whereClause += ` AND s.id = ANY($${paramCount}::int[])`;
+        params.push(ids);
+      }
+
+      // Get all students with parsed current_offer
+      const studentsQuery = `
+      SELECT
+        s.id,
+        s.registration_number,
+        s.full_name,
+        s.college_email,
+        sp.name as specialization,
+        s.cgpa,
+        s.placement_status,
+        s.current_offer
+      FROM students s
+      LEFT JOIN specializations sp ON s.specialization_id = sp.id
+      ${whereClause}
+      ORDER BY s.full_name
+    `;
+
+      const studentsResult = await db.query(studentsQuery, params);
+      const students = studentsResult.rows;
+
+      if (students.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No students found",
+        });
+      }
+
+      // Create Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "Placement Management System";
+      workbook.created = new Date();
+
+      // Create Index Sheet first
+      const indexSheet = workbook.addWorksheet("Student Index");
+
+      // Index Sheet Header
+      indexSheet.mergeCells("A1:I1");
+      indexSheet.getCell("A1").value = "STUDENT INDEX - QUICK ACCESS";
+      indexSheet.getCell("A1").font = {
+        bold: true,
+        size: 16,
+        color: { argb: "FFFFFFFF" },
+      };
+      indexSheet.getCell("A1").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF7C3AED" },
+      };
+      indexSheet.getCell("A1").alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+
+      // Index Sheet Subtitle
+      indexSheet.mergeCells("A2:I2");
+      indexSheet.getCell(
+        "A2"
+      ).value = `Click on student names to jump to their sheets | Total Students: ${students.length}`;
+      indexSheet.getCell("A2").font = {
+        italic: true,
+        color: { argb: "FF6B7280" },
+      };
+      indexSheet.getCell("A2").alignment = {
+        horizontal: "center",
+      };
+
+      // Index Sheet Column Headers
+      const headerRow = indexSheet.getRow(3);
+      headerRow.values = [
+        "S.No",
+        "Student Name",
+        "Registration No",
+        "Email",
+        "Specialization",
+        "CGPA",
+        "Placement Status",
+        "Current Company",
+        "Position & Package",
+      ];
+      headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      headerRow.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF2563EB" },
+      };
+      headerRow.alignment = { horizontal: "center" };
+
+      // Process each student and create individual sheets first to ensure they exist
+      const studentSheets = [];
+
+      for (const student of students) {
+        // Get student's applications data with position names
+        const applicationsQuery = `
+        -- Get positions student applied for via form registration with position names
+        WITH student_positions AS (
+          SELECT DISTINCT
+            (fr.response_data ->> 'position_id')::INTEGER AS position_id,
+            fr.response_data ->> 'position_title' as position_title,
+            c.id AS company_id,
+            c.company_name
+          FROM form_responses fr
+          INNER JOIN forms f ON f.id = fr.form_id
+          INNER JOIN events e ON e.id = f.event_id
+          INNER JOIN companies c ON c.id = e.company_id
+          WHERE fr.student_id = $1
+            AND (fr.response_data ->> 'position_id') IS NOT NULL
+        ),
+        -- Get companies student registered for
+        student_companies AS (
+          SELECT DISTINCT
+            c.id as company_id,
+            c.company_name,
+            c.sector,
+            c.is_marquee
+          FROM companies c
+          INNER JOIN events e ON e.company_id = c.id
+          INNER JOIN forms f ON f.event_id = e.id
+          INNER JOIN form_responses fr ON fr.form_id = f.id
+          WHERE fr.student_id = $1
+        ),
+        -- Get only rounds for positions student applied to with position names
+        company_rounds AS (
+          SELECT
+            e.company_id,
+            e.title as event_title,
+            e.event_type,
+            e.event_date,
+            e.round_type,
+            e.round_number,
+            e.position_ids,
+            srr.result_status,
+            -- Get position names from form responses
+            (
+              SELECT array_agg(DISTINCT sp.position_title)
+              FROM student_positions sp
+              WHERE sp.company_id = e.company_id
+                AND sp.position_id = ANY(e.position_ids)
+            ) as position_names
+          FROM events e
+          LEFT JOIN student_round_results srr ON e.id = srr.event_id AND srr.student_id = $1
+          WHERE e.is_placement_event = true
+            AND e.company_id IN (SELECT company_id FROM student_companies)
+            AND EXISTS (
+              SELECT 1
+              FROM student_positions sp
+              WHERE sp.company_id = e.company_id
+                AND sp.position_id = ANY(e.position_ids)
+            )
+          ORDER BY e.company_id, e.event_date, e.round_number
+        ),
+        eligible_not_applied AS (
+          SELECT
+            c.id as company_id,
+            c.company_name,
+            c.sector,
+            c.is_marquee,
+            c.scheduled_visit,
+            CASE
+              WHEN ce.dream_company_student_ids @> to_jsonb($1::int) THEN true
+              ELSE false
+            END as is_dream_company
+          FROM company_eligibility ce
+          INNER JOIN companies c ON ce.company_id = c.id
+          INNER JOIN batches b ON ce.batch_id = b.id
+          WHERE b.year = $2
+            AND (
+              ce.eligible_student_ids @> to_jsonb($1::int)
+              OR ce.dream_company_student_ids @> to_jsonb($1::int)
+            )
+            AND c.id NOT IN (SELECT company_id FROM student_companies)
+          ORDER BY c.scheduled_visit DESC NULLS LAST
+        )
+        SELECT
+          sc.company_id,
+          sc.company_name,
+          sc.sector,
+          sc.is_marquee,
+          json_agg(
+            json_build_object(
+              'eventTitle', cr.event_title,
+              'eventType', cr.event_type,
+              'eventDate', cr.event_date,
+              'roundType', cr.round_type,
+              'roundNumber', cr.round_number,
+              'positionIds', cr.position_ids,
+              'positionNames', cr.position_names,
+              'resultStatus', cr.result_status
+            ) ORDER BY cr.event_date, cr.round_number
+          ) FILTER (WHERE cr.event_title IS NOT NULL) as rounds,
+          (SELECT json_agg(json_build_object(
+            'companyName', ena.company_name,
+            'sector', ena.sector,
+            'isMarquee', ena.is_marquee,
+            'isDreamCompany', ena.is_dream_company,
+            'scheduledVisit', ena.scheduled_visit
+          ))
+          FROM eligible_not_applied ena) as not_applied
+        FROM student_companies sc
+        LEFT JOIN company_rounds cr ON sc.company_id = cr.company_id
+        GROUP BY sc.company_id, sc.company_name, sc.sector, sc.is_marquee
+        ORDER BY sc.company_name
+      `;
+
+        const appResult = await db.query(applicationsQuery, [
+          student.id,
+          batchYear,
+        ]);
+
+        // Create sheet with registration number
+        const sheetName = `Student_${student.registration_number}`.substring(
+          0,
+          31
+        ); // Excel limit
+        const worksheet = workbook.addWorksheet(sheetName);
+        studentSheets.push({ worksheet, student, sheetName });
+
+        // Add "Back to Index" hyperlink at the top
+        worksheet.mergeCells("A1:B1");
+        const backCell = worksheet.getCell("A1");
+        backCell.value = {
+          text: "← Back to Student Index",
+          hyperlink: "'Student Index'!A1",
+        };
+        backCell.font = {
+          color: { argb: "FF2563EB" },
+          underline: true,
+          bold: true,
+        };
+        backCell.tooltip = "Click to return to main index";
+
+        // SECTION 1: Student Info
+        worksheet.mergeCells("A4:H4");
+        worksheet.getCell("A4").value = "STUDENT INFORMATION";
+        worksheet.getCell("A4").font = {
+          bold: true,
+          size: 14,
+          color: { argb: "FFFFFFFF" },
+        };
+        worksheet.getCell("A4").fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF2563EB" },
+        };
+        worksheet.getCell("A4").alignment = {
+          horizontal: "center",
+          vertical: "middle",
+        };
+
+        // Parse current offer for display
+        let currentOfferDisplay = "—";
+        if (student.current_offer) {
+          try {
+            const offer =
+              typeof student.current_offer === "string"
+                ? JSON.parse(student.current_offer)
+                : student.current_offer;
+
+            const company = offer.company_name || offer.company || "";
+            const position = offer.position_title || offer.position || "";
+            const pkg = offer.package || offer.salary_package || "";
+
+            if (company && position && pkg) {
+              currentOfferDisplay = `${company} - ${position} (${pkg})`;
+            } else if (company && position) {
+              currentOfferDisplay = `${company} - ${position}`;
+            } else if (company) {
+              currentOfferDisplay = company;
+            }
+          } catch (e) {
+            currentOfferDisplay = "—";
+          }
+        }
+
+        worksheet.getRow(5).values = [
+          "Registration",
+          student.registration_number,
+          "Name",
+          student.full_name,
+          "Specialization",
+          student.specialization,
+        ];
+        worksheet.getRow(6).values = [
+          "Email",
+          student.college_email,
+          "CGPA",
+          student.cgpa,
+          "Status",
+          student.placement_status,
+        ];
+        worksheet.getRow(7).values = [
+          "Current Offer",
+          currentOfferDisplay,
+          "",
+          "",
+          "",
+          "",
+        ];
+
+        // Style student info
+        ["A5", "C5", "E5", "A6", "C6", "E6", "A7"].forEach((cell) => {
+          worksheet.getCell(cell).font = { bold: true };
+          worksheet.getCell(cell).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE5E7EB" },
+          };
+        });
+
+        // SECTION 2: Companies Applied To
+        let currentRow = 9;
+
+        worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+        worksheet.getCell(`A${currentRow}`).value = "COMPANIES APPLIED TO";
+        worksheet.getCell(`A${currentRow}`).font = {
+          bold: true,
+          size: 12,
+          color: { argb: "FFFFFFFF" },
+        };
+        worksheet.getCell(`A${currentRow}`).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF10B981" },
+        };
+        worksheet.getCell(`A${currentRow}`).alignment = {
+          horizontal: "center",
+        };
+        currentRow++;
+
+        const appliedCompanies = appResult.rows.filter(
+          (r) => r.rounds && r.rounds.length > 0
+        );
+
+        if (appliedCompanies.length > 0) {
+          for (const company of appliedCompanies) {
+            // Get the position name from the first round (student applied for only one position)
+            const positionName = company.rounds[0]?.positionNames?.[0] || "—";
+
+            // Company name row with position information in the format "Company (Position)"
+            worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+            const companyCell = worksheet.getCell(`A${currentRow}`);
+            companyCell.value = `${company.company_name} ${
+              company.is_marquee ? "⭐" : ""
+            }${positionName !== "—" ? ` (${positionName})` : ""}`;
+            companyCell.font = { bold: true, size: 11 };
+            companyCell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFF3F4F6" },
+            };
+            currentRow++;
+
+            // Remove the separate position names row since it's now in the company header
+            // Rounds header
+            const headerRow = worksheet.getRow(currentRow);
+            headerRow.values = [
+              "Round",
+              "Event Type",
+              "Date",
+              "Round Type",
+              "Result",
+              "Status",
+            ];
+            headerRow.font = { bold: true };
+            headerRow.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFDBEAFE" },
+            };
+            currentRow++;
+
+            // Rounds data
+            const rounds = company.rounds || [];
+            for (const round of rounds) {
+              const resultSymbol =
+                round.resultStatus === "selected"
+                  ? "✓"
+                  : round.resultStatus === "rejected"
+                  ? "✗"
+                  : round.resultStatus === "waitlisted"
+                  ? "⏳"
+                  : "—";
+
+              worksheet.getRow(currentRow).values = [
+                round.roundNumber || "—",
+                round.eventType || "—",
+                round.eventDate
+                  ? new Date(round.eventDate).toLocaleDateString()
+                  : "—",
+                round.roundType || "—",
+                resultSymbol,
+                round.resultStatus || "pending",
+              ];
+
+              // Color code result cell
+              const resultCell = worksheet.getCell(`E${currentRow}`);
+              if (round.resultStatus === "selected") {
+                resultCell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: "FFD1FAE5" },
+                };
+              } else if (round.resultStatus === "rejected") {
+                resultCell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: "FFFEE2E2" },
+                };
+              }
+
+              currentRow++;
+            }
+            currentRow++; // Empty row between companies
+          }
+        } else {
+          worksheet.getCell(`A${currentRow}`).value = "No applications found";
+          currentRow++;
+        }
+
+        // SECTION 3: Eligible But Not Applied
+        currentRow++;
+        worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+        worksheet.getCell(`A${currentRow}`).value = "ELIGIBLE BUT NOT APPLIED";
+        worksheet.getCell(`A${currentRow}`).font = {
+          bold: true,
+          size: 12,
+          color: { argb: "FFFFFFFF" },
+        };
+        worksheet.getCell(`A${currentRow}`).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFF59E0B" },
+        };
+        worksheet.getCell(`A${currentRow}`).alignment = {
+          horizontal: "center",
+        };
+        currentRow++;
+
+        const notApplied = appResult.rows[0]?.not_applied || [];
+
+        if (notApplied.length > 0) {
+          // Header
+          const headerRow = worksheet.getRow(currentRow);
+          headerRow.values = [
+            "Company Name",
+            "Sector",
+            "Marquee",
+            "Dream Company",
+            "Scheduled Visit",
+          ];
+          headerRow.font = { bold: true };
+          headerRow.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFEF3C7" },
+          };
+          currentRow++;
+
+          // Data
+          for (const company of notApplied) {
+            worksheet.getRow(currentRow).values = [
+              company.companyName,
+              company.sector,
+              company.isMarquee ? "⭐" : "",
+              company.isDreamCompany ? "💎" : "",
+              company.scheduledVisit
+                ? new Date(company.scheduledVisit).toLocaleDateString()
+                : "—",
+            ];
+            currentRow++;
+          }
+        } else {
+          worksheet.getCell(`A${currentRow}`).value =
+            "Applied to all eligible companies";
+          currentRow++;
+        }
+
+        // Set column widths
+        worksheet.columns = [
+          { width: 12 }, // A - Round
+          { width: 15 }, // B - Event Type
+          { width: 12 }, // C - Date
+          { width: 15 }, // D - Round Type
+          { width: 20 }, // E - Position(s)
+          { width: 10 }, // F - Result
+          { width: 12 }, // G - Status
+          { width: 15 }, // H - (empty)
+        ];
+
+        // Add borders to all cells with data
+        for (let i = 1; i <= currentRow; i++) {
+          for (let j = 1; j <= 8; j++) {
+            const cell = worksheet.getCell(i, j);
+            cell.border = {
+              top: { style: "thin" },
+              left: { style: "thin" },
+              bottom: { style: "thin" },
+              right: { style: "thin" },
+            };
+          }
+        }
+      }
+
+      // Now add hyperlinks to the index sheet after all sheets are created
+      students.forEach((student, index) => {
+        const dataRow = indexSheet.getRow(4 + index);
+        const sheetName = `Student_${student.registration_number}`;
+
+        // Parse current_offer to extract company, position and package
+        let currentCompany = "—";
+        let positionPackage = "—";
+
+        if (student.current_offer) {
+          try {
+            const offer =
+              typeof student.current_offer === "string"
+                ? JSON.parse(student.current_offer)
+                : student.current_offer;
+
+            currentCompany = offer.company_name || offer.company || "—";
+
+            const position = offer.position_title || offer.position || "";
+            const pkg = offer.package || offer.salary_package || "";
+
+            if (position && pkg) {
+              positionPackage = `${position} (${pkg})`;
+            } else if (position) {
+              positionPackage = position;
+            } else if (pkg) {
+              positionPackage = `Package: ${pkg}`;
+            }
+          } catch (e) {
+            console.error("Error parsing current_offer:", e);
+            currentCompany = "—";
+            positionPackage = "—";
+          }
+        }
+
+        dataRow.values = [
+          index + 1,
+          {
+            text: student.full_name,
+            hyperlink: `'${sheetName}'!A1`,
+            tooltip: `Click to go to ${student.full_name}'s sheet`,
+          },
+          student.registration_number,
+          student.college_email,
+          student.specialization,
+          student.cgpa,
+          student.placement_status,
+          currentCompany,
+          positionPackage,
+        ];
+
+        // Style the hyperlink
+        const nameCell = dataRow.getCell(2);
+        nameCell.font = {
+          color: { argb: "FF2563EB" },
+          underline: true,
+          bold: true,
+        };
+
+        // Alternate row coloring for better readability
+        if (index % 2 === 0) {
+          dataRow.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF9FAFB" },
+          };
+        }
+      });
+
+      // Set column widths for index sheet
+      indexSheet.columns = [
+        { width: 8 }, // S.No
+        { width: 25 }, // Student Name
+        { width: 18 }, // Registration No
+        { width: 25 }, // Email
+        { width: 20 }, // Specialization
+        { width: 10 }, // CGPA
+        { width: 15 }, // Placement Status
+        { width: 20 }, // Current Company
+        { width: 25 }, // Position & Package
+      ];
+
+      // Add borders to index sheet
+      for (let i = 1; i <= students.length + 7; i++) {
+        for (let j = 1; j <= 9; j++) {
+          const cell = indexSheet.getCell(i, j);
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        }
+      }
+
+      // Freeze the header rows for easy scrolling
+      indexSheet.views = [{ state: "frozen", xSplit: 0, ySplit: 3 }];
+
+      // Generate Excel file
+      const buffer = await workbook.xlsx.writeBuffer();
+
+      // Set response headers
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="student_rounds_${batchYear}_${Date.now()}.xlsx"`
+      );
+      res.setHeader("Content-Length", buffer.length);
+
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error in rounds export:", error);
+      next(error);
+    }
+  }
+);
 
 module.exports = routes;
