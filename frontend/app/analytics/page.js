@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Download, ArrowLeft } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 // Import Components
 import BatchOverview from "./components/temp";
@@ -13,7 +12,6 @@ import { useBatchContext } from "../../context/BatchContext";
 // ==================== MAIN DASHBOARD ====================
 export default function PlacementAnalyticsDashboard() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [view, setView] = useState("batch");
   const [selectedStudent, setSelectedStudent] = useState(null);
