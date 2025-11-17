@@ -14,6 +14,7 @@ export default function StatCard({
     purple: "bg-purple-100 text-purple-600",
     orange: "bg-orange-100 text-orange-600",
     yellow: "bg-yellow-100 text-yellow-600",
+    red: "bg-red-100 text-red-600",
   };
 
   return (

@@ -11,6 +11,8 @@ import {
   Building2,
   TrendingUp,
   AlertTriangle,
+  XCircle,
+  BookOpen,
 } from "lucide-react";
 import StatCard from "./StatCard";
 import StudentApplications from "./StudentApplications";
@@ -65,8 +67,11 @@ export default function StudentOverview({ student, studentId }) {
 
   if (!student) {
     return (
-      <div className="bg-gray-100 rounded-xl p-8 text-center">
-        <p className="text-gray-600">Select a student to view details</p>
+      <div className="bg-white rounded-xl p-12 text-center border border-gray-200 shadow-sm">
+        <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+        <p className="text-gray-600 text-lg">
+          Select a student to view details
+        </p>
       </div>
     );
   }
@@ -74,15 +79,15 @@ export default function StudentOverview({ student, studentId }) {
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-1 flex gap-1">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 flex gap-1">
         {["details", "applications", "eligible"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`flex-1 px-4 py-2.5 text-sm font-semibold capitalize rounded-lg transition-all ${
               activeTab === tab
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                ? "bg-blue-600 text-white shadow"
+                : "text-gray-700 hover:bg-gray-50"
             }`}
           >
             {tab === "details" && "Details & Profile"}
@@ -96,8 +101,62 @@ export default function StudentOverview({ student, studentId }) {
       {/* Details & Profile Tab */}
       {activeTab === "details" && (
         <div className="space-y-6">
+          {/* Current Placement Status */}
+          {student.placementStatus === "placed" && student.currentOffer && (
+            <div className="bg-gradient-to-r from-green-600 via-green-500 to-green-600 rounded-xl p-6 text-white shadow-md">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold">Current Placement</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg border border-white/20">
+                  <div className="text-sm text-emerald-100 mb-1">Company</div>
+                  <div className="text-lg font-bold">
+                    {student.currentOffer.companyName}
+                  </div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg border border-white/20">
+                  <div className="text-sm text-emerald-100 mb-1">Position</div>
+                  <div className="text-lg font-bold">
+                    {student.currentOffer.positionTitle}
+                  </div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg border border-white/20">
+                  <div className="text-sm text-emerald-100 mb-1">Package</div>
+                  <div className="text-2xl font-bold">
+                    {student.currentOffer
+                      ? student.currentOffer.hasRange
+                        ? `₹${student.currentOffer.package} - ${student.currentOffer.packageEnd} LPA`
+                        : `₹${student.currentOffer.package} LPA`
+                      : "-"}
+                  </div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg border border-white/20">
+                  <div className="text-sm text-emerald-100 mb-1">
+                    Acceptance Date
+                  </div>
+                  <div className="text-sm font-semibold">
+                    {student.currentOffer.acceptanceDate
+                      ? new Date(
+                          student.currentOffer.acceptanceDate
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <StatCard
+              icon={Briefcase}
+              label="Total Eligible Companies"
+              value={student.totalEligibleCompanies || 0}
+              color="blue"
+            />
             <StatCard
               icon={Briefcase}
               label="Total Applications"
@@ -110,6 +169,18 @@ export default function StudentOverview({ student, studentId }) {
               value={student.activeApplications || 0}
               subtext="In various stages"
               color="yellow"
+            />
+            <StatCard
+              icon={XCircle}
+              label="Rejected Applications"
+              value={Math.max(
+                0,
+                (student.totalApplications || 0) -
+                  (student.offersReceived || 0) -
+                  (student.activeApplications || 0)
+              )}
+              subtext="Not selected"
+              color="red"
             />
             <StatCard
               icon={Award}
@@ -129,122 +200,48 @@ export default function StudentOverview({ student, studentId }) {
             />
           </div>
 
-          {/* Current Placement Status */}
-          {student.placementStatus === "placed" && student.currentOffer && (
-            <div className="bg-emerald-50 rounded-xl p-6 border-2 border-emerald-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-emerald-500 rounded-lg">
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900">
-                  Current Placement
-                </h3>
+          {/* Academic Performance */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <BookOpen className="w-5 h-5 text-blue-600" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-emerald-200">
-                  <div className="text-sm text-gray-600 mb-1">Company</div>
-                  <div className="text-lg font-bold text-gray-900">
-                    {student.currentOffer.companyName}
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-emerald-200">
-                  <div className="text-sm text-gray-600 mb-1">Position</div>
-                  <div className="text-lg font-bold text-gray-900">
-                    {student.currentOffer.positionTitle}
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-emerald-200">
-                  <div className="text-sm text-gray-600 mb-1">Package</div>
-                  <div className="text-2xl font-bold text-emerald-600">
-                    ₹{student.currentOffer.package} LPA
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-emerald-200">
-                  <div className="text-sm text-gray-600 mb-1">
-                    Acceptance Date
-                  </div>
-                  <div className="text-sm font-semibold text-gray-900">
-                    {student.currentOffer.acceptanceDate
-                      ? new Date(
-                          student.currentOffer.acceptanceDate
-                        ).toLocaleDateString()
-                      : "N/A"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Application Statistics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Application Status Breakdown */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                Application Status Overview
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                  <span className="text-gray-700 font-medium">
-                    Offers Received
-                  </span>
-                  <span className="font-bold text-xl text-emerald-600">
-                    {student.offersReceived || 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                  <span className="text-gray-700 font-medium">In Progress</span>
-                  <span className="font-bold text-xl text-yellow-600">
-                    {student.activeApplications || 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-                  <span className="text-gray-700 font-medium">Rejected</span>
-                  <span className="font-bold text-xl text-red-600">
-                    {Math.max(
-                      0,
-                      (student.totalApplications || 0) -
-                        (student.offersReceived || 0) -
-                        (student.activeApplications || 0)
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Academic Performance */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
+              <h3 className="text-lg font-bold text-gray-900">
                 Academic Performance
               </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <span className="text-gray-700 font-medium">
-                    Current CGPA
-                  </span>
-                  <span className="font-bold text-xl text-blue-600">
-                    {student.cgpa}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <span className="text-gray-700 font-medium">Class 12th</span>
-                  <span className="font-bold text-xl text-purple-600">
-                    {student.class12Percentage}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-violet-50 rounded-lg border border-violet-200">
-                  <span className="text-gray-700 font-medium">Class 10th</span>
-                  <span className="font-bold text-xl text-violet-600">
-                    {student.class10Percentage}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-                  <span className="text-gray-700 font-medium">
-                    Active Backlogs
-                  </span>
-                  <span className="font-bold text-xl text-red-600">
-                    {student.backlogs || 0}
-                  </span>
-                </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                <span className="text-sm text-gray-700 font-medium block mb-1">
+                  Current CGPA
+                </span>
+                <span className="text-3xl font-bold text-blue-600 block">
+                  {student.cgpa}
+                </span>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                <span className="text-sm text-gray-700 font-medium block mb-1">
+                  Class 12th
+                </span>
+                <span className="text-3xl font-bold text-purple-600 block">
+                  {student.class12Percentage}%
+                </span>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-violet-50 to-violet-100 rounded-lg border border-violet-200">
+                <span className="text-sm text-gray-700 font-medium block mb-1">
+                  Class 10th
+                </span>
+                <span className="text-3xl font-bold text-violet-600 block">
+                  {student.class10Percentage}%
+                </span>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
+                <span className="text-sm text-gray-700 font-medium block mb-1">
+                  Active Backlogs
+                </span>
+                <span className="text-3xl font-bold text-red-600 block">
+                  {student.backlogs || 0}
+                </span>
               </div>
             </div>
           </div>
@@ -255,18 +252,21 @@ export default function StudentOverview({ student, studentId }) {
       {activeTab === "applications" && (
         <div>
           {loading ? (
-            <div className="flex items-center justify-center p-12">
-              <Loader className="w-8 h-8 text-blue-600 animate-spin mr-2" />
-              <p className="text-gray-600">Loading applications...</p>
+            <div className="flex items-center justify-center p-16 bg-white rounded-xl border border-gray-200">
+              <Loader className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+              <p className="text-gray-600 text-lg">Loading applications...</p>
             </div>
           ) : error ? (
-            <div className="bg-red-50 rounded-xl p-6 border border-red-200 flex items-center gap-3">
+            <div className="bg-red-50 rounded-xl p-6 border border-red-200 flex items-center gap-3 shadow-sm">
               <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
-              <p className="text-red-700">{error}</p>
+              <p className="text-red-700 font-medium">{error}</p>
             </div>
           ) : applications.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-              <p className="text-gray-500 text-lg">No applications yet</p>
+            <div className="bg-white rounded-xl p-16 text-center border border-gray-200 shadow-sm">
+              <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-500 text-lg font-medium">
+                No applications yet
+              </p>
             </div>
           ) : (
             <StudentApplications
@@ -282,25 +282,28 @@ export default function StudentOverview({ student, studentId }) {
       {activeTab === "eligible" && (
         <div>
           {loading ? (
-            <div className="flex items-center justify-center p-12">
-              <Loader className="w-8 h-8 text-blue-600 animate-spin mr-2" />
-              <p className="text-gray-600">Loading eligible companies...</p>
+            <div className="flex items-center justify-center p-16 bg-white rounded-xl border border-gray-200">
+              <Loader className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+              <p className="text-gray-600 text-lg">
+                Loading eligible companies...
+              </p>
             </div>
           ) : error ? (
-            <div className="bg-red-50 rounded-xl p-6 border border-red-200 flex items-center gap-3">
+            <div className="bg-red-50 rounded-xl p-6 border border-red-200 flex items-center gap-3 shadow-sm">
               <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
-              <p className="text-red-700">{error}</p>
+              <p className="text-red-700 font-medium">{error}</p>
             </div>
           ) : eligibleNotApplied.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-              <p className="text-gray-500 text-lg">
+            <div className="bg-white rounded-xl p-16 text-center border border-gray-200 shadow-sm">
+              <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-500 text-lg font-medium">
                 No eligible companies to apply for
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4 px-3 py-3 bg-orange-50 border border-orange-200 rounded-lg">
-                <AlertTriangle className="w-4 h-4 text-orange-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 px-4 py-3 bg-orange-50 border border-orange-200 rounded-lg shadow-sm">
+                <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0" />
                 <span className="text-sm font-semibold text-orange-800">
                   Student met all eligibility criteria but chose not to apply
                   for these opportunities.
@@ -357,10 +360,10 @@ function EligibleCompanyCard({ company }) {
 
         {company.scheduledVisit && (
           <div className="flex flex-col items-end">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
               <Calendar className="w-4 h-4 text-blue-600" />
               <div className="text-right">
-                <p className="text-xs text-blue-800 font-semibold">
+                <p className="text-sm text-blue-800 font-semibold">
                   {new Date(company.scheduledVisit).toLocaleDateString(
                     "en-IN",
                     {
@@ -384,7 +387,7 @@ function EligibleCompanyCard({ company }) {
             {company.positions.map((pos, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
               >
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">
@@ -405,7 +408,7 @@ function EligibleCompanyCard({ company }) {
                     </p>
                   ) : (
                     <span className="text-sm text-gray-500 italic">
-                      Package TBA (To Be Announced)
+                      Package TBA
                     </span>
                   )}
                 </div>

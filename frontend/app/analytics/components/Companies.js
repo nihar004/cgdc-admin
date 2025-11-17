@@ -57,74 +57,104 @@ export default function Companies({
       for (const company of companies) {
         try {
           const result = await getCompanyDetails(batchYear, company.id);
+          if (!result.success) continue;
 
-          if (result.success) {
-            const detailData = result.data;
+          const detailData = result.data;
 
-            // Create a unique sheet name (max 31 chars in Excel)
-            const sheetName = `${companyIndex}. ${(detailData.company?.name || "Company").substring(0, 20)}`;
+          const sheetName = `${companyIndex}. ${(detailData.company?.name || "Company").substring(0, 20)}`;
+          const sheetData = [];
 
-            // Company overview
-            const companyInfo = [
-              ["COMPANY INFORMATION"],
-              ["Company Name", detailData.company?.name || "-"],
-              ["Sector", detailData.company?.sector || "-"],
-              ["Website", detailData.company?.websiteUrl || "-"],
-              ["Office Address", detailData.company?.officeAddress || "-"],
-              ["Work Locations", detailData.company?.workLocations || "-"],
-              ["Glassdoor Rating", detailData.company?.glassdoorRating || "-"],
-              [
-                "Scheduled Visit",
-                detailData.company?.scheduledVisit
-                  ? new Date(
-                      detailData.company.scheduledVisit
-                    ).toLocaleDateString()
-                  : "-",
-              ],
-              [
-                "Bond Required",
-                detailData.company?.bondRequired ? "Yes" : "No",
-              ],
-              [],
-              ["ELIGIBILITY CRITERIA"],
-              [
-                "Min CGPA",
-                detailData.company?.eligibilityCriteria?.minCgpa || "-",
-              ],
-              [
-                "Min 10th %",
-                detailData.company?.eligibilityCriteria?.min10th || "-",
-              ],
-              [
-                "Min 12th %",
-                detailData.company?.eligibilityCriteria?.min12th || "-",
-              ],
-              [
-                "Max Backlogs",
-                detailData.company?.eligibilityCriteria?.maxBacklogs
-                  ? "Yes"
-                  : "No",
-              ],
-              [],
-              ["STATISTICS"],
-              ["Total Eligible", detailData.eligibility?.totalEligible || 0],
-              [
-                "Total Ineligible",
-                detailData.eligibility?.totalIneligible || 0,
-              ],
-              [
-                "Total Registered",
-                detailData.registration?.totalRegistered || 0,
-              ],
-              ["Total Placed", detailData.eligibility?.totalPlaced || 0],
-            ];
+          // --- COMPANY INFO ---
+          sheetData.push(["COMPANY INFORMATION"]);
+          sheetData.push(["Company Name", detailData.company?.name || "-"]);
+          sheetData.push(["Sector", detailData.company?.sector || "-"]);
+          sheetData.push(["Website", detailData.company?.websiteUrl || "-"]);
+          sheetData.push([
+            "Office Address",
+            detailData.company?.officeAddress || "-",
+          ]);
+          sheetData.push([
+            "Work Locations",
+            detailData.company?.workLocations || "-",
+          ]);
+          sheetData.push([
+            "Glassdoor Rating",
+            detailData.company?.glassdoorRating || "-",
+          ]);
+          sheetData.push([
+            "Scheduled Visit",
+            detailData.company?.scheduledVisit
+              ? new Date(detailData.company.scheduledVisit).toLocaleDateString()
+              : "-",
+          ]);
+          sheetData.push([
+            "Bond Required",
+            detailData.company?.bondRequired ? "Yes" : "No",
+          ]);
+          sheetData.push([]);
 
-            let currentRow = companyInfo.length + 2;
+          // --- ELIGIBILITY CRITERIA ---
+          sheetData.push(["ELIGIBILITY CRITERIA"]);
+          sheetData.push([
+            "Min CGPA",
+            detailData.company?.eligibilityCriteria?.minCgpa || "-",
+          ]);
+          sheetData.push([
+            "Min 10th %",
+            detailData.company?.eligibilityCriteria?.min10th || "-",
+          ]);
+          sheetData.push([
+            "Min 12th %",
+            detailData.company?.eligibilityCriteria?.min12th || "-",
+          ]);
+          sheetData.push([
+            "Max Backlogs",
+            detailData.company?.eligibilityCriteria?.maxBacklogs ? "Yes" : "No",
+          ]);
+          sheetData.push([
+            "Allowed Specializations",
+            detailData.company?.eligibilityCriteria?.allowedSpecializations ||
+              "-",
+          ]);
+          sheetData.push([]);
 
-            // Add positions
-            if (detailData.positions && detailData.positions.length > 0) {
-              const positionsData = [["POSITIONS"]];
-              const positionRows = detailData.positions.map((pos) => [
+          // --- STATISTICS ---
+          sheetData.push(["STATISTICS"]);
+          sheetData.push([
+            "Total Eligible",
+            detailData.eligibility?.totalEligible || 0,
+          ]);
+          sheetData.push([
+            "Total Ineligible",
+            detailData.eligibility?.totalIneligible || 0,
+          ]);
+          sheetData.push([
+            "Total Registered",
+            detailData.registration?.totalRegistered || 0,
+          ]);
+          sheetData.push([
+            "Total Placed",
+            detailData.eligibility?.totalPlaced || 0,
+          ]);
+          sheetData.push([]);
+
+          // --- POSITIONS TABLE ---
+          if (detailData.positions?.length > 0) {
+            sheetData.push(["POSITIONS"]);
+            sheetData.push([
+              "Position",
+              "Job Type",
+              "Company Type",
+              "Package (LPA)",
+              "Stipend",
+              "Rounds Start",
+              "Rounds End",
+              "Selected",
+              "Status",
+            ]);
+
+            detailData.positions.forEach((pos) => {
+              sheetData.push([
                 pos.title,
                 pos.jobType?.replace(/_/g, " ") || "-",
                 pos.companyType?.replace(/_/g, " ") || "-",
@@ -137,110 +167,266 @@ export default function Companies({
                 pos.totalSelected || 0,
                 pos.isActive ? "Active" : "Inactive",
               ]);
-              positionsData.push([
-                "Position",
-                "Job Type",
-                "Company Type",
-                "Package (LPA)",
-                "Stipend",
-                "Rounds Start",
-                "Rounds End",
-                "Selected",
-                "Status",
-              ]);
-              positionsData.push(...positionRows);
-              companyInfo.push(...positionsData);
-            }
+            });
+            sheetData.push([]);
+          }
 
-            // Add events
-            if (
-              detailData.events &&
-              (detailData.events.shared?.length > 0 ||
-                detailData.events.specific?.length > 0)
-            ) {
-              const allEvents = [
+          // --- ROUNDS TABLE POSITION WISE ---
+          if (detailData.positions?.length > 0) {
+            detailData.positions.forEach((pos) => {
+              const positionEvents = [
                 ...(detailData.events.shared || []),
                 ...(detailData.events.specific || []),
-              ];
-              const eventsData = [[], ["RECRUITMENT ROUNDS"]];
-              const eventRows = allEvents.map((event) => {
-                const getEventTypeLabel = (type) => {
-                  const labels = {
-                    pre_placement_talk: "Pre Placement Talk",
-                    technical_mcq: "Technical MCQ",
-                    technical_round_1: "Technical Round 1",
-                    technical_round_2: "Technical Round 2",
-                    hr_round: "HR Round",
-                    group_discussion: "Group Discussion",
-                    coding_test: "Coding Test",
-                    final_round: "Final Round",
+              ].filter((e) => e.positionIds?.includes(pos.id));
+
+              if (positionEvents.length > 0) {
+                sheetData.push([`${pos.title} - Recruitment Rounds`]);
+                sheetData.push([
+                  "Round",
+                  "Type",
+                  "Event Title",
+                  "Event Type",
+                  "Date",
+                  "Start Time",
+                  "End Time",
+                  "Venue",
+                  "Mode",
+                  "Status",
+                  "Present",
+                  "Absent",
+                  "Selected",
+                  "Rejected",
+                  "Pending",
+                ]);
+
+                positionEvents.forEach((event) => {
+                  const getEventTypeLabel = (type) => {
+                    const labels = {
+                      pre_placement_talk: "Pre Placement Talk",
+                      technical_mcq: "Technical MCQ",
+                      technical_round_1: "Technical Round 1",
+                      technical_round_2: "Technical Round 2",
+                      hr_round: "HR Round",
+                      group_discussion: "Group Discussion",
+                      coding_test: "Coding Test",
+                      final_round: "Final Round",
+                    };
+                    return labels[type] || type?.replace(/_/g, " ");
                   };
-                  return labels[type] || type?.replace(/_/g, " ");
+
+                  sheetData.push([
+                    event.roundNumber,
+                    event.roundType?.replace(/_/g, " ") || "-",
+                    event.title,
+                    getEventTypeLabel(event.type),
+                    new Date(event.date).toLocaleDateString(),
+                    event.startTime || "-",
+                    event.endTime || "-",
+                    event.venue || "-",
+                    event.mode || "-",
+                    event.status?.replace(/_/g, " ") || "-",
+                    event.attendance?.present || 0,
+                    event.attendance?.absent || 0,
+                    event.overallResults?.selected || 0,
+                    event.overallResults?.rejected || 0,
+                    event.overallResults?.pending || 0,
+                  ]);
+                });
+                sheetData.push([]);
+              }
+            });
+          }
+
+          // --- Create sheet ---
+          const ws = XLSX.utils.aoa_to_sheet(sheetData);
+
+          // Column widths
+          ws["!cols"] = [
+            { wch: 25 }, // Column A - Labels/Headers
+            { wch: 20 }, // Column B
+            { wch: 18 }, // Column C
+            { wch: 18 }, // Column D
+            { wch: 15 }, // Column E
+            { wch: 15 }, // Column F
+            { wch: 15 }, // Column G
+            { wch: 12 }, // Column H
+            { wch: 12 }, // Column I
+            { wch: 15 }, // Column J
+            { wch: 12 }, // Column K
+            { wch: 12 }, // Column L
+            { wch: 12 }, // Column M
+            { wch: 12 }, // Column N
+            { wch: 12 }, // Column O
+          ];
+
+          // Apply comprehensive styling
+          const range = XLSX.utils.decode_range(ws["!ref"]);
+
+          for (let R = 0; R <= range.e.r; ++R) {
+            for (let C = 0; C <= range.e.c; ++C) {
+              const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+              if (!ws[cellAddress]) continue;
+
+              const cell = ws[cellAddress];
+              const cellValue = cell.v;
+
+              // Initialize cell style
+              if (!cell.s) cell.s = {};
+
+              // Section Headers (COMPANY INFORMATION, ELIGIBILITY CRITERIA, etc.)
+              if (
+                C === 0 &&
+                typeof cellValue === "string" &&
+                (cellValue.includes("COMPANY INFORMATION") ||
+                  cellValue.includes("ELIGIBILITY CRITERIA") ||
+                  cellValue.includes("STATISTICS") ||
+                  cellValue === "POSITIONS" ||
+                  cellValue.includes("- Recruitment Rounds"))
+              ) {
+                cell.s = {
+                  font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+                  fill: { fgColor: { rgb: "1F4E78" } }, // Dark Blue
+                  alignment: { horizontal: "center", vertical: "center" },
+                  border: {
+                    top: { style: "thin", color: { rgb: "000000" } },
+                    bottom: { style: "thin", color: { rgb: "000000" } },
+                    left: { style: "thin", color: { rgb: "000000" } },
+                    right: { style: "thin", color: { rgb: "000000" } },
+                  },
                 };
 
-                return [
-                  event.roundNumber,
-                  event.roundType?.charAt(0).toUpperCase() +
-                    event.roundType?.slice(1),
-                  event.title,
-                  getEventTypeLabel(event.type),
-                  new Date(event.date).toLocaleDateString(),
-                  event.startTime || "-",
-                  event.endTime || "-",
-                  event.venue || "-",
-                  event.mode || "-",
-                  event.status?.charAt(0).toUpperCase() +
-                    event.status?.slice(1),
-                  event.attendance?.present || 0,
-                  event.attendance?.absent || 0,
-                  event.overallResults?.selected || 0,
-                  event.overallResults?.rejected || 0,
-                  event.overallResults?.pending || 0,
-                ];
-              });
-              eventsData.push([
-                "Round",
-                "Type",
-                "Event Title",
-                "Event Type",
-                "Date",
-                "Start Time",
-                "End Time",
-                "Venue",
-                "Mode",
-                "Status",
-                "Present",
-                "Absent",
-                "Selected",
-                "Rejected",
-                "Pending",
-              ]);
-              eventsData.push(...eventRows);
-              companyInfo.push(...eventsData);
-            }
+                // Merge cells for section headers
+                if (!ws["!merges"]) ws["!merges"] = [];
+                ws["!merges"].push({
+                  s: { r: R, c: 0 },
+                  e: { r: R, c: Math.max(8, range.e.c) },
+                });
+              }
+              // Table Headers (Position, Round, etc.)
+              else if (
+                typeof cellValue === "string" &&
+                (cellValue === "Position" ||
+                  cellValue === "Round" ||
+                  cellValue === "Job Type" ||
+                  cellValue === "Company Type")
+              ) {
+                cell.s = {
+                  font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+                  fill: { fgColor: { rgb: "4472C4" } }, // Medium Blue
+                  alignment: {
+                    horizontal: "center",
+                    vertical: "center",
+                    wrapText: true,
+                  },
+                  border: {
+                    top: { style: "thin", color: { rgb: "000000" } },
+                    bottom: { style: "thin", color: { rgb: "000000" } },
+                    left: { style: "thin", color: { rgb: "000000" } },
+                    right: { style: "thin", color: { rgb: "000000" } },
+                  },
+                };
+              }
+              // Label cells (first column in info sections)
+              else if (
+                C === 0 &&
+                typeof cellValue === "string" &&
+                cellValue !== "" &&
+                !cellValue.includes("INFORMATION") &&
+                !cellValue.includes("CRITERIA") &&
+                !cellValue.includes("STATISTICS") &&
+                !cellValue.includes("POSITIONS") &&
+                !cellValue.includes("Rounds")
+              ) {
+                cell.s = {
+                  font: { bold: true, sz: 10, color: { rgb: "1F4E78" } },
+                  fill: { fgColor: { rgb: "D9E2F3" } }, // Light Blue
+                  alignment: { horizontal: "left", vertical: "center" },
+                  border: {
+                    top: { style: "thin", color: { rgb: "CCCCCC" } },
+                    bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+                    left: { style: "thin", color: { rgb: "CCCCCC" } },
+                    right: { style: "thin", color: { rgb: "CCCCCC" } },
+                  },
+                };
+              }
+              // Value cells (second column in info sections and table data)
+              else if (cellValue !== "" && cellValue !== undefined) {
+                // Determine if it's a data row in a table
+                const isTableData =
+                  R > 0 &&
+                  ws[XLSX.utils.encode_cell({ r: R - 1, c: C })] &&
+                  (ws[XLSX.utils.encode_cell({ r: R - 1, c: 0 })]?.v ===
+                    "Position" ||
+                    ws[XLSX.utils.encode_cell({ r: R - 1, c: 0 })]?.v ===
+                      "Round");
 
-            // Create sheet with all data
-            const ws = XLSX.utils.aoa_to_sheet(companyInfo);
-            ws["!cols"] = [
-              { wch: 20 },
-              { wch: 18 },
-              { wch: 18 },
-              { wch: 16 },
-              { wch: 18 },
-              { wch: 14 },
-              { wch: 14 },
-              { wch: 12 },
-              { wch: 12 },
-              { wch: 12 },
-              { wch: 10 },
-              { wch: 10 },
-              { wch: 10 },
-              { wch: 10 },
-              { wch: 10 },
-            ];
-            XLSX.utils.book_append_sheet(workbook, ws, sheetName);
-            companyIndex++;
+                cell.s = {
+                  font: { sz: 10, color: { rgb: "000000" } },
+                  fill: {
+                    fgColor: {
+                      rgb: isTableData && R % 2 === 0 ? "F2F2F2" : "FFFFFF",
+                    },
+                  },
+                  alignment: {
+                    horizontal: C === 0 ? "left" : "center",
+                    vertical: "center",
+                    wrapText: true,
+                  },
+                  border: {
+                    top: { style: "thin", color: { rgb: "E0E0E0" } },
+                    bottom: { style: "thin", color: { rgb: "E0E0E0" } },
+                    left: { style: "thin", color: { rgb: "E0E0E0" } },
+                    right: { style: "thin", color: { rgb: "E0E0E0" } },
+                  },
+                };
+
+                // Highlight specific values
+                if (typeof cellValue === "string") {
+                  if (cellValue === "Active") {
+                    cell.s.fill = { fgColor: { rgb: "C6EFCE" } }; // Green
+                    cell.s.font.color = { rgb: "006100" };
+                  } else if (cellValue === "Inactive") {
+                    cell.s.fill = { fgColor: { rgb: "FFC7CE" } }; // Red
+                    cell.s.font.color = { rgb: "9C0006" };
+                  } else if (cellValue === "Yes") {
+                    cell.s.font.color = { rgb: "0070C0" };
+                    cell.s.font.bold = true;
+                  }
+                }
+
+                // Highlight numbers
+                if (typeof cellValue === "number" && cellValue > 0) {
+                  cell.s.font.bold = true;
+                  cell.s.font.color = { rgb: "0070C0" };
+                }
+              }
+            }
           }
+
+          // Add row height for better readability
+          ws["!rows"] = Array(range.e.r + 1)
+            .fill(null)
+            .map((_, idx) => {
+              const firstCell = ws[XLSX.utils.encode_cell({ r: idx, c: 0 })];
+              if (firstCell && typeof firstCell.v === "string") {
+                if (
+                  firstCell.v.includes("INFORMATION") ||
+                  firstCell.v.includes("CRITERIA") ||
+                  firstCell.v.includes("STATISTICS") ||
+                  firstCell.v.includes("POSITIONS") ||
+                  firstCell.v.includes("Rounds")
+                ) {
+                  return { hpt: 25 }; // Section headers taller
+                }
+                if (firstCell.v === "Position" || firstCell.v === "Round") {
+                  return { hpt: 20 }; // Table headers
+                }
+              }
+              return { hpt: 18 }; // Default row height
+            });
+
+          XLSX.utils.book_append_sheet(workbook, ws, sheetName);
+          companyIndex++;
         } catch (err) {
           console.error(
             `Error fetching details for company ${company.id}:`,
@@ -249,7 +435,12 @@ export default function Companies({
         }
       }
 
-      XLSX.writeFile(workbook, `all-companies-details-${Date.now()}.xlsx`);
+      // Write file with proper settings
+      XLSX.writeFile(workbook, `all-companies-details-${Date.now()}.xlsx`, {
+        bookType: "xlsx",
+        bookSST: false,
+        type: "binary",
+      });
     } catch (err) {
       console.error("Export error:", err);
       alert("Error exporting companies. Please try again.");
@@ -429,20 +620,11 @@ function CompanyCard({
 
     const workbook = XLSX.utils.book_new();
 
-    // Sheet 1: Company Overview
+    // --- Sheet 1: Company Overview ---
     const companyData = [
-      {
-        Field: "Company Name",
-        Value: detailData.company?.name || "-",
-      },
-      {
-        Field: "Sector",
-        Value: detailData.company?.sector || "-",
-      },
-      {
-        Field: "Website",
-        Value: detailData.company?.websiteUrl || "-",
-      },
+      { Field: "Company Name", Value: detailData.company?.name || "-" },
+      { Field: "Sector", Value: detailData.company?.sector || "-" },
+      { Field: "Website", Value: detailData.company?.websiteUrl || "-" },
       {
         Field: "Office Address",
         Value: detailData.company?.officeAddress || "-",
@@ -465,14 +647,8 @@ function CompanyCard({
         Field: "Bond Required",
         Value: detailData.company?.bondRequired ? "Yes" : "No",
       },
-      {
-        Field: "",
-        Value: "",
-      },
-      {
-        Field: "ELIGIBILITY CRITERIA",
-        Value: "",
-      },
+      { Field: "", Value: "" },
+      { Field: "ELIGIBILITY CRITERIA", Value: "" },
       {
         Field: "Min CGPA",
         Value: detailData.company?.eligibilityCriteria?.minCgpa || "-",
@@ -487,9 +663,7 @@ function CompanyCard({
       },
       {
         Field: "Max Backlogs",
-        Value: detailData.company?.eligibilityCriteria?.maxBacklogs
-          ? "Yes"
-          : "No",
+        Value: detailData.company?.eligibilityCriteria?.maxBacklogs || "-",
       },
       {
         Field: "Allowed Specializations",
@@ -498,12 +672,11 @@ function CompanyCard({
           "-",
       },
     ];
-
     const companySheet = XLSX.utils.json_to_sheet(companyData);
     companySheet["!cols"] = [{ wch: 25 }, { wch: 50 }];
     XLSX.utils.book_append_sheet(workbook, companySheet, "Company Info");
 
-    // Sheet 2: Eligibility & Registration
+    // --- Sheet 2: Eligibility & Registration ---
     const eligibilityData = [
       {
         Metric: "Total Eligible",
@@ -522,12 +695,11 @@ function CompanyCard({
         Count: detailData.eligibility?.totalPlaced || 0,
       },
     ];
-
     const eligibilitySheet = XLSX.utils.json_to_sheet(eligibilityData);
     eligibilitySheet["!cols"] = [{ wch: 25 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(workbook, eligibilitySheet, "Eligibility");
 
-    // Sheet 3: Positions
+    // --- Sheet 3: Positions ---
     if (detailData.positions && detailData.positions.length > 0) {
       const positionsData = detailData.positions.map((pos) => ({
         "Position Title": pos.title,
@@ -542,7 +714,6 @@ function CompanyCard({
         "Total Selected": pos.totalSelected || 0,
         Status: pos.isActive ? "Active" : "Inactive",
       }));
-
       const positionsSheet = XLSX.utils.json_to_sheet(positionsData);
       positionsSheet["!cols"] = [
         { wch: 22 },
@@ -558,63 +729,60 @@ function CompanyCard({
       XLSX.utils.book_append_sheet(workbook, positionsSheet, "Positions");
     }
 
-    // Sheet 4: Events/Rounds Summary
-    if (
-      detailData.events &&
-      (detailData.events.shared?.length > 0 ||
-        detailData.events.specific?.length > 0)
-    ) {
-      const allEvents = [
-        ...(detailData.events.shared || []),
-        ...(detailData.events.specific || []),
-      ];
-      const eventsData = allEvents.map((event) => ({
-        "Round Number": event.roundNumber,
-        "Round Type":
-          event.roundType?.charAt(0).toUpperCase() + event.roundType?.slice(1),
-        "Event Title": event.title,
-        "Event Type": getEventTypeLabel(event.type),
-        Date: new Date(event.date).toLocaleDateString(),
-        "Start Time": event.startTime || "-",
-        "End Time": event.endTime || "-",
-        Venue: event.venue || "-",
-        Mode: event.mode || "-",
-        Status: event.status?.charAt(0).toUpperCase() + event.status?.slice(1),
-        Present: event.attendance?.present || 0,
-        Absent: event.attendance?.absent || 0,
-        Selected: event.overallResults?.selected || 0,
-        Rejected: event.overallResults?.rejected || 0,
-        Pending: event.overallResults?.pending || 0,
-        Positions:
-          detailData.positions
-            ?.filter((pos) => event.positionIds?.includes(pos.id))
-            .map((pos) => pos.title)
-            .join(", ") || "-",
-      }));
+    // --- Sheet 4+: Events per Position ---
+    if (detailData.positions && detailData.positions.length > 0) {
+      detailData.positions.forEach((pos) => {
+        const positionEvents = [
+          ...(detailData.events.shared || []),
+          ...(detailData.events.specific || []),
+        ].filter((event) => event.positionIds?.includes(pos.id));
 
-      const eventsSheet = XLSX.utils.json_to_sheet(eventsData);
-      eventsSheet["!cols"] = [
-        { wch: 12 },
-        { wch: 14 },
-        { wch: 22 },
-        { wch: 18 },
-        { wch: 14 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 14 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 10 },
-        { wch: 10 },
-        { wch: 10 },
-        { wch: 10 },
-        { wch: 10 },
-        { wch: 30 },
-      ];
-      XLSX.utils.book_append_sheet(workbook, eventsSheet, "Recruitment Rounds");
+        if (positionEvents.length === 0) return;
+
+        const eventData = positionEvents.map((event) => ({
+          "Round Number": event.roundNumber,
+          "Round Type": event.roundType?.replace(/_/g, " ") || "-",
+          "Event Title": event.title,
+          "Event Type": getEventTypeLabel(event.type),
+          Date: new Date(event.date).toLocaleDateString(),
+          "Start Time": event.startTime || "-",
+          "End Time": event.endTime || "-",
+          Venue: event.venue || "-",
+          Mode: event.mode || "-",
+          Status: event.status?.replace(/_/g, " ") || "-",
+          Present: event.attendance?.present || 0,
+          Absent: event.attendance?.absent || 0,
+          Selected: event.overallResults?.selected || 0,
+          Rejected: event.overallResults?.rejected || 0,
+          Pending: event.overallResults?.pending || 0,
+        }));
+
+        const sheetName =
+          pos.title.length > 31
+            ? pos.title.substring(0, 28) + "..."
+            : pos.title; // Excel sheet limit
+        const eventSheet = XLSX.utils.json_to_sheet(eventData);
+        eventSheet["!cols"] = [
+          { wch: 12 },
+          { wch: 14 },
+          { wch: 22 },
+          { wch: 18 },
+          { wch: 14 },
+          { wch: 12 },
+          { wch: 12 },
+          { wch: 14 },
+          { wch: 12 },
+          { wch: 12 },
+          { wch: 10 },
+          { wch: 10 },
+          { wch: 10 },
+          { wch: 10 },
+        ];
+        XLSX.utils.book_append_sheet(workbook, eventSheet, sheetName);
+      });
     }
 
-    // Write file
+    // --- Write file ---
     XLSX.writeFile(
       workbook,
       `${detailData.company?.name || "company"}-details-${Date.now()}.xlsx`

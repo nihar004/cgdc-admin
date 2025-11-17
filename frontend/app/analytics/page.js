@@ -3,8 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
-// Import Components
-import BatchOverview from "./components/temp";
+import BatchOverview from "./components/BatchOverview";
 import Companies from "./components/Companies";
 import Students from "./components/Students";
 import StudentOverview from "./components/StudentOverview";
@@ -14,7 +13,7 @@ import { useRouter } from "next/navigation";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // ==================== MAIN DASHBOARD ====================
-export default function PlacementAnalyticsDashboard() {
+function PlacementAnalyticsDashboard() {
   const router = useRouter();
 
   const [view, setView] = useState("batch");
@@ -69,7 +68,7 @@ export default function PlacementAnalyticsDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
-          {/* Back Button */}
+          {/* Back Button - Updated to match other pages */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-start gap-4">
@@ -147,7 +146,7 @@ export default function PlacementAnalyticsDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {/* Header - Updated to match other pages */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex items-start gap-4">
@@ -222,3 +221,5 @@ export default function PlacementAnalyticsDashboard() {
     </div>
   );
 }
+
+export default PlacementAnalyticsDashboard;

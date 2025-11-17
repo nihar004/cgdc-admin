@@ -74,6 +74,7 @@ export default function Students({ batchYear, setSelectedStudent, setView }) {
         : "-",
       "Offer Date": student.currentOffer?.offerDate || "-",
       "Offer Source": student.currentOffer?.source || "-",
+      "Total Eligible Companies": student.totalEligibleCompanies || 0,
       "Total Applications": student.totalApplications || 0,
       "Active Applications": student.activeApplications || 0,
       "Total Offers Received": student.offersReceived || 0,
@@ -84,26 +85,25 @@ export default function Students({ batchYear, setSelectedStudent, setView }) {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
 
     // Auto-size columns
-    const columnWidths = [
-      { wch: 16 },
-      { wch: 18 },
-      { wch: 25 },
-      { wch: 8 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 10 },
-      { wch: 16 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 14 },
-      { wch: 14 },
-      { wch: 16 },
-      { wch: 16 },
-      { wch: 18 },
-    ];
+    const columnWidths = Array(
+      exportData[0] ? Object.keys(exportData[0]).length : 0
+    ).fill({ wch: 20 });
     worksheet["!cols"] = columnWidths;
 
+    // Style the header (first row)
+    const headerRow = Object.keys(exportData[0] || {});
+    headerRow.forEach((_, idx) => {
+      const cell = worksheet[XLSX.utils.encode_cell({ r: 0, c: idx })];
+      if (cell) {
+        cell.s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "1F4E78" } }, // Darker professional blue
+          alignment: { horizontal: "center", vertical: "center" },
+        };
+      }
+    });
+
+    // Save the file
     XLSX.writeFile(workbook, `students-export-${Date.now()}.xlsx`);
   };
 

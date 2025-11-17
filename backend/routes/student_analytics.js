@@ -501,7 +501,7 @@ routes.get("/batch/:batchYear/students", async (req, res, next) => {
     }
 
     const studentsQuery = `
-      SELECT 
+      SELECT
         s.id,
         s.registration_number,
         s.full_name,
@@ -542,6 +542,18 @@ routes.get("/batch/:batchYear/students", async (req, res, next) => {
          WHERE srr.student_id = s.id
            AND srr.result_status = 'pending'
            AND e.is_placement_event = TRUE) AS active_applications,
+
+        (
+          SELECT COUNT(*)
+          FROM company_eligibility ce
+          INNER JOIN batches b ON ce.batch_id = b.id
+          WHERE b.year = s.batch_year
+            AND EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ce.eligible_student_ids) elem
+              WHERE elem::int = s.id
+            )
+        ) AS total_eligible_companies,
 
         -- Offers received (correct)
         (SELECT COUNT(DISTINCT e.company_id)
@@ -629,6 +641,7 @@ routes.get("/batch/:batchYear/students", async (req, res, next) => {
             totalApplications: parseInt(row.total_applications) || 0,
             activeApplications: parseInt(row.active_applications) || 0,
             offersReceived: parseInt(row.offers_received) || 0,
+            totalEligibleCompanies: parseInt(row.total_eligible_companies) || 0,
             class10Percentage: parseFloat(row.class_10_percentage) || 0,
             class12Percentage: parseFloat(row.class_12_percentage) || 0,
             backlogs: parseInt(row.backlogs) || 0,
@@ -1359,6 +1372,7 @@ routes.get(
             e.round_number,
             e.position_ids,
             srr.result_status,
+            ea.remarks AS remarks,
             -- Get position names from form responses
             (
               SELECT array_agg(DISTINCT sp.position_title)
@@ -1368,6 +1382,7 @@ routes.get(
             ) as position_names
           FROM events e
           LEFT JOIN student_round_results srr ON e.id = srr.event_id AND srr.student_id = $1
+          LEFT JOIN event_attendance ea ON ea.event_id = e.id AND ea.student_id = $1
           WHERE e.is_placement_event = true
             AND e.company_id IN (SELECT company_id FROM student_companies)
             AND EXISTS (
@@ -1414,7 +1429,8 @@ routes.get(
               'roundNumber', cr.round_number,
               'positionIds', cr.position_ids,
               'positionNames', cr.position_names,
-              'resultStatus', cr.result_status
+              'resultStatus', cr.result_status,
+              'remarks', cr.remarks
             ) ORDER BY cr.event_date, cr.round_number
           ) FILTER (WHERE cr.event_title IS NOT NULL) as rounds,
           (SELECT json_agg(json_build_object(
@@ -1601,6 +1617,7 @@ routes.get(
               "Round Type",
               "Result",
               "Status",
+              "Remarks",
             ];
             headerRow.font = { bold: true };
             headerRow.fill = {
@@ -1630,7 +1647,8 @@ routes.get(
                   : "—",
                 round.roundType || "—",
                 resultSymbol,
-                round.resultStatus || "pending",
+                round.resultStatus || "N/A",
+                round.remarks || "—",
               ];
 
               // Color code result cell
