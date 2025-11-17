@@ -79,7 +79,7 @@ app.use("/api/round-tracking", isAuthenticated, round_tracking);
 app.use("/api/emails", isAuthenticated, emails);
 app.use("/api/eligibility", isAuthenticated, eligibility);
 app.use("/api/offers", isAuthenticated, offers);
-app.use("/api/student-analytics", student_analytics);
+app.use("/api/student-analytics", isAuthenticated, student_analytics);
 
 // ============ PUBLIC + AUTH ROUTES ============
 app.use("/api/users", users); // NO isAuthenticated here!

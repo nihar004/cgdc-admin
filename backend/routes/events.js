@@ -39,6 +39,7 @@ routes.get("/batch/:batch_year", async (req, res) => {
             'attendance_status', COALESCE(ea.status, 'absent'),
             'marked_at', ea.marked_at,
             'reason_for_change', ea.reason_for_change,
+            'remarks', ea.remarks,
             'college_email', s.college_email
           )) FILTER (WHERE s.id IS NOT NULL),
           '[]'::json
@@ -53,7 +54,8 @@ routes.get("/batch/:batch_year", async (req, res) => {
               student_id, 
               status, 
               marked_at,
-              reason_for_change
+              reason_for_change,
+              remarks 
           FROM event_attendance
       ) ea ON e.id = ea.event_id
       LEFT JOIN students s ON s.id = ea.student_id AND s.batch_year = $1
@@ -159,6 +161,7 @@ routes.get("/batch/:batch_year", async (req, res) => {
               })
             : null,
           reasonForChange: student.reason_for_change || null,
+          remarks: student.remarks || null,
         })),
       };
     });
@@ -962,7 +965,7 @@ routes.post("/:id/attendance", async (req, res) => {
     await client.query("BEGIN");
 
     const { id: eventId } = req.params;
-    const { registration_numbers, status = "present" } = req.body;
+    const { registration_numbers, status = "present", remarks } = req.body;
 
     if (!registration_numbers || registration_numbers.length === 0) {
       return res.status(400).json({
@@ -1122,8 +1125,8 @@ routes.post("/:id/attendance", async (req, res) => {
            DO UPDATE SET 
              status = EXCLUDED.status,
              marked_at = CURRENT_TIMESTAMP
-           RETURNING id, student_id, status, marked_at`,
-          [eventId, studentId, status]
+           RETURNING id, student_id, status, remarks, marked_at`,
+          [eventId, studentId, status, remarks?.[reg] || null]
         );
 
         // ✅ Add entry to student_round_results (simple version)
@@ -1195,6 +1198,15 @@ routes.put("/:id/attendance", async (req, res) => {
     const { id: eventId } = req.params;
     const { records } = req.body;
 
+    const eventIdInt = parseInt(eventId);
+
+    if (isNaN(eventIdInt)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid event ID",
+      });
+    }
+
     if (!records || !Array.isArray(records) || records.length === 0) {
       return res.status(400).json({
         success: false,
@@ -1205,7 +1217,7 @@ routes.put("/:id/attendance", async (req, res) => {
     // Validate event existence
     const eventRes = await client.query(
       "SELECT status FROM events WHERE id = $1",
-      [eventId]
+      [eventIdInt]
     );
 
     if (eventRes.rows.length === 0) {
@@ -1219,26 +1231,63 @@ routes.put("/:id/attendance", async (req, res) => {
     const errors = [];
 
     for (const record of records) {
-      const { studentId, status, reasonForChange } = record;
+      const { studentId, status, reasonForChange, remarks } = record;
 
       if (!studentId) {
         errors.push({ studentId: null, reason: "studentId is required" });
         continue;
       }
 
+      const studentIdInt = parseInt(studentId);
+
+      if (isNaN(studentIdInt)) {
+        errors.push({ studentId, reason: "Invalid studentId" });
+        continue;
+      }
+
       try {
-        // Only update existing attendance records
+        // Build dynamic update query based on what's provided
+        const updates = [];
+        const values = [];
+        let paramCount = 1;
+
+        if (status !== undefined && status !== null) {
+          updates.push(`status = $${paramCount}::attendance_status_enum`);
+          values.push(status);
+          paramCount++;
+        }
+
+        if (reasonForChange !== undefined && reasonForChange !== null) {
+          updates.push(`reason_for_change = $${paramCount}`);
+          values.push(reasonForChange);
+          paramCount++;
+        }
+
+        if (remarks !== undefined && remarks !== null) {
+          updates.push(`remarks = $${paramCount}`);
+          values.push(remarks);
+          paramCount++;
+        }
+
+        // Always update marked_at
+        updates.push("marked_at = CURRENT_TIMESTAMP");
+
+        if (updates.length === 1) {
+          errors.push({ studentId, reason: "No fields to update" });
+          continue;
+        }
+
+        // Add WHERE clause parameters
+        values.push(eventIdInt, studentIdInt);
+
         const updateRes = await client.query(
           `
           UPDATE event_attendance
-          SET 
-            status = COALESCE($1, status),
-            reason_for_change = COALESCE($2, reason_for_change),
-            marked_at = CURRENT_TIMESTAMP
-          WHERE event_id = $3 AND student_id = $4
+          SET ${updates.join(", ")}
+          WHERE event_id = $${paramCount} AND student_id = $${paramCount + 1}
           RETURNING *
           `,
-          [status || null, reasonForChange || null, eventId, studentId]
+          values
         );
 
         if (updateRes.rows.length === 0) {

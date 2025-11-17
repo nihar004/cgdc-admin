@@ -33,6 +33,9 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
   const [eventStatus, setEventStatus] = useState(event?.status || "upcoming");
   const [positionDetails, setPositionDetails] = useState([]);
   const [roundInfo, setRoundInfo] = useState(null);
+  const [remarkInput, setRemarkInput] = useState("");
+  const [remarkStudentId, setRemarkStudentId] = useState(null);
+  const [showRemarkModal, setShowRemarkModal] = useState(false);
 
   const eventData = event;
 
@@ -77,6 +80,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
             status: "absent",
             check_in_time: null,
             reason_for_change: null,
+            remarks: null,
           };
         });
 
@@ -87,6 +91,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                 status: record.status,
                 check_in_time: record.checkInTime,
                 reason_for_change: record.reason_for_change || null,
+                remarks: record.remarks || null,
               };
             }
           });
@@ -162,11 +167,12 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
         const records = [];
 
         Object.entries(attendance).forEach(([studentId, record]) => {
-          if (record.reason_for_change) {
+          if (record.reason_for_change || record.remarks !== undefined) {
             records.push({
               studentId: parseInt(studentId),
               status: record.status,
               reasonForChange: record.reason_for_change,
+              remarks: record.remarks || null,
             });
           }
         });
@@ -218,10 +224,22 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
         Object.entries(statusGroups).forEach(([status, regNumbers]) => {
           if (regNumbers.length > 0) {
+            // Collect remarks for these students
+            const remarksData = {};
+            regNumbers.forEach((regNo) => {
+              const student = students.find(
+                (s) => s.registration_number === regNo
+              );
+              if (student && attendance[student.id]?.remarks) {
+                remarksData[regNo] = attendance[student.id].remarks;
+              }
+            });
+
             apiCalls.push(
               axios.post(`${backendUrl}/events/${event.id}/attendance`, {
                 registration_numbers: regNumbers,
                 status: status,
+                remarks: remarksData,
               })
             );
           }
@@ -293,6 +311,27 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
     setShowReasonModal(false);
     setReasonForChange("");
     setPendingChange(null);
+  };
+
+  const handleRemarkUpdate = (studentId) => {
+    setRemarkStudentId(studentId);
+    setRemarkInput(attendance[studentId]?.remarks || "");
+    setShowRemarkModal(true);
+  };
+
+  const confirmRemark = () => {
+    if (remarkStudentId) {
+      setAttendance((prev) => ({
+        ...prev,
+        [remarkStudentId]: {
+          ...prev[remarkStudentId],
+          remarks: remarkInput.trim() || null,
+        },
+      }));
+    }
+    setShowRemarkModal(false);
+    setRemarkInput("");
+    setRemarkStudentId(null);
   };
 
   const handleAttendanceUpdate = (studentId, status) => {
@@ -623,6 +662,7 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
                       student={student}
                       attendance={attendance[student.id]}
                       onUpdate={handleAttendanceUpdate}
+                      onRemarkUpdate={handleRemarkUpdate}
                       isEditMode={isEditMode}
                       canMarkAttendance={canMarkAttendance || isEditMode}
                     />
@@ -694,6 +734,49 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
           </div>
         </div>
       )}
+
+      {showRemarkModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-60 overflow-y-auto">
+          <div className="min-h-full w-full p-4 flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-auto">
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4">
+                  Add Remark/Note
+                </h3>
+                <p className="text-slate-600 mb-4">
+                  Optional: Add any notes or remarks about this student&apos;s
+                  attendance
+                </p>
+                <textarea
+                  value={remarkInput}
+                  onChange={(e) => setRemarkInput(e.target.value)}
+                  placeholder="e.g., Student arrived with valid reason, Medical emergency, etc."
+                  className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                  rows={4}
+                />
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => {
+                      setShowRemarkModal(false);
+                      setRemarkInput("");
+                      setRemarkStudentId(null);
+                    }}
+                    className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmRemark}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Save Remark
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -721,6 +804,7 @@ const StudentCard = ({
   student,
   attendance,
   onUpdate,
+  onRemarkUpdate,
   isEditMode,
   canMarkAttendance,
 }) => (
@@ -753,6 +837,11 @@ const StudentCard = ({
               {attendance.reason_for_change}
             </div>
           )}
+          {attendance?.remarks && (
+            <div className="text-sm text-purple-600 mt-2 p-2 bg-purple-50 rounded">
+              <span className="font-medium">Remark:</span> {attendance.remarks}
+            </div>
+          )}
         </div>
       </div>
 
@@ -781,6 +870,13 @@ const StudentCard = ({
           icon={<XCircle className="h-4 w-4 mr-2" />}
           label="Absent"
         />
+        <button
+          onClick={() => onRemarkUpdate(student.id)}
+          disabled={!canMarkAttendance}
+          className="px-3 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium border border-purple-200"
+        >
+          {attendance?.remarks ? "Edit Remark" : "Add Remark"}
+        </button>
       </div>
     </div>
   </div>

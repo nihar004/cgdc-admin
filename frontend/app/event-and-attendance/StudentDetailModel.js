@@ -48,6 +48,7 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
           student.status.charAt(0).toUpperCase() + student.status.slice(1),
         "Check-in Time": student.checkInTime || "-",
         Reason: student.reasonForChange || "NULL",
+        Remarks: student.remarks || "NULL",
       }));
 
       // Create worksheet
@@ -63,6 +64,7 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
         { wch: 10 }, // Status
         { wch: 15 }, // Check-in Time
         { wch: 30 }, // Reason
+        { wch: 30 }, // Remarks
       ];
 
       // Create workbook and add the sheet
@@ -244,6 +246,9 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Reason for Change
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Remarks
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -306,6 +311,17 @@ function StudentDetailModel({ selectedEvent, setSelectedEvent }) {
                         <span className="text-gray-500 italic">
                           Not excused
                         </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm">
+                      {student.remarks ? (
+                        <span className="text-purple-600 font-medium">
+                          {student.remarks}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 italic">No remarks</span>
                       )}
                     </div>
                   </td>

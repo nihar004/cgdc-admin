@@ -39,3 +39,7 @@ DROP TYPE public.event_type_enum;
 ALTER TYPE public.event_type_enum_new RENAME TO event_type_enum;
 
 COMMIT;
+
+
+ALTER TABLE public.event_attendance
+ADD COLUMN remarks TEXT;
