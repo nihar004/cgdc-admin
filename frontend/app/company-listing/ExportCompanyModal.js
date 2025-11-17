@@ -93,11 +93,20 @@ export default function ExportCompanyModal({ companies, onClose }) {
     },
     { key: "package_ranges", label: "Package Ranges", category: "Statistics" },
     {
+      key: "unique_package_ranges",
+      label: "Unique Package Ranges",
+      category: "Statistics",
+    },
+    {
       key: "internship_stipends",
       label: "Internship Stipends",
       category: "Statistics",
     },
-
+    {
+      key: "unique_internship_stipends",
+      label: "Unique Internship Stipends",
+      category: "Statistics",
+    },
     // Rounds Information
     {
       key: "rounds_start_date",
@@ -179,6 +188,24 @@ export default function ExportCompanyModal({ companies, onClose }) {
                 })
                 .join(", ") || "N/A";
             break;
+          case "unique_package_ranges":
+            if (company.positions?.length) {
+              const uniquePackages = [
+                ...new Set(
+                  company.positions.map((p) => {
+                    if (p.package === -1) return "Not Disclosed";
+                    if (p.has_range) {
+                      return `₹${p.package}L - ₹${p.package_end}L`;
+                    }
+                    return `₹${p.package}L`;
+                  })
+                ),
+              ];
+              row[key] = uniquePackages.join(", ");
+            } else {
+              row[key] = "N/A";
+            }
+            break;
           case "internship_stipends":
             row[key] =
               company.positions
@@ -188,6 +215,25 @@ export default function ExportCompanyModal({ companies, onClose }) {
                     : "N/A"
                 )
                 .join(", ") || "N/A";
+            break;
+          case "unique_internship_stipends":
+            if (company.positions?.length) {
+              const uniqueStipends = [
+                ...new Set(
+                  company.positions
+                    .map((p) =>
+                      p.internship_stipend_monthly
+                        ? `₹${p.internship_stipend_monthly}`
+                        : "N/A"
+                    )
+                    .filter((stipend) => stipend !== "N/A") // Remove N/A from unique list
+                ),
+              ];
+              row[key] =
+                uniqueStipends.length > 0 ? uniqueStipends.join(", ") : "N/A";
+            } else {
+              row[key] = "N/A";
+            }
             break;
           case "rounds_start_date":
             if (company.positions?.length) {
@@ -332,6 +378,7 @@ export default function ExportCompanyModal({ companies, onClose }) {
       "eligibility_10th",
       "eligibility_12th",
       "jd_shared_date",
+      "unique_package_ranges",
     ];
     const initialSelection = {};
     exportableColumns.forEach((col) => {

@@ -578,6 +578,8 @@ routes.get("/batch/:batchYear/students", async (req, res, next) => {
       db.query(countQuery, params.slice(0, paramCount)),
     ]);
 
+    const students = studentsResult.rows;
+
     res.json({
       success: true,
       data: {
@@ -1198,25 +1200,52 @@ routes.get(
         params.push(ids);
       }
 
-      // Get all students with parsed current_offer
       const studentsQuery = `
-      SELECT
-        s.id,
-        s.registration_number,
-        s.full_name,
-        s.college_email,
-        sp.name as specialization,
-        s.cgpa,
-        s.placement_status,
-        s.current_offer
-      FROM students s
-      LEFT JOIN specializations sp ON s.specialization_id = sp.id
-      ${whereClause}
-      ORDER BY s.full_name
-    `;
+        SELECT
+          s.id,
+          s.registration_number,
+          s.full_name,
+          s.college_email,
+          sp.name as specialization,
+          s.cgpa,
+          s.placement_status,
+          s.current_offer,
+          -- Enrich current_offer with company and position details
+          CASE 
+            WHEN s.current_offer IS NOT NULL AND s.current_offer->>'company_id' IS NOT NULL THEN
+              jsonb_set(
+                jsonb_set(
+                  jsonb_set(
+                    s.current_offer,
+                    '{company_name}',
+                    to_jsonb(c.company_name)
+                  ),
+                  '{position_title}',
+                  to_jsonb(cp.position_title)
+                ),
+                '{package}',
+                to_jsonb(cp.package)
+              ) || 
+              jsonb_build_object(
+                'has_range', cp.has_range,
+                'package_end', cp.package_end
+              )
+            ELSE s.current_offer
+          END as current_offer_enriched
+        FROM students s
+        LEFT JOIN specializations sp ON s.specialization_id = sp.id
+        LEFT JOIN companies c ON c.id = (s.current_offer->>'company_id')::INTEGER
+        LEFT JOIN company_positions cp ON cp.id = (s.current_offer->>'position_id')::INTEGER
+        ${whereClause}
+        ORDER BY s.full_name
+      `;
 
       const studentsResult = await db.query(studentsQuery, params);
-      const students = studentsResult.rows;
+      // const students = studentsResult.rows;
+      const students = studentsResult.rows.map((student) => ({
+        ...student,
+        current_offer: student.current_offer_enriched || student.current_offer,
+      }));
 
       if (students.length === 0) {
         return res.status(404).json({
@@ -1287,6 +1316,7 @@ routes.get(
 
       // Process each student and create individual sheets first to ensure they exist
       const studentSheets = [];
+      const sheetNameMap = new Map();
 
       for (const student of students) {
         // Get student's applications data with position names
@@ -1407,19 +1437,19 @@ routes.get(
         ]);
 
         // Create sheet with registration number
-        const sheetName = `Student_${student.registration_number}`.substring(
-          0,
-          31
-        ); // Excel limit
+        const sheetName = `Student_${student.registration_number}`
+          .replace(/[:\\\/\?\*\[\]]/g, "_")
+          .substring(0, 31);
         const worksheet = workbook.addWorksheet(sheetName);
         studentSheets.push({ worksheet, student, sheetName });
+        sheetNameMap.set(student.id, sheetName); // Store the actual sheet name used
 
         // Add "Back to Index" hyperlink at the top
         worksheet.mergeCells("A1:B1");
         const backCell = worksheet.getCell("A1");
         backCell.value = {
           text: "← Back to Student Index",
-          hyperlink: "'Student Index'!A1",
+          hyperlink: "#'Student Index'!A1",
         };
         backCell.font = {
           color: { argb: "FF2563EB" },
@@ -1446,27 +1476,39 @@ routes.get(
           vertical: "middle",
         };
 
-        // Parse current offer for display
         let currentOfferDisplay = "—";
-        if (student.current_offer) {
+        if (
+          student.current_offer &&
+          Object.keys(student.current_offer).length > 0
+        ) {
+          // Added length check
           try {
             const offer =
               typeof student.current_offer === "string"
                 ? JSON.parse(student.current_offer)
                 : student.current_offer;
 
-            const company = offer.company_name || offer.company || "";
-            const position = offer.position_title || offer.position || "";
-            const pkg = offer.package || offer.salary_package || "";
+            const company = offer.company_name || "";
+            const position = offer.position_title || "";
+            const pkg = offer.package || "";
+            const pkgEnd = offer.package_end || null;
+            const hasRange = offer.has_range || false;
 
             if (company && position && pkg) {
-              currentOfferDisplay = `${company} - ${position} (${pkg})`;
+              // Format package based on whether it's a range
+              let packageDisplay =
+                hasRange && pkgEnd ? `₹${pkg}-${pkgEnd} LPA` : `₹${pkg} LPA`;
+              currentOfferDisplay = `${company} - ${position} (${packageDisplay})`;
             } else if (company && position) {
               currentOfferDisplay = `${company} - ${position}`;
             } else if (company) {
               currentOfferDisplay = company;
             }
           } catch (e) {
+            console.error(
+              `Error parsing current_offer for ${student.full_name}:`,
+              e
+            );
             currentOfferDisplay = "—";
           }
         }
@@ -1703,7 +1745,7 @@ routes.get(
       // Now add hyperlinks to the index sheet after all sheets are created
       students.forEach((student, index) => {
         const dataRow = indexSheet.getRow(4 + index);
-        const sheetName = `Student_${student.registration_number}`;
+        const sheetName = sheetNameMap.get(student.id); // Use the stored sheet name
 
         // Parse current_offer to extract company, position and package
         let currentCompany = "—";
@@ -1716,17 +1758,24 @@ routes.get(
                 ? JSON.parse(student.current_offer)
                 : student.current_offer;
 
-            currentCompany = offer.company_name || offer.company || "—";
+            currentCompany = offer.company_name || "—";
 
-            const position = offer.position_title || offer.position || "";
-            const pkg = offer.package || offer.salary_package || "";
+            const position = offer.position_title || "";
+            const pkg = offer.package || "";
+            const pkgEnd = offer.package_end || null;
+            const hasRange = offer.has_range || false;
 
             if (position && pkg) {
-              positionPackage = `${position} (${pkg})`;
+              // Format package based on whether it's a range
+              let packageDisplay =
+                hasRange && pkgEnd ? `₹${pkg}-${pkgEnd} LPA` : `₹${pkg} LPA`;
+              positionPackage = `${position} (${packageDisplay})`;
             } else if (position) {
               positionPackage = position;
             } else if (pkg) {
-              positionPackage = `Package: ${pkg}`;
+              let packageDisplay =
+                hasRange && pkgEnd ? `₹${pkg}-${pkgEnd} LPA` : `₹${pkg} LPA`;
+              positionPackage = packageDisplay;
             }
           } catch (e) {
             console.error("Error parsing current_offer:", e);
@@ -1739,7 +1788,7 @@ routes.get(
           index + 1,
           {
             text: student.full_name,
-            hyperlink: `'${sheetName}'!A1`,
+            hyperlink: `#'${sheetName}'!A1`,
             tooltip: `Click to go to ${student.full_name}'s sheet`,
           },
           student.registration_number,
@@ -1783,7 +1832,9 @@ routes.get(
       ];
 
       // Add borders to index sheet
-      for (let i = 1; i <= students.length + 7; i++) {
+      const totalIndexRows = 3 + students.length; // 3 header rows + data rows
+      for (let i = 1; i <= totalIndexRows; i++) {
+        // for (let i = 1; i <= students.length + 7; i++) {
         for (let j = 1; j <= 9; j++) {
           const cell = indexSheet.getCell(i, j);
           cell.border = {

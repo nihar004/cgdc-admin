@@ -210,7 +210,7 @@ export default function PlacementAnalyticsDashboard() {
               >
                 {exporting && !student?.id
                   ? "Exporting..."
-                  : "Export All Rounds"}
+                  : "Export All Students Rounds"}
               </button>
             </div>
           </div>
