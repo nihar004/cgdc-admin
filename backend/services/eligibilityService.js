@@ -231,14 +231,7 @@ async function calculateEligibleStudents(db, companyId, batchId) {
           company.package >= 8 &&
           ["internship_plus_ppo", "full_time"].includes(company.job_type)
         ) {
-          eligibleIds.add(student.student_id);
-
-          await db.query(
-            `UPDATE students
-             SET upgrade_opportunities_used = upgrade_opportunities_used + 1
-             WHERE id = $1`,
-            [student.student_id]
-          );
+          placedIds.add(student.student_id); // They can use upgrade button
           continue;
         }
 
@@ -476,116 +469,6 @@ async function isStudentEligible(db, companyId, studentId) {
   }
 }
 
-// async function manuallyAddEligibleStudent(
-//   db,
-//   companyId,
-//   batchId,
-//   studentId,
-//   reason
-// ) {
-//   try {
-//     // Ensure the record exists first
-//     await db.query(
-//       `
-//       INSERT INTO company_eligibility (
-//         company_id,
-//         batch_id,
-//         eligible_student_ids,
-//         placed_student_ids,
-//         ineligible_student_ids,
-//         manual_override_reasons
-//       )
-//       VALUES ($1, $2, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '{}'::jsonb)
-//       ON CONFLICT (company_id, batch_id) DO NOTHING
-//       `,
-//       [companyId, batchId]
-//     );
-
-//     // Get the current state
-//     const getCurrentQuery = `
-//       SELECT
-//         eligible_student_ids,
-//         placed_student_ids,
-//         ineligible_student_ids,
-//         manual_override_reasons
-//       FROM company_eligibility
-//       WHERE company_id = $1 AND batch_id = $2
-//     `;
-
-//     const currentResult = await db.query(getCurrentQuery, [companyId, batchId]);
-
-//     if (currentResult.rows.length === 0) {
-//       return {
-//         success: false,
-//         message: "No record found for company and batch.",
-//       };
-//     }
-
-//     const current = currentResult.rows[0];
-//     let eligibleIds = current.eligible_student_ids || [];
-//     let placedIds = current.placed_student_ids || [];
-//     let ineligibleIds = current.ineligible_student_ids || [];
-//     let manualReasons = current.manual_override_reasons || {};
-
-//     // Remove from placed list if present
-//     placedIds = placedIds.filter((id) => id !== parseInt(studentId));
-
-//     // Remove from ineligible list if present (manual override for academic failures)
-//     ineligibleIds = ineligibleIds.filter((id) => id !== parseInt(studentId));
-
-//     // Add to eligible if not already present
-//     if (!eligibleIds.includes(parseInt(studentId))) {
-//       eligibleIds.push(parseInt(studentId));
-//     }
-
-//     // Add manual override reason
-//     manualReasons[studentId.toString()] = reason;
-
-//     // Update the record
-//     const updateQuery = `
-//       UPDATE company_eligibility
-//       SET
-//         eligible_student_ids = $3::jsonb,
-//         placed_student_ids = $4::jsonb,
-//         ineligible_student_ids = $5::jsonb,
-//         manual_override_reasons = $6::jsonb,
-//         total_eligible_count = $7,
-//         total_placed_count = $8,
-//         total_ineligible_count = $9,
-//         updated_at = NOW()
-//       WHERE company_id = $1 AND batch_id = $2
-//       RETURNING *;
-//     `;
-
-//     const result = await db.query(updateQuery, [
-//       companyId,
-//       batchId,
-//       JSON.stringify(eligibleIds),
-//       JSON.stringify(placedIds),
-//       JSON.stringify(ineligibleIds),
-//       JSON.stringify(manualReasons),
-//       eligibleIds.length,
-//       placedIds.length,
-//       ineligibleIds.length,
-//     ]);
-
-//     if (result.rowCount === 0) {
-//       return {
-//         success: false,
-//         message: "Failed to update record.",
-//       };
-//     }
-
-//     return {
-//       success: true,
-//       message: `Student ${studentId} manually added to eligible list.`,
-//       data: result.rows[0],
-//     };
-//   } catch (error) {
-//     console.error("Error in manuallyAddEligibleStudent:", error);
-//     throw new Error("Failed to manually add eligible student.");
-//   }
-// }
 async function manuallyAddEligibleStudent(
   db,
   companyId,
@@ -694,7 +577,7 @@ async function removeManuallyAddedStudent(db, companyId, batchId, studentId) {
   try {
     // Get the current state
     const getCurrentQuery = `
-      SELECT 
+      SELECT
         eligible_student_ids,
         placed_student_ids,
         ineligible_student_ids,
@@ -718,7 +601,6 @@ async function removeManuallyAddedStudent(db, companyId, batchId, studentId) {
     let placedIds = current.placed_student_ids || [];
     let ineligibleIds = current.ineligible_student_ids || [];
     let manualReasons = current.manual_override_reasons || {};
-    let dreamCompanyIds = current.dream_company_student_ids || [];
 
     const studentIdStr = studentId.toString();
 
@@ -752,7 +634,7 @@ async function removeManuallyAddedStudent(db, companyId, batchId, studentId) {
     // Update the record in DB
     const updateQuery = `
       UPDATE company_eligibility
-      SET 
+      SET
         eligible_student_ids = $3::jsonb,
         placed_student_ids = $4::jsonb,
         ineligible_student_ids = $5::jsonb,
@@ -841,6 +723,90 @@ async function getCompanyEligibility(db, companyId, batchId) {
   }
 }
 
+// async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
+//   try {
+//     // Get eligibility record with JSON arrays
+//     const eligibilityQuery = `
+//       SELECT
+//         id,
+//         company_id,
+//         batch_id,
+//         eligible_student_ids,
+//         placed_student_ids,
+//         ineligible_student_ids,
+//         dream_company_student_ids,
+//         manual_override_reasons,
+//         total_eligible_count,
+//         total_placed_count,
+//         total_ineligible_count,
+//         eligibility_criteria,
+//         snapshot_date,
+//         created_at,
+//         updated_at
+//       FROM company_eligibility
+//       WHERE company_id = $1 AND batch_id = $2
+//     `;
+
+//     const eligibilityResult = await db.query(eligibilityQuery, [
+//       companyId,
+//       batchId,
+//     ]);
+
+//     if (eligibilityResult.rows.length === 0) {
+//       return null;
+//     }
+
+//     const eligibilityRecord = eligibilityResult.rows[0];
+//     const eligibleIds = eligibilityRecord.eligible_student_ids || [];
+//     const placedIds = eligibilityRecord.placed_student_ids || [];
+//     const ineligibleIds = eligibilityRecord.ineligible_student_ids || [];
+//     const dreamCompanyIds = eligibilityRecord.dream_company_student_ids || [];
+//     const manualReasons = eligibilityRecord.manual_override_reasons || {};
+
+//     // Helper function to fetch student details
+//     const fetchStudents = async (ids) => {
+//       if (ids.length === 0) return [];
+//       const query = `
+//         SELECT
+//           id, registration_number, enrollment_number, full_name,
+//           branch, batch_year, cgpa, backlogs, department, class_10_percentage,
+//           class_12_percentage, placement_status, current_offer, upgrade_opportunities_used
+//         FROM students
+//         WHERE id = ANY($1::int[])
+//         ORDER BY cgpa DESC
+//       `;
+//       const result = await db.query(query, [ids]);
+//       return result.rows.map((s) => ({
+//         ...s,
+//         used_dream_company: dreamCompanyIds.includes(s.id),
+//         manual_override_reason: manualReasons[s.id] || null,
+//       }));
+//     };
+
+//     const eligibleStudents = await fetchStudents(eligibleIds);
+//     const placedStudents = await fetchStudents(placedIds);
+//     const ineligibleStudents = await fetchStudents(ineligibleIds);
+
+//     return {
+//       id: eligibilityRecord.id,
+//       company_id: eligibilityRecord.company_id,
+//       batch_id: eligibilityRecord.batch_id,
+//       eligible_students: eligibleStudents,
+//       placed_students: placedStudents,
+//       ineligible_students: ineligibleStudents,
+//       total_eligible_count: eligibilityRecord.total_eligible_count,
+//       total_placed_count: eligibilityRecord.total_placed_count,
+//       total_ineligible_count: eligibilityRecord.total_ineligible_count,
+//       dream_company_usage_count: dreamCompanyIds.length,
+//       eligibility_criteria: eligibilityRecord.eligibility_criteria,
+//       snapshot_date: eligibilityRecord.snapshot_date,
+//       updated_at: eligibilityRecord.updated_at,
+//     };
+//   } catch (error) {
+//     console.error("Error getting company eligibility with students:", error);
+//     throw error;
+//   }
+// }
 async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
   try {
     // Get eligibility record with JSON arrays
@@ -870,9 +836,7 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
       batchId,
     ]);
 
-    if (eligibilityResult.rows.length === 0) {
-      return null;
-    }
+    if (eligibilityResult.rows.length === 0) return null;
 
     const eligibilityRecord = eligibilityResult.rows[0];
     const eligibleIds = eligibilityRecord.eligible_student_ids || [];
@@ -888,7 +852,7 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
         SELECT 
           id, registration_number, enrollment_number, full_name,
           branch, batch_year, cgpa, backlogs, department, class_10_percentage, 
-          class_12_percentage, placement_status, current_offer
+          class_12_percentage, placement_status, current_offer, upgrade_opportunities_used
         FROM students
         WHERE id = ANY($1::int[])
         ORDER BY cgpa DESC
@@ -905,6 +869,21 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
     const placedStudents = await fetchStudents(placedIds);
     const ineligibleStudents = await fetchStudents(ineligibleIds);
 
+    // Initialize counters
+    let manualOverrideCount = 0;
+    let upgradeUsageCount = 0;
+    let dreamCompanyUsageCount = 0;
+
+    Object.values(manualReasons).forEach((reason) => {
+      if (reason.reason === "used_upgrade") {
+        upgradeUsageCount++;
+      } else if (reason.reason === "used_dream") {
+        dreamCompanyUsageCount++;
+      } else {
+        manualOverrideCount++;
+      }
+    });
+
     return {
       id: eligibilityRecord.id,
       company_id: eligibilityRecord.company_id,
@@ -915,7 +894,9 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
       total_eligible_count: eligibilityRecord.total_eligible_count,
       total_placed_count: eligibilityRecord.total_placed_count,
       total_ineligible_count: eligibilityRecord.total_ineligible_count,
-      dream_company_usage_count: dreamCompanyIds.length,
+      dream_company_usage_count: dreamCompanyUsageCount,
+      upgrade_usage_count: upgradeUsageCount,
+      manual_override_count: manualOverrideCount,
       eligibility_criteria: eligibilityRecord.eligibility_criteria,
       snapshot_date: eligibilityRecord.snapshot_date,
       updated_at: eligibilityRecord.updated_at,

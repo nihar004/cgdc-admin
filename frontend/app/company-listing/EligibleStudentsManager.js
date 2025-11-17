@@ -217,13 +217,38 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
       setActionLoading(studentId);
       await axios.put(
         `${backendUrl}/eligibility/${companyId}/${batchYear}/students/${studentId}`,
-        { action: "add" }
+        {
+          action: "add",
+          type: "dream",
+        }
       );
 
       toast.success("Student added via dream company");
       await fetchEligibilityDetails();
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to add student");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUseUpgradeOpportunity = async (studentId) => {
+    try {
+      setActionLoading(studentId);
+      await axios.put(
+        `${backendUrl}/eligibility/${companyId}/${batchYear}/students/${studentId}`,
+        {
+          action: "add",
+          type: "upgrade",
+        }
+      );
+
+      toast.success("Student added via upgrade opportunity");
+      await fetchEligibilityDetails();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.error || "Failed to use upgrade opportunity"
+      );
     } finally {
       setActionLoading(null);
     }
@@ -240,10 +265,12 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
           { action: "remove" }
         );
       } else {
-        // For dream company students, use the existing endpoint
         await axios.put(
           `${backendUrl}/eligibility/${companyId}/${batchYear}/students/${studentId}`,
-          { action: "remove" }
+          {
+            action: "remove",
+            // No type needed - backend detects it from manual_override_reasons
+          }
         );
       }
 
@@ -445,7 +472,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                 </span>
               </div>
               <div className="text-3xl font-bold text-amber-900">
-                {briefInfo.dream_company_count || 0}
+                {briefInfo.dream_company_usage_count || 0}
               </div>
               <p className="text-xs text-amber-600 mt-1">Via dream company</p>
             </div>
@@ -706,22 +733,31 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                             </td>
                             <td className="px-4 py-3">
                               {student.manual_override_reason ? (
-                                <div className="max-w-xs">
-                                  <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium mb-1">
-                                    <FileText className="h-3 w-3" />
-                                    Manual Override
+                                student.manual_override_reason.reason ===
+                                "used_upgrade" ? (
+                                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-medium">
+                                    <CheckCircle className="h-3 w-3" />
+                                    Used Upgrade Opportunity
                                   </span>
-                                  <p className="text-xs text-gray-600 italic line-clamp-2">
-                                    &quot;
-                                    {student.manual_override_reason.reason}
-                                    &quot;
-                                  </p>
-                                </div>
-                              ) : student.used_dream_company ? (
-                                <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-medium">
-                                  <CheckCircle className="h-3 w-3" />
-                                  Dream Company
-                                </span>
+                                ) : student.manual_override_reason.reason ===
+                                  "used_dream" ? (
+                                  <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-medium">
+                                    <CheckCircle className="h-3 w-3" />
+                                    Dream Company
+                                  </span>
+                                ) : (
+                                  <div className="max-w-xs">
+                                    <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium mb-1">
+                                      <FileText className="h-3 w-3" />
+                                      Manual Override
+                                    </span>
+                                    <p className="text-xs text-gray-600 italic line-clamp-2">
+                                      &quot;
+                                      {student.manual_override_reason.reason}
+                                      &quot;
+                                    </p>
+                                  </div>
+                                )
                               ) : (
                                 <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">
                                   <CheckCircle className="h-3 w-3" />
@@ -736,7 +772,14 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                   onClick={() =>
                                     handleRemoveFromEligible(
                                       student.id,
-                                      !!student.manual_override_reason
+
+                                      // isManualOverride = true only if NOT used_dream/used_upgrade
+                                      !(
+                                        student.manual_override_reason
+                                          ?.reason === "used_upgrade" ||
+                                        student.manual_override_reason
+                                          ?.reason === "used_dream"
+                                      )
                                     )
                                   }
                                   disabled={actionLoading === student.id}
@@ -794,6 +837,9 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                             Academics
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Upgrade Status
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
                             Dream Status
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
@@ -841,7 +887,37 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 </div>
                               </div>
                             </td>
+
                             <td className="px-4 py-3">
+                              {(() => {
+                                const upgradesUsed =
+                                  student.upgrade_opportunities_used || 0;
+                                const upgradesLeft = 3 - upgradesUsed;
+                                return (
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                                      upgradesLeft > 0
+                                        ? "bg-blue-100 text-blue-800"
+                                        : "bg-gray-100 text-gray-800"
+                                    }`}
+                                  >
+                                    {upgradesLeft > 0 ? (
+                                      <>
+                                        <CheckCircle className="h-3 w-3" />
+                                        {upgradesLeft} Left
+                                      </>
+                                    ) : (
+                                      <>
+                                        <XCircle className="h-3 w-3" />
+                                        All Used
+                                      </>
+                                    )}
+                                  </span>
+                                );
+                              })()}
+                            </td>
+                            <td className="px-4 py-3">
+                              {/* Dream Status */}
                               {student.used_dream_company ? (
                                 <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium">
                                   <XCircle className="h-3 w-3" />
@@ -854,16 +930,38 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                 </span>
                               )}
                             </td>
+
                             <td className="px-4 py-3">
-                              <div className="flex gap-2">
+                              <div className="flex gap-2 flex-wrap">
+                                {/* Use Upgrade Opportunity button (only for placed students with upgrades left) */}
+                                {student.placement_status === "placed" &&
+                                  3 -
+                                    (student.upgrade_opportunities_used || 0) >
+                                    0 && (
+                                    <button
+                                      onClick={() =>
+                                        handleUseUpgradeOpportunity(student.id)
+                                      }
+                                      disabled={actionLoading === student.id}
+                                      className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                    >
+                                      {actionLoading === student.id ? (
+                                        <RefreshCw className="h-3 w-3 animate-spin" />
+                                      ) : (
+                                        <Plus className="h-3 w-3" />
+                                      )}
+                                      Use Upgrade
+                                    </button>
+                                  )}
+
+                                {/* Dream Company button (only if not already used) */}
                                 {!student.used_dream_company && (
                                   <button
                                     onClick={() =>
                                       handleAddViaDreamCompany(student.id)
                                     }
                                     disabled={actionLoading === student.id}
-                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium"
-                                    title="Add via Dream Company"
+                                    className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
                                   >
                                     {actionLoading === student.id ? (
                                       <RefreshCw className="h-3 w-3 animate-spin" />
@@ -873,13 +971,14 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     Dream
                                   </button>
                                 )}
+
+                                {/* Manual Override button (always available) */}
                                 <button
                                   onClick={() =>
                                     handleManualOverrideClick(student)
                                   }
                                   disabled={actionLoading === student.id}
-                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium"
-                                  title="Manual Override with Reason"
+                                  className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
                                 >
                                   <UserPlus className="h-3 w-3" />
                                   Manual
@@ -1014,30 +1113,24 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
 
           <div className="border-t border-gray-100 p-4 bg-gray-50">
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <div className="flex items-center gap-6">
-                <span>
-                  <strong className="text-gray-900">
-                    {eligibleStudents.length}
-                  </strong>{" "}
-                  Eligible
-                </span>
-                <span>
-                  <strong className="text-gray-900">
-                    {placedStudents.length}
-                  </strong>{" "}
-                  Placed
-                </span>
-                <span>
-                  <strong className="text-gray-900">
-                    {ineligibleStudents.length}
-                  </strong>{" "}
-                  Ineligible
-                </span>
+              <div className="flex gap-4">
                 <span>
                   <strong className="text-gray-900">
                     {eligibilityData?.dream_company_usage_count || 0}
                   </strong>{" "}
                   Dream Used
+                </span>
+                <span>
+                  <strong className="text-gray-900">
+                    {eligibilityData?.upgrade_usage_count || 0}
+                  </strong>{" "}
+                  Upgrades Used
+                </span>
+                <span>
+                  <strong className="text-gray-900">
+                    {eligibilityData?.manual_override_count || 0}
+                  </strong>{" "}
+                  Manual Overrides
                 </span>
               </div>
               <button

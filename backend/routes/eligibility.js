@@ -181,230 +181,346 @@ routes.post("/:companyId/:batchYear/calculate", async (req, res) => {
   }
 });
 
-/**
- * PUT /api/eligibility/:companyId/:batchYear/students/:studentId
- * Update student status (e.g., mark/unmark dream company usage)
- */
+// /**
+//  * PUT /api/eligibility/:companyId/:batchYear/students/:studentId
+//  * Update student status (e.g., mark/unmark dream company usage)
+//  */
+// routes.put("/:companyId/:batchYear/students/:studentId", async (req, res) => {
+//   try {
+//     const { companyId, batchYear, studentId } = req.params;
+//     const { action } = req.body; // 'add' or 'remove'
+//     const batchId = await getBatchIdFromYear(batchYear);
+
+//     // Validate student eligibility before proceeding
+//     const { isEligible, dreamCompanyUsed } = await isStudentEligible(
+//       db,
+//       parseInt(companyId),
+//       parseInt(studentId)
+//     );
+
+//     if (action === "add") {
+//       if (dreamCompanyUsed) {
+//         return res.status(400).json({
+//           error: "Student has already used dream company globally",
+//         });
+//       }
+//     }
+
+//     const getQuery = `
+//       SELECT eligible_student_ids, placed_student_ids, ineligible_student_ids, dream_company_student_ids,
+//             total_eligible_count, total_placed_count, total_ineligible_count
+//       FROM company_eligibility
+//       WHERE company_id = $1 AND batch_id = $2
+//     `;
+
+//     const getResult = await db.query(getQuery, [companyId, batchId]);
+
+//     if (getResult.rows.length === 0) {
+//       return res.status(404).json({ error: "Eligibility record not found" });
+//     }
+
+//     const record = getResult.rows[0];
+//     let eligibleIds = record.eligible_student_ids || [];
+//     let placedIds = record.placed_student_ids || [];
+//     let ineligibleIds = record.ineligible_student_ids || [];
+//     let dreamCompanyIds = record.dream_company_student_ids || [];
+
+//     if (action === "add") {
+//       if (!placedIds.includes(parseInt(studentId))) {
+//         return res.status(400).json({ error: "Student not in placed list" });
+//       }
+
+//       placedIds = placedIds.filter((id) => id !== parseInt(studentId));
+//       if (!eligibleIds.includes(parseInt(studentId))) {
+//         eligibleIds.push(parseInt(studentId));
+//       }
+//       if (!dreamCompanyIds.includes(parseInt(studentId))) {
+//         dreamCompanyIds.push(parseInt(studentId));
+//       }
+
+//       // Update student's dream_company_used flag globally
+//       const updateStudentQuery = `
+//         UPDATE students
+//         SET dream_company_used = true
+//         WHERE id = $1
+//       `;
+//       await db.query(updateStudentQuery, [studentId]);
+//     } else if (action === "remove") {
+//       if (!eligibleIds.includes(parseInt(studentId))) {
+//         return res.status(400).json({ error: "Student not in eligible list" });
+//       }
+
+//       // Check if this student is in dreamCompanyIds
+//       if (!dreamCompanyIds.includes(parseInt(studentId))) {
+//         return res.status(400).json({
+//           error: "Student was not added via dream company",
+//         });
+//       }
+
+//       dreamCompanyIds = dreamCompanyIds.filter(
+//         (id) => id !== parseInt(studentId)
+//       );
+
+//       // Move student back to placed
+//       eligibleIds = eligibleIds.filter((id) => id !== parseInt(studentId));
+//       if (!placedIds.includes(parseInt(studentId))) {
+//         placedIds.push(parseInt(studentId));
+//       }
+
+//       // Update student's dream_company_used flag globally back to false
+//       const updateStudentQuery = `
+//         UPDATE students
+//         SET dream_company_used = false
+//         WHERE id = $1
+//       `;
+//       await db.query(updateStudentQuery, [studentId]);
+//     } else {
+//       return res
+//         .status(400)
+//         .json({ error: "Invalid action. Use 'add' or 'remove'" });
+//     }
+
+//     const updateQuery = `
+//       UPDATE company_eligibility
+//       SET eligible_student_ids = $1,
+//           placed_student_ids = $2,
+//           ineligible_student_ids = $3,
+//           dream_company_student_ids = $4,
+//           total_eligible_count = $5,
+//           total_placed_count = $6,
+//           total_ineligible_count = $7,
+//           updated_at = CURRENT_TIMESTAMP
+//       WHERE company_id = $8 AND batch_id = $9
+//       RETURNING *
+//     `;
+
+//     await db.query(updateQuery, [
+//       JSON.stringify(eligibleIds),
+//       JSON.stringify(placedIds),
+//       JSON.stringify(ineligibleIds),
+//       JSON.stringify(dreamCompanyIds),
+//       eligibleIds.length,
+//       placedIds.length,
+//       ineligibleIds.length,
+//       companyId,
+//       batchId,
+//     ]);
+
+//     res.json({
+//       success: true,
+//       message:
+//         action === "add"
+//           ? `Student added via dream company`
+//           : `Student removed from dream company`,
+//     });
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });
 routes.put("/:companyId/:batchYear/students/:studentId", async (req, res) => {
   try {
     const { companyId, batchYear, studentId } = req.params;
-    const { action } = req.body; // 'add' or 'remove'
-    const batchId = await getBatchIdFromYear(batchYear);
+    const { action, type } = req.body;
+    // action = "add" | "remove"
+    // type = "dream" | "upgrade" (only when action = "add")
 
-    // Validate student eligibility before proceeding
-    const { isEligible, dreamCompanyUsed } = await isStudentEligible(
-      db,
-      parseInt(companyId),
-      parseInt(studentId)
+    const batchId = await getBatchIdFromYear(batchYear);
+    const sid = parseInt(studentId);
+
+    // Fetch student upgrade counters & dream-used flag
+    const stuResult = await db.query(
+      `SELECT upgrade_opportunities_used, dream_company_used
+       FROM students WHERE id = $1`,
+      [sid]
     );
 
-    if (action === "add") {
-      // For dream company add, we allow ineligible students
-      // But we check they haven't already used it globally
-      if (dreamCompanyUsed) {
-        return res.status(400).json({
-          error: "Student has already used dream company globally",
-        });
-      }
-    }
+    if (stuResult.rows.length === 0)
+      return res.status(404).json({ error: "Student not found" });
 
-    // const getQuery = `
-    //   SELECT eligible_student_ids, ineligible_student_ids, dream_company_student_ids,
-    //          total_eligible_count, total_ineligible_count
-    //   FROM company_eligibility
-    //   WHERE company_id = $1 AND batch_id = $2
-    // `;
+    const student = stuResult.rows[0];
 
+    // Fetch eligibility record
     const getQuery = `
-      SELECT eligible_student_ids, placed_student_ids, ineligible_student_ids, dream_company_student_ids, 
-            total_eligible_count, total_placed_count, total_ineligible_count
+      SELECT eligible_student_ids, placed_student_ids, ineligible_student_ids,
+             dream_company_student_ids, manual_override_reasons
       FROM company_eligibility
       WHERE company_id = $1 AND batch_id = $2
     `;
 
-    const getResult = await db.query(getQuery, [companyId, batchId]);
-
-    if (getResult.rows.length === 0) {
+    const recResult = await db.query(getQuery, [companyId, batchId]);
+    if (recResult.rows.length === 0) {
       return res.status(404).json({ error: "Eligibility record not found" });
     }
 
-    // const record = getResult.rows[0];
-    // let eligibleIds = record.eligible_student_ids || [];
-    // let ineligibleIds = record.ineligible_student_ids || [];
-    // let dreamCompanyIds = record.dream_company_student_ids || [];
+    const record = recResult.rows[0];
 
-    const record = getResult.rows[0];
-    let eligibleIds = record.eligible_student_ids || [];
-    let placedIds = record.placed_student_ids || [];
-    let ineligibleIds = record.ineligible_student_ids || [];
-    let dreamCompanyIds = record.dream_company_student_ids || [];
+    let eligible = record.eligible_student_ids || [];
+    let placed = record.placed_student_ids || [];
+    let ineligible = record.ineligible_student_ids || [];
+    let dreamIds = record.dream_company_student_ids || [];
+    let manualReasons = record.manual_override_reasons || {};
 
-    // if (action === "add") {
-    //   if (!ineligibleIds.includes(parseInt(studentId))) {
-    //     return res
-    //       .status(400)
-    //       .json({ error: "Student not in ineligible list" });
-    //   }
+    const sidStr = sid.toString();
 
-    //   ineligibleIds = ineligibleIds.filter((id) => id !== parseInt(studentId));
-    //   if (!eligibleIds.includes(parseInt(studentId))) {
-    //     eligibleIds.push(parseInt(studentId));
-    //   }
-    //   if (!dreamCompanyIds.includes(parseInt(studentId))) {
-    //     dreamCompanyIds.push(parseInt(studentId));
-    //   }
-
-    //   // Update student's dream_company_used flag globally
-    //   const updateStudentQuery = `
-    //     UPDATE students
-    //     SET dream_company_used = true
-    //     WHERE id = $1
-    //   `;
-    //   await db.query(updateStudentQuery, [studentId]);
-    // }
+    // -------------------------------------------------------
+    // ACTION = ADD  (dream or upgrade)
+    // -------------------------------------------------------
     if (action === "add") {
-      if (!placedIds.includes(parseInt(studentId))) {
-        return res.status(400).json({ error: "Student not in placed list" });
+      if (!placed.includes(sid)) {
+        return res.status(400).json({ error: "Student is not in placed list" });
       }
 
-      placedIds = placedIds.filter((id) => id !== parseInt(studentId));
-      if (!eligibleIds.includes(parseInt(studentId))) {
-        eligibleIds.push(parseInt(studentId));
-      }
-      if (!dreamCompanyIds.includes(parseInt(studentId))) {
-        dreamCompanyIds.push(parseInt(studentId));
+      if (type === "dream") {
+        if (student.dream_company_used) {
+          return res.status(400).json({ error: "Dream already used globally" });
+        }
+
+        // Move placed → eligible
+        placed = placed.filter((x) => x !== sid);
+        if (!eligible.includes(sid)) eligible.push(sid);
+        if (!dreamIds.includes(sid)) dreamIds.push(sid);
+
+        // Set manual reason
+        manualReasons[sidStr] = { reason: "used_dream", from: "placed" };
+
+        // Update student table
+        await db.query(
+          `UPDATE students SET dream_company_used = true WHERE id = $1`,
+          [sid]
+        );
+      } else if (type === "upgrade") {
+        if (student.upgrade_opportunities_used >= 3) {
+          return res.status(400).json({
+            error: "Maximum upgrade opportunities used (3)",
+          });
+        }
+
+        // Move placed → eligible
+        placed = placed.filter((x) => x !== sid);
+        if (!eligible.includes(sid)) eligible.push(sid);
+
+        // Set manual reason
+        manualReasons[sidStr] = { reason: "used_upgrade", from: "placed" };
+
+        // Increment upgrade counter
+        await db.query(
+          `UPDATE students
+           SET upgrade_opportunities_used = upgrade_opportunities_used + 1
+           WHERE id = $1`,
+          [sid]
+        );
       }
 
-      // Update student's dream_company_used flag globally
-      const updateStudentQuery = `
-        UPDATE students 
-        SET dream_company_used = true 
-        WHERE id = $1
-      `;
-      await db.query(updateStudentQuery, [studentId]);
+      // Update eligibility table
+      await db.query(
+        `UPDATE company_eligibility
+         SET eligible_student_ids = $3,
+             placed_student_ids = $4,
+             ineligible_student_ids = $5,
+             dream_company_student_ids = $6,
+             manual_override_reasons = $7,
+             total_eligible_count = $8,
+             total_placed_count = $9,
+             total_ineligible_count = $10,
+             updated_at = NOW()
+         WHERE company_id = $1 AND batch_id = $2`,
+        [
+          companyId,
+          batchId,
+          JSON.stringify(eligible),
+          JSON.stringify(placed),
+          JSON.stringify(ineligible),
+          JSON.stringify(dreamIds),
+          JSON.stringify(manualReasons),
+          eligible.length,
+          placed.length,
+          ineligible.length,
+        ]
+      );
+
+      return res.json({
+        success: true,
+        message: `Student added using ${type}`,
+      });
     }
-    // else if (action === "remove") {
-    //   if (!eligibleIds.includes(parseInt(studentId))) {
-    //     return res.status(400).json({ error: "Student not in eligible list" });
-    //   }
 
-    //   // Check if this student is in dreamCompanyIds
-    //   if (!dreamCompanyIds.includes(parseInt(studentId))) {
-    //     return res.status(400).json({
-    //       error: "Student was not added via dream company",
-    //     });
-    //   }
-
-    //   dreamCompanyIds = dreamCompanyIds.filter(
-    //     (id) => id !== parseInt(studentId)
-    //   );
-
-    //   // Move student back to ineligible
-    //   eligibleIds = eligibleIds.filter((id) => id !== parseInt(studentId));
-    //   if (!ineligibleIds.includes(parseInt(studentId))) {
-    //     ineligibleIds.push(parseInt(studentId));
-    //   }
-
-    //   // Update student's dream_company_used flag globally back to false
-    //   const updateStudentQuery = `
-    //     UPDATE students
-    //     SET dream_company_used = false
-    //     WHERE id = $1
-    //   `;
-    //   await db.query(updateStudentQuery, [studentId]);
-    // }
-    else if (action === "remove") {
-      if (!eligibleIds.includes(parseInt(studentId))) {
-        return res.status(400).json({ error: "Student not in eligible list" });
-      }
-
-      // Check if this student is in dreamCompanyIds
-      if (!dreamCompanyIds.includes(parseInt(studentId))) {
+    // -------------------------------------------------------
+    // ACTION = REMOVE (detect reason automatically)
+    // -------------------------------------------------------
+    if (action === "remove") {
+      if (!manualReasons[sidStr]) {
         return res.status(400).json({
-          error: "Student was not added via dream company",
+          error: "Student was not added via dream or upgrade",
         });
       }
 
-      dreamCompanyIds = dreamCompanyIds.filter(
-        (id) => id !== parseInt(studentId)
-      );
+      const reason = manualReasons[sidStr].reason;
 
-      // Move student back to placed
-      eligibleIds = eligibleIds.filter((id) => id !== parseInt(studentId));
-      if (!placedIds.includes(parseInt(studentId))) {
-        placedIds.push(parseInt(studentId));
+      // Remove from eligible
+      eligible = eligible.filter((x) => x !== sid);
+      delete manualReasons[sidStr];
+
+      if (reason === "used_dream") {
+        dreamIds = dreamIds.filter((x) => x !== sid);
+
+        // Move back to placed
+        if (!placed.includes(sid)) placed.push(sid);
+
+        // Reset global dream flag
+        await db.query(
+          `UPDATE students SET dream_company_used = false WHERE id = $1`,
+          [sid]
+        );
+      } else if (reason === "used_upgrade") {
+        // Move back to placed
+        if (!placed.includes(sid)) placed.push(sid);
+
+        // Decrement upgrade count
+        await db.query(
+          `UPDATE students
+           SET upgrade_opportunities_used = GREATEST(upgrade_opportunities_used - 1, 0)
+           WHERE id = $1`,
+          [sid]
+        );
       }
 
-      // Update student's dream_company_used flag globally back to false
-      const updateStudentQuery = `
-        UPDATE students 
-        SET dream_company_used = false 
-        WHERE id = $1
-      `;
-      await db.query(updateStudentQuery, [studentId]);
-    } else {
-      return res
-        .status(400)
-        .json({ error: "Invalid action. Use 'add' or 'remove'" });
+      // Save updated state
+      await db.query(
+        `UPDATE company_eligibility
+         SET eligible_student_ids = $3,
+             placed_student_ids = $4,
+             ineligible_student_ids = $5,
+             dream_company_student_ids = $6,
+             manual_override_reasons = $7,
+             total_eligible_count = $8,
+             total_placed_count = $9,
+             total_ineligible_count = $10,
+             updated_at = NOW()
+         WHERE company_id = $1 AND batch_id = $2`,
+        [
+          companyId,
+          batchId,
+          JSON.stringify(eligible),
+          JSON.stringify(placed),
+          JSON.stringify(ineligible),
+          JSON.stringify(dreamIds),
+          JSON.stringify(manualReasons),
+          eligible.length,
+          placed.length,
+          ineligible.length,
+        ]
+      );
+
+      return res.json({
+        success: true,
+        message: `Student removed from ${reason}`,
+      });
     }
 
-    // const updateQuery = `
-    //   UPDATE company_eligibility
-    //   SET eligible_student_ids = $1,
-    //       ineligible_student_ids = $2,
-    //       dream_company_student_ids = $3,
-    //       total_eligible_count = $4,
-    //       total_ineligible_count = $5,
-    //       updated_at = CURRENT_TIMESTAMP
-    //   WHERE company_id = $6 AND batch_id = $7
-    //   RETURNING *
-    // `;
-
-    // await db.query(updateQuery, [
-    //   JSON.stringify(eligibleIds),
-    //   JSON.stringify(ineligibleIds),
-    //   JSON.stringify(dreamCompanyIds),
-    //   eligibleIds.length,
-    //   ineligibleIds.length,
-    //   companyId,
-    //   batchId,
-    // ]);
-
-    const updateQuery = `
-      UPDATE company_eligibility
-      SET eligible_student_ids = $1,
-          placed_student_ids = $2,
-          ineligible_student_ids = $3,
-          dream_company_student_ids = $4,
-          total_eligible_count = $5,
-          total_placed_count = $6,
-          total_ineligible_count = $7,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE company_id = $8 AND batch_id = $9
-      RETURNING *
-    `;
-
-    await db.query(updateQuery, [
-      JSON.stringify(eligibleIds),
-      JSON.stringify(placedIds),
-      JSON.stringify(ineligibleIds),
-      JSON.stringify(dreamCompanyIds),
-      eligibleIds.length,
-      placedIds.length,
-      ineligibleIds.length,
-      companyId,
-      batchId,
-    ]);
-
-    res.json({
-      success: true,
-      message:
-        action === "add"
-          ? `Student added via dream company`
-          : `Student removed from dream company`,
-    });
+    return res.status(400).json({ error: "Invalid action" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
