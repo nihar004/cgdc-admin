@@ -13,12 +13,102 @@ import {
   Trash2,
   Edit,
   Mail,
+  FileText,
+  Monitor,
+  Code,
+  FileSearch,
+  Presentation,
+  Award,
+  Zap,
+  MessageSquare,
+  FileEdit,
+  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import DeleteEventModal from "./DeleteEventModal"; // Adjust the import path as necessary
 
 const getEventTypeConfig = (eventType) => {
   const configs = {
+    // Placement Process Rounds
+    pre_placement_talk: {
+      icon: Mic,
+      color: "bg-indigo-100 text-indigo-600",
+      label: "Pre-Placement Talk",
+    },
+    company_presentation: {
+      icon: Building2,
+      color: "bg-blue-100 text-blue-600",
+      label: "Company Presentation",
+    },
+    resume_screening: {
+      icon: FileText,
+      color: "bg-slate-100 text-slate-600",
+      label: "Resume Screening",
+    },
+    online_assessment: {
+      icon: Monitor,
+      color: "bg-cyan-100 text-cyan-600",
+      label: "Online Assessment",
+    },
+    aptitude_test: {
+      icon: Star,
+      color: "bg-amber-100 text-amber-600",
+      label: "Aptitude Test",
+    },
+    coding_test: {
+      icon: Code,
+      color: "bg-emerald-100 text-emerald-600",
+      label: "Coding Test",
+    },
+    technical_mcq: {
+      icon: CheckCircle,
+      color: "bg-violet-100 text-violet-600",
+      label: "Technical MCQ",
+    },
+
+    // Interview Rounds
+    technical_round_1: {
+      icon: Users,
+      color: "bg-pink-100 text-pink-600",
+      label: "Technical Round 1",
+    },
+    technical_round_2: {
+      icon: Users,
+      color: "bg-pink-100 text-pink-600",
+      label: "Technical Round 2",
+    },
+    technical_round_3: {
+      icon: Users,
+      color: "bg-pink-100 text-pink-600",
+      label: "Technical Round 3",
+    },
+    hr_round: {
+      icon: Users,
+      color: "bg-rose-100 text-rose-600",
+      label: "HR Round",
+    },
+    group_discussion: {
+      icon: Users,
+      color: "bg-teal-100 text-teal-600",
+      label: "Group Discussion",
+    },
+    case_study: {
+      icon: FileSearch,
+      color: "bg-orange-100 text-orange-600",
+      label: "Case Study",
+    },
+    presentation_round: {
+      icon: Presentation,
+      color: "bg-fuchsia-100 text-fuchsia-600",
+      label: "Presentation Round",
+    },
+    final_round: {
+      icon: Award,
+      color: "bg-yellow-100 text-yellow-600",
+      label: "Final Round",
+    },
+
+    // Training & Development
     workshop: {
       icon: GraduationCap,
       color: "bg-purple-100 text-purple-600",
@@ -29,30 +119,42 @@ const getEventTypeConfig = (eventType) => {
       color: "bg-blue-100 text-blue-600",
       label: "Seminar",
     },
+    skill_development: {
+      icon: Zap,
+      color: "bg-lime-100 text-lime-600",
+      label: "Skill Development",
+    },
+    career_guidance: {
+      icon: MapPin,
+      color: "bg-sky-100 text-sky-600",
+      label: "Career Guidance",
+    },
+    mock_interview: {
+      icon: MessageSquare,
+      color: "bg-red-100 text-red-600",
+      label: "Mock Interview",
+    },
+    resume_building: {
+      icon: FileEdit,
+      color: "bg-green-100 text-green-600",
+      label: "Resume Building",
+    },
+
+    // Legacy/Other
     company_visit: {
       icon: Building2,
       color: "bg-green-100 text-green-600",
       label: "Company Visit",
-    },
-    aptitude_test: {
-      icon: Star,
-      color: "bg-amber-100 text-amber-600",
-      label: "Aptitude Test",
     },
     technical_round: {
       icon: Users,
       color: "bg-pink-100 text-pink-600",
       label: "Technical Round",
     },
-    hr_round: {
-      icon: Users,
-      color: "bg-pink-100 text-pink-600",
-      label: "HR Round",
-    },
-    group_discussion: {
-      icon: Users,
-      color: "bg-teal-100 text-teal-600",
-      label: "Group Discussion",
+    student_registration: {
+      icon: UserPlus,
+      color: "bg-neutral-100 text-neutral-600",
+      label: "Student Registration",
     },
     other: {
       icon: Calendar,
