@@ -701,9 +701,11 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
 
     // Fetch event info
     const eventRes = await db.query(
-      `SELECT id, is_placement_event, round_number, company_id, position_ids
-       FROM events
-       WHERE id = $1`,
+      `SELECT e.id, is_placement_event, round_number, company_id, position_ids, target_specializations
+       FROM events e
+       INNER JOIN event_batches eb ON e.id = eb.event_id
+       INNER JOIN batches b ON eb.batch_id = b.id
+       WHERE e.id = $1`,
       [eventId]
     );
 
@@ -829,20 +831,23 @@ routes.get("/:eventId/eligibleStudents", async (req, res) => {
     } else {
       // Non-placement events: fetch all students registered for the event
       studentQuery = `
-        SELECT DISTINCT
+        SELECT
           s.id,
           s.registration_number,
           s.enrollment_number,
           s.full_name,
           s.department,
+          s.branch,
           s.batch_year
         FROM students s
-        INNER JOIN form_responses fr ON fr.student_id = s.id
-        INNER JOIN forms f ON f.id = fr.form_id
-        WHERE f.event_id = $1
+        INNER JOIN event_batches eb ON eb.event_id = $1
+        INNER JOIN batches b ON b.id = eb.batch_id
+        WHERE s.batch_year = b.year
+          AND s.branch = ANY($2)
+          AND s.registration_number IS NOT NULL
         ORDER BY s.batch_year, s.department, s.full_name
       `;
-      studentParams = [eventId];
+      studentParams = [eventId, event.target_specializations];
     }
 
     const result = await db.query(studentQuery, studentParams);
@@ -1071,13 +1076,23 @@ routes.post("/:id/attendance", async (req, res) => {
         studentParams = [prevEventId, registration_numbers];
       }
     } else {
-      // 📋 Non-placement event — directly from students table
+      // Non-placement events: fetch students matching target criteria
       studentQuery = `
-        SELECT id, registration_number 
-        FROM students 
-        WHERE registration_number = ANY($1)
+        SELECT DISTINCT
+          s.id, 
+          s.registration_number
+        FROM students s
+        INNER JOIN event_batches eb ON eb.event_id = $1
+        INNER JOIN batches b ON b.id = eb.batch_id
+        WHERE s.batch_year = b.year
+          AND s.branch = ANY(
+            SELECT unnest(target_specializations) 
+            FROM events 
+            WHERE id = $1
+          )
+          AND s.registration_number = ANY($2)
       `;
-      studentParams = [registration_numbers];
+      studentParams = [eventId, registration_numbers];
     }
 
     const studentResult = await client.query(studentQuery, studentParams);

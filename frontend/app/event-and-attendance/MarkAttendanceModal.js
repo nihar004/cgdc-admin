@@ -63,6 +63,14 @@ const MarkAttendanceModal = ({ event, onClose, onAttendanceMarked }) => {
 
       if (response.data.success) {
         const studentData = response.data.data.students || [];
+
+        // **ADD THIS CHECK**
+        if (studentData.length === 0 && event.type !== "company_round") {
+          alert(
+            "No students found matching the target criteria (specialization/batch). Please verify event target audience settings."
+          );
+        }
+
         setStudents(studentData);
 
         if (response.data.data.roundNumber) {
