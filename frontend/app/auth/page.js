@@ -282,6 +282,7 @@ export default function CGDCAuth() {
                   height={128}
                   className="w-full h-full object-cover"
                   priority
+                  unoptimized
                 />
               </div>
 

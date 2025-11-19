@@ -89,41 +89,41 @@ app.use("/api/*", (req, res) => {
   res.status(404).json({ success: false, message: "API route not found" });
 });
 
-// ===== Serve Next.js Static Export =====
-const frontendPath = path.join(__dirname, "../frontend/out");
+// // ===== Serve Next.js Static Export =====
+// const frontendPath = path.join(__dirname, "../frontend/out");
 
-// Serve static files (CSS, JS, images, etc.)
-app.use(express.static(frontendPath));
+// // Serve static files (CSS, JS, images, etc.)
+// app.use(express.static(frontendPath));
 
-// Catch-all for Next.js pages
-app.get("*", (req, res) => {
-  let requestedPath = req.path;
+// // Catch-all for Next.js pages
+// app.get("*", (req, res) => {
+//   let requestedPath = req.path;
 
-  // Remove trailing slash for processing (Next.js adds it back)
-  const cleanPath = requestedPath.replace(/\/$/, "") || "/";
+//   // Remove trailing slash for processing (Next.js adds it back)
+//   const cleanPath = requestedPath.replace(/\/$/, "") || "/";
 
-  // Try different file locations in order
-  const possiblePaths = [
-    path.join(frontendPath, cleanPath, "index.html"), // /page/helloworld/index.html
-    path.join(frontendPath, cleanPath + ".html"), // /page/helloworld.html
-    path.join(frontendPath, requestedPath, "index.html"), // with trailing slash
-    path.join(frontendPath, requestedPath + "index.html"), // edge case
-  ];
+//   // Try different file locations in order
+//   const possiblePaths = [
+//     path.join(frontendPath, cleanPath, "index.html"), // /page/helloworld/index.html
+//     path.join(frontendPath, cleanPath + ".html"), // /page/helloworld.html
+//     path.join(frontendPath, requestedPath, "index.html"), // with trailing slash
+//     path.join(frontendPath, requestedPath + "index.html"), // edge case
+//   ];
 
-  for (const filePath of possiblePaths) {
-    if (fs.existsSync(filePath)) {
-      return res.sendFile(filePath);
-    }
-  }
+//   for (const filePath of possiblePaths) {
+//     if (fs.existsSync(filePath)) {
+//       return res.sendFile(filePath);
+//     }
+//   }
 
-  // Fallback to 404.html or root index.html
-  const notFoundPage = path.join(frontendPath, "404.html");
-  if (fs.existsSync(notFoundPage)) {
-    return res.status(404).sendFile(notFoundPage);
-  }
+//   // Fallback to 404.html or root index.html
+//   const notFoundPage = path.join(frontendPath, "404.html");
+//   if (fs.existsSync(notFoundPage)) {
+//     return res.status(404).sendFile(notFoundPage);
+//   }
 
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
+//   res.sendFile(path.join(frontendPath, "index.html"));
+// });
 
 // Error handler
 app.use((err, req, res, next) => {

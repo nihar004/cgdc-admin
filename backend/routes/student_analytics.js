@@ -474,7 +474,7 @@ routes.get("/batch/:batchYear/students", async (req, res, next) => {
       search,
       placementStatus,
       department,
-      limit = 100,
+      limit = 500,
       offset = 0,
     } = req.query;
 

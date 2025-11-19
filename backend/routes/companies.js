@@ -453,7 +453,7 @@ routes.get("/batch/:batchYear", async (req, res) => {
                   'original_filename', pd.original_filename,
                   'download_url', CONCAT('${req.protocol}://${req.get(
       "host"
-    )}/api/companies/documents/', REPLACE(pd.document_path, 'cgdc-docs/documents/', ''))
+    )}/api/companies/documents/', pd.document_path)
                 ) ORDER BY pd.display_order, pd.uploaded_at
               )
               FROM position_documents pd 
@@ -905,47 +905,39 @@ routes.delete("/position/:positionId", async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    // Ensure position exists and get documents
     const existingPosition = await client.query(
       "SELECT * FROM company_positions WHERE id = $1",
       [positionId]
     );
-    console.log("🏢 Existing position for delete:", existingPosition.rows);
 
     if (existingPosition.rows.length === 0) {
       await client.query("ROLLBACK");
       return res.status(404).json({ error: "Position not found" });
     }
 
-    // Get all documents for this position to delete physical files
     const documentsQuery = `
       SELECT document_path FROM position_documents WHERE position_id = $1
     `;
     const documentsResult = await client.query(documentsQuery, [positionId]);
-    console.log("🗑️ Documents to delete for position:", documentsResult.rows);
 
-    // Delete physical files
     for (const doc of documentsResult.rows) {
       try {
         const filePath = path.join(process.cwd(), doc.document_path);
         await fs.unlink(filePath);
       } catch (fileError) {
-        console.error("Error deleting file:", fileError);
-        // Continue even if file deletion fails
+        console.error("Error deleting file:", fileError.message);
       }
     }
 
-    // Delete the position → documents cascade
     await client.query("DELETE FROM company_positions WHERE id = $1", [
       positionId,
     ]);
-    console.log("✅ Position deleted:", positionId);
 
     await client.query("COMMIT");
     res.json({ message: "Position (and documents) deleted successfully" });
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("Error deleting position:", err);
+    console.error("Error deleting position:", err.message);
     res.status(500).json({ error: "Failed to delete position" });
   } finally {
     client.release();
@@ -954,45 +946,6 @@ routes.delete("/position/:positionId", async (req, res) => {
 
 // ***************************************************
 // *************** Document Endpoints ****************
-
-// File serving endpoint
-routes.use("/documents", (req, res) => {
-  // Decode the URL path to handle spaces and special characters
-  let requestedPath;
-  try {
-    requestedPath = decodeURIComponent(req.path.substring(1)); // Remove leading slash and decode
-  } catch (error) {
-    return res.status(400).json({ error: "Invalid URL encoding" });
-  }
-
-  if (!requestedPath) {
-    return res.status(400).json({ error: "File path is required" });
-  }
-
-  // Convert forward slashes to system path separators
-  const filePath = path.join(process.cwd(), requestedPath);
-
-  // Security check
-  const basePath = path.join(process.cwd(), "cgdc-docs");
-  const resolvedFilePath = path.resolve(filePath);
-  const resolvedBasePath = path.resolve(basePath);
-
-  if (!resolvedFilePath.startsWith(resolvedBasePath)) {
-    return res.status(403).json({ error: "Access denied" });
-  }
-
-  // Use Express's built-in sendFile method
-  res.sendFile(resolvedFilePath, (err) => {
-    if (err) {
-      console.error("File serving error:", err);
-      if (err.code === "ENOENT") {
-        res.status(404).json({ error: "File not found" });
-      } else if (!res.headersSent) {
-        res.status(500).json({ error: "Server error" });
-      }
-    }
-  });
-});
 
 // GET all documents for a specific position
 routes.get("/position/:positionId/documents", async (req, res) => {
@@ -1020,7 +973,7 @@ routes.get("/position/:positionId/documents", async (req, res) => {
     const result = await db.query(query, [positionId]);
     res.json(result.rows);
   } catch (error) {
-    console.error("Error fetching documents:", error);
+    console.error("Error fetching documents:", error.message);
     res.status(500).json({ error: "Failed to fetch documents" });
   }
 });
@@ -1059,41 +1012,37 @@ routes.post(
           ? parseInt(display_orders[i]) || i + 1
           : parseInt(display_orders) || i + 1;
 
-        // If any critical field missing, log it
-        if (!docType || !docTitle) {
-          console.error("⚠️ Missing required document fields:", {
-            docType,
-            docTitle,
-            displayOrder,
-            file: file.originalname,
-          });
+        const documentPath = `cgdc-docs/documents/${batchYear}/${file.filename}`;
+        const fileType = path.extname(file.originalname).slice(1);
+
+        try {
+          const result = await db.query(
+            `
+            INSERT INTO position_documents
+              (position_id, document_type, document_title, document_path, file_type, display_order, original_filename)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+          `,
+            [
+              positionId,
+              docType,
+              docTitle,
+              documentPath,
+              fileType,
+              displayOrder,
+              file.originalname,
+            ]
+          );
+          insertedDocs.push(result.rows[0]);
+        } catch (dbError) {
+          console.error("Database insert failed:", dbError);
+          throw dbError;
         }
-
-        // Insert into DB
-        const result = await db.query(
-          `
-          INSERT INTO position_documents
-            (position_id, document_type, document_title, document_path, file_type, display_order, original_filename)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          RETURNING *
-        `,
-          [
-            positionId,
-            docType,
-            docTitle,
-            path.join("cgdc-docs", "documents", batchYear, file.filename),
-            path.extname(file.originalname).slice(1), // e.g. pdf
-            displayOrder,
-            file.originalname,
-          ]
-        );
-
-        insertedDocs.push(result.rows[0]);
       }
 
       res.status(201).json(insertedDocs);
     } catch (err) {
-      console.error("❌ Error uploading documents:", err);
+      console.error("Upload failed:", err.message);
       res.status(500).json({ error: "Failed to upload documents" });
     }
   }
@@ -1108,7 +1057,6 @@ routes.put("/documents/:documentId", async (req, res) => {
     return res.status(400).json({ error: "Invalid document ID" });
   }
 
-  // Only allow metadata fields to be updated
   const fields = [];
   const values = [];
   let idx = 1;
@@ -1141,15 +1089,17 @@ routes.put("/documents/:documentId", async (req, res) => {
 
   try {
     const result = await db.query(updateQuery, values);
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Document not found" });
     }
+
     res.json({
       message: "Document metadata updated",
       document: result.rows[0],
     });
   } catch (err) {
-    console.error("Error updating document metadata:", err);
+    console.error("Update failed:", err.message);
     res.status(500).json({ error: "Failed to update document metadata" });
   }
 });
@@ -1158,44 +1108,86 @@ routes.put("/documents/:documentId", async (req, res) => {
 routes.delete("/documents/:documentId", async (req, res) => {
   const { documentId } = req.params;
 
+  if (!documentId || isNaN(documentId)) {
+    return res.status(400).json({ error: "Invalid document ID" });
+  }
+
   const client = await db.connect();
 
   try {
     await client.query("BEGIN");
 
-    // Get document info
     const getDocQuery = "SELECT * FROM position_documents WHERE id = $1";
     const docResult = await client.query(getDocQuery, [documentId]);
 
     if (docResult.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(404).json({ error: "Document not found" });
     }
 
     const document = docResult.rows[0];
     const filePath = path.join(process.cwd(), document.document_path);
 
-    // Delete from database
     const deleteQuery = "DELETE FROM position_documents WHERE id = $1";
     await client.query(deleteQuery, [documentId]);
 
-    // Delete physical file
     try {
       await fs.unlink(filePath);
     } catch (fileError) {
-      console.error("Error deleting file:", fileError);
-      // Continue even if file deletion fails
+      console.error("Error deleting physical file:", fileError.message);
     }
 
     await client.query("COMMIT");
-
     res.json({ message: "Document deleted successfully" });
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Error deleting document:", error);
+    console.error("Delete operation failed:", error.message);
     res.status(500).json({ error: "Failed to delete document" });
   } finally {
     client.release();
   }
+});
+
+routes.get("/documents/*", (req, res) => {
+  let requestedPath;
+  try {
+    const pathMatch = req.path.match(/^\/documents\/(?:file\/)?(.*)/);
+
+    if (!pathMatch || !pathMatch[1]) {
+      return res.status(400).json({ error: "File path is required" });
+    }
+
+    requestedPath = decodeURIComponent(pathMatch[1]);
+    requestedPath = requestedPath.replace(/\\/g, "/");
+  } catch (error) {
+    console.error("URL decoding failed:", error.message);
+    return res.status(400).json({ error: "Invalid URL encoding" });
+  }
+
+  if (!requestedPath) {
+    return res.status(400).json({ error: "File path is required" });
+  }
+
+  const filePath = path.join(process.cwd(), requestedPath);
+  const basePath = path.join(process.cwd(), "cgdc-docs");
+  const resolvedFilePath = path.resolve(filePath);
+  const resolvedBasePath = path.resolve(basePath);
+
+  if (!resolvedFilePath.startsWith(resolvedBasePath)) {
+    return res.status(403).json({ error: "Access denied" });
+  }
+
+  res.sendFile(resolvedFilePath, (err) => {
+    if (err) {
+      console.error("File serving error:", err.message);
+
+      if (err.code === "ENOENT") {
+        res.status(404).json({ error: "File not found" });
+      } else if (!res.headersSent) {
+        res.status(500).json({ error: "Server error" });
+      }
+    }
+  });
 });
 
 // ************ End of Document Endpoints ************

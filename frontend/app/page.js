@@ -123,7 +123,7 @@ function HomeContent() {
       color: "bg-orange-500",
     },
     {
-      title: "Form Management",
+      title: "Registration Forms",
       description:
         "Collect and manage student submissions through structured data forms (CSV/Excel)",
       icon: <FaTable className="w-5 h-5" />,
