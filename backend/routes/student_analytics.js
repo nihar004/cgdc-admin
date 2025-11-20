@@ -1193,7 +1193,7 @@ routes.get("/batch/:batchYear/company-timeline", async (req, res, next) => {
   }
 });
 
-// // EXPORT STUDENT ROUNDS DATA TO EXCEL
+// EXPORT STUDENT ROUNDS DATA TO EXCEL
 routes.get(
   "/batch/:batchYear/students/rounds-export",
   async (req, res, next) => {
@@ -1888,5 +1888,447 @@ routes.get(
     }
   }
 );
+
+// EXPORT ALL STUDENTS WITH COMPANY MATRIX
+routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
+  try {
+    const { batchYear } = req.params;
+    const { placementStatus, department } = req.query;
+
+    let whereClause = "WHERE s.batch_year = $1";
+    const params = [batchYear];
+    let paramCount = 1;
+
+    if (placementStatus) {
+      paramCount++;
+      whereClause += ` AND s.placement_status = $${paramCount}`;
+      params.push(placementStatus);
+    }
+
+    if (department && department !== "all") {
+      paramCount++;
+      whereClause += ` AND s.branch = $${paramCount}`;
+      params.push(department);
+    }
+
+    // 1. Get all students with their basic info
+    const studentsQuery = `
+      SELECT
+        s.id,
+        s.registration_number,
+        s.full_name,
+        s.college_email,
+        s.branch,
+        sp.name as specialization,
+        s.cgpa,
+        s.class_10_percentage,
+        s.class_12_percentage,
+        s.backlogs,
+        s.placement_status,
+        s.current_offer,
+        c.company_name as current_company,
+        cp.position_title as current_position,
+        cp.package as current_package,
+        cp.package_end as current_package_end,
+        cp.has_range as current_has_range,
+        (SELECT COUNT(DISTINCT e.company_id)
+         FROM student_round_results srr
+         INNER JOIN events e ON srr.event_id = e.id
+         WHERE srr.student_id = s.id
+           AND srr.result_status = 'selected'
+           AND e.round_type = 'last'
+           AND e.is_placement_event = TRUE) AS total_offers
+      FROM students s
+      LEFT JOIN specializations sp ON s.specialization_id = sp.id
+      LEFT JOIN companies c ON c.id = (s.current_offer->>'company_id')::INTEGER
+      LEFT JOIN company_positions cp ON cp.id = (s.current_offer->>'position_id')::INTEGER
+      ${whereClause}
+      ORDER BY s.full_name
+    `;
+
+    const studentsResult = await db.query(studentsQuery, params);
+    const students = studentsResult.rows;
+
+    if (students.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No students found",
+      });
+    }
+
+    // 2. Get all companies for this batch
+    const companiesQuery = `
+      SELECT 
+        c.id,
+        c.company_name,
+        c.sector,
+        c.is_marquee,
+        c.scheduled_visit
+      FROM companies c
+      INNER JOIN company_batches cb ON c.id = cb.company_id
+      INNER JOIN batches b ON cb.batch_id = b.id
+      WHERE b.year = $1
+      ORDER BY c.scheduled_visit DESC NULLS LAST, c.company_name
+    `;
+    const companiesResult = await db.query(companiesQuery, [batchYear]);
+    const companies = companiesResult.rows;
+
+    // 3. Get eligibility data for all students and companies
+    const eligibilityQuery = `
+      SELECT 
+        ce.company_id,
+        ce.eligible_student_ids,
+        ce.ineligible_student_ids,
+        ce.dream_company_student_ids
+      FROM company_eligibility ce
+      INNER JOIN batches b ON ce.batch_id = b.id
+      WHERE b.year = $1
+    `;
+    const eligibilityResult = await db.query(eligibilityQuery, [batchYear]);
+
+    // Create eligibility map
+    const eligibilityMap = new Map();
+    eligibilityResult.rows.forEach((row) => {
+      const eligible = Array.isArray(row.eligible_student_ids)
+        ? row.eligible_student_ids
+        : [];
+      const ineligible = Array.isArray(row.ineligible_student_ids)
+        ? row.ineligible_student_ids
+        : [];
+      const dreamCompany = Array.isArray(row.dream_company_student_ids)
+        ? row.dream_company_student_ids
+        : [];
+
+      eligibilityMap.set(row.company_id, {
+        eligible: new Set(eligible),
+        ineligible: new Set(ineligible),
+        dreamCompany: new Set(dreamCompany),
+      });
+    });
+
+    // 4. Get registration data (students who filled forms for companies)
+    const registrationQuery = `
+      SELECT DISTINCT
+        fr.student_id,
+        e.company_id
+      FROM form_responses fr
+      INNER JOIN forms f ON fr.form_id = f.id
+      INNER JOIN events e ON f.event_id = e.id
+      WHERE f.batch_year = $1
+        AND e.company_id IS NOT NULL
+    `;
+    const registrationResult = await db.query(registrationQuery, [batchYear]);
+
+    // Create registration map
+    const registrationMap = new Map();
+    registrationResult.rows.forEach((row) => {
+      if (!registrationMap.has(row.student_id)) {
+        registrationMap.set(row.student_id, new Set());
+      }
+      registrationMap.get(row.student_id).add(row.company_id);
+    });
+
+    // 5. Create Excel workbook
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = "Placement Management System";
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet("Students Export");
+
+    // Header styling
+    const headerFill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF2563EB" },
+    };
+    const headerFont = {
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+      size: 11,
+    };
+
+    // Build headers
+    const headers = [
+      "S.No",
+      "Registration Number",
+      "Full Name",
+      "Email",
+      "Branch",
+      "Specialization",
+      "CGPA",
+      "10th %",
+      "12th %",
+      "Backlogs",
+      "Placement Status",
+      "Current Company",
+      "Current Position",
+      "Current Package",
+      "Total Offers",
+    ];
+
+    // Add company headers
+    companies.forEach((company) => {
+      headers.push(`${company.company_name}${company.is_marquee ? " ⭐" : ""}`);
+    });
+
+    // Set headers
+    worksheet.getRow(1).values = headers;
+    worksheet.getRow(1).font = headerFont;
+    worksheet.getRow(1).fill = headerFill;
+    worksheet.getRow(1).alignment = {
+      horizontal: "center",
+      vertical: "middle",
+      wrapText: true,
+    };
+
+    // Set column widths
+    worksheet.columns = [
+      { width: 8 }, // S.No
+      { width: 18 }, // Registration
+      { width: 25 }, // Name
+      { width: 28 }, // Email
+      { width: 12 }, // Branch
+      { width: 20 }, // Specialization
+      { width: 10 }, // CGPA
+      { width: 10 }, // 10th
+      { width: 10 }, // 12th
+      { width: 10 }, // Backlogs
+      { width: 15 }, // Status
+      { width: 20 }, // Current Company
+      { width: 20 }, // Current Position
+      { width: 15 }, // Current Package
+      { width: 12 }, // Total Offers
+      // Company columns
+      ...companies.map(() => ({ width: 15 })),
+    ];
+
+    // Freeze first row and first 3 columns
+    worksheet.views = [
+      {
+        state: "frozen",
+        xSplit: 3,
+        ySplit: 1,
+        topLeftCell: "D2",
+      },
+    ];
+
+    // Add student data
+    students.forEach((student, index) => {
+      const rowData = [
+        index + 1,
+        student.registration_number,
+        student.full_name,
+        student.college_email,
+        student.branch,
+        student.specialization,
+        student.cgpa ? parseFloat(student.cgpa).toFixed(2) : "N/A",
+        student.class_10_percentage
+          ? parseFloat(student.class_10_percentage).toFixed(2)
+          : "N/A",
+        student.class_12_percentage
+          ? parseFloat(student.class_12_percentage).toFixed(2)
+          : "N/A",
+        student.backlogs || 0,
+        student.placement_status === "placed" ? "Placed" : "Unplaced",
+        student.current_company || "—",
+        student.current_position || "—",
+        student.current_package
+          ? student.current_has_range && student.current_package_end
+            ? `₹${student.current_package}-${student.current_package_end} LPA`
+            : `₹${student.current_package} LPA`
+          : "—",
+        student.total_offers || 0,
+      ];
+
+      const rowNumber = index + 2;
+      const studentRegistrations = registrationMap.get(student.id) || new Set();
+
+      // Add company status for each company
+      companies.forEach((company, companyIndex) => {
+        const companyEligibility = eligibilityMap.get(company.id);
+        const isEligible =
+          companyEligibility?.eligible.has(student.id) || false;
+        const isIneligible =
+          companyEligibility?.ineligible.has(student.id) || false;
+        const isDreamCompany =
+          companyEligibility?.dreamCompany.has(student.id) || false;
+        const hasRegistered = studentRegistrations.has(company.id);
+
+        let cellValue = "";
+        let cellFill = null;
+
+        if (isIneligible || !isEligible) {
+          // Not Eligible - Yellow background
+          cellValue = "Not Eligible";
+          cellFill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFEF3C7" }, // Light yellow
+          };
+        } else if (isEligible) {
+          if (hasRegistered) {
+            // Registered - Green background with tick
+            cellValue = "✓ Registered";
+            cellFill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFD1FAE5" }, // Light green
+            };
+          } else {
+            // Not Registered - Red background with cross
+            cellValue = "✗ Not Registered";
+            cellFill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFFEE2E2" }, // Light red
+            };
+          }
+
+          // Add dream company indicator
+          if (isDreamCompany) {
+            cellValue += " 💎";
+          }
+        }
+
+        rowData.push(cellValue);
+
+        // Set cell styling
+        const companyColumnIndex = 15 + companyIndex + 1; // +1 for Excel 1-based indexing
+        const cell = worksheet.getCell(rowNumber, companyColumnIndex);
+
+        if (cellFill) {
+          cell.fill = cellFill;
+        }
+
+        cell.alignment = {
+          horizontal: "center",
+          vertical: "middle",
+        };
+
+        cell.font = {
+          bold: cellValue.includes("✓") || cellValue.includes("✗"),
+        };
+      });
+
+      // Set row values
+      worksheet.getRow(rowNumber).values = rowData;
+
+      // Add borders to all cells
+      worksheet.getRow(rowNumber).eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFE5E7EB" } },
+          left: { style: "thin", color: { argb: "FFE5E7EB" } },
+          bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
+          right: { style: "thin", color: { argb: "FFE5E7EB" } },
+        };
+      });
+
+      // Alternate row coloring for basic info columns (first 15 columns)
+      if (index % 2 === 0) {
+        for (let col = 1; col <= 15; col++) {
+          const cell = worksheet.getCell(rowNumber, col);
+          if (!cell.fill || !cell.fill.fgColor) {
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFF9FAFB" },
+            };
+          }
+        }
+      }
+    });
+
+    // Add borders to header row
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    // Add a legend sheet
+    const legendSheet = workbook.addWorksheet("Legend");
+
+    legendSheet.mergeCells("A1:B1");
+    legendSheet.getCell("A1").value = "LEGEND - Company Status Indicators";
+    legendSheet.getCell("A1").font = { bold: true, size: 14 };
+    legendSheet.getCell("A1").alignment = { horizontal: "center" };
+    legendSheet.getCell("A1").fill = headerFill;
+    legendSheet.getCell("A1").font = { ...headerFont, size: 14 };
+
+    const legendData = [
+      ["Status", "Description"],
+      ["✓ Registered", "Student is eligible and has registered/applied"],
+      [
+        "✗ Not Registered",
+        "Student is eligible but has NOT registered/applied",
+      ],
+      ["Not Eligible", "Student does not meet eligibility criteria"],
+      ["💎", "Dream company for this student"],
+      ["⭐", "Marquee company"],
+    ];
+
+    legendData.forEach((row, index) => {
+      const rowNum = index + 2;
+      legendSheet.getRow(rowNum).values = row;
+
+      if (index === 0) {
+        // Header row
+        legendSheet.getRow(rowNum).font = { bold: true };
+        legendSheet.getRow(rowNum).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFE5E7EB" },
+        };
+      } else {
+        // Data rows with color coding
+        const statusCell = legendSheet.getCell(rowNum, 1);
+
+        if (row[0].includes("✓")) {
+          statusCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFD1FAE5" },
+          };
+        } else if (row[0].includes("✗")) {
+          statusCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFEE2E2" },
+          };
+        } else if (row[0].includes("Not Eligible")) {
+          statusCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFEF3C7" },
+          };
+        }
+      }
+    });
+
+    legendSheet.columns = [{ width: 20 }, { width: 50 }];
+
+    // Generate Excel file
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Set response headers
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="students_company_matrix_${batchYear}_${Date.now()}.xlsx"`
+    );
+    res.setHeader("Content-Length", buffer.length);
+
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error in students company matrix export:", error);
+    next(error);
+  }
+});
 
 module.exports = routes;

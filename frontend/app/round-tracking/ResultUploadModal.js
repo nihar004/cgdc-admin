@@ -123,6 +123,7 @@ const ResultUploadModal = ({
       // Use FormData for file upload
       const formData = new FormData();
       formData.append("file", selectedFile);
+      formData.append("positionId", positionId);
 
       const response = await axios.post(
         `${backendUrl}/round-tracking/events/${eventId}/upload-results`,

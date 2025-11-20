@@ -136,7 +136,7 @@ async function calculateEligibleStudents(db, companyId, batchId) {
           passesAcademicCriteria = false;
         }
 
-        if (company.max_backlogs === true && student.backlogs > 0) {
+        if (company.max_backlogs === false && student.backlogs > 0) {
           passesAcademicCriteria = false;
         }
 
@@ -338,7 +338,7 @@ async function isStudentEligible(db, companyId, studentId) {
       // Still check academic criteria
       for (const pos of positionsRes.rows) {
         if (cgpa < (pos.min_cgpa || 0)) continue;
-        if (pos.max_backlogs === true && backlogs > 0) continue;
+        if (pos.max_backlogs === false && backlogs > 0) continue;
         if (pos.eligibility_10th && class_10_percentage < pos.eligibility_10th)
           continue;
         if (pos.eligibility_12th && class_12_percentage < pos.eligibility_12th)
@@ -397,8 +397,8 @@ async function isStudentEligible(db, companyId, studentId) {
       // Academic + branch filters
       if (cgpa < (min_cgpa || 0)) continue;
 
-      // max_backlogs is now BOOLEAN: true = no backlogs allowed
-      if (max_backlogs === true && backlogs > 0) continue;
+      // max_backlogs is now BOOLEAN: true = backlogs allowed
+      if (max_backlogs === false && backlogs > 0) continue;
 
       // 10th marks check
       if (pos.eligibility_10th && class_10_percentage < pos.eligibility_10th)

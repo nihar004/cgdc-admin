@@ -494,7 +494,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                 <div>
                   <span className="text-gray-600">Backlogs:</span>
                   <span className="ml-2 font-medium text-gray-900">
-                    {briefInfo.eligibility_criteria.max_backlogs === true
+                    {briefInfo.eligibility_criteria.max_backlogs === false
                       ? "Not Allowed"
                       : "Allowed"}
                   </span>
