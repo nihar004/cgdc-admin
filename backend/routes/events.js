@@ -1134,8 +1134,8 @@ routes.post("/:id/attendance", async (req, res) => {
       try {
         // ✅ Mark attendance
         const attendanceResult = await client.query(
-          `INSERT INTO event_attendance (event_id, student_id, status, marked_at)
-           VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+          `INSERT INTO event_attendance (event_id, student_id, status, remarks, marked_at)
+           VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
            ON CONFLICT (event_id, student_id)
            DO UPDATE SET 
              status = EXCLUDED.status,
