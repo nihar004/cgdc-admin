@@ -837,7 +837,7 @@ function CompanyCard({
       </div>
 
       {/* Summary Stats */}
-      <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
           <div className="text-2xl font-bold text-blue-600">
             {company.totalEligible || 0}
@@ -853,12 +853,6 @@ function CompanyCard({
         <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
           <div className="text-2xl font-bold text-emerald-600">
             {company.totalSelected || 0}
-          </div>
-          <div className="text-xs text-gray-600">Selected</div>
-        </div>
-        <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-          <div className="text-2xl font-bold text-orange-600">
-            {company.totalPlaced || 0}
           </div>
           <div className="text-xs text-gray-600">Placed</div>
         </div>
