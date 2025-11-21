@@ -6,7 +6,11 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { getStudentsList } from "../services/analyticsService";
+import {
+  getStudentsList,
+  exportStudentsCompanyMatrix,
+  exportStudentOffers,
+} from "../services/analyticsService";
 import * as XLSX from "xlsx";
 
 export default function Students({ batchYear, setSelectedStudent, setView }) {
@@ -15,6 +19,7 @@ export default function Students({ batchYear, setSelectedStudent, setView }) {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [exportLoading, setExportLoading] = useState(false);
 
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -95,84 +100,54 @@ export default function Students({ batchYear, setSelectedStudent, setView }) {
     fetchStudents(newOffset);
   };
 
-  // Export to Excel (export all records, not just current page)
-  const handleExportToExcel = async () => {
+  // Export students with company matrix
+  const handleExportStudentsMatrix = async () => {
+    setExportLoading(true);
     try {
-      setLoading(true);
+      const placementStatus = filterStatus !== "all" ? filterStatus : "";
 
-      // Fetch all students without pagination for export
-      const result = await getStudentsList(batchYear, {
-        search: searchTerm,
-        placementStatus: filterStatus !== "all" ? filterStatus : "",
-        department: "all",
-        limit: 10000, // Large limit to get all
-        offset: 0,
-      });
+      const blob = await exportStudentsCompanyMatrix(
+        batchYear,
+        placementStatus
+      );
 
-      if (!result.success)
-        throw new Error("Failed to fetch students for export");
-
-      const exportStudents = result.data.students;
-
-      if (exportStudents.length === 0) {
-        alert("No students to export");
-        return;
-      }
-
-      const exportData = exportStudents.map((student) => ({
-        "Full Name": student.fullName,
-        "Registration Number": student.registrationNumber,
-        Email: student.email,
-        CGPA: student.cgpa || "-",
-        "10th Percentage": student.class10Percentage || "-",
-        "12th Percentage": student.class12Percentage || "-",
-        Backlogs: student.backlogs || 0,
-        "Placement Status":
-          student.placementStatus === "placed" ? "Placed" : "Unplaced",
-        "Company Name": student.currentOffer?.companyName || "-",
-        "Position Title": student.currentOffer?.positionTitle || "-",
-        Package: student.currentOffer
-          ? student.currentOffer.hasRange
-            ? `${student.currentOffer.package} - ${student.currentOffer.packageEnd} LPA`
-            : `${student.currentOffer.package} LPA`
-          : "-",
-        "Offer Date": student.currentOffer?.offerDate || "-",
-        "Offer Source": student.currentOffer?.source || "-",
-        "Total Eligible Companies": student.totalEligibleCompanies || 0,
-        "Total Applications": student.totalApplications || 0,
-        "Active Applications": student.activeApplications || 0,
-        "Total Offers Received": student.offersReceived || 0,
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(exportData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
-
-      // Auto-size columns
-      const columnWidths = Array(
-        exportData[0] ? Object.keys(exportData[0]).length : 0
-      ).fill({ wch: 20 });
-      worksheet["!cols"] = columnWidths;
-
-      // Style the header (first row)
-      const headerRow = Object.keys(exportData[0] || {});
-      headerRow.forEach((_, idx) => {
-        const cell = worksheet[XLSX.utils.encode_cell({ r: 0, c: idx })];
-        if (cell) {
-          cell.s = {
-            font: { bold: true, color: { rgb: "FFFFFF" } },
-            fill: { fgColor: { rgb: "1F4E78" } },
-            alignment: { horizontal: "center", vertical: "center" },
-          };
-        }
-      });
-
-      XLSX.writeFile(workbook, `students-export-${Date.now()}.xlsx`);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `students-company-matrix-${batchYear}-${Date.now()}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Export error:", err);
-      alert("Failed to export data");
+      alert("Failed to export students matrix");
     } finally {
-      setLoading(false);
+      setExportLoading(false);
+    }
+  };
+
+  // Export student offers
+  const handleExportStudentOffers = async () => {
+    setExportLoading(true);
+    try {
+      const placementStatus = filterStatus !== "all" ? filterStatus : "";
+
+      const blob = await exportStudentOffers(batchYear, placementStatus);
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `student-offers-${batchYear}-${Date.now()}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export error:", err);
+      alert("Failed to export student offers");
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -213,12 +188,20 @@ export default function Students({ batchYear, setSelectedStudent, setView }) {
           </select>
         </div>
         <button
-          onClick={handleExportToExcel}
-          disabled={pagination.total === 0 || loading}
+          onClick={handleExportStudentsMatrix}
+          disabled={pagination.total === 0 || exportLoading}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
         >
           <Download className="w-4 h-4" />
-          Export All
+          {exportLoading ? "Exporting..." : "Export Students List"}
+        </button>
+        <button
+          onClick={handleExportStudentOffers}
+          disabled={pagination.total === 0 || exportLoading}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
+        >
+          <Download className="w-4 h-4" />
+          {exportLoading ? "Exporting..." : "Export Student Offers"}
         </button>
       </div>
 

@@ -185,3 +185,64 @@ export const getStudentEligibleCompanies = async (studentId) => {
     throw error;
   }
 };
+
+// ===================== EXPORT STUDENTS WITH COMPANY MATRIX =====================
+export const exportStudentsCompanyMatrix = async (
+  batchYear,
+  placementStatus = ""
+) => {
+  try {
+    const params = {};
+    if (placementStatus && placementStatus.trim() !== "") {
+      params.placementStatus = placementStatus;
+    }
+
+    const response = await axios.get(
+      `${API_BASE_URL}/student-analytics/batch/${batchYear}/students/export`,
+      {
+        params,
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting students company matrix:", error);
+    throw error;
+  }
+};
+
+// ===================== EXPORT STUDENT OFFERS =====================
+export const exportStudentOffers = async (batchYear, placementStatus = "") => {
+  try {
+    const params = {};
+    if (placementStatus && placementStatus.trim() !== "") {
+      params.placementStatus = placementStatus;
+    }
+
+    const response = await axios.get(
+      `${API_BASE_URL}/student-analytics/batch/${batchYear}/students/offers-export`,
+      {
+        params,
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting student offers:", error);
+    throw error;
+  }
+};
+
+// ===================== EXPORT ALL COMPANIES =====================
+export const exportAllCompanies = async (batchYear) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/student-analytics/batch/${batchYear}/export-all-companies`,
+      { responseType: "blob" }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting all companies:", error);
+    throw error;
+  }
+};

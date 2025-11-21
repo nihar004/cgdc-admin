@@ -1893,7 +1893,7 @@ routes.get(
 routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
   try {
     const { batchYear } = req.params;
-    const { placementStatus, department } = req.query;
+    const { placementStatus } = req.query;
 
     let whereClause = "WHERE s.batch_year = $1";
     const params = [batchYear];
@@ -1903,12 +1903,6 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       paramCount++;
       whereClause += ` AND s.placement_status = $${paramCount}`;
       params.push(placementStatus);
-    }
-
-    if (department && department !== "all") {
-      paramCount++;
-      whereClause += ` AND s.branch = $${paramCount}`;
-      params.push(department);
     }
 
     // 1. Get all students with their basic info
@@ -1931,6 +1925,39 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
         cp.package as current_package,
         cp.package_end as current_package_end,
         cp.has_range as current_has_range,
+        
+        -- Source (campus or manual)
+        COALESCE(s.current_offer->>'source', 'campus') as offer_source,
+        
+        -- Total eligible companies
+        (SELECT COUNT(*)
+         FROM company_eligibility ce
+         INNER JOIN batches b ON ce.batch_id = b.id
+         WHERE b.year = s.batch_year
+           AND EXISTS (
+             SELECT 1
+             FROM jsonb_array_elements(ce.eligible_student_ids) elem
+             WHERE elem::int = s.id
+           )
+        ) AS total_eligible_companies,
+        
+        -- Total applications (distinct companies applied)
+        (SELECT COUNT(DISTINCT e.company_id)
+         FROM event_attendance ea
+         INNER JOIN events e ON ea.event_id = e.id
+         WHERE ea.student_id = s.id
+           AND e.is_placement_event = TRUE
+           AND ea.status != 'absent') AS total_applications,
+        
+        -- Active applications (distinct companies with pending rounds)
+        (SELECT COUNT(DISTINCT e.company_id)
+         FROM student_round_results srr
+         INNER JOIN events e ON srr.event_id = e.id
+         WHERE srr.student_id = s.id
+           AND srr.result_status = 'pending'
+           AND e.is_placement_event = TRUE) AS active_applications,
+        
+        -- Total offers received
         (SELECT COUNT(DISTINCT e.company_id)
          FROM student_round_results srr
          INNER JOIN events e ON srr.event_id = e.id
@@ -1938,6 +1965,7 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
            AND srr.result_status = 'selected'
            AND e.round_type = 'last'
            AND e.is_placement_event = TRUE) AS total_offers
+           
       FROM students s
       LEFT JOIN specializations sp ON s.specialization_id = sp.id
       LEFT JOIN companies c ON c.id = (s.current_offer->>'company_id')::INTEGER
@@ -2047,7 +2075,7 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       size: 11,
     };
 
-    // Build headers
+    // Build headers - UPDATED with new columns
     const headers = [
       "S.No",
       "Registration Number",
@@ -2060,10 +2088,14 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       "12th %",
       "Backlogs",
       "Placement Status",
+      "Source", // NEW
       "Current Company",
       "Current Position",
       "Current Package",
-      "Total Offers",
+      "Total Eligible Companies", // NEW
+      "Total Applications", // NEW
+      "Active Applications", // NEW
+      "Total Offers Received", // NEW (moved from end)
     ];
 
     // Add company headers
@@ -2081,7 +2113,8 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       wrapText: true,
     };
 
-    // Set column widths
+    // Set column widths - UPDATED
+    const staticColumnsCount = 19; // Updated count
     worksheet.columns = [
       { width: 8 }, // S.No
       { width: 18 }, // Registration
@@ -2094,10 +2127,14 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       { width: 10 }, // 12th
       { width: 10 }, // Backlogs
       { width: 15 }, // Status
+      { width: 12 }, // Source
       { width: 20 }, // Current Company
       { width: 20 }, // Current Position
       { width: 15 }, // Current Package
-      { width: 12 }, // Total Offers
+      { width: 18 }, // Total Eligible Companies
+      { width: 16 }, // Total Applications
+      { width: 16 }, // Active Applications
+      { width: 18 }, // Total Offers Received
       // Company columns
       ...companies.map(() => ({ width: 15 })),
     ];
@@ -2130,6 +2167,7 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
           : "N/A",
         student.backlogs || 0,
         student.placement_status === "placed" ? "Placed" : "Unplaced",
+        student.offer_source === "manual" ? "Manual" : "Campus", // NEW
         student.current_company || "—",
         student.current_position || "—",
         student.current_package
@@ -2137,7 +2175,10 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
             ? `₹${student.current_package}-${student.current_package_end} LPA`
             : `₹${student.current_package} LPA`
           : "—",
-        student.total_offers || 0,
+        parseInt(student.total_eligible_companies) || 0, // NEW
+        parseInt(student.total_applications) || 0, // NEW
+        parseInt(student.active_applications) || 0, // NEW
+        parseInt(student.total_offers) || 0, // MOVED
       ];
 
       const rowNumber = index + 2;
@@ -2168,7 +2209,7 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
         } else if (isEligible) {
           if (hasRegistered) {
             // Registered - Green background with tick
-            cellValue = "✓ Registered";
+            cellValue = "✓";
             cellFill = {
               type: "pattern",
               pattern: "solid",
@@ -2176,7 +2217,7 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
             };
           } else {
             // Not Registered - Red background with cross
-            cellValue = "✗ Not Registered";
+            cellValue = "✗";
             cellFill = {
               type: "pattern",
               pattern: "solid",
@@ -2192,13 +2233,16 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
 
         rowData.push(cellValue);
 
-        // Set cell styling
-        const companyColumnIndex = 15 + companyIndex + 1; // +1 for Excel 1-based indexing
+        // Set cell styling - FIXED: Column index calculation
+        const companyColumnIndex = staticColumnsCount + companyIndex + 1; // +1 for Excel 1-based indexing
         const cell = worksheet.getCell(rowNumber, companyColumnIndex);
 
+        // Apply fill BEFORE setting value
         if (cellFill) {
           cell.fill = cellFill;
         }
+
+        cell.value = cellValue;
 
         cell.alignment = {
           horizontal: "center",
@@ -2210,8 +2254,11 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
         };
       });
 
-      // Set row values
-      worksheet.getRow(rowNumber).values = rowData;
+      // Set row values (only static columns, company cells already set)
+      const staticRowData = rowData.slice(0, staticColumnsCount);
+      for (let col = 1; col <= staticColumnsCount; col++) {
+        worksheet.getCell(rowNumber, col).value = staticRowData[col - 1];
+      }
 
       // Add borders to all cells
       worksheet.getRow(rowNumber).eachCell((cell) => {
@@ -2223,11 +2270,15 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
         };
       });
 
-      // Alternate row coloring for basic info columns (first 15 columns)
+      // Alternate row coloring for basic info columns
       if (index % 2 === 0) {
-        for (let col = 1; col <= 15; col++) {
+        for (let col = 1; col <= staticColumnsCount; col++) {
           const cell = worksheet.getCell(rowNumber, col);
-          if (!cell.fill || !cell.fill.fgColor) {
+          if (
+            !cell.fill ||
+            !cell.fill.fgColor ||
+            cell.fill.fgColor.argb === "FFFFFFFF"
+          ) {
             cell.fill = {
               type: "pattern",
               pattern: "solid",
@@ -2268,21 +2319,40 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       ["Not Eligible", "Student does not meet eligibility criteria"],
       ["💎", "Dream company for this student"],
       ["⭐", "Marquee company"],
+      ["", ""],
+      ["Column Definitions", ""],
+      [
+        "Source",
+        "Campus (on-campus placement) or Manual (off-campus/self-placed)",
+      ],
+      [
+        "Total Eligible Companies",
+        "Number of companies student is eligible to apply for",
+      ],
+      [
+        "Total Applications",
+        "Number of companies student has applied/registered for",
+      ],
+      [
+        "Active Applications",
+        "Companies where student is still in selection process",
+      ],
+      ["Total Offers Received", "Number of job offers received by the student"],
     ];
 
     legendData.forEach((row, index) => {
       const rowNum = index + 2;
       legendSheet.getRow(rowNum).values = row;
 
-      if (index === 0) {
-        // Header row
+      if (index === 0 || index === 7) {
+        // Header rows
         legendSheet.getRow(rowNum).font = { bold: true };
         legendSheet.getRow(rowNum).fill = {
           type: "pattern",
           pattern: "solid",
           fgColor: { argb: "FFE5E7EB" },
         };
-      } else {
+      } else if (index > 0 && index < 6) {
         // Data rows with color coding
         const statusCell = legendSheet.getCell(rowNum, 1);
 
@@ -2308,7 +2378,7 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
       }
     });
 
-    legendSheet.columns = [{ width: 20 }, { width: 50 }];
+    legendSheet.columns = [{ width: 25 }, { width: 60 }];
 
     // Generate Excel file
     const buffer = await workbook.xlsx.writeBuffer();
@@ -2327,6 +2397,1148 @@ routes.get("/batch/:batchYear/students/export", async (req, res, next) => {
     res.send(buffer);
   } catch (error) {
     console.error("Error in students company matrix export:", error);
+    next(error);
+  }
+});
+
+// EXPORT ALL STUDENT OFFERS
+routes.get(
+  "/batch/:batchYear/students/offers-export",
+  async (req, res, next) => {
+    try {
+      const { batchYear } = req.params;
+      const { placementStatus } = req.query;
+
+      let whereClause = "WHERE s.batch_year = $1";
+      const params = [batchYear];
+      let paramCount = 1;
+
+      if (placementStatus && placementStatus === "placed") {
+        paramCount++;
+        whereClause += ` AND s.placement_status = $${paramCount}`;
+        params.push(placementStatus);
+      }
+
+      // 1. Get all students with basic info
+      const studentsQuery = `
+      SELECT
+        s.id,
+        s.registration_number,
+        s.full_name,
+        s.placement_status
+      FROM students s
+      ${whereClause}
+      ORDER BY s.full_name
+    `;
+
+      const studentsResult = await db.query(studentsQuery, params);
+      const students = studentsResult.rows;
+
+      if (students.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No students found",
+        });
+      }
+
+      // 2. Get all offers for these students
+      const studentIds = students.map((s) => s.id);
+
+      const offersQuery = `
+      SELECT 
+        srr.student_id,
+        c.company_name,
+        cp.position_title,
+        cp.package,
+        cp.package_end,
+        cp.has_range,
+        cp.job_type,
+        e.event_date as selection_date,
+        srr.created_at as offer_date
+      FROM student_round_results srr
+      INNER JOIN events e ON srr.event_id = e.id
+      INNER JOIN companies c ON e.company_id = c.id
+      LEFT JOIN company_positions cp ON cp.id = ANY(e.position_ids)
+      WHERE srr.student_id = ANY($1)
+        AND srr.result_status = 'selected'
+        AND e.round_type = 'last'
+        AND e.is_placement_event = TRUE
+      ORDER BY srr.student_id, srr.created_at
+    `;
+
+      const offersResult = await db.query(offersQuery, [studentIds]);
+
+      // 3. Organize offers by student
+      const studentOffersMap = new Map();
+      let maxOffers = 0;
+
+      offersResult.rows.forEach((offer) => {
+        if (!studentOffersMap.has(offer.student_id)) {
+          studentOffersMap.set(offer.student_id, []);
+        }
+
+        const offers = studentOffersMap.get(offer.student_id);
+        offers.push({
+          companyName: offer.company_name,
+          positionTitle: offer.position_title,
+          package: offer.package,
+          packageEnd: offer.package_end,
+          hasRange: offer.has_range,
+          jobType: offer.job_type,
+          selectionDate: offer.selection_date || offer.offer_date,
+        });
+
+        maxOffers = Math.max(maxOffers, offers.length);
+      });
+
+      // 4. Create Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "Placement Management System";
+      workbook.created = new Date();
+
+      const worksheet = workbook.addWorksheet("Student Offers");
+
+      // Styling
+      const headerFill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF2563EB" },
+      };
+      const subHeaderFill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF60A5FA" },
+      };
+      const headerFont = {
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+        size: 11,
+      };
+
+      // 5. Create merged header row (Row 1)
+      const row1Values = [
+        "S.No",
+        "Registration Number",
+        "Full Name",
+        "Placement Status",
+      ];
+      let currentCol = 5;
+
+      // Add offer group headers
+      for (let i = 1; i <= maxOffers; i++) {
+        row1Values.push(`Placed Company ${i}`);
+        row1Values.push("", "", ""); // Placeholders for merged cells
+        currentCol += 4;
+      }
+      row1Values.push("Highest CTC Received (in LPA)");
+
+      worksheet.getRow(1).values = row1Values;
+
+      // Merge cells for each offer group in row 1
+      let mergeCol = 5;
+      for (let i = 1; i <= maxOffers; i++) {
+        worksheet.mergeCells(1, mergeCol, 1, mergeCol + 3);
+        mergeCol += 4;
+      }
+
+      // Style row 1
+      worksheet.getRow(1).font = headerFont;
+      worksheet.getRow(1).fill = headerFill;
+      worksheet.getRow(1).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
+      worksheet.getRow(1).height = 25;
+
+      // 6. Create sub-header row (Row 2)
+      const row2Values = ["", "", "", ""]; // Empty for student info columns
+
+      // Add sub-headers for each offer group
+      for (let i = 1; i <= maxOffers; i++) {
+        row2Values.push("Company Name");
+        row2Values.push("Date of Selection");
+        row2Values.push("Profile Offered");
+        row2Values.push("CTC Offered (in LPA)");
+      }
+      row2Values.push(""); // Empty for highest CTC column
+
+      worksheet.getRow(2).values = row2Values;
+      worksheet.getRow(2).font = headerFont;
+      worksheet.getRow(2).fill = subHeaderFill;
+      worksheet.getRow(2).alignment = {
+        horizontal: "center",
+        vertical: "middle",
+        wrapText: true,
+      };
+      worksheet.getRow(2).height = 30;
+
+      // Merge student info cells in row 2
+      worksheet.mergeCells(2, 1, 2, 1); // S.No
+      worksheet.mergeCells(2, 2, 2, 2); // Registration Number
+      worksheet.mergeCells(2, 3, 2, 3); // Full Name
+      worksheet.mergeCells(2, 4, 2, 4); // Placement Status
+      worksheet.mergeCells(2, 5 + maxOffers * 4, 2, 5 + maxOffers * 4); // Highest CTC
+
+      // 7. Set column widths
+      const columnWidths = [
+        { width: 8 }, // S.No
+        { width: 18 }, // Registration Number
+        { width: 25 }, // Full Name
+        { width: 15 }, // Placement Status
+      ];
+
+      // Add widths for offer columns
+      for (let i = 0; i < maxOffers; i++) {
+        columnWidths.push({ width: 25 }); // Company Name
+        columnWidths.push({ width: 18 }); // Date of Selection
+        columnWidths.push({ width: 25 }); // Profile Offered
+        columnWidths.push({ width: 18 }); // CTC Offered
+      }
+      columnWidths.push({ width: 20 }); // Highest CTC
+
+      worksheet.columns = columnWidths;
+
+      // 8. Add student data
+      students.forEach((student, index) => {
+        const rowNumber = index + 3;
+        const studentOffers = studentOffersMap.get(student.id) || [];
+
+        // Calculate highest CTC
+        let highestCTC = 0;
+        studentOffers.forEach((offer) => {
+          const ctc =
+            offer.hasRange && offer.packageEnd
+              ? parseFloat(offer.packageEnd)
+              : parseFloat(offer.package);
+
+          highestCTC = Math.max(highestCTC, ctc);
+        });
+
+        const rowData = [
+          index + 1,
+          student.registration_number,
+          student.full_name,
+          student.placement_status === "placed" ? "Placed" : "Unplaced",
+        ];
+
+        // Add offer data
+        for (let i = 0; i < maxOffers; i++) {
+          if (i < studentOffers.length) {
+            const offer = studentOffers[i];
+
+            rowData.push(offer.companyName || "—");
+
+            rowData.push(
+              offer.selectionDate
+                ? new Date(offer.selectionDate).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                : "—"
+            );
+
+            rowData.push(offer.positionTitle || "—");
+
+            const ctc =
+              offer.hasRange && offer.packageEnd
+                ? `${offer.package}-${offer.packageEnd}`
+                : offer.package
+                ? parseFloat(offer.package).toFixed(2)
+                : "—";
+            rowData.push(ctc);
+          } else {
+            // Empty cells for students with fewer offers
+            rowData.push("", "", "", "");
+          }
+        }
+
+        // Add highest CTC
+        rowData.push(highestCTC > 0 ? parseFloat(highestCTC).toFixed(2) : "—");
+
+        worksheet.getRow(rowNumber).values = rowData;
+
+        // Style the row
+        worksheet.getRow(rowNumber).alignment = {
+          vertical: "middle",
+        };
+
+        // Center align specific columns
+        const centerAlignCols = [1, 4]; // S.No, Placement Status
+        // Add date and CTC columns
+        for (let i = 0; i < maxOffers; i++) {
+          centerAlignCols.push(6 + i * 4); // Date columns
+          centerAlignCols.push(7 + i * 4); // CTC columns
+        }
+        centerAlignCols.push(5 + maxOffers * 4); // Highest CTC
+
+        centerAlignCols.forEach((col) => {
+          const cell = worksheet.getCell(rowNumber, col);
+          cell.alignment = {
+            horizontal: "center",
+            vertical: "middle",
+          };
+        });
+
+        // Add borders to all cells
+        worksheet.getRow(rowNumber).eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin", color: { argb: "FFE5E7EB" } },
+            left: { style: "thin", color: { argb: "FFE5E7EB" } },
+            bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
+            right: { style: "thin", color: { argb: "FFE5E7EB" } },
+          };
+        });
+
+        // Alternate row coloring
+        if (index % 2 === 0) {
+          worksheet.getRow(rowNumber).eachCell((cell) => {
+            if (!cell.fill || !cell.fill.fgColor) {
+              cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFF9FAFB" },
+              };
+            }
+          });
+        }
+
+        // Highlight highest CTC cell
+        const highestCTCCell = worksheet.getCell(rowNumber, 5 + maxOffers * 4);
+        if (highestCTC > 0) {
+          highestCTCCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFEF3C7" }, // Light yellow
+          };
+          highestCTCCell.font = {
+            bold: true,
+          };
+        }
+      });
+
+      // Add borders to header rows
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.border = {
+          top: { style: "medium" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+
+      worksheet.getRow(2).eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "medium" },
+          right: { style: "thin" },
+        };
+      });
+
+      // Freeze first 2 rows and first 3 columns
+      worksheet.views = [
+        {
+          state: "frozen",
+          xSplit: 3,
+          ySplit: 2,
+          topLeftCell: "D3",
+        },
+      ];
+
+      // 9. Add summary sheet
+      const summarySheet = workbook.addWorksheet("Summary");
+
+      summarySheet.mergeCells("A1:B1");
+      summarySheet.getCell("A1").value = "PLACEMENT SUMMARY";
+      summarySheet.getCell("A1").font = { bold: true, size: 14 };
+      summarySheet.getCell("A1").alignment = { horizontal: "center" };
+      summarySheet.getCell("A1").fill = headerFill;
+      summarySheet.getCell("A1").font = { ...headerFont, size: 14 };
+
+      const totalPlaced = students.filter(
+        (s) => s.placement_status === "placed"
+      ).length;
+      const totalStudents = students.length;
+      const placementPercentage = ((totalPlaced / totalStudents) * 100).toFixed(
+        2
+      );
+
+      const summaryData = [
+        ["Metric", "Value"],
+        ["Total Students", totalStudents],
+        ["Students Placed", totalPlaced],
+        ["Students Unplaced", totalStudents - totalPlaced],
+        ["Placement Percentage", `${placementPercentage}%`],
+        ["Maximum Offers to Single Student", maxOffers],
+        ["Total Offers Made", offersResult.rows.length],
+      ];
+
+      summaryData.forEach((row, index) => {
+        const rowNum = index + 2;
+        summarySheet.getRow(rowNum).values = row;
+
+        if (index === 0) {
+          summarySheet.getRow(rowNum).font = { bold: true };
+          summarySheet.getRow(rowNum).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE5E7EB" },
+          };
+        }
+
+        summarySheet.getRow(rowNum).eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        });
+      });
+
+      summarySheet.columns = [{ width: 30 }, { width: 20 }];
+
+      // 10. Generate Excel file
+      const buffer = await workbook.xlsx.writeBuffer();
+
+      // Set response headers
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="student_offers_${batchYear}_${Date.now()}.xlsx"`
+      );
+      res.setHeader("Content-Length", buffer.length);
+
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error in student offers export:", error);
+      next(error);
+    }
+  }
+);
+
+// EXPORT ALL COMPANIES FOR A BATCH
+routes.get("/batch/:batchYear/export-all-companies", async (req, res, next) => {
+  try {
+    const { batchYear } = req.params;
+
+    // 1. Get all companies for this batch
+    const companiesQuery = `
+      SELECT DISTINCT
+        c.id,
+        c.company_name,
+        c.sector,
+        c.website_url,
+        c.office_address,
+        c.work_locations,
+        c.glassdoor_rating,
+        c.scheduled_visit,
+        c.bond_required,
+        c.min_cgpa,
+        c.max_backlogs,
+        c.eligibility_10th,
+        c.eligibility_12th,
+        c.is_marquee,
+        c.allowed_specializations
+      FROM companies c
+      INNER JOIN company_batches cb ON c.id = cb.company_id
+      INNER JOIN batches b ON cb.batch_id = b.id
+      WHERE b.year = $1
+      ORDER BY c.scheduled_visit DESC NULLS LAST, c.company_name
+    `;
+    const companiesResult = await db.query(companiesQuery, [batchYear]);
+    const companies = companiesResult.rows;
+
+    if (companies.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No companies found for this batch",
+      });
+    }
+
+    // Get batch ID
+    const batchQuery = `SELECT id FROM batches WHERE year = $1`;
+    const batchResult = await db.query(batchQuery, [batchYear]);
+    const batchId = batchResult.rows[0].id;
+
+    // Create Excel workbook
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = "Placement Management System";
+    workbook.created = new Date();
+
+    const headerFill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF1F4E78" },
+    };
+    const subHeaderFill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF4472C4" },
+    };
+    const sectionHeaderFill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFD9E2F3" },
+    };
+    const headerFont = {
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+      size: 11,
+    };
+
+    // Process each company
+    for (
+      let companyIndex = 0;
+      companyIndex < companies.length;
+      companyIndex++
+    ) {
+      const company = companies[companyIndex];
+
+      try {
+        // Get eligibility data
+        const eligibilityQuery = `
+          SELECT 
+            ce.eligible_student_ids,
+            ce.ineligible_student_ids,
+            ce.dream_company_student_ids
+          FROM company_eligibility ce
+          WHERE ce.company_id = $1 AND ce.batch_id = $2
+        `;
+        const eligibilityResult = await db.query(eligibilityQuery, [
+          company.id,
+          batchId,
+        ]);
+
+        const eligibilityData = eligibilityResult.rows[0] || {
+          eligible_student_ids: [],
+          ineligible_student_ids: [],
+          dream_company_student_ids: [],
+        };
+
+        const totalEligible = Array.isArray(
+          eligibilityData.eligible_student_ids
+        )
+          ? eligibilityData.eligible_student_ids.length
+          : 0;
+        const totalIneligible = Array.isArray(
+          eligibilityData.ineligible_student_ids
+        )
+          ? eligibilityData.ineligible_student_ids.length
+          : 0;
+
+        // Get registration count
+        const registrationQuery = `
+          SELECT COUNT(DISTINCT fr.student_id) as total_registered
+          FROM form_responses fr
+          INNER JOIN forms f ON fr.form_id = f.id
+          INNER JOIN events e ON f.event_id = e.id
+          WHERE e.company_id = $1 AND f.batch_year = $2
+        `;
+        const registrationResult = await db.query(registrationQuery, [
+          company.id,
+          batchYear,
+        ]);
+        const totalRegistered =
+          parseInt(registrationResult.rows[0].total_registered) || 0;
+
+        // Get all positions
+        const positionsQuery = `
+          SELECT 
+            cp.id,
+            cp.position_title,
+            cp.job_type,
+            cp.company_type,
+            cp.package,
+            cp.package_end,
+            cp.has_range,
+            cp.internship_stipend_monthly,
+            cp.rounds_start_date,
+            cp.rounds_end_date,
+            cp.is_active
+          FROM company_positions cp
+          WHERE cp.company_id = $1
+          ORDER BY cp.created_at
+        `;
+        const positionsResult = await db.query(positionsQuery, [company.id]);
+        const positions = positionsResult.rows;
+
+        // Get all events
+        const eventsQuery = `
+          SELECT 
+            e.id,
+            e.title,
+            e.event_date as date,
+            e.start_time,
+            e.end_time,
+            e.venue,
+            e.mode,
+            e.status,
+            e.round_type,
+            e.round_number,
+            e.position_ids,
+            e.event_type,
+            
+            (SELECT COUNT(*) FROM event_attendance ea 
+             WHERE ea.event_id = e.id AND ea.status = 'present') as present_count,
+            (SELECT COUNT(*) FROM event_attendance ea 
+             WHERE ea.event_id = e.id AND ea.status = 'absent') as absent_count,
+            (SELECT COUNT(*) FROM student_round_results srr 
+             WHERE srr.event_id = e.id AND srr.result_status = 'selected') as selected_count,
+            (SELECT COUNT(*) FROM student_round_results srr 
+             WHERE srr.event_id = e.id AND srr.result_status = 'rejected') as rejected_count,
+            (SELECT COUNT(*) FROM student_round_results srr 
+             WHERE srr.event_id = e.id AND srr.result_status = 'pending') as pending_count
+            
+          FROM events e
+          WHERE e.company_id = $1 
+            AND e.is_placement_event = TRUE
+          ORDER BY e.round_number, e.event_date
+        `;
+        const eventsResult = await db.query(eventsQuery, [company.id]);
+        const events = eventsResult.rows;
+
+        // Get final selections
+        const finalSelectionsQuery = `
+          SELECT 
+            s.id as student_id,
+            (s.current_offer->>'position_id')::INTEGER as position_id
+          FROM students s
+          WHERE s.batch_year = $1
+            AND s.placement_status = 'placed'
+            AND (s.current_offer->>'company_id')::INTEGER = $2
+        `;
+        const finalSelectionsResult = await db.query(finalSelectionsQuery, [
+          batchYear,
+          company.id,
+        ]);
+
+        // Count selections by position
+        const selectionsByPosition = new Map();
+        finalSelectionsResult.rows.forEach((row) => {
+          const count = selectionsByPosition.get(row.position_id) || 0;
+          selectionsByPosition.set(row.position_id, count + 1);
+        });
+
+        // Create sheet for this company
+        const sheetName = `${
+          companyIndex + 1
+        }. ${company.company_name.substring(0, 20)}`;
+        const worksheet = workbook.addWorksheet(sheetName);
+
+        let currentRow = 1;
+
+        // ===== COMPANY INFORMATION SECTION =====
+        worksheet.mergeCells(currentRow, 1, currentRow, 9);
+        let cell = worksheet.getCell(currentRow, 1);
+        cell.value = "COMPANY INFORMATION";
+        cell.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+        cell.fill = headerFill;
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getRow(currentRow).height = 25;
+        currentRow++;
+
+        const companyInfo = [
+          ["Company Name", company.company_name],
+          ["Sector", company.sector || "—"],
+          ["Company Type", company.is_marquee ? "Marquee ⭐" : "Regular"],
+          ["Website", company.website_url || "—"],
+          ["Office Address", company.office_address || "—"],
+          ["Work Locations", company.work_locations || "—"],
+          [
+            "Glassdoor Rating",
+            company.glassdoor_rating ? `${company.glassdoor_rating}/5` : "—",
+          ],
+          [
+            "Scheduled Visit",
+            company.scheduled_visit
+              ? new Date(company.scheduled_visit).toLocaleDateString()
+              : "—",
+          ],
+          ["Bond Required", company.bond_required ? "Yes" : "No"],
+        ];
+
+        companyInfo.forEach((row) => {
+          const r = worksheet.getRow(currentRow);
+          r.getCell(1).value = row[0];
+          r.getCell(1).font = { bold: true, color: { argb: "FF1F4E78" } };
+          r.getCell(1).fill = sectionHeaderFill;
+          r.getCell(2).value = row[1];
+          worksheet.mergeCells(currentRow, 2, currentRow, 9);
+          currentRow++;
+        });
+
+        currentRow++;
+
+        // ===== ELIGIBILITY CRITERIA SECTION =====
+        worksheet.mergeCells(currentRow, 1, currentRow, 9);
+        cell = worksheet.getCell(currentRow, 1);
+        cell.value = "ELIGIBILITY CRITERIA";
+        cell.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+        cell.fill = headerFill;
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getRow(currentRow).height = 25;
+        currentRow++;
+
+        const eligibilityInfo = [
+          ["Minimum CGPA", company.min_cgpa || "—"],
+          ["Minimum 10th %", company.eligibility_10th || "—"],
+          ["Minimum 12th %", company.eligibility_12th || "—"],
+          [
+            "Maximum Backlogs",
+            company.max_backlogs ? "Allowed" : "Not Allowed",
+          ],
+          ["Allowed Specializations", company.allowed_specializations || "All"],
+        ];
+
+        eligibilityInfo.forEach((row) => {
+          const r = worksheet.getRow(currentRow);
+          r.getCell(1).value = row[0];
+          r.getCell(1).font = { bold: true, color: { argb: "FF1F4E78" } };
+          r.getCell(1).fill = sectionHeaderFill;
+          r.getCell(2).value = row[1];
+          worksheet.mergeCells(currentRow, 2, currentRow, 9);
+          currentRow++;
+        });
+
+        currentRow++;
+
+        // ===== STATISTICS SECTION =====
+        worksheet.mergeCells(currentRow, 1, currentRow, 9);
+        cell = worksheet.getCell(currentRow, 1);
+        cell.value = "STATISTICS";
+        cell.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+        cell.fill = headerFill;
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getRow(currentRow).height = 25;
+        currentRow++;
+
+        const statistics = [
+          ["Total Eligible Students", totalEligible],
+          ["Total Ineligible Students", totalIneligible],
+          ["Total Registered Students", totalRegistered],
+          ["Total Final Selections", finalSelectionsResult.rows.length],
+        ];
+
+        statistics.forEach((row) => {
+          const r = worksheet.getRow(currentRow);
+          r.getCell(1).value = row[0];
+          r.getCell(1).font = { bold: true, color: { argb: "FF1F4E78" } };
+          r.getCell(1).fill = sectionHeaderFill;
+          r.getCell(2).value = row[1];
+          r.getCell(2).font = { bold: true, color: { argb: "FF0070C0" } };
+          worksheet.mergeCells(currentRow, 2, currentRow, 9);
+          currentRow++;
+        });
+
+        currentRow++;
+
+        // ===== POSITIONS SECTION =====
+        if (positions.length > 0) {
+          worksheet.mergeCells(currentRow, 1, currentRow, 9);
+          cell = worksheet.getCell(currentRow, 1);
+          cell.value = "POSITIONS";
+          cell.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+          cell.fill = headerFill;
+          cell.alignment = { horizontal: "center", vertical: "middle" };
+          worksheet.getRow(currentRow).height = 25;
+          currentRow++;
+
+          // Positions table header
+          const positionsHeaders = [
+            "Position",
+            "Job Type",
+            "Company Type",
+            "Package (LPA)",
+            "Stipend",
+            "Rounds Start",
+            "Rounds End",
+            "Selected",
+            "Status",
+          ];
+          const headerRow = worksheet.getRow(currentRow);
+          positionsHeaders.forEach((header, idx) => {
+            const cell = headerRow.getCell(idx + 1);
+            cell.value = header;
+            cell.font = headerFont;
+            cell.fill = subHeaderFill;
+            cell.alignment = {
+              horizontal: "center",
+              vertical: "middle",
+              wrapText: true,
+            };
+          });
+          currentRow++;
+
+          // Positions data
+          positions.forEach((position) => {
+            const packageDisplay =
+              position.has_range && position.package_end
+                ? `${position.package} - ${position.package_end}`
+                : position.package;
+
+            const finalCount = selectionsByPosition.get(position.id) || 0;
+
+            const r = worksheet.getRow(currentRow);
+            r.getCell(1).value = position.position_title;
+            r.getCell(2).value = position.job_type?.replace(/_/g, " ") || "—";
+            r.getCell(3).value =
+              position.company_type?.replace(/_/g, " ") || "—";
+            r.getCell(4).value = packageDisplay;
+            r.getCell(5).value = position.internship_stipend_monthly || "—";
+            r.getCell(6).value = position.rounds_start_date
+              ? new Date(position.rounds_start_date).toLocaleDateString()
+              : "—";
+            r.getCell(7).value = position.rounds_end_date
+              ? new Date(position.rounds_end_date).toLocaleDateString()
+              : "—";
+            r.getCell(8).value = finalCount;
+            r.getCell(8).font = { bold: true, color: { argb: "FF0070C0" } };
+            r.getCell(9).value = position.is_active ? "Active" : "Inactive";
+
+            if (position.is_active) {
+              r.getCell(9).fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFC6EFCE" },
+              };
+              r.getCell(9).font = { color: { argb: "FF006100" } };
+            } else {
+              r.getCell(9).fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFFFC7CE" },
+              };
+              r.getCell(9).font = { color: { argb: "FF9C0006" } };
+            }
+
+            r.alignment = { horizontal: "center", vertical: "middle" };
+            currentRow++;
+          });
+
+          currentRow++;
+        }
+
+        // ===== ROUNDS SECTION (GROUPED VERTICALLY BY ROUND NUMBER) =====
+        if (events.length > 0) {
+          // Group events by round number
+          const roundsMap = new Map();
+          events.forEach((event) => {
+            const roundNum = event.round_number || 0;
+            if (!roundsMap.has(roundNum)) {
+              roundsMap.set(roundNum, []);
+            }
+            roundsMap.get(roundNum).push(event);
+          });
+
+          const sortedRoundNumbers = Array.from(roundsMap.keys()).sort(
+            (a, b) => a - b
+          );
+
+          // For each round, show all positions vertically
+          sortedRoundNumbers.forEach((roundNumber) => {
+            const roundEvents = roundsMap.get(roundNumber);
+
+            // Round header
+            worksheet.mergeCells(currentRow, 1, currentRow, 15);
+            cell = worksheet.getCell(currentRow, 1);
+            cell.value = `ROUND ${roundNumber}`;
+            cell.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+            cell.fill = headerFill;
+            cell.alignment = { horizontal: "center", vertical: "middle" };
+            worksheet.getRow(currentRow).height = 25;
+            currentRow++;
+
+            // Table headers
+            const roundHeaders = [
+              "Position(s)",
+              "Event Title",
+              "Event Type",
+              "Round Type",
+              "Date",
+              "Start Time",
+              "End Time",
+              "Venue",
+              "Mode",
+              "Status",
+              "Present",
+              "Absent",
+              "Selected",
+              "Rejected",
+              "Pending",
+            ];
+            const headerRow = worksheet.getRow(currentRow);
+            roundHeaders.forEach((header, idx) => {
+              const cell = headerRow.getCell(idx + 1);
+              cell.value = header;
+              cell.font = { bold: true, size: 10, color: { argb: "FFFFFFFF" } };
+              cell.fill = subHeaderFill;
+              cell.alignment = {
+                horizontal: "center",
+                vertical: "middle",
+                wrapText: true,
+              };
+            });
+            currentRow++;
+
+            // Add each event for this round
+            roundEvents.forEach((event) => {
+              const eventPositionIds = Array.isArray(event.position_ids)
+                ? event.position_ids
+                : [];
+              const positionTitles =
+                positions
+                  .filter((p) => eventPositionIds.includes(p.id))
+                  .map((p) => p.position_title)
+                  .join(", ") || "All Positions";
+
+              const eventTypeLabel =
+                event.event_type === "ONLINE_TEST"
+                  ? "Online Test"
+                  : event.event_type === "INTERVIEW"
+                  ? "Interview"
+                  : event.event_type === "GD"
+                  ? "Group Discussion"
+                  : event.event_type === "PRESENTATION"
+                  ? "Presentation"
+                  : event.event_type === "CODING_ROUND"
+                  ? "Coding Round"
+                  : event.event_type === "HR_ROUND"
+                  ? "HR Round"
+                  : event.event_type === "TECHNICAL_ROUND"
+                  ? "Technical Round"
+                  : event.event_type === "OTHER"
+                  ? "Other"
+                  : event.event_type;
+
+              const r = worksheet.getRow(currentRow);
+              r.getCell(1).value = positionTitles;
+              r.getCell(2).value = event.title;
+              r.getCell(3).value = eventTypeLabel;
+              r.getCell(4).value = event.round_type?.replace(/_/g, " ") || "—";
+              r.getCell(5).value = event.date
+                ? new Date(event.date).toLocaleDateString()
+                : "—";
+              r.getCell(6).value = event.start_time || "—";
+              r.getCell(7).value = event.end_time || "—";
+              r.getCell(8).value = event.venue || "—";
+              r.getCell(9).value = event.mode || "—";
+              r.getCell(10).value = event.status?.replace(/_/g, " ") || "—";
+              r.getCell(11).value = parseInt(event.present_count) || 0;
+              r.getCell(12).value = parseInt(event.absent_count) || 0;
+              r.getCell(13).value = parseInt(event.selected_count) || 0;
+              r.getCell(14).value = parseInt(event.rejected_count) || 0;
+              r.getCell(15).value = parseInt(event.pending_count) || 0;
+
+              // Alternate row coloring
+              if (currentRow % 2 === 0) {
+                for (let col = 1; col <= 15; col++) {
+                  r.getCell(col).fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFF2F2F2" },
+                  };
+                }
+              }
+
+              // Center align numeric columns
+              for (let col = 11; col <= 15; col++) {
+                r.getCell(col).alignment = {
+                  horizontal: "center",
+                  vertical: "middle",
+                };
+                r.getCell(col).font = {
+                  bold: true,
+                  color: { argb: "FF0070C0" },
+                };
+              }
+
+              currentRow++;
+            });
+
+            currentRow++; // Space between rounds
+          });
+        }
+
+        // ===== FINAL SELECTIONS PER POSITION =====
+        if (finalSelectionsResult.rows.length > 0) {
+          // Get full student details for selections
+          const selectedStudentIds = finalSelectionsResult.rows.map(
+            (r) => r.student_id
+          );
+
+          const studentsQuery = `
+    SELECT 
+      s.id,
+      s.registration_number,
+      s.full_name,
+      s.college_email,
+      s.branch,
+      s.cgpa,
+      s.current_offer
+    FROM students s
+    WHERE s.id = ANY($1)
+  `;
+          const studentsResult = await db.query(studentsQuery, [
+            selectedStudentIds,
+          ]);
+          const studentsMap = new Map(
+            studentsResult.rows.map((s) => [s.id, s])
+          );
+
+          // Group selections by position
+          const selectionsByPositionDetails = new Map();
+          finalSelectionsResult.rows.forEach((row) => {
+            const posId = row.position_id;
+            if (!selectionsByPositionDetails.has(posId)) {
+              selectionsByPositionDetails.set(posId, []);
+            }
+            const student = studentsMap.get(row.student_id);
+            if (student) {
+              selectionsByPositionDetails.get(posId).push(student);
+            }
+          });
+
+          // Add section for each position with selections
+          positions.forEach((position) => {
+            const selectedStudents =
+              selectionsByPositionDetails.get(position.id) || [];
+
+            if (selectedStudents.length === 0) return;
+
+            // Position header
+            worksheet.mergeCells(currentRow, 1, currentRow, 9);
+            cell = worksheet.getCell(currentRow, 1);
+            cell.value = `FINAL SELECTIONS - ${position.position_title}`;
+            cell.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FF2E7D32" }, // Green header for selections
+            };
+            cell.alignment = { horizontal: "center", vertical: "middle" };
+            worksheet.getRow(currentRow).height = 25;
+            currentRow++;
+
+            // Column headers
+            const selectionHeaders = [
+              "S.No",
+              "Registration Number",
+              "Full Name",
+              "Email",
+              "Branch",
+              "CGPA",
+              "Source",
+            ];
+
+            const selHeaderRow = worksheet.getRow(currentRow);
+            selectionHeaders.forEach((header, idx) => {
+              const cell = selHeaderRow.getCell(idx + 1);
+              cell.value = header;
+              cell.font = headerFont;
+              cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FF60A5FA" },
+              };
+              cell.alignment = {
+                horizontal: "center",
+                vertical: "middle",
+                wrapText: true,
+              };
+            });
+            currentRow++;
+
+            // Student data
+            selectedStudents.forEach((student, index) => {
+              const offerSource =
+                student.current_offer?.offer_source ||
+                student.current_offer?.source ||
+                "on_campus";
+
+              const r = worksheet.getRow(currentRow);
+              r.getCell(1).value = index + 1;
+              r.getCell(2).value = student.registration_number;
+              r.getCell(3).value = student.full_name;
+              r.getCell(4).value = student.college_email;
+              r.getCell(5).value = student.branch;
+              r.getCell(7).value = student.cgpa
+                ? parseFloat(student.cgpa).toFixed(2)
+                : "—";
+              r.getCell(8).value =
+                offerSource === "manual" ? "Off-Campus" : "On-Campus";
+
+              // Center align S.No, CGPA, Source
+              [1, 7, 8].forEach((col) => {
+                r.getCell(col).alignment = {
+                  horizontal: "center",
+                  vertical: "middle",
+                };
+              });
+
+              // Alternate row coloring
+              if (index % 2 === 0) {
+                for (let col = 1; col <= 8; col++) {
+                  r.getCell(col).fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFF9FAFB" },
+                  };
+                }
+              }
+
+              currentRow++;
+            });
+
+            currentRow++; // Space after each position's selections
+          });
+        }
+
+        // Set column widths
+        worksheet.columns = [
+          { width: 25 },
+          { width: 20 },
+          { width: 18 },
+          { width: 18 },
+          { width: 15 },
+          { width: 15 },
+          { width: 15 },
+          { width: 12 },
+          { width: 12 },
+          { width: 15 },
+          { width: 12 },
+          { width: 12 },
+          { width: 12 },
+          { width: 12 },
+          { width: 12 },
+        ];
+      } catch (error) {
+        console.error(`Error processing company ${company.id}:`, error);
+        continue;
+      }
+    }
+
+    // Generate Excel file
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Set response headers
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="All_Companies_Details_${batchYear}_${Date.now()}.xlsx"`
+    );
+    res.setHeader("Content-Length", buffer.length);
+
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error in all companies export:", error);
     next(error);
   }
 });
