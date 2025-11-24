@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -10,505 +11,625 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Area,
-  AreaChart,
 } from "recharts";
-import {
-  TrendingUp,
-  Building,
-  Target,
-  Award,
-  Users,
-  Briefcase,
-  AlertCircle,
-} from "lucide-react";
 
-import {
-  getBatchOverview,
-  getBatchPlacements,
-  getDepartmentsAnalytics,
-  getCompaniesAnalytics,
-  getCompanyTimeline,
-  getPackagesAnalytics,
-} from "../services/analyticsService";
+import { TrendingUp, Building, Target, Award, AlertCircle } from "lucide-react";
 
-const StatCard = ({ icon: Icon, label, value, subtext, color = "blue" }) => {
-  const colorMap = {
-    blue: "bg-blue-100 text-blue-600",
-    emerald: "bg-emerald-100 text-emerald-600",
-    purple: "bg-purple-100 text-purple-600",
-    orange: "bg-orange-100 text-orange-600",
-    yellow: "bg-yellow-100 text-yellow-600",
-    indigo: "bg-indigo-100 text-indigo-600",
-  };
+import StatCard from "./StatCard";
+
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+// Custom Tooltip for showing companies
+const CustomPlacementTooltip = ({ active, payload, label, monthlyTrends }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const currentMonth = payload[0]?.payload?.monthKey;
+  const monthData = monthlyTrends.find((m) => m.monthKey === currentMonth);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-3">
-        <div
-          className={`w-10 h-10 ${colorMap[color]} rounded-lg flex items-center justify-center`}
-        >
-          <Icon className="w-5 h-5" />
-        </div>
+    <div
+      className="bg-white p-4 rounded-lg shadow-lg border border-gray-200"
+      style={{
+        minWidth: "320px",
+        maxWidth: "480px",
+        width: "auto",
+        position: "relative",
+        zIndex: 9999,
+      }}
+    >
+      <p className="font-bold text-gray-900 mb-3">
+        {payload[0]?.payload?.month}
+      </p>
+
+      {/* Main metrics */}
+      <div className="space-y-2 mb-4 pb-4 border-b border-gray-200">
+        {payload.map((entry, index) => (
+          <div key={index} className="flex justify-between text-sm">
+            <span style={{ color: entry.color }} className="font-semibold">
+              {entry.name}:
+            </span>
+            <span className="text-gray-900 font-bold">
+              {entry.name.includes("Package")
+                ? `₹${entry.value.toFixed(2)}L`
+                : entry.value}
+            </span>
+          </div>
+        ))}
       </div>
-      <div className="space-y-0.5">
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
-        <div className="text-sm font-medium text-gray-600">{label}</div>
-        {subtext && <div className="text-xs text-gray-500">{subtext}</div>}
+
+      {/* Companies section */}
+      {monthData && monthData.companies && monthData.companies.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+            Companies Visited:
+          </p>
+          {monthData.companies.map((company, idx) => (
+            <div
+              key={idx}
+              className="bg-blue-50 p-2 rounded border border-blue-200 text-xs"
+            >
+              <div className="font-semibold text-gray-900">
+                {company.companyName}
+              </div>
+              <div className="text-gray-700 text-xs mt-1 space-y-0.5">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Sector:</span>
+                  <span className="font-medium">{company.sector}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Placed:</span>
+                  <span className="font-medium text-emerald-600">
+                    {company.studentsPlaced} students
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Avg Package:</span>
+                  <span className="font-medium text-orange-600">
+                    ₹{company.avgPackage.toFixed(2)}L
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Highest:</span>
+                  <span className="font-medium text-blue-600">
+                    ₹{company.highestPackage.toFixed(2)}L
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Visit Date:</span>
+                  <span className="font-medium">
+                    {new Date(company.visitDate).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==================== FILTER SECTION ====================
+const FilterSection = ({ selectedDepartment, setSelectedDepartment }) => (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+    <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex items-center gap-4">
+        <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          Department
+        </label>
+        <select
+          className="min-w-[180px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 shadow-sm"
+          value={selectedDepartment}
+          onChange={(e) => setSelectedDepartment(e.target.value)}
+        >
+          <option value="all">All Departments</option>
+          <option value="CSE">CSE</option>
+          <option value="E.Com">E.Com</option>
+          <option value="ME">ME</option>
+        </select>
+      </div>
+    </div>
+  </div>
+);
+
+// ==================== TOP COMPANIES TABLE ====================
+const TopCompaniesTable = ({ companies }) => {
+  if (!companies || companies.length === 0) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">
+          Top Recruiting Companies
+        </h3>
+        <p className="text-gray-500 text-center py-8">
+          No company data available
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
+        <h3 className="text-lg font-bold text-gray-900">
+          Top Recruiting Companies
+        </h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Company
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Sector
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Eligible
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Total Registered
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Students Placed
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Avg Package
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Highest Package
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Success Rate
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {companies.map((company, index) => (
+              <tr
+                key={`${company.companyName}-${index}`}
+                className={`${index < 3 ? "bg-blue-50" : ""} hover:bg-gray-50 transition-colors`}
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                      <span className="text-sm font-bold text-white">
+                        #{index + 1}
+                      </span>
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      {company.companyName}
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-slate-100 text-slate-800">
+                    {company.sector || "N/A"}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {company.totalEligible || 0}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {company.totalRegistered || 0}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                  {company.totalPlaced || 0}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-600">
+                  ₹{parseFloat(company.avgPackage || 0).toFixed(2)} LPA
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
+                  ₹{parseFloat(company.highestPackage || 0).toFixed(2)} LPA
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                  {parseFloat(company.successRate || 0).toFixed(1)}%
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-export default function AnalyticsDashboard({
-  batchYear,
-  selectedDepartment,
-  setSelectedDepartment,
-  timeRange,
-  setTimeRange,
-}) {
+const COLORS = [
+  "#6366f1",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#f97316",
+  "#06b6d4",
+];
+
+export default function AnalyticsDashboard({ batchYear }) {
+  // State management
   const [overview, setOverview] = useState(null);
-  const [placements, setPlacements] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [companies, setCompanies] = useState([]);
-  const [companyTimeline, setCompanyTimeline] = useState([]);
   const [packagesData, setPackagesData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [monthlyStats, setMonthlyStats] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [monthlyTrends, setMonthlyTrends] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
 
+  // Fetch all analytics data
   useEffect(() => {
     const fetchAllData = async () => {
+      if (!batchYear) return;
+
       try {
         setLoading(true);
         setError(null);
 
+        // Fetch all data in parallel
         const [
           overviewRes,
-          placementsRes,
           deptsRes,
           companiesRes,
-          timelineRes,
           packagesRes,
+          monthlyStatsRes,
+          monthlyTrendsRes,
         ] = await Promise.all([
-          getBatchOverview(batchYear),
-          getBatchPlacements(batchYear),
-          getDepartmentsAnalytics(batchYear),
-          getCompaniesAnalytics(batchYear),
-          getCompanyTimeline(batchYear),
-          getPackagesAnalytics(batchYear),
+          axios.get(
+            `${backendUrl}/student-analytics/batch/${batchYear}/overview/filter/${selectedDepartment}`
+          ),
+          axios.get(
+            `${backendUrl}/student-analytics/batch/${batchYear}/departments/filter/${selectedDepartment}`
+          ),
+          axios.get(
+            `${backendUrl}/student-analytics/batch/${batchYear}/top-companies/filter/${selectedDepartment}`
+          ),
+          axios.get(
+            `${backendUrl}/student-analytics/batch/${batchYear}/packages/filter/${selectedDepartment}`
+          ),
+          axios.get(
+            `${backendUrl}/student-analytics/monthly-placement-stats/batch/${batchYear}/filter/${selectedDepartment}`
+          ),
+          axios.get(
+            `${backendUrl}/student-analytics/batch/${batchYear}/company-timeline/filter/${selectedDepartment}`
+          ),
         ]);
 
-        setOverview(overviewRes.data);
-        setPlacements(placementsRes.data || []);
-        setDepartments(deptsRes.data || []);
-        setCompanies(companiesRes.data || []);
-        setCompanyTimeline(timelineRes.data || []);
-        setPackagesData(packagesRes.data || []);
+        setOverview(overviewRes.data.data || overviewRes.data);
+        setDepartments(deptsRes.data.data || deptsRes.data || []);
+        setCompanies(companiesRes.data.data || companiesRes.data || []);
+        setPackagesData(packagesRes.data.data || packagesRes.data || []);
+        setMonthlyStats(
+          monthlyStatsRes.data.data || monthlyStatsRes.data || []
+        );
+
+        // Extract timeline from the company-timeline response
+        const timelineData = monthlyTrendsRes.data.timeline || [];
+        setMonthlyTrends(timelineData);
       } catch (err) {
         console.error("Error fetching analytics data:", err);
-        setError(err.message);
+        setError(
+          err.response?.data?.message || err.message || "Failed to fetch data"
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    if (batchYear) {
-      fetchAllData();
-    }
-  }, [batchYear]);
+    fetchAllData();
+  }, [batchYear, selectedDepartment]);
 
-  // Filter placements based on frontend filters
-  const filteredPlacements = useMemo(() => {
-    if (!placements.length) return [];
+  // Transform monthlyTrends data for the chart
+  const placementTrendsData = useMemo(() => {
+    if (!monthlyTrends.length) return [];
 
-    let filtered = [...placements];
-
-    // Department filter
-    if (selectedDepartment !== "all") {
-      filtered = filtered.filter((p) => p.department === selectedDepartment);
-    }
-
-    // Time range filter
-    if (timeRange !== "all") {
-      const now = new Date();
-      const cutoffDate = new Date();
-
-      switch (timeRange) {
-        case "1month":
-          cutoffDate.setMonth(now.getMonth() - 1);
-          break;
-        case "3months":
-          cutoffDate.setMonth(now.getMonth() - 3);
-          break;
-        case "6months":
-          cutoffDate.setMonth(now.getMonth() - 6);
-          break;
-        case "1year":
-          cutoffDate.setFullYear(now.getFullYear() - 1);
-          break;
-      }
-
-      filtered = filtered.filter(
-        (p) => new Date(p.acceptanceDate || p.acceptedDate) >= cutoffDate
-      );
-    }
-
-    return filtered;
-  }, [placements, selectedDepartment, timeRange]);
-
-  // GRAPH 1: Cumulative Placements Timeline
-  const cumulativePlacementData = useMemo(() => {
-    if (!filteredPlacements.length) return [];
-
-    const sorted = [...filteredPlacements].sort(
-      (a, b) => new Date(a.acceptanceDate) - new Date(b.acceptanceDate)
-    );
-
-    const monthlyData = {};
-    sorted.forEach((placement, index) => {
-      const date = new Date(placement.acceptanceDate);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = {
-          month: date.toLocaleDateString("en-US", {
-            month: "short",
-            year: "2-digit",
-          }),
-          cumulative: 0,
-          newPlacements: 0,
-        };
-      }
-
-      monthlyData[monthKey].newPlacements++;
-    });
-
-    // Calculate cumulative
-    let cumulative = 0;
-    return Object.values(monthlyData).map((data) => {
-      cumulative += data.newPlacements;
-      return { ...data, cumulative };
-    });
-  }, [filteredPlacements]);
-
-  // GRAPH 2: Package Distribution Histogram (from API)
-  const packageHistogramData = useMemo(() => {
-    if (!packagesData.length) return [];
-    return packagesData.map((pkg) => ({
-      range: pkg.range,
-      count: pkg.count,
+    return monthlyTrends.map((trend) => ({
+      month: trend.monthLabel,
+      monthKey: trend.monthKey,
+      cumulativePlacements: parseInt(trend.cumulativePlacements) || 0,
+      totalPlacements: parseInt(trend.totalPlacements) || 0,
+      avgPackage: parseFloat(trend.avgPackage) || 0,
+      highestPackage: parseFloat(trend.highestPackage) || 0,
+      totalCompanies: parseInt(trend.totalCompanies) || 0,
     }));
-  }, [packagesData]);
+  }, [monthlyTrends]);
 
-  // GRAPH 3: Top Companies by Placements (from API)
-  const topCompaniesData = useMemo(() => {
-    if (!companies.length) return [];
-    return companies
-      .sort((a, b) => (b.studentsPlaced || 0) - (a.studentsPlaced || 0))
-      .slice(0, 10)
-      .map((company) => ({
-        name: company.name || company.companyName,
-        studentsPlaced: company.studentsPlaced || 0,
-        avgPackage: company.avgPackage || 0,
-      }));
-  }, [companies]);
-
-  // GRAPH 4: Department Comparison (Grouped Bar) (from API)
-  const departmentComparisonData = useMemo(() => {
-    if (!departments.length) return [];
-    return departments.map((dept) => ({
-      department: dept.department || dept.name || "Unknown",
-      total: dept.total || dept.totalStudents || 0,
-      placed: dept.placed || dept.placedStudents || 0,
-      unplaced:
-        (dept.total || dept.totalStudents || 0) -
-        (dept.placed || dept.placedStudents || 0),
-      rate: dept.rate || dept.placementRate || 0,
-    }));
-  }, [departments]);
-
-  // GRAPH 5: Company Timeline (from API)
-  const companyVisitTimelineData = useMemo(() => {
-    if (!companyTimeline.length) return [];
-    return companyTimeline.map((item) => ({
-      month: item.month,
-      expected: item.expected || 0,
-      actual: item.actual || 0,
-    }));
-  }, [companyTimeline]);
-
+  // Loading state
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        <div className="inline-block animate-spin">
-          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full"></div>
+          </div>
+          <p className="text-gray-600 mt-4 text-lg">
+            Loading analytics data...
+          </p>
         </div>
-        <p className="text-gray-600 mt-4">Loading analytics data...</p>
       </div>
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="bg-red-50 rounded-xl border border-red-200 p-6 flex items-center gap-3">
-        <AlertCircle className="w-6 h-6 text-red-600" />
-        <div>
-          <h3 className="text-lg font-bold text-red-900">Error Loading Data</h3>
-          <p className="text-red-700">{error}</p>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-red-50 rounded-xl border border-red-200 p-6 flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+            <div>
+              <h3 className="text-lg font-bold text-red-900">
+                Error Loading Data
+              </h3>
+              <p className="text-red-700">{error}</p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!overview) return <div className="p-8">No data available</div>;
+  // No data state
+  if (!overview) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-6">
+            <p className="text-yellow-800">
+              No data available for batch year {batchYear}
+              {selectedDepartment && ` - ${selectedDepartment}`}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div className="flex gap-4 items-center">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mr-2">
-              Department:
-            </label>
-            <select
-              value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm"
-            >
-              <option value="all">All Departments</option>
-              <option value="CSE">CSE</option>
-              <option value="E.Com">E.Com</option>
-              <option value="ME">ME</option>
-            </select>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="space-y-6">
+          {/* Filter Section */}
+          <FilterSection
+            selectedDepartment={selectedDepartment}
+            setSelectedDepartment={setSelectedDepartment}
+          />
+
+          {/* Key Metrics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              icon={TrendingUp}
+              label="Placement Rate"
+              value={`${(overview.placementRate || 0).toFixed(1)}%`}
+              subtext={`${overview.placedStudents}/${overview.totalStudents} students`}
+              color="emerald"
+              trend={(overview.placementRate || 0) - 70}
+            />
+            <StatCard
+              icon={Building}
+              label="Companies Visited"
+              value={overview.companiesVisited || 0}
+              subtext={`Total companies`}
+              color="purple"
+            />
+            <StatCard
+              icon={Target}
+              label="Total Offers"
+              value={overview.totalOffers || 0}
+              subtext="Generated"
+              color="orange"
+              trend={(
+                ((overview.totalOffers || 0) / (overview.totalStudents || 1)) *
+                  100 -
+                100
+              ).toFixed(1)}
+            />
+            <StatCard
+              icon={Award}
+              subtext={`Highest Package: ₹ ${(overview.highestPackage || 0).toFixed(2)}L`}
+              subtext2={`Average Package: ₹ ${(overview.averagePackage || 0).toFixed(2)}L`}
+              subtext3={`Median Package: ₹ ${(overview.medianPackage || 0).toFixed(2)}L`}
+              color="yellow"
+            />
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 mr-2">
-              Time Range:
-            </label>
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm"
-            >
-              <option value="all">All Time</option>
-              <option value="1month">Last Month</option>
-              <option value="3months">Last 3 Months</option>
-              <option value="6months">Last 6 Months</option>
-              <option value="1year">Last Year</option>
-            </select>
+          {/* Charts Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Expected vs Actual Companies */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Monthly Company Visits & Offers
+              </h3>
+              {monthlyStats.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyStats}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="month" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="expected"
+                      fill="#dbeafe"
+                      name="Expected"
+                      radius={[6, 6, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="actual"
+                      fill="#2563eb"
+                      name="Actual"
+                      radius={[6, 6, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500 text-center py-8">
+                  No monthly data available
+                </p>
+              )}
+            </div>
+
+            {/* Cumulative Placement Trends */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Cumulative Placement Trends
+                <span className="text-xs text-gray-500 block mt-1">
+                  Hover over data points to see companies
+                </span>
+              </h3>
+              {placementTrendsData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart
+                    data={placementTrendsData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="month" stroke="#6b7280" />
+                    <YAxis yAxisId="left" stroke="#6b7280" />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="#6b7280"
+                    />
+                    <Tooltip
+                      content={
+                        <CustomPlacementTooltip monthlyTrends={monthlyTrends} />
+                      }
+                      cursor={{ strokeDasharray: "3 3" }}
+                      // This ensures tooltip appears above everything
+                      wrapperStyle={{ zIndex: 1000 }}
+                    />
+                    <Legend
+                      wrapperStyle={{
+                        paddingTop: "10px",
+                        marginBottom: "-10px",
+                      }}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="cumulativePlacements"
+                      stroke="#10b981"
+                      strokeWidth={3}
+                      name="Cumulative Placements"
+                      dot={{ fill: "#10b981", r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="totalPlacements"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      name="Monthly Placements"
+                      dot={{ fill: "#2563eb", r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="avgPackage"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      name="Avg Package (L)"
+                      dot={{ fill: "#f59e0b", r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500 text-center py-8">
+                  No placement data available
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="ml-auto text-sm text-gray-600">
-            Showing {filteredPlacements.length} placements
+          {/* Charts Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Department-wise Placement */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Department-wise Analysis
+              </h3>
+              {departments.length > 0 ? (
+                <div className="space-y-3">
+                  {departments.map((dept, index) => (
+                    <div
+                      key={dept.department}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{
+                            backgroundColor: COLORS[index % COLORS.length],
+                          }}
+                        ></div>
+                        <span className="text-sm font-semibold text-gray-900">
+                          {dept.department}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-gray-900">
+                          {(dept.placementRate || 0).toFixed(1)}%
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {dept.placedStudents || 0}/{dept.totalStudents || 0}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8">
+                  No department data available
+                </p>
+              )}
+            </div>
+
+            {/* Package Distribution */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Package Distribution
+              </h3>
+              {packagesData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={packagesData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="range" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      fill="#6366f1"
+                      name="Students"
+                      radius={[6, 6, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500 text-center py-8">
+                  No package data available
+                </p>
+              )}
+            </div>
           </div>
+
+          {/* Top Companies Table */}
+          <TopCompaniesTable companies={companies} />
         </div>
       </div>
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard
-          icon={Users}
-          label="Total Students"
-          value={overview.totalStudents}
-          color="blue"
-        />
-        <StatCard
-          icon={TrendingUp}
-          label="Placement Rate"
-          value={`${overview.placementRate}%`}
-          subtext={`${overview.placedStudents}/${overview.totalStudents}`}
-          color="emerald"
-        />
-        <StatCard
-          icon={Award}
-          label="Highest Package"
-          value={`₹${overview.highestPackage}L`}
-          color="yellow"
-        />
-        <StatCard
-          icon={Target}
-          label="Average Package"
-          value={`₹${overview.avgPackage}L`}
-          subtext={`Median: ₹${overview.medianPackage}L`}
-          color="purple"
-        />
-        <StatCard
-          icon={Building}
-          label="Companies"
-          value={overview.totalCompanies}
-          color="indigo"
-        />
-        <StatCard
-          icon={Briefcase}
-          label="Total Offers"
-          value={overview.totalOffers}
-          color="orange"
-        />
-      </div>
-
-      {/* Graphs Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Cumulative Placements Over Time */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Placement Timeline
-          </h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={cumulativePlacementData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis
-                dataKey="month"
-                stroke="#6b7280"
-                style={{ fontSize: 12 }}
-              />
-              <YAxis stroke="#6b7280" style={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="cumulative"
-                stroke="#10b981"
-                fill="#d1fae5"
-                name="Total Placements"
-              />
-              <Area
-                type="monotone"
-                dataKey="newPlacements"
-                stroke="#3b82f6"
-                fill="#dbeafe"
-                name="New This Month"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Package Distribution */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Package Distribution
-          </h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={packageHistogramData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis
-                dataKey="range"
-                stroke="#6b7280"
-                style={{ fontSize: 12 }}
-              />
-              <YAxis stroke="#6b7280" style={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar
-                dataKey="count"
-                fill="#6366f1"
-                radius={[6, 6, 0, 0]}
-                name="Students"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Graphs Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Companies */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Top 10 Companies
-          </h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={topCompaniesData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis type="number" stroke="#6b7280" style={{ fontSize: 12 }} />
-              <YAxis
-                type="category"
-                dataKey="name"
-                width={120}
-                stroke="#6b7280"
-                style={{ fontSize: 11 }}
-              />
-              <Tooltip />
-              <Bar
-                dataKey="studentsPlaced"
-                fill="#f59e0b"
-                radius={[0, 6, 6, 0]}
-                name="Students Placed"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Department Comparison */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Department-wise Status
-          </h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={departmentComparisonData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis
-                dataKey="department"
-                stroke="#6b7280"
-                style={{ fontSize: 12 }}
-              />
-              <YAxis stroke="#6b7280" style={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Bar
-                dataKey="placed"
-                fill="#10b981"
-                radius={[6, 6, 0, 0]}
-                name="Placed"
-              />
-              <Bar
-                dataKey="unplaced"
-                fill="#ef4444"
-                radius={[6, 6, 0, 0]}
-                name="Unplaced"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Company Visit Timeline */}
-      {companyVisitTimelineData.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Company Visit Timeline
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={companyVisitTimelineData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis
-                dataKey="month"
-                stroke="#6b7280"
-                style={{ fontSize: 12 }}
-              />
-              <YAxis stroke="#6b7280" style={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="expected"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ fill: "#3b82f6", r: 4 }}
-                name="Expected Visits"
-              />
-              <Line
-                type="monotone"
-                dataKey="actual"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={{ fill: "#10b981", r: 4 }}
-                name="Actual Visits"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
     </div>
   );
 }

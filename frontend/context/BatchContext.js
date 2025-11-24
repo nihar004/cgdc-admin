@@ -3,27 +3,21 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 const BatchContext = createContext();
 
 export function BatchProvider({ children }) {
-  const [selectedBatch, setSelectedBatch] = useState(() => {
-    // Check if localStorage is available (client-side)
-    if (typeof window !== "undefined" && window.localStorage) {
-      const savedBatch = localStorage.getItem("selectedBatch");
-      return savedBatch ? JSON.parse(savedBatch) : null;
-    }
-    return null;
-  });
-
-  const [batches, setBatches] = useState([]); // store all available batches
   const { user, loading } = useAuth();
 
-  // Fetch batches only once when the app loads
+  const [batches, setBatches] = useState([]);
+  const [selectedBatch, setSelectedBatch] = useState(null);
+
+  // Fetch batches on mount (run only once)
   useEffect(() => {
     const controller = new AbortController();
-    async function fetchBatches() {
+
+    const fetchBatches = async () => {
       try {
         const res = await axios.get(`${backendUrl}/batches`, {
           signal: controller.signal,
@@ -31,46 +25,62 @@ export function BatchProvider({ children }) {
         const fetchedBatches = res.data;
         setBatches(fetchedBatches);
 
-        // Check if localStorage is available before using it
-        if (typeof window !== "undefined" && window.localStorage) {
-          if (
-            !localStorage.getItem("selectedBatch") &&
-            fetchedBatches.length > 0
-          ) {
-            setSelectedBatch(fetchedBatches[0]);
+        // Only set selected batch if it is null
+        if (!selectedBatch && fetchedBatches.length > 0) {
+          // Try to get saved year from localStorage
+          let savedBatchYear = null;
+          if (typeof window !== "undefined" && window.localStorage) {
+            savedBatchYear = localStorage.getItem("selectedBatchYear");
           }
-        } else if (fetchedBatches.length > 0) {
-          // Fallback for SSR - just set the first batch
-          setSelectedBatch(fetchedBatches[0]);
+
+          // Use saved year if exists, otherwise first batch
+          if (savedBatchYear) {
+            const matchedBatch = fetchedBatches.find(
+              (b) => String(b.year) === savedBatchYear
+            );
+            if (matchedBatch) {
+              setSelectedBatch(String(matchedBatch.year));
+            } else {
+              setSelectedBatch(String(fetchedBatches[0].year));
+            }
+          } else {
+            setSelectedBatch(String(fetchedBatches[0].year));
+          }
         }
       } catch (error) {
-        if (axios.isCancel(error)) return; // request was cancelled
+        if (axios.isCancel(error)) return;
         console.error("Error fetching batches:", error);
       }
-    }
+    };
+
     fetchBatches();
     return () => controller.abort();
-  }, [user, loading]);
+  }, []); // run only once
 
-  // Whenever selectedBatch changes → save to localStorage (client-side only)
+  // Save selected batch to localStorage whenever it changes
   useEffect(() => {
-    if (selectedBatch && typeof window !== "undefined" && window.localStorage) {
-      localStorage.setItem("selectedBatch", JSON.stringify(selectedBatch));
+    if (selectedBatch && typeof window !== "undefined") {
+      localStorage.setItem("selectedBatchYear", selectedBatch);
     }
   }, [selectedBatch]);
 
+  // Function to reload batches manually
   const reloadBatches = async () => {
     try {
       const res = await axios.get(`${backendUrl}/batches`);
       const fetchedBatches = res.data;
       setBatches(fetchedBatches);
 
-      // If no batch is selected and we have batches, select the first one
-      if (!selectedBatch && fetchedBatches.length > 0) {
-        setSelectedBatch(fetchedBatches[0].year);
+      if (fetchedBatches.length > 0) {
+        const isValid = fetchedBatches.some(
+          (b) => String(b.year) === selectedBatch
+        );
+        if (!isValid) {
+          setSelectedBatch(String(fetchedBatches[0].year));
+        }
       }
     } catch (error) {
-      console.error("Error fetching batches:", error);
+      console.error("Error reloading batches:", error);
     }
   };
 

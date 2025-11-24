@@ -915,284 +915,6 @@ routes.get("/student/:studentId/eligible-companies", async (req, res, next) => {
   }
 });
 
-// BASIC OVERVIEW - Core stats only
-routes.get("/batch/:batchYear/overview", async (req, res, next) => {
-  try {
-    const { batchYear } = req.params;
-
-    const query = `
-      SELECT 
-        COUNT(*) as total_students,
-        COUNT(*) FILTER (WHERE placement_status = 'placed') as placed_students,
-        COUNT(*) FILTER (WHERE placement_status = 'unplaced') as unplaced_students,
-        ROUND(
-          (COUNT(*) FILTER (WHERE placement_status = 'placed')::NUMERIC / 
-          NULLIF(COUNT(*)::NUMERIC, 0) * 100), 2
-        ) as placement_rate,
-        -- Package stats (only from placed students)
-        ROUND(AVG((current_offer->>'package')::NUMERIC) 
-          FILTER (WHERE placement_status = 'placed' AND current_offer IS NOT NULL), 2) as avg_package,
-        MAX((current_offer->>'package')::NUMERIC) 
-          FILTER (WHERE placement_status = 'placed' AND current_offer IS NOT NULL) as highest_package,
-        (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (
-          ORDER BY (current_offer->>'package')::NUMERIC
-        ) FROM students WHERE batch_year = $1 AND placement_status = 'placed' AND current_offer IS NOT NULL) as median_package,
-        -- Company count
-        (SELECT COUNT(DISTINCT company_id) 
-         FROM company_batches cb 
-         INNER JOIN batches b ON cb.batch_id = b.id 
-         WHERE b.year = $1) as total_companies,
-        -- Total offers count
-        COUNT(DISTINCT (current_offer->>'offer_id')) 
-          FILTER (WHERE current_offer IS NOT NULL) as total_offers
-      FROM students
-      WHERE batch_year = $1
-    `;
-
-    const result = await db.query(query, [batchYear]);
-    const stats = result.rows[0];
-
-    res.json({
-      success: true,
-      data: {
-        totalStudents: parseInt(stats.total_students) || 0,
-        placedStudents: parseInt(stats.placed_students) || 0,
-        unplacedStudents: parseInt(stats.unplaced_students) || 0,
-        placementRate: parseFloat(stats.placement_rate) || 0,
-        avgPackage: parseFloat(stats.avg_package) || 0,
-        medianPackage: parseFloat(stats.median_package) || 0,
-        highestPackage: parseFloat(stats.highest_package) || 0,
-        totalCompanies: parseInt(stats.total_companies) || 0,
-        totalOffers: parseInt(stats.total_offers) || 0,
-      },
-    });
-  } catch (error) {
-    console.error("Error in analytics overview:", error);
-    next(error);
-  }
-});
-
-// ALL PLACEMENTS DATA - Frontend filters by date/department
-routes.get("/batch/:batchYear/placements", async (req, res, next) => {
-  try {
-    const { batchYear } = req.params;
-
-    const query = `
-      SELECT 
-        s.id,
-        s.full_name,
-        s.registration_number,
-        s.branch::text as department,
-        s.placement_status,
-        s.cgpa,
-        -- Offer details
-        (s.current_offer->>'company_name') as company_name,
-        (s.current_offer->>'position_title') as position_title,
-        (s.current_offer->>'package')::NUMERIC as package,
-        (s.current_offer->>'job_type') as job_type,
-        (s.current_offer->>'offer_date')::DATE as offer_date,
-        (s.current_offer->>'acceptance_date')::DATE as acceptance_date,
-        (s.current_offer->>'company_id')::INTEGER as company_id
-      FROM students s
-      WHERE s.batch_year = $1 
-        AND s.placement_status = 'placed'
-        AND s.current_offer IS NOT NULL
-      ORDER BY (s.current_offer->>'acceptance_date')::DATE DESC NULLS LAST
-    `;
-
-    const result = await db.query(query, [batchYear]);
-
-    res.json({
-      success: true,
-      data: result.rows.map((row) => ({
-        id: row.id,
-        fullName: row.full_name,
-        registrationNumber: row.registration_number,
-        department: row.department,
-        cgpa: parseFloat(row.cgpa) || 0,
-        companyName: row.company_name,
-        companyId: row.company_id,
-        positionTitle: row.position_title,
-        package: parseFloat(row.package) || 0,
-        jobType: row.job_type,
-        offerDate: row.offer_date,
-        acceptanceDate: row.acceptance_date,
-      })),
-    });
-  } catch (error) {
-    console.error("Error in placements data:", error);
-    next(error);
-  }
-});
-
-// DEPARTMENT-WISE STATS - Simple breakdown
-routes.get("/batch/:batchYear/departments", async (req, res, next) => {
-  try {
-    const { batchYear } = req.params;
-
-    const query = `
-      SELECT 
-        COALESCE(branch::text, 'Unknown') as department,
-        COUNT(*) as total_students,
-        COUNT(*) FILTER (WHERE placement_status = 'placed') as placed_students,
-        ROUND(
-          (COUNT(*) FILTER (WHERE placement_status = 'placed')::NUMERIC / 
-          NULLIF(COUNT(*)::NUMERIC, 0) * 100), 2
-        ) as placement_rate,
-        ROUND(AVG((current_offer->>'package')::NUMERIC) 
-          FILTER (WHERE placement_status = 'placed' AND current_offer IS NOT NULL), 2) as avg_package,
-        MAX((current_offer->>'package')::NUMERIC) 
-          FILTER (WHERE placement_status = 'placed' AND current_offer IS NOT NULL) as highest_package
-      FROM students
-      WHERE batch_year = $1
-      GROUP BY branch
-      ORDER BY placed_students DESC
-    `;
-
-    const result = await db.query(query, [batchYear]);
-
-    res.json({
-      success: true,
-      data: result.rows.map((row) => ({
-        department: row.department,
-        totalStudents: parseInt(row.total_students) || 0,
-        placedStudents: parseInt(row.placed_students) || 0,
-        placementRate: parseFloat(row.placement_rate) || 0,
-        avgPackage: parseFloat(row.avg_package) || 0,
-        highestPackage: parseFloat(row.highest_package) || 0,
-      })),
-    });
-  } catch (error) {
-    console.error("Error in department stats:", error);
-    next(error);
-  }
-});
-
-// COMPANY STATS - Top companies by placements
-routes.get("/batch/:batchYear/companies", async (req, res, next) => {
-  try {
-    const { batchYear } = req.params;
-
-    const query = `
-      SELECT 
-        (s.current_offer->>'company_id')::INTEGER as company_id,
-        (s.current_offer->>'company_name') as company_name,
-        COUNT(*) as students_placed,
-        ROUND(AVG((s.current_offer->>'package')::NUMERIC), 2) as avg_package,
-        MAX((s.current_offer->>'package')::NUMERIC) as highest_package,
-        MIN((s.current_offer->>'package')::NUMERIC) as lowest_package,
-        array_agg(DISTINCT s.branch::text) as departments,
-        array_agg(DISTINCT (s.current_offer->>'job_type')) as job_types
-      FROM students s
-      WHERE s.batch_year = $1
-        AND s.placement_status = 'placed'
-        AND s.current_offer IS NOT NULL
-      GROUP BY 
-        (s.current_offer->>'company_id')::INTEGER,
-        (s.current_offer->>'company_name')
-      ORDER BY students_placed DESC, avg_package DESC
-    `;
-
-    const result = await db.query(query, [batchYear]);
-
-    res.json({
-      success: true,
-      data: result.rows.map((row) => ({
-        companyId: row.company_id,
-        companyName: row.company_name,
-        studentsPlaced: parseInt(row.students_placed) || 0,
-        avgPackage: parseFloat(row.avg_package) || 0,
-        highestPackage: parseFloat(row.highest_package) || 0,
-        lowestPackage: parseFloat(row.lowest_package) || 0,
-        departments: row.departments || [],
-        jobTypes: row.job_types || [],
-      })),
-    });
-  } catch (error) {
-    console.error("Error in company stats:", error);
-    next(error);
-  }
-});
-
-// PACKAGE DISTRIBUTION - Raw package data for histograms
-routes.get("/batch/:batchYear/packages", async (req, res, next) => {
-  try {
-    const { batchYear } = req.params;
-
-    const query = `
-      SELECT 
-        (current_offer->>'package')::NUMERIC as package,
-        branch::text as department,
-        (current_offer->>'job_type') as job_type,
-        (current_offer->>'company_name') as company_name
-      FROM students
-      WHERE batch_year = $1
-        AND placement_status = 'placed'
-        AND current_offer IS NOT NULL
-        AND (current_offer->>'package') IS NOT NULL
-      ORDER BY package DESC
-    `;
-
-    const result = await db.query(query, [batchYear]);
-
-    res.json({
-      success: true,
-      data: result.rows.map((row) => ({
-        package: parseFloat(row.package) || 0,
-        department: row.department,
-        jobType: row.job_type,
-        companyName: row.company_name,
-      })),
-    });
-  } catch (error) {
-    console.error("Error in package distribution:", error);
-    next(error);
-  }
-});
-
-// COMPANY VISIT TIMELINE - When companies came
-routes.get("/batch/:batchYear/company-timeline", async (req, res, next) => {
-  try {
-    const { batchYear } = req.params;
-
-    const query = `
-      SELECT 
-        c.id,
-        c.company_name,
-        c.scheduled_visit,
-        c.actual_arrival,
-        c.is_marquee,
-        c.sector,
-        COUNT(DISTINCT cp.id) as total_positions
-      FROM companies c
-      INNER JOIN company_batches cb ON c.id = cb.company_id
-      INNER JOIN batches b ON cb.batch_id = b.id
-      LEFT JOIN company_positions cp ON c.id = cp.company_id
-      WHERE b.year = $1
-      GROUP BY c.id
-      ORDER BY COALESCE(c.actual_arrival, c.scheduled_visit) DESC NULLS LAST
-    `;
-
-    const result = await db.query(query, [batchYear]);
-
-    res.json({
-      success: true,
-      data: result.rows.map((row) => ({
-        companyId: row.id,
-        companyName: row.company_name,
-        scheduledVisit: row.scheduled_visit,
-        actualArrival: row.actual_arrival,
-        isMarquee: row.is_marquee || false,
-        sector: row.sector,
-        totalPositions: parseInt(row.total_positions) || 0,
-      })),
-    });
-  } catch (error) {
-    console.error("Error in company timeline:", error);
-    next(error);
-  }
-});
-
 // EXPORT STUDENT ROUNDS DATA TO EXCEL
 routes.get(
   "/batch/:batchYear/students/rounds-export",
@@ -3542,5 +3264,756 @@ routes.get("/batch/:batchYear/export-all-companies", async (req, res, next) => {
     next(error);
   }
 });
+
+// ============================================================================
+// ANALYTICS API ENDPOINTS
+// ============================================================================
+
+// 1. BATCH OVERVIEW WITH DEPARTMENT FILTER
+routes.get(
+  "/batch/:batchYear/overview/filter/:department?",
+  async (req, res) => {
+    const { batchYear, department } = req.params;
+
+    try {
+      const query = `
+      WITH batch_students AS (
+        SELECT 
+          s.id,
+          s.branch,
+          s.placement_status,
+          s.offers_received
+        FROM students s
+        WHERE s.batch_year = $1
+          AND s.placement_status IN ('placed', 'unplaced')
+          ${department && department !== "all" ? "AND s.branch = $2" : ""}
+      ),
+      total_offers AS (
+        SELECT SUM(
+          jsonb_array_length(
+            COALESCE(
+              jsonb_path_query_array(offers_received::jsonb, '$[*] ? (@.source == "campus")'),
+              '[]'::jsonb
+            )
+          )
+        ) as offers_count
+        FROM batch_students
+      ),
+      student_packages AS (
+        -- Only consider best package for each student for package stats
+        SELECT
+          s.id as student_id,
+          CASE 
+            WHEN s.current_offer IS NOT NULL AND s.current_offer->>'package' IS NOT NULL THEN
+              (s.current_offer->>'package')::numeric
+            ELSE 0
+          END as package_amount
+        FROM students s
+        WHERE s.batch_year = $1
+          AND s.placement_status = 'placed'
+          ${department && department !== "all" ? "AND s.branch = $2" : ""}
+      ),
+      package_stats AS (
+        SELECT 
+          COUNT(student_id) as placed_count,
+          ROUND(MAX(package_amount)::numeric, 2) as highest_package,
+          ROUND(AVG(package_amount)::numeric, 2) as average_package,
+          ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY package_amount)::numeric, 2) as median_package
+        FROM student_packages
+      ),
+      companies_visited AS (
+        SELECT COUNT(DISTINCT c.id) as total_companies
+        FROM companies c
+        INNER JOIN company_batches cb ON c.id = cb.company_id
+        INNER JOIN batches b ON cb.batch_id = b.id
+        WHERE b.year = $1
+      )
+      SELECT 
+        (SELECT COUNT(*) FROM batch_students) as total_students,
+        COALESCE((SELECT placed_count FROM package_stats), 0) as placed_students,
+        CASE 
+          WHEN (SELECT COUNT(*) FROM batch_students) > 0 THEN
+            ROUND(
+              COALESCE((SELECT placed_count FROM package_stats), 0)::numeric /
+              (SELECT COUNT(*) FROM batch_students)::numeric * 100, 2
+            )
+          ELSE 0
+        END as placement_rate,
+        COALESCE((SELECT highest_package FROM package_stats), 0) as highest_package,
+        COALESCE((SELECT average_package FROM package_stats), 0) as average_package,
+        COALESCE((SELECT median_package FROM package_stats), 0) as median_package,
+        COALESCE((SELECT offers_count FROM total_offers), 0) as total_offers,
+        COALESCE((SELECT total_companies FROM companies_visited), 0) as companies_visited;
+      `;
+
+      const params =
+        department && department !== "all"
+          ? [batchYear, department]
+          : [batchYear];
+      const result = await db.query(query, params);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: `No data found for batch year ${batchYear}${
+            department && department !== "all"
+              ? ` and department ${department}`
+              : ""
+          }`,
+        });
+      }
+
+      const stats = result.rows[0];
+
+      return res.status(200).json({
+        success: true,
+        batchYear: parseInt(batchYear),
+        department: department || "all",
+        data: {
+          totalStudents: parseInt(stats.total_students),
+          placedStudents: parseInt(stats.placed_students),
+          unplacedStudents:
+            parseInt(stats.total_students) - parseInt(stats.placed_students),
+          placementRate: parseFloat(stats.placement_rate),
+          highestPackage: parseFloat(stats.highest_package),
+          averagePackage: parseFloat(stats.average_package),
+          medianPackage: parseFloat(stats.median_package),
+          totalOffers: parseInt(stats.total_offers),
+          companiesVisited: parseInt(stats.companies_visited),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching batch overview:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch batch overview data",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// 2. MONTHLY PLACEMENT STATS - Expected vs Actual vs Offers
+routes.get(
+  "/monthly-placement-stats/batch/:batchYear/filter/:department",
+  async (req, res) => {
+    try {
+      const { batchYear, department } = req.params;
+
+      // Validate batchYear
+      if (!batchYear) {
+        return res.status(400).json({
+          success: false,
+          error: "batchYear is required",
+        });
+      }
+
+      const query = `
+      WITH monthly_companies AS (
+        -- Expected companies (based on scheduled_visit) with department filter
+        SELECT 
+          TO_CHAR(c.scheduled_visit, 'Mon') as month,
+          EXTRACT(MONTH FROM c.scheduled_visit) as month_num,
+          COUNT(DISTINCT c.id) as expected_count
+        FROM companies c
+        INNER JOIN company_batches cb ON c.id = cb.company_id
+        INNER JOIN batches b ON cb.batch_id = b.id
+        WHERE b.year = $1
+        ${
+          department && department !== "all"
+            ? `AND c.allowed_specializations @> ARRAY[$2]::specialization_enum[]`
+            : ""
+        }
+        GROUP BY TO_CHAR(c.scheduled_visit, 'Mon'), EXTRACT(MONTH FROM c.scheduled_visit)
+      ),
+      actual_companies AS (
+        -- Actual companies (based on actual_arrival) with department filter
+        SELECT 
+          TO_CHAR(c.actual_arrival, 'Mon') as month,
+          EXTRACT(MONTH FROM c.actual_arrival) as month_num,
+          COUNT(DISTINCT c.id) as actual_count
+        FROM companies c
+        INNER JOIN company_batches cb ON c.id = cb.company_id
+        INNER JOIN batches b ON cb.batch_id = b.id
+        WHERE b.year = $1
+        ${
+          department && department !== "all"
+            ? `AND c.allowed_specializations @> ARRAY[$2]::specialization_enum[]`
+            : ""
+        }
+        GROUP BY TO_CHAR(c.actual_arrival, 'Mon'), EXTRACT(MONTH FROM c.actual_arrival)
+      ),
+      monthly_offers AS (
+        -- Offers based on when students got placed with department filter
+        SELECT 
+          TO_CHAR((s.current_offer->>'offer_date')::DATE, 'Mon') as month,
+          EXTRACT(MONTH FROM (s.current_offer->>'offer_date')::DATE) as month_num,
+          COUNT(s.id) as offers_count
+        FROM students s
+        WHERE s.batch_year = $1
+          AND s.placement_status = 'placed'
+          AND s.current_offer IS NOT NULL
+          ${department && department !== "all" ? `AND s.branch = $2` : ""}
+        GROUP BY TO_CHAR((s.current_offer->>'offer_date')::DATE, 'Mon'), 
+                 EXTRACT(MONTH FROM (s.current_offer->>'offer_date')::DATE)
+      ),
+      all_months AS (
+        SELECT DISTINCT month, month_num 
+        FROM (
+          SELECT month, month_num FROM monthly_companies
+          UNION
+          SELECT month, month_num FROM actual_companies
+          UNION
+          SELECT month, month_num FROM monthly_offers
+        ) combined
+      )
+      SELECT 
+        am.month,
+        am.month_num,
+        COALESCE(mc.expected_count, 0) as expected,
+        COALESCE(ac.actual_count, 0) as actual,
+        COALESCE(mo.offers_count, 0) as offers
+      FROM all_months am
+      LEFT JOIN monthly_companies mc ON am.month = mc.month
+      LEFT JOIN actual_companies ac ON am.month = ac.month
+      LEFT JOIN monthly_offers mo ON am.month = mo.month
+      ORDER BY am.month_num;
+    `;
+
+      const params =
+        department && department !== "all"
+          ? [batchYear, department]
+          : [batchYear];
+      const result = await db.query(query, params);
+
+      // Format the response
+      const formattedData = result.rows.map((row) => ({
+        month: row.month,
+        expected: parseInt(row.expected),
+        actual: parseInt(row.actual),
+        offers: parseInt(row.offers),
+      }));
+
+      res.json({
+        success: true,
+        data: formattedData,
+        department: department || "all",
+        metadata: {
+          batch_year: parseInt(batchYear),
+          total_expected: formattedData.reduce(
+            (sum, item) => sum + item.expected,
+            0
+          ),
+          total_actual: formattedData.reduce(
+            (sum, item) => sum + item.actual,
+            0
+          ),
+          total_offers: formattedData.reduce(
+            (sum, item) => sum + item.offers,
+            0
+          ),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching monthly placement stats:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch placement statistics",
+        details: error.message,
+      });
+    }
+  }
+);
+
+// 3. DEPARTMENT-WISE PLACEMENT STATS
+routes.get(
+  "/batch/:batchYear/departments/filter/:department",
+  async (req, res, next) => {
+    try {
+      const { batchYear, department } = req.params;
+
+      const query = `
+      SELECT 
+        COALESCE(branch::text, 'Unknown') AS department,
+        COUNT(*) AS total_students,
+        COUNT(*) FILTER (WHERE placement_status = 'placed') AS placed_students,
+        ROUND(
+          (COUNT(*) FILTER (WHERE placement_status = 'placed')::NUMERIC /
+          NULLIF(COUNT(*)::NUMERIC, 0) * 100), 
+        2) AS placement_rate
+      FROM students
+      WHERE batch_year = $1
+        AND placement_status IN ('placed', 'unplaced')
+        ${department && department !== "all" ? `AND branch = $2` : ""}
+      GROUP BY branch
+      ORDER BY placed_students DESC;
+    `;
+
+      const params =
+        department && department !== "all"
+          ? [batchYear, department]
+          : [batchYear];
+      const result = await db.query(query, params);
+
+      res.json({
+        success: true,
+        department: department || "all",
+        data: result.rows.map((row) => {
+          const total = parseInt(row.total_students || 0);
+          const placed = parseInt(row.placed_students || 0);
+
+          return {
+            department: row.department,
+            totalStudents: total,
+            placedStudents: placed,
+            unplacedStudents: total - placed,
+            placementRate: parseFloat(row.placement_rate) || 0,
+          };
+        }),
+      });
+    } catch (error) {
+      console.error("Error in department stats:", error);
+      next(error);
+    }
+  }
+);
+
+// 4. TOP COMPANIES BY PLACEMENTS
+routes.get(
+  "/batch/:batchYear/top-companies/filter/:department",
+  async (req, res) => {
+    const { batchYear, department } = req.params;
+
+    try {
+      const query = `
+      WITH batch_companies AS (
+        -- Get all companies for the specified batch with department filter
+        SELECT DISTINCT 
+          c.id as company_id,
+          c.company_name,
+          c.sector,
+          b.id as batch_id
+        FROM companies c
+        INNER JOIN company_batches cb ON c.id = cb.company_id
+        INNER JOIN batches b ON cb.batch_id = b.id
+        WHERE b.year = $1
+        ${
+          department && department !== "all"
+            ? `AND c.allowed_specializations @> ARRAY[$2]::specialization_enum[]`
+            : ""
+        }
+      ),
+      last_round_events AS (
+        -- Get final round events for these companies
+        SELECT DISTINCT
+          e.id as event_id,
+          e.company_id,
+          e.position_ids
+        FROM events e
+        INNER JOIN batch_companies bc ON e.company_id = bc.company_id
+        WHERE e.round_type = 'last'
+      ),
+      selected_students AS (
+        -- Get students selected in final rounds with department filter
+        SELECT 
+          lre.company_id,
+          lre.event_id,
+          srr.student_id,
+          UNNEST(lre.position_ids) as position_id
+        FROM last_round_events lre
+        INNER JOIN student_round_results srr 
+          ON lre.event_id = srr.event_id
+        INNER JOIN students s ON srr.student_id = s.id
+        WHERE srr.result_status = 'selected'
+        ${department && department !== "all" ? `AND s.branch = $2` : ""}
+      ),
+      position_packages AS (
+        -- Get package information for selected students
+        SELECT 
+          ss.company_id,
+          ss.student_id,
+          cp.package,
+          cp.package_end,
+          cp.has_range
+        FROM selected_students ss
+        INNER JOIN company_positions cp ON ss.position_id = cp.id
+      ),
+      company_placement_counts AS (
+        -- Count placed students per company
+        SELECT 
+          company_id,
+          COUNT(DISTINCT student_id) as total_placed
+        FROM position_packages
+        GROUP BY company_id
+      ),
+      company_package_stats AS (
+        -- Calculate package statistics per company
+        SELECT 
+          company_id,
+          ROUND(
+            AVG(
+              CASE 
+                WHEN has_range = true AND package_end IS NOT NULL 
+                THEN package_end
+                ELSE package
+              END
+            )::numeric, 
+            2
+          ) as avg_package,
+          ROUND(
+            MAX(
+              CASE 
+                WHEN has_range = true AND package_end IS NOT NULL 
+                THEN package_end
+                ELSE package
+              END
+            )::numeric, 
+            2
+          ) as highest_package
+        FROM position_packages
+        GROUP BY company_id
+      ),
+      company_stats AS (
+        SELECT 
+          bc.company_id,
+          bc.company_name,
+          bc.sector,
+          
+          -- Eligible students count with department filter
+          COALESCE(
+            (SELECT COUNT(*) 
+             FROM jsonb_array_elements_text(ce.eligible_student_ids) AS student_id
+             INNER JOIN students s ON student_id::INTEGER = s.id
+             WHERE ${
+               department && department !== "all" ? `s.branch = $2 AND` : ""
+             } 
+                   ce.company_id = bc.company_id 
+                   AND ce.batch_id = bc.batch_id
+            ), 0
+          ) as total_eligible,
+          
+          -- Registered students count (from forms linked to company events) with department filter
+          COALESCE(
+            (SELECT COUNT(DISTINCT fr.student_id)
+             FROM forms f
+             INNER JOIN form_responses fr ON f.id = fr.form_id
+             INNER JOIN events e ON f.event_id = e.id
+             INNER JOIN students s ON fr.student_id = s.id
+             WHERE e.company_id = bc.company_id
+               AND f.batch_year = $1
+               ${department && department !== "all" ? `AND s.branch = $2` : ""}
+            ), 0
+          ) as total_registered,
+          
+          -- Placed students count from separate CTE
+          COALESCE(cpc.total_placed, 0) as total_placed,
+          
+          -- Package statistics from separate CTE
+          COALESCE(cps.avg_package, 0) as avg_package,
+          COALESCE(cps.highest_package, 0) as highest_package
+          
+        FROM batch_companies bc
+        LEFT JOIN company_eligibility ce 
+          ON bc.company_id = ce.company_id 
+          AND bc.batch_id = ce.batch_id
+        LEFT JOIN company_placement_counts cpc 
+          ON bc.company_id = cpc.company_id
+        LEFT JOIN company_package_stats cps 
+          ON bc.company_id = cps.company_id
+      )
+      SELECT 
+        company_name as "companyName",
+        sector,
+        total_eligible as "totalEligible",
+        total_registered as "totalRegistered",
+        total_placed as "totalPlaced",
+        avg_package as "avgPackage",
+        highest_package as "highestPackage",
+        CASE 
+          WHEN total_eligible > 0 
+          THEN ROUND((total_placed::numeric / total_eligible::numeric * 100), 2)
+          ELSE 0
+        END as "successRate"
+      FROM company_stats
+      WHERE total_placed > 0  -- Only show companies with placements
+      ORDER BY total_placed DESC, avg_package DESC;
+    `;
+
+      const params =
+        department && department !== "all"
+          ? [batchYear, department]
+          : [batchYear];
+      const result = await db.query(query, params);
+
+      return res.status(200).json({
+        success: false,
+        batchYear: parseInt(batchYear),
+        department: department || "all",
+        totalCompanies: result.rows.length,
+        data: result.rows,
+      });
+    } catch (error) {
+      console.error("Error fetching top companies:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch top companies data",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// 5. PACKAGE DISTRIBUTION - For histogram
+routes.get(
+  "/batch/:batchYear/packages/filter/:department",
+  async (req, res, next) => {
+    try {
+      const { batchYear, department } = req.params;
+
+      const packagesQuery = `
+      SELECT 
+        s.id,
+        s.full_name,
+        s.branch::text as department,
+        c.company_name,
+        cp.position_title,
+        cp.job_type,
+        CASE 
+          WHEN cp.has_range = true THEN cp.package_end
+          ELSE cp.package
+        END as package,
+        (s.current_offer->>'acceptance_date')::DATE as acceptance_date
+      FROM students s
+      INNER JOIN companies c 
+        ON (s.current_offer->>'company_id')::INTEGER = c.id
+      INNER JOIN company_positions cp 
+        ON (s.current_offer->>'position_id')::INTEGER = cp.id
+      WHERE s.batch_year = $1
+        AND s.placement_status = 'placed'
+        AND s.current_offer IS NOT NULL
+        AND (s.current_offer->>'company_id') IS NOT NULL
+        AND (s.current_offer->>'position_id') IS NOT NULL
+        ${department && department !== "all" ? `AND s.branch = $2` : ""}
+      ORDER BY package DESC
+    `;
+
+      const params =
+        department && department !== "all"
+          ? [batchYear, department]
+          : [batchYear];
+      const result = await db.query(packagesQuery, params);
+
+      // Extract valid package numbers
+      const packages = result.rows
+        .map((row) => parseFloat(row.package || 0))
+        .filter((p) => !isNaN(p) && p > 0);
+
+      if (packages.length === 0) {
+        return res.json({
+          success: true,
+          department: department || "all",
+          data: [],
+        });
+      }
+
+      // Predefined bins
+      const binsConfig = [
+        { label: "<6 LPA", min: 0, max: 6 },
+        { label: "6-8 LPA", min: 6, max: 8 },
+        { label: "8-10 LPA", min: 8, max: 10 },
+        { label: "10-15 LPA", min: 10, max: 15 },
+        { label: "15-20 LPA", min: 15, max: 20 },
+        { label: "20+ LPA", min: 20, max: Infinity },
+      ];
+
+      const bins = binsConfig.map((bin) => {
+        const count = packages.filter(
+          (p) => p > bin.min && p <= bin.max
+        ).length;
+        return {
+          range: bin.label,
+          count,
+          rangeStart: bin.min,
+          rangeEnd: bin.max === Infinity ? null : bin.max,
+        };
+      });
+
+      res.json({
+        success: true,
+        department: department || "all",
+        data: bins,
+      });
+    } catch (error) {
+      console.error("Error in package distribution:", error);
+      next(error);
+    }
+  }
+);
+
+// 6. COMPANY VISIT TIMELINE - Monthly company visits
+routes.get(
+  "/batch/:batchYear/company-timeline/filter/:department",
+  async (req, res) => {
+    const { batchYear, department } = req.params;
+
+    try {
+      const query = `
+      WITH batch_companies AS (
+        -- Get all companies for the specified batch with department filter
+        SELECT DISTINCT 
+          c.id as company_id,
+          c.company_name,
+          c.sector,
+          c.scheduled_visit,
+          c.actual_arrival,
+          b.id as batch_id
+        FROM companies c
+        INNER JOIN company_batches cb ON c.id = cb.company_id
+        INNER JOIN batches b ON cb.batch_id = b.id
+        WHERE b.year = $1
+        ${
+          department && department !== "all"
+            ? `AND c.allowed_specializations @> ARRAY[$2]::specialization_enum[]`
+            : ""
+        }
+      ),
+      company_placements AS (
+        -- Get placement counts for each company with department filter
+        SELECT 
+          e.company_id,
+          COUNT(DISTINCT srr.student_id) as placed_count
+        FROM events e
+        INNER JOIN student_round_results srr ON e.id = srr.event_id
+        INNER JOIN students s ON srr.student_id = s.id
+        WHERE e.round_type = 'last'
+          AND srr.result_status = 'selected'
+          ${department && department !== "all" ? `AND s.branch = $2` : ""}
+        GROUP BY e.company_id
+      ),
+      company_packages AS (
+        -- Get package information for each company
+        SELECT 
+          cp.company_id,
+          ROUND(AVG(
+            CASE 
+              WHEN cp.has_range = true AND cp.package_end IS NOT NULL 
+              THEN (cp.package + cp.package_end) / 2
+              ELSE cp.package
+            END
+          )::numeric, 2) as avg_package,
+          ROUND(MAX(
+            CASE 
+              WHEN cp.has_range = true AND cp.package_end IS NOT NULL 
+              THEN cp.package_end
+              ELSE cp.package
+            END
+          )::numeric, 2) as max_package
+        FROM company_positions cp
+        WHERE cp.is_active = true
+        GROUP BY cp.company_id
+      ),
+      monthly_data AS (
+        SELECT 
+          bc.company_name,
+          bc.sector,
+          COALESCE(bc.actual_arrival, bc.scheduled_visit) as visit_date,
+          TO_CHAR(COALESCE(bc.actual_arrival, bc.scheduled_visit), 'YYYY-MM') as month_key,
+          TO_CHAR(COALESCE(bc.actual_arrival, bc.scheduled_visit), 'Month YYYY') as month_label,
+          EXTRACT(YEAR FROM COALESCE(bc.actual_arrival, bc.scheduled_visit)) as year,
+          EXTRACT(MONTH FROM COALESCE(bc.actual_arrival, bc.scheduled_visit)) as month,
+          COALESCE(cp_count.placed_count, 0) as students_placed,
+          COALESCE(cp_pkg.avg_package, 0) as avg_package,
+          COALESCE(cp_pkg.max_package, 0) as highest_package
+        FROM batch_companies bc
+        LEFT JOIN company_placements cp_count ON bc.company_id = cp_count.company_id
+        LEFT JOIN company_packages cp_pkg ON bc.company_id = cp_pkg.company_id
+        WHERE COALESCE(bc.actual_arrival, bc.scheduled_visit) IS NOT NULL
+      )
+      SELECT 
+        month_key as "monthKey",
+        TRIM(month_label) as "monthLabel",
+        year,
+        month,
+        COUNT(DISTINCT company_name) as "totalCompanies",
+        SUM(students_placed) as "totalPlacements",
+        ROUND(AVG(avg_package)::numeric, 2) as "avgPackage",
+        ROUND(MAX(highest_package)::numeric, 2) as "highestPackage",
+        json_agg(
+          json_build_object(
+            'companyName', company_name,
+            'sector', sector,
+            'visitDate', visit_date,
+            'studentsPlaced', students_placed,
+            'avgPackage', avg_package,
+            'highestPackage', highest_package
+          ) ORDER BY visit_date, company_name
+        ) as "companies"
+      FROM monthly_data
+      GROUP BY month_key, month_label, year, month
+      ORDER BY year, month;
+    `;
+
+      const params =
+        department && department !== "all"
+          ? [batchYear, department]
+          : [batchYear];
+      const result = await db.query(query, params);
+
+      // Calculate cumulative statistics
+      let cumulativePlacements = 0;
+      const timelineData = result.rows.map((row) => {
+        cumulativePlacements += parseInt(row.totalPlacements) || 0;
+        return {
+          ...row,
+          cumulativePlacements,
+        };
+      });
+
+      // Calculate summary statistics
+      const summary = {
+        totalMonths: result.rows.length,
+        totalCompaniesVisited: result.rows.reduce(
+          (sum, row) => sum + parseInt(row.totalCompanies),
+          0
+        ),
+        totalPlacementsMade: cumulativePlacements,
+        overallAvgPackage:
+          result.rows.length > 0
+            ? parseFloat(
+                (
+                  result.rows.reduce(
+                    (sum, row) => sum + parseFloat(row.avgPackage || 0),
+                    0
+                  ) / result.rows.length
+                ).toFixed(2)
+              )
+            : 0,
+        peakMonth:
+          result.rows.length > 0
+            ? result.rows.reduce((max, row) =>
+                parseInt(row.totalPlacements) > parseInt(max.totalPlacements)
+                  ? row
+                  : max
+              ).monthLabel
+            : null,
+      };
+
+      return res.status(200).json({
+        success: true,
+        batchYear: parseInt(batchYear),
+        department: department || "all",
+        summary,
+        timeline: timelineData,
+      });
+    } catch (error) {
+      console.error("Error fetching company timeline:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch company timeline data",
+        error: error.message,
+      });
+    }
+  }
+);
 
 module.exports = routes;

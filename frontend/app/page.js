@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaUserGraduate,
   FaBuilding,
@@ -79,6 +79,13 @@ function HomeContent() {
       setIsAddingBatch(false);
     }
   };
+
+  // Auto-select first batch if selectedBatch is null
+  useEffect(() => {
+    if (!selectedBatch && batches.length > 0) {
+      setSelectedBatch(batches[0]);
+    }
+  }, [batches, selectedBatch]);
 
   const handleCancelAdd = () => {
     setNewBatchYear("");
