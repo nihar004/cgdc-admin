@@ -20,7 +20,7 @@ function PlacementAnalyticsDashboard() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [batchTab, setBatchTab] = useState("overview");
   const [selectedCompanyDetail, setSelectedCompanyDetail] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [timeRange, setTimeRange] = useState("6months");
   const [exporting, setExporting] = useState(false);
   const { selectedBatch } = useBatchContext();

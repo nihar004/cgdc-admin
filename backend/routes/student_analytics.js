@@ -2724,26 +2724,70 @@ routes.get("/batch/:batchYear/export-all-companies", async (req, res, next) => {
         const eventsResult = await db.query(eventsQuery, [company.id]);
         const events = eventsResult.rows;
 
-        // Get final selections
         const finalSelectionsQuery = `
           SELECT 
             s.id as student_id,
-            (s.current_offer->>'position_id')::INTEGER as position_id
+            s.offers_received,
+            s.current_offer
           FROM students s
           WHERE s.batch_year = $1
             AND s.placement_status = 'placed'
-            AND (s.current_offer->>'company_id')::INTEGER = $2
         `;
         const finalSelectionsResult = await db.query(finalSelectionsQuery, [
           batchYear,
-          company.id,
         ]);
+
+        // Process all offers to find selections for this company
+        const studentSelections = [];
+
+        finalSelectionsResult.rows.forEach((row) => {
+          let offersArray = [];
+
+          // Parse offers_received (handle both [] and [[]] formats)
+          if (row.offers_received) {
+            if (Array.isArray(row.offers_received)) {
+              offersArray = Array.isArray(row.offers_received[0])
+                ? row.offers_received[0]
+                : row.offers_received;
+            }
+          }
+
+          // Check each offer if it matches the current company
+          offersArray.forEach((offer) => {
+            if (offer && offer.company_id === company.id && offer.position_id) {
+              studentSelections.push({
+                student_id: row.student_id,
+                position_id: offer.position_id,
+              });
+            }
+          });
+
+          // Also check current_offer
+          if (
+            row.current_offer &&
+            row.current_offer.company_id === company.id &&
+            row.current_offer.position_id
+          ) {
+            // Avoid duplicates - only add if not already in studentSelections
+            const alreadyExists = studentSelections.some(
+              (s) =>
+                s.student_id === row.student_id &&
+                s.position_id === row.current_offer.position_id
+            );
+            if (!alreadyExists) {
+              studentSelections.push({
+                student_id: row.student_id,
+                position_id: row.current_offer.position_id,
+              });
+            }
+          }
+        });
 
         // Count selections by position
         const selectionsByPosition = new Map();
-        finalSelectionsResult.rows.forEach((row) => {
-          const count = selectionsByPosition.get(row.position_id) || 0;
-          selectionsByPosition.set(row.position_id, count + 1);
+        studentSelections.forEach((selection) => {
+          const count = selectionsByPosition.get(selection.position_id) || 0;
+          selectionsByPosition.set(selection.position_id, count + 1);
         });
 
         // Create sheet for this company
@@ -2843,7 +2887,7 @@ routes.get("/batch/:batchYear/export-all-companies", async (req, res, next) => {
           ["Total Eligible Students", totalEligible],
           ["Total Ineligible Students", totalIneligible],
           ["Total Registered Students", totalRegistered],
-          ["Total Final Selections", finalSelectionsResult.rows.length],
+          ["Total Final Selections", studentSelections.length],
         ];
 
         statistics.forEach((row) => {
@@ -3087,24 +3131,24 @@ routes.get("/batch/:batchYear/export-all-companies", async (req, res, next) => {
         }
 
         // ===== FINAL SELECTIONS PER POSITION =====
-        if (finalSelectionsResult.rows.length > 0) {
+        if (studentSelections.length > 0) {
           // Get full student details for selections
-          const selectedStudentIds = finalSelectionsResult.rows.map(
-            (r) => r.student_id
-          );
+          const selectedStudentIds = [
+            ...new Set(studentSelections.map((r) => r.student_id)),
+          ];
 
           const studentsQuery = `
-    SELECT 
-      s.id,
-      s.registration_number,
-      s.full_name,
-      s.college_email,
-      s.branch,
-      s.cgpa,
-      s.current_offer
-    FROM students s
-    WHERE s.id = ANY($1)
-  `;
+            SELECT 
+              s.id,
+              s.registration_number,
+              s.full_name,
+              s.college_email,
+              s.branch,
+              s.cgpa,
+              s.current_offer
+            FROM students s
+            WHERE s.id = ANY($1)
+          `;
           const studentsResult = await db.query(studentsQuery, [
             selectedStudentIds,
           ]);
@@ -3114,14 +3158,20 @@ routes.get("/batch/:batchYear/export-all-companies", async (req, res, next) => {
 
           // Group selections by position
           const selectionsByPositionDetails = new Map();
-          finalSelectionsResult.rows.forEach((row) => {
-            const posId = row.position_id;
+          studentSelections.forEach((selection) => {
+            const posId = selection.position_id;
             if (!selectionsByPositionDetails.has(posId)) {
               selectionsByPositionDetails.set(posId, []);
             }
-            const student = studentsMap.get(row.student_id);
+            const student = studentsMap.get(selection.student_id);
             if (student) {
-              selectionsByPositionDetails.get(posId).push(student);
+              // Avoid duplicate students in the same position
+              const alreadyAdded = selectionsByPositionDetails
+                .get(posId)
+                .some((s) => s.id === student.id);
+              if (!alreadyAdded) {
+                selectionsByPositionDetails.get(posId).push(student);
+              }
             }
           });
 
