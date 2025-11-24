@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  FaUserShield,
-  FaEdit,
-  FaTrash,
-  FaCheck,
-  FaTimes,
-  FaArrowLeft,
-} from "react-icons/fa";
+import { ArrowLeft, Trash2, Edit, Check, X } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -105,7 +98,7 @@ export default function UserManagement() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FaTimes className="w-8 h-8 text-red-600" />
+            <X className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Access Denied
@@ -117,7 +110,7 @@ export default function UserManagement() {
             onClick={() => router.push("/")}
             className="mt-6 inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
           >
-            <FaArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </button>
         </div>
@@ -139,28 +132,24 @@ export default function UserManagement() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Add Back Button */}
-        <button
-          onClick={() => router.push("/")}
-          className="mb-4 inline-flex items-center px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 shadow-sm transition-colors"
-        >
-          <FaArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
-        </button>
-
-        {/* Header */}
+        {/* Header with Back Button */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FaUserShield className="w-6 h-6 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                User Management
-              </h1>
-              <p className="text-gray-600">
-                Manage user accounts, roles, and permissions
-              </p>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <button
+                onClick={() => router.push("/")}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  User Management
+                </h1>
+                <p className="text-gray-600">
+                  Manage user accounts, roles, and permissions
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -303,17 +292,17 @@ export default function UserManagement() {
                                   is_active: editingUser.is_active,
                                 })
                               }
-                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              className="p-1 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
                               title="Save"
                             >
-                              <FaCheck className="w-4 h-4" />
+                              <Check className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => setEditingUser(null)}
-                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                              className="p-1 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                               title="Cancel"
                             >
-                              <FaTimes className="w-4 h-4" />
+                              <X className="w-5 h-5" />
                             </button>
                           </>
                         ) : user.id === currentUser?.id ? (
@@ -324,19 +313,19 @@ export default function UserManagement() {
                           <>
                             <button
                               onClick={() => setEditingUser(user)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                               title="Edit"
                             >
-                              <FaEdit className="w-4 h-4" />
+                              <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() =>
                                 handleDeleteUser(user.id, user.username)
                               }
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                               title="Delete"
                             >
-                              <FaTrash className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </>
                         )}

@@ -418,7 +418,7 @@ routes.get("/:year", async (req, res) => {
   }
 });
 
-// 4. Upload route with proper company_id fetching
+// 4. Upload data with proper company_id fetching
 routes.post("/:id/upload", upload.single("file"), async (req, res) => {
   const client = await db.connect();
 
@@ -920,7 +920,7 @@ routes.get("/events/:year", async (req, res) => {
     }
 
     if (include_event) {
-      // When editing: Get ONLY the specific event + all unlinked events
+      // When editing: Get ONLY the specific event + all unlinked first-round events
       const query = `
         SELECT
           e.id,
@@ -946,7 +946,8 @@ routes.get("/events/:year", async (req, res) => {
         WHERE b.year = $1
         AND (f.id IS NULL OR e.id = $2)
         AND array_length(e.position_ids, 1) > 0
-        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name,e.company_id
+        AND (e.round_type = 'first' OR e.id = $2)
+        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name, e.company_id
         ORDER BY
           CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
           e.event_date DESC NULLS LAST
@@ -960,7 +961,7 @@ routes.get("/events/:year", async (req, res) => {
         count: result.rows.length,
       });
     } else {
-      // When creating new: Only show events without existing forms
+      // When creating new: Only show first-round events without existing forms
       const query = `
         SELECT
           e.id,
@@ -986,7 +987,8 @@ routes.get("/events/:year", async (req, res) => {
         WHERE b.year = $1
         AND f.id IS NULL
         AND array_length(e.position_ids, 1) > 0
-        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name,e.company_id
+        AND e.round_type = 'first'
+        GROUP BY e.id, e.title, e.event_date, e.event_type, e.position_ids, c.company_name, e.company_id
         ORDER BY
           CASE WHEN c.company_name IS NULL THEN 1 ELSE 0 END,
           e.event_date DESC NULLS LAST

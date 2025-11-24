@@ -43,7 +43,6 @@ const FormManagementSystem = () => {
   const [error, setError] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
 
-  // Fetch forms directly using axios with batch context
   const fetchForms = async () => {
     try {
       setLoading(true);
@@ -55,19 +54,6 @@ const FormManagementSystem = () => {
       console.error("Error fetching forms:", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Delete form directly
-  const handleDeleteForm = async (formId) => {
-    if (!window.confirm("Are you sure you want to delete this form?")) return;
-
-    try {
-      await axios.delete(`${backendUrl}/forms/${formId}`);
-      fetchForms(); // Refresh the forms list
-    } catch (err) {
-      setError("Failed to delete form");
-      console.error("Error deleting form:", err);
     }
   };
 
@@ -161,49 +147,6 @@ const FormManagementSystem = () => {
     filterCompany !== "all" ||
     filterPosition !== "all";
 
-  // Add this function inside FormManagementSystem component before the return statement
-  const handleExportForms = () => {
-    try {
-      // Prepare data for export
-      const exportData = forms.map((form) => ({
-        "Form Title": form.title,
-        Type: form.type.charAt(0).toUpperCase() + form.type.slice(1),
-        Company: form.company_name || "-",
-        Position: form.position_title || "-",
-        "Total Responses": form.total_responses || 0,
-        "Created Date": new Date(form.created_at).toLocaleDateString(),
-      }));
-
-      // Create worksheet
-      const ws = XLSX.utils.json_to_sheet(exportData);
-
-      // Set column widths
-      ws["!cols"] = [
-        { wch: 40 }, // Form Title
-        { wch: 15 }, // Type
-        { wch: 25 }, // Company
-        { wch: 25 }, // Position
-        { wch: 15 }, // Total Responses
-        { wch: 15 }, // Created Date
-      ];
-
-      // Create workbook
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, `Forms - Batch ${selectedBatch}`);
-
-      // Generate filename
-      const fileName = `forms_report_batch_${selectedBatch}_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
-
-      // Save file
-      XLSX.writeFile(wb, fileName);
-    } catch (error) {
-      console.error("Error exporting forms:", error);
-      alert("Failed to export forms data");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto p-6">
@@ -229,13 +172,6 @@ const FormManagementSystem = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={handleExportForms}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <FileText className="h-4 w-4" />
-                Export Forms
-              </button>
               <button
                 onClick={() => {
                   setShowCreateForm(true);
