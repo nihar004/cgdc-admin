@@ -2147,7 +2147,9 @@ routes.get(
         s.id,
         s.registration_number,
         s.full_name,
-        s.placement_status
+        s.placement_status,
+        s.offers_received,
+        s.current_offer
       FROM students s
       ${whereClause}
       ORDER BY s.full_name
@@ -2163,57 +2165,184 @@ routes.get(
         });
       }
 
-      // 2. Get all offers for these students
+      // 2. Get all unique companies that made offers
       const studentIds = students.map((s) => s.id);
 
+      const companiesQuery = `
+        SELECT DISTINCT
+          c.id as company_id,
+          c.company_name
+        FROM student_round_results srr
+        INNER JOIN events e ON srr.event_id = e.id
+        INNER JOIN companies c ON e.company_id = c.id
+        WHERE srr.student_id = ANY($1)
+          AND srr.result_status = 'selected'
+          AND e.round_type = 'last'
+          AND e.is_placement_event = TRUE
+        ORDER BY c.company_name
+      `;
+
+      const companiesResult = await db.query(companiesQuery, [studentIds]);
+      const companies = companiesResult.rows;
+
+      // 3. Get all offers with company and position details
       const offersQuery = `
-      SELECT 
-        srr.student_id,
-        c.company_name,
-        cp.position_title,
-        cp.package,
-        cp.package_end,
-        cp.has_range,
-        cp.job_type,
-        e.event_date as selection_date,
-        srr.created_at as offer_date
-      FROM student_round_results srr
-      INNER JOIN events e ON srr.event_id = e.id
-      INNER JOIN companies c ON e.company_id = c.id
-      LEFT JOIN company_positions cp ON cp.id = ANY(e.position_ids)
-      WHERE srr.student_id = ANY($1)
-        AND srr.result_status = 'selected'
-        AND e.round_type = 'last'
-        AND e.is_placement_event = TRUE
-      ORDER BY srr.student_id, srr.created_at
-    `;
+        SELECT
+          srr.student_id,
+          c.id as company_id,
+          c.company_name,
+          cp.position_title,
+          cp.package,
+          cp.package_end,
+          cp.has_range,
+          cp.job_type,
+          e.event_date as selection_date,
+          srr.created_at as offer_date,
+          cp.id as position_id
+        FROM student_round_results srr
+        INNER JOIN events e ON srr.event_id = e.id
+        INNER JOIN companies c ON e.company_id = c.id
+        LEFT JOIN company_positions cp ON cp.id = ANY(e.position_ids)
+        WHERE srr.student_id = ANY($1)
+          AND srr.result_status = 'selected'
+          AND e.round_type = 'last'
+          AND e.is_placement_event = TRUE
+        ORDER BY srr.student_id, c.company_name
+      `;
 
       const offersResult = await db.query(offersQuery, [studentIds]);
 
-      // 3. Organize offers by student
-      const studentOffersMap = new Map();
-      let maxOffers = 0;
+      // 4. Process offers from offers_received and current_offer as well
+      const allOffers = new Map(); // Map<student_id, Map<company_id, offer>>
 
+      // Process database results (from student_round_results)
       offersResult.rows.forEach((offer) => {
-        if (!studentOffersMap.has(offer.student_id)) {
-          studentOffersMap.set(offer.student_id, []);
+        if (!allOffers.has(offer.student_id)) {
+          allOffers.set(offer.student_id, new Map());
         }
 
-        const offers = studentOffersMap.get(offer.student_id);
-        offers.push({
-          companyName: offer.company_name,
-          positionTitle: offer.position_title,
-          package: offer.package,
-          packageEnd: offer.package_end,
-          hasRange: offer.has_range,
-          jobType: offer.job_type,
-          selectionDate: offer.selection_date || offer.offer_date,
-        });
+        const studentOffers = allOffers.get(offer.student_id);
 
-        maxOffers = Math.max(maxOffers, offers.length);
+        // Only add if this company doesn't already exist for this student
+        if (!studentOffers.has(offer.company_id)) {
+          studentOffers.set(offer.company_id, {
+            companyId: offer.company_id,
+            companyName: offer.company_name,
+            positionTitle: offer.position_title,
+            package: offer.package,
+            packageEnd: offer.package_end,
+            hasRange: offer.has_range,
+            jobType: offer.job_type,
+            selectionDate: offer.selection_date || offer.offer_date,
+          });
+        }
       });
 
-      // 4. Create Excel workbook
+      // Also process offers_received from students table
+      students.forEach((student) => {
+        if (!allOffers.has(student.id)) {
+          allOffers.set(student.id, new Map());
+        }
+
+        const studentOffers = allOffers.get(student.id);
+
+        // Process offers_received
+        if (student.offers_received) {
+          let offersArray = [];
+
+          if (Array.isArray(student.offers_received)) {
+            offersArray = Array.isArray(student.offers_received[0])
+              ? student.offers_received[0]
+              : student.offers_received;
+          }
+
+          offersArray.forEach(async (offer) => {
+            if (
+              offer &&
+              offer.company_id &&
+              !studentOffers.has(offer.company_id)
+            ) {
+              // Get company and position details
+              const detailsQuery = `
+                SELECT
+                  c.company_name,
+                  cp.position_title,
+                  cp.package,
+                  cp.package_end,
+                  cp.has_range,
+                  cp.job_type
+                FROM companies c
+                LEFT JOIN company_positions cp ON cp.id = $1
+                WHERE c.id = $2
+              `;
+
+              try {
+                const detailsResult = await db.query(detailsQuery, [
+                  offer.position_id,
+                  offer.company_id,
+                ]);
+
+                if (detailsResult.rows.length > 0) {
+                  const details = detailsResult.rows[0];
+                  studentOffers.set(offer.company_id, {
+                    companyId: offer.company_id,
+                    companyName: details.company_name,
+                    positionTitle: details.position_title,
+                    package: details.package,
+                    packageEnd: details.package_end,
+                    hasRange: details.has_range,
+                    jobType: details.job_type,
+                    selectionDate: offer.offer_date || offer.created_at,
+                  });
+                }
+              } catch (err) {
+                console.error("Error fetching offer details:", err);
+              }
+            }
+          });
+        }
+
+        // Process current_offer
+        if (student.current_offer && student.current_offer.company_id) {
+          const offer = student.current_offer;
+          if (!studentOffers.has(offer.company_id)) {
+            // This will be handled in the sync query below
+          }
+        }
+      });
+
+      // Wait a bit for async queries to complete (not ideal, but works)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Re-fetch to ensure we have all company names
+      const allCompanyIds = new Set();
+      allOffers.forEach((studentOffers) => {
+        studentOffers.forEach((offer) => {
+          allCompanyIds.add(offer.companyId);
+        });
+      });
+
+      // Update companies list to include all unique companies
+      const uniqueCompanies = Array.from(
+        new Map(
+          Array.from(allOffers.values())
+            .flatMap((studentOffers) => Array.from(studentOffers.values()))
+            .map((offer) => [
+              offer.companyId,
+              {
+                company_id: offer.companyId,
+                company_name: offer.companyName,
+              },
+            ])
+        ).values()
+      ).sort((a, b) => a.company_name.localeCompare(b.company_name));
+
+      const maxOffersPerStudent = Math.max(
+        ...Array.from(allOffers.values()).map((m) => m.size),
+        1
+      );
+
+      // 5. Create Excel workbook
       const workbook = new ExcelJS.Workbook();
       workbook.creator = "Placement Management System";
       workbook.created = new Date();
@@ -2237,7 +2366,7 @@ routes.get(
         size: 11,
       };
 
-      // 5. Create merged header row (Row 1)
+      // 6. Create merged header row (Row 1)
       const row1Values = [
         "S.No",
         "Registration Number",
@@ -2246,8 +2375,8 @@ routes.get(
       ];
       let currentCol = 5;
 
-      // Add offer group headers
-      for (let i = 1; i <= maxOffers; i++) {
+      // Add company group headers
+      for (let i = 1; i <= uniqueCompanies.length; i++) {
         row1Values.push(`Placed Company ${i}`);
         row1Values.push("", "", ""); // Placeholders for merged cells
         currentCol += 4;
@@ -2256,9 +2385,9 @@ routes.get(
 
       worksheet.getRow(1).values = row1Values;
 
-      // Merge cells for each offer group in row 1
+      // Merge cells for each company group in row 1
       let mergeCol = 5;
-      for (let i = 1; i <= maxOffers; i++) {
+      for (let i = 1; i <= uniqueCompanies.length; i++) {
         worksheet.mergeCells(1, mergeCol, 1, mergeCol + 3);
         mergeCol += 4;
       }
@@ -2272,16 +2401,16 @@ routes.get(
       };
       worksheet.getRow(1).height = 25;
 
-      // 6. Create sub-header row (Row 2)
+      // 7. Create sub-header row (Row 2)
       const row2Values = ["", "", "", ""]; // Empty for student info columns
 
-      // Add sub-headers for each offer group
-      for (let i = 1; i <= maxOffers; i++) {
-        row2Values.push("Company Name");
+      // Add sub-headers for each company
+      uniqueCompanies.forEach((company) => {
+        row2Values.push(company.company_name);
         row2Values.push("Date of Selection");
         row2Values.push("Profile Offered");
         row2Values.push("CTC Offered (in LPA)");
-      }
+      });
       row2Values.push(""); // Empty for highest CTC column
 
       worksheet.getRow(2).values = row2Values;
@@ -2299,9 +2428,14 @@ routes.get(
       worksheet.mergeCells(2, 2, 2, 2); // Registration Number
       worksheet.mergeCells(2, 3, 2, 3); // Full Name
       worksheet.mergeCells(2, 4, 2, 4); // Placement Status
-      worksheet.mergeCells(2, 5 + maxOffers * 4, 2, 5 + maxOffers * 4); // Highest CTC
+      worksheet.mergeCells(
+        2,
+        5 + uniqueCompanies.length * 4,
+        2,
+        5 + uniqueCompanies.length * 4
+      ); // Highest CTC
 
-      // 7. Set column widths
+      // 8. Set column widths
       const columnWidths = [
         { width: 8 }, // S.No
         { width: 18 }, // Registration Number
@@ -2309,9 +2443,9 @@ routes.get(
         { width: 15 }, // Placement Status
       ];
 
-      // Add widths for offer columns
-      for (let i = 0; i < maxOffers; i++) {
-        columnWidths.push({ width: 25 }); // Company Name
+      // Add widths for company columns
+      for (let i = 0; i < uniqueCompanies.length; i++) {
+        columnWidths.push({ width: 25 }); // Company Name (will show in header only)
         columnWidths.push({ width: 18 }); // Date of Selection
         columnWidths.push({ width: 25 }); // Profile Offered
         columnWidths.push({ width: 18 }); // CTC Offered
@@ -2320,10 +2454,10 @@ routes.get(
 
       worksheet.columns = columnWidths;
 
-      // 8. Add student data
+      // 9. Add student data
       students.forEach((student, index) => {
         const rowNumber = index + 3;
-        const studentOffers = studentOffersMap.get(student.id) || [];
+        const studentOffers = allOffers.get(student.id) || new Map();
 
         // Calculate highest CTC
         let highestCTC = 0;
@@ -2331,7 +2465,7 @@ routes.get(
           const ctc =
             offer.hasRange && offer.packageEnd
               ? parseFloat(offer.packageEnd)
-              : parseFloat(offer.package);
+              : parseFloat(offer.package || 0);
 
           highestCTC = Math.max(highestCTC, ctc);
         });
@@ -2343,13 +2477,15 @@ routes.get(
           student.placement_status === "placed" ? "Placed" : "Unplaced",
         ];
 
-        // Add offer data
-        for (let i = 0; i < maxOffers; i++) {
-          if (i < studentOffers.length) {
-            const offer = studentOffers[i];
+        // Add offer data for each company
+        uniqueCompanies.forEach((company) => {
+          const offer = studentOffers.get(company.company_id);
 
-            rowData.push(offer.companyName || "—");
+          if (offer) {
+            // Company name (will be empty as it's in header)
+            rowData.push("✓"); // Checkmark to indicate offer received
 
+            // Selection date
             rowData.push(
               offer.selectionDate
                 ? new Date(offer.selectionDate).toLocaleDateString("en-IN", {
@@ -2360,8 +2496,10 @@ routes.get(
                 : "—"
             );
 
+            // Position title
             rowData.push(offer.positionTitle || "—");
 
+            // CTC
             const ctc =
               offer.hasRange && offer.packageEnd
                 ? `${offer.package}-${offer.packageEnd}`
@@ -2370,10 +2508,10 @@ routes.get(
                 : "—";
             rowData.push(ctc);
           } else {
-            // Empty cells for students with fewer offers
+            // Empty cells for companies where student didn't get offer
             rowData.push("", "", "", "");
           }
-        }
+        });
 
         // Add highest CTC
         rowData.push(highestCTC > 0 ? parseFloat(highestCTC).toFixed(2) : "—");
@@ -2387,12 +2525,14 @@ routes.get(
 
         // Center align specific columns
         const centerAlignCols = [1, 4]; // S.No, Placement Status
-        // Add date and CTC columns
-        for (let i = 0; i < maxOffers; i++) {
-          centerAlignCols.push(6 + i * 4); // Date columns
-          centerAlignCols.push(7 + i * 4); // CTC columns
+
+        // Add columns for each company (checkmark, date, CTC)
+        for (let i = 0; i < uniqueCompanies.length; i++) {
+          centerAlignCols.push(5 + i * 4); // Checkmark column
+          centerAlignCols.push(6 + i * 4); // Date column
+          centerAlignCols.push(8 + i * 4); // CTC column
         }
-        centerAlignCols.push(5 + maxOffers * 4); // Highest CTC
+        centerAlignCols.push(5 + uniqueCompanies.length * 4); // Highest CTC
 
         centerAlignCols.forEach((col) => {
           const cell = worksheet.getCell(rowNumber, col);
@@ -2426,7 +2566,10 @@ routes.get(
         }
 
         // Highlight highest CTC cell
-        const highestCTCCell = worksheet.getCell(rowNumber, 5 + maxOffers * 4);
+        const highestCTCCell = worksheet.getCell(
+          rowNumber,
+          5 + uniqueCompanies.length * 4
+        );
         if (highestCTC > 0) {
           highestCTCCell.fill = {
             type: "pattern",
@@ -2468,7 +2611,7 @@ routes.get(
         },
       ];
 
-      // 9. Add summary sheet
+      // 10. Add summary sheet
       const summarySheet = workbook.addWorksheet("Summary");
 
       summarySheet.mergeCells("A1:B1");
@@ -2486,14 +2629,21 @@ routes.get(
         2
       );
 
+      // Count total offers
+      let totalOffers = 0;
+      allOffers.forEach((studentOffers) => {
+        totalOffers += studentOffers.size;
+      });
+
       const summaryData = [
         ["Metric", "Value"],
         ["Total Students", totalStudents],
         ["Students Placed", totalPlaced],
         ["Students Unplaced", totalStudents - totalPlaced],
         ["Placement Percentage", `${placementPercentage}%`],
-        ["Maximum Offers to Single Student", maxOffers],
-        ["Total Offers Made", offersResult.rows.length],
+        ["Total Unique Companies", uniqueCompanies.length],
+        ["Total Offers Made", totalOffers],
+        ["Maximum Offers to Single Student", maxOffersPerStudent],
       ];
 
       summaryData.forEach((row, index) => {
@@ -2521,7 +2671,7 @@ routes.get(
 
       summarySheet.columns = [{ width: 30 }, { width: 20 }];
 
-      // 10. Generate Excel file
+      // 11. Generate Excel file
       const buffer = await workbook.xlsx.writeBuffer();
 
       // Set response headers
