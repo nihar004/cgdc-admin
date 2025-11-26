@@ -1119,27 +1119,13 @@ export default function EditStudentModel() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border-2 border-gray-200 hover:border-orange-300 focus:border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 bg-white/70"
                   >
-                    <option value="placed" key="placed">
-                      Placed
-                    </option>
-                    <option value="unplaced" key="unplaced">
-                      Unplaced
-                    </option>
-                    <option value="higher_studies" key="higher_studies">
-                      Higher Studies
-                    </option>
-                    <option value="entrepreneurship" key="entrepreneurship">
-                      Entrepreneurship
-                    </option>
-                    <option value="family_business" key="family_business">
-                      Family Business
-                    </option>
-                    <option value="debarred" key="debarred">
-                      Debarred
-                    </option>
-                    <option value="others" key="others">
-                      Others
-                    </option>
+                    <option value="placed">Placed</option>
+                    <option value="unplaced">Unplaced</option>
+                    <option value="higher_studies">Higher Studies</option>
+                    <option value="entrepreneurship">Entrepreneurship</option>
+                    <option value="family_business">Family Business</option>
+                    <option value="debarred">Debarred</option>
+                    <option value="others">Others</option>
                   </select>
                 </div>
               </div>

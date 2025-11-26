@@ -109,7 +109,7 @@ export default function EmailTargetModal({ company, onClose, onSelect }) {
                   Dream Company Option
                 </h4>
                 <p className="text-sm text-gray-600">
-                  Placed students who haven't used dream company
+                  Placed students who haven&apos;t used dream company
                 </p>
               </div>
             </div>
