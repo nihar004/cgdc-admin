@@ -586,7 +586,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   return (
     <>
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="bg-white rounded-2xl max-w-[90vw] w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -766,7 +766,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                               )}
                             </td>
                             <td className="px-4 py-3">
-                              {(student.used_dream_company ||
+                              {(student.dream_company_used ||
                                 student.manual_override_reason) && (
                                 <button
                                   onClick={() =>
@@ -822,9 +822,6 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                             Name
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
-                            Enrollment
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
                             Branch
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
@@ -835,6 +832,12 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
                             Academics
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Company Name
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
+                            Position
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase whitespace-nowrap">
                             Upgrade Status
@@ -853,25 +856,33 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                             key={student.id}
                             className="hover:bg-gray-50 transition-colors"
                           >
-                            <td className="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">
+                            {/* Registration Number - sticky column on mobile */}
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 font-medium whitespace-nowrap sticky left-0 bg-white z-10 shadow-sm sm:shadow-none sm:static">
                               {student.registration_number}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-900">
+
+                            {/* Full Name */}
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 max-w-[150px] sm:max-w-none truncate">
                               {student.full_name}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              {student.enrollment_number}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
+
+                            {/* Department/Branch - hide on small screens */}
+                            <td className="hidden lg:table-cell px-4 py-3 text-sm text-gray-600">
                               {student.department} {student.branch}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+
+                            {/* CGPA */}
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 font-medium whitespace-nowrap">
                               {parseFloat(student.cgpa).toFixed(2)}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-900">
+
+                            {/* Backlogs - hide on mobile */}
+                            <td className="hidden md:table-cell px-4 py-3 text-sm text-gray-900">
                               {student.backlogs}
                             </td>
-                            <td className="px-4 py-3">
+
+                            {/* 10th/12th - hide on mobile */}
+                            <td className="hidden xl:table-cell px-4 py-3">
                               <div className="space-y-1">
                                 <div className="text-xs">
                                   <span className="text-gray-500">10th:</span>
@@ -888,14 +899,46 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                               </div>
                             </td>
 
-                            <td className="px-4 py-3">
+                            {/* Company Name */}
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 max-w-[120px] sm:max-w-none truncate">
+                              {student.company_name}
+                            </td>
+
+                            {/* Position & Package */}
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600">
+                              <div className="max-w-[150px] sm:max-w-none">
+                                <div className="truncate">
+                                  {student.position_title}
+                                </div>
+                                <div className="text-xs text-gray-500 whitespace-nowrap">
+                                  {student.has_range
+                                    ? `${Number(student.package)}-${Number(student.package_end)} LPA`
+                                    : `${Number(student.package)} LPA`}
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Upgrades Left */}
+                            <td className="px-2 sm:px-4 py-3">
                               {(() => {
+                                const isEligibleForUpgrade =
+                                  Number(student.package) <= 6;
+
+                                if (!isEligibleForUpgrade) {
+                                  return (
+                                    <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-500">
+                                      <span>N/A</span>
+                                    </span>
+                                  );
+                                }
+
                                 const upgradesUsed =
                                   student.upgrade_opportunities_used || 0;
                                 const upgradesLeft = 3 - upgradesUsed;
+
                                 return (
                                   <span
-                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+                                    className={`inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
                                       upgradesLeft > 0
                                         ? "bg-blue-100 text-blue-800"
                                         : "bg-gray-100 text-gray-800"
@@ -904,37 +947,50 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                     {upgradesLeft > 0 ? (
                                       <>
                                         <CheckCircle className="h-3 w-3" />
-                                        {upgradesLeft} Left
+                                        <span className="hidden sm:inline">
+                                          {upgradesLeft} Left
+                                        </span>
+                                        <span className="sm:hidden">
+                                          {upgradesLeft}
+                                        </span>
                                       </>
                                     ) : (
                                       <>
                                         <XCircle className="h-3 w-3" />
-                                        All Used
+                                        <span className="hidden sm:inline">
+                                          All Used
+                                        </span>
+                                        <span className="sm:hidden">0</span>
                                       </>
                                     )}
                                   </span>
                                 );
                               })()}
                             </td>
-                            <td className="px-4 py-3">
-                              {/* Dream Status */}
-                              {student.used_dream_company ? (
-                                <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium">
+
+                            {/* Dream Status */}
+                            <td className="px-2 sm:px-4 py-3">
+                              {student.dream_company_used ? (
+                                <span className="inline-flex items-center gap-0.5 sm:gap-1 bg-red-100 text-red-800 px-1.5 sm:px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap">
                                   <XCircle className="h-3 w-3" />
-                                  Already Used
+                                  <span className="hidden sm:inline">Used</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                <span className="inline-flex items-center gap-0.5 sm:gap-1 bg-green-100 text-green-800 px-1.5 sm:px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap">
                                   <CheckCircle className="h-3 w-3" />
-                                  Available
+                                  <span className="hidden sm:inline">
+                                    Available
+                                  </span>
                                 </span>
                               )}
                             </td>
 
-                            <td className="px-4 py-3">
-                              <div className="flex gap-2 flex-wrap">
-                                {/* Use Upgrade Opportunity button (only for placed students with upgrades left) */}
+                            {/* Actions */}
+                            <td className="px-2 sm:px-4 py-3 sticky right-0 bg-white z-10 shadow-sm sm:shadow-none sm:static">
+                              <div className="flex gap-1 sm:gap-2 flex-wrap">
+                                {/* Use Upgrade Opportunity button */}
                                 {student.placement_status === "placed" &&
+                                  Number(student.package) <= 6 &&
                                   3 -
                                     (student.upgrade_opportunities_used || 0) >
                                     0 && (
@@ -943,45 +999,57 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                                         handleUseUpgradeOpportunity(student.id)
                                       }
                                       disabled={actionLoading === student.id}
-                                      className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                      className="inline-flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                      title="Use Upgrade"
                                     >
                                       {actionLoading === student.id ? (
                                         <RefreshCw className="h-3 w-3 animate-spin" />
                                       ) : (
                                         <Plus className="h-3 w-3" />
                                       )}
-                                      Use Upgrade
+                                      <span className="hidden sm:inline">
+                                        Use Upgrade
+                                      </span>
+                                      <span className="sm:hidden">Upgrade</span>
                                     </button>
                                   )}
 
-                                {/* Dream Company button (only if not already used) */}
-                                {!student.used_dream_company && (
+                                {/* Dream Company button */}
+                                {!student.dream_company_used && (
                                   <button
                                     onClick={() =>
                                       handleAddViaDreamCompany(student.id)
                                     }
                                     disabled={actionLoading === student.id}
-                                    className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                    className="inline-flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                    title="Add via Dream Company"
                                   >
                                     {actionLoading === student.id ? (
                                       <RefreshCw className="h-3 w-3 animate-spin" />
                                     ) : (
                                       <Plus className="h-3 w-3" />
                                     )}
-                                    Dream
+                                    <span className="hidden sm:inline">
+                                      Dream
+                                    </span>
+                                    <span className="sm:hidden">D</span>
                                   </button>
                                 )}
 
-                                {/* Manual Override button (always available) */}
+                                {/* Manual Override button */}
                                 <button
                                   onClick={() =>
                                     handleManualOverrideClick(student)
                                   }
                                   disabled={actionLoading === student.id}
-                                  className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                  className="inline-flex items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs rounded-lg transition-colors font-medium whitespace-nowrap"
+                                  title="Manual Override"
                                 >
                                   <UserPlus className="h-3 w-3" />
-                                  Manual
+                                  <span className="hidden sm:inline">
+                                    Manual
+                                  </span>
+                                  <span className="sm:hidden">M</span>
                                 </button>
                               </div>
                             </td>
@@ -1076,7 +1144,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              {student.used_dream_company ? (
+                              {student.dream_company_used ? (
                                 <span className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium">
                                   <XCircle className="h-3 w-3" />
                                   Already Used

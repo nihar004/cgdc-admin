@@ -2,7 +2,8 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { Mail, Trash2, Save, Edit, Paperclip, X, Users } from "lucide-react";
 import { useEmail } from "../../context/EmailContext";
-import toast from "react-hot-toast"; // Add this import
+import toast from "react-hot-toast";
+import TiptapEditor from "./TiptapEditor";
 
 const Templates = () => {
   const { templates, createTemplate, updateTemplate, deleteTemplate, loading } =
@@ -122,7 +123,7 @@ const Templates = () => {
       template_name: "",
       subject: "",
       body: "",
-      category: "general",
+      category: activeCategory || "general",
       sender_email: "",
       cc_emails: "",
     });
@@ -152,7 +153,8 @@ const Templates = () => {
       template_name: template.template_name,
       subject: template.subject,
       body: template.body,
-      category: editing ? template.category : "general", // Set to 'general' not empty string
+      // category: editing ? template.category : "general", // Set to 'general' not empty string
+      category: template.category,
       sender_email: template.sender_email || "",
       cc_emails: Array.isArray(template.cc_emails)
         ? template.cc_emails.join(", ")
@@ -270,12 +272,15 @@ const Templates = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Body (HTML)
             </label>
-            <textarea
-              value={form.body}
-              onChange={(e) => setForm({ ...form, body: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 h-32 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Hello ..."
-            />
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Email Body (HTML)
+              </label>
+              <TiptapEditor
+                content={form.body}
+                onChange={(html) => setForm({ ...form, body: html })}
+              />
+            </div>
           </div>
 
           <div>

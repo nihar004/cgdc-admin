@@ -23,9 +23,31 @@ function CreateEvent({
   isEditing = false,
   eventData = null,
 }) {
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    // If it's already in YYYY-MM-DD format, return as-is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    // If it's a full datetime string, extract just the date part
+    return dateString.split("T")[0];
+  };
+
   // Helper function to format time from backend format
   const formatTimeForInput = (timeString) => {
     if (!timeString) return "";
+
+    // If already in HH:MM format, return as-is
+    if (/^\d{2}:\d{2}$/.test(timeString)) {
+      return timeString;
+    }
+
+    // If in HH:MM:SS format, strip seconds
+    if (/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
+      return timeString.substring(0, 5);
+    }
+
+    // If in 12-hour format (HH:MM AM/PM)
     const [time, period] = timeString.split(" ");
     const [hours, minutes] = time.split(":");
     let hour = parseInt(hours);
@@ -53,7 +75,7 @@ function CreateEvent({
             eventData.type === "company_round" ? "company_event" : "cgdc_event",
           title: eventData.title || "",
           eventType: eventData.event_type || "other",
-          date: eventData.date || "",
+          date: formatDateForInput(eventData.date) || "",
           startTime: formatTimeForInput(eventData.time) || "",
           endTime: formatTimeForInput(eventData.endTime) || "",
           venue: eventData.venue || "",
@@ -335,6 +357,80 @@ function CreateEvent({
   };
 
   // Update the handleSubmit function to match API payload structure
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (!validateForm()) {
+  //     setSubmitStatus("error");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   setSubmitStatus("");
+
+  //   try {
+  //     // Format time strings correctly for backend
+  //     const formatTimeForBackend = (time) => {
+  //       if (!time) return null;
+  //       // Add seconds to match SQL TIME format
+  //       return `${time}:00`;
+  //     };
+
+  //     const eventPayload = {
+  //       title: formData.title.trim(),
+  //       eventType: formData.eventType,
+  //       date: formData.date, // Send date as YYYY-MM-DD
+  //       startTime: formatTimeForBackend(formData.startTime), // Send time as HH:MM:SS
+  //       endTime: formatTimeForBackend(formData.endTime), // Send time as HH:MM:SS
+  //       venue: formData.venue.trim(),
+  //       mode: formData.mode,
+  //       isPlacementEvent: formData.eventCategory === "company_event",
+  //       isMandatory: formData.isMandatory,
+  //       companyId:
+  //         formData.eventCategory === "company_event"
+  //           ? formData.companyId
+  //           : null,
+  //       positionIds:
+  //         formData.eventCategory === "company_event"
+  //           ? formData.positionIds.map(Number)
+  //           : null,
+  //       roundType:
+  //         formData.eventCategory === "company_event"
+  //           ? formData.roundType
+  //           : null,
+  //       targetSpecializations: formData.targetSpecializations,
+  //       targetAcademicYears: formData.targetAcademicYears.map(Number),
+  //       speakerDetails: Object.values(formData.speakerDetails).some((val) =>
+  //         val.trim()
+  //       )
+  //         ? formData.speakerDetails
+  //         : null,
+  //     };
+
+  //     const response = await axios[isEditing ? "put" : "post"](
+  //       `${backendUrl}/events${isEditing ? `/${eventData.id}` : ""}`,
+  //       eventPayload
+  //     );
+
+  //     if (response.data.success) {
+  //       setSubmitStatus("success");
+  //       setTimeout(() => {
+  //         onEventCreated?.(response.data.data);
+  //         onBack?.();
+  //       }, 1500);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving event:", error);
+  //     setSubmitStatus("error");
+  //     setErrors({
+  //       submit: error.response?.data?.message || "Failed to save event",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // Update the handleSubmit function - replace the formatTimeForBackend section:
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -357,9 +453,9 @@ function CreateEvent({
       const eventPayload = {
         title: formData.title.trim(),
         eventType: formData.eventType,
-        date: formData.date, // Send date as YYYY-MM-DD
-        startTime: formatTimeForBackend(formData.startTime), // Send time as HH:MM:SS
-        endTime: formatTimeForBackend(formData.endTime), // Send time as HH:MM:SS
+        date: formData.date || null,
+        startTime: formatTimeForBackend(formData.startTime),
+        endTime: formatTimeForBackend(formData.endTime),
         venue: formData.venue.trim(),
         mode: formData.mode,
         isPlacementEvent: formData.eventCategory === "company_event",

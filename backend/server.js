@@ -1,9 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
-const path = require("path");
 require("dotenv").config();
-const fs = require("fs");
 
 const {
   isAuthenticated,

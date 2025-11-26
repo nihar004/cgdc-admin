@@ -13,7 +13,7 @@ routes.get("/batch/:batch_year", async (req, res) => {
         c.id as company_id,
         e.title,
         e.event_type,
-        e.event_date,
+        TO_CHAR(e.event_date, 'YYYY-MM-DD') as event_date,
         e.start_time,
         e.end_time,
         e.venue,
@@ -130,9 +130,7 @@ routes.get("/batch/:batch_year", async (req, res) => {
         type: row.is_placement_event ? "company_round" : "cdgc_event",
         event_type: row.event_type,
         company: row.company_name,
-        date: row.event_date
-          ? row.event_date.toISOString().split("T")[0]
-          : null,
+        date: row.event_date || null,
         time: formatTime(row.start_time),
         endTime: formatTime(row.end_time),
         venue: row.venue,
@@ -202,7 +200,7 @@ routes.post("/", async (req, res) => {
       isMandatory,
       companyId,
       positionIds,
-      roundType, // frontend-provided
+      roundType,
       targetSpecializations,
       targetAcademicYears,
       speakerDetails,
@@ -288,7 +286,7 @@ routes.post("/", async (req, res) => {
         : 1;
     }
 
-    // Insert event
+    // Insert event with proper IST timezone handling
     const insertEventQuery = `
       INSERT INTO events (
         title, 
@@ -309,7 +307,16 @@ routes.post("/", async (req, res) => {
         status,
         created_at,
         updated_at
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'upcoming',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+      ) VALUES (
+        $1,$2,
+        $3::date,
+        $4::time,
+        $5::time,
+        $6,$7,$8,$9,$10,$11,$12,$13,$14,$15,
+        'upcoming',
+        (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata'),
+        (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')
+      )
       RETURNING *
     `;
 
@@ -522,14 +529,14 @@ routes.put("/:id", async (req, res) => {
       }
     }
 
-    // Update event - keep original round_number and company/position data
+    // Update event with proper IST timezone handling
     const updateEventQuery = `
       UPDATE events SET
         title = $1,
         event_type = $2,
-        event_date = $3,
-        start_time = $4,
-        end_time = $5,
+        event_date = $3::date,
+        start_time = $4::time,
+        end_time = $5::time,
         venue = $6,
         mode = $7,
         is_placement_event = $8,
@@ -537,7 +544,7 @@ routes.put("/:id", async (req, res) => {
         round_type = $10,
         target_specializations = $11,
         speaker_details = $12,
-        updated_at = CURRENT_TIMESTAMP
+        updated_at = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')
       WHERE id = $13
       RETURNING *
     `;
@@ -887,13 +894,17 @@ routes.put("/:id/status", async (req, res) => {
       });
     }
 
-    // Fetch event with calculated fields
+    // Fetch event data as plain strings
     const eventQuery = `
-      SELECT 
-        id, title, event_date, start_time, end_time, status,
-        CURRENT_TIMESTAMP >= (event_date + start_time)::timestamp AS can_mark_ongoing,
-        CURRENT_TIMESTAMP >= (event_date + end_time)::timestamp AS can_mark_completed
-      FROM events 
+      SELECT
+        id,
+        title,
+        event_date::text AS event_date,
+        start_time::text AS start_time,
+        end_time::text AS end_time,
+        status,
+        (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::text AS current_ist_time
+      FROM events
       WHERE id = $1
     `;
     const eventResult = await db.query(eventQuery, [id]);
@@ -907,6 +918,17 @@ routes.put("/:id/status", async (req, res) => {
 
     const event = eventResult.rows[0];
 
+    // Build full datetime strings in IST with explicit timezone offset
+    const startDateTimeStr = `${event.event_date}T${event.start_time}+05:30`;
+    const endDateTimeStr = `${event.event_date}T${event.end_time}+05:30`;
+
+    const eventStart = new Date(startDateTimeStr);
+    const eventEnd = new Date(endDateTimeStr);
+    const now = new Date();
+
+    // Comparisons
+    const canMarkOngoing = now >= eventStart;
+
     // Business rules for transitions
     if (event.status === "completed") {
       return res.status(400).json({
@@ -915,17 +937,10 @@ routes.put("/:id/status", async (req, res) => {
       });
     }
 
-    if (status === "ongoing" && !event.can_mark_ongoing) {
+    if (status === "ongoing" && !canMarkOngoing) {
       return res.status(400).json({
         success: false,
         message: "Cannot mark event as ongoing before its start time",
-      });
-    }
-
-    if (status === "completed" && !event.can_mark_completed) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot mark event as completed before its end time",
       });
     }
 
@@ -941,7 +956,7 @@ routes.put("/:id/status", async (req, res) => {
     // Update status
     const updateQuery = `
       UPDATE events 
-      SET status = $1, updated_at = CURRENT_TIMESTAMP 
+      SET status = $1, updated_at = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')
       WHERE id = $2 
       RETURNING id, title, status, updated_at
     `;

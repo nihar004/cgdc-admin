@@ -265,210 +265,6 @@ async function calculateEligibleStudents(db, companyId, batchId) {
   }
 }
 
-// Check if a specific student is eligible based on company criteria
-async function isStudentEligible(db, companyId, studentId) {
-  try {
-    const positionsQuery = `
-      SELECT 
-        p.id AS position_id,
-        p.package AS position_package,
-        p.job_type,
-        p.company_type AS position_company_type,
-        c.min_cgpa,
-        c.max_backlogs,
-        c.allowed_specializations,
-        c.is_marquee,
-        c.eligibility_10th,
-        c.eligibility_12th
-      FROM companies c
-      JOIN company_positions p ON p.company_id = c.id
-      WHERE c.id = $1
-    `;
-
-    const positionsRes = await db.query(positionsQuery, [companyId]);
-    if (positionsRes.rows.length === 0)
-      return {
-        isEligible: false,
-        reason: "No positions found for this company",
-      };
-
-    const studentQuery = `
-      SELECT 
-        s.id,
-        s.cgpa,
-        s.backlogs,
-        s.branch,
-        s.placement_status,
-        s.current_offer,
-        s.upgrade_opportunities_used,
-        s.dream_company_used,
-        s.class_10_percentage,
-        s.class_12_percentage
-      FROM students s
-      WHERE s.id = $1
-    `;
-
-    const studentRes = await db.query(studentQuery, [studentId]);
-    if (studentRes.rows.length === 0)
-      return { isEligible: false, reason: "Student not found" };
-
-    const student = studentRes.rows[0];
-    const {
-      cgpa,
-      backlogs,
-      branch,
-      placement_status,
-      current_offer,
-      upgrade_opportunities_used,
-      dream_company_used,
-      class_10_percentage,
-      class_12_percentage,
-    } = student;
-
-    // --- BASIC CHECKS ---
-    if (!["placed", "unplaced"].includes(placement_status))
-      return {
-        isEligible: false,
-        reason: "Invalid placement status",
-        dreamCompanyUsed: dream_company_used,
-      };
-
-    // --- UNPLACED STUDENT ---
-    if (placement_status === "unplaced") {
-      // Still check academic criteria
-      for (const pos of positionsRes.rows) {
-        if (cgpa < (pos.min_cgpa || 0)) continue;
-        if (pos.max_backlogs === false && backlogs > 0) continue;
-        if (pos.eligibility_10th && class_10_percentage < pos.eligibility_10th)
-          continue;
-        if (pos.eligibility_12th && class_12_percentage < pos.eligibility_12th)
-          continue;
-        if (
-          pos.allowed_specializations?.length > 0 &&
-          !pos.allowed_specializations.includes(branch)
-        )
-          continue;
-
-        return {
-          isEligible: true,
-          reason: "Unplaced student meeting academic criteria",
-          dreamCompanyUsed: dream_company_used,
-        };
-      }
-
-      return {
-        isEligible: false,
-        reason: "Does not meet academic criteria",
-        dreamCompanyUsed: dream_company_used,
-      };
-    }
-
-    // --- PARSE AND ENRICH CURRENT OFFER ---
-    let offer = current_offer;
-    if (typeof offer === "string") {
-      try {
-        offer = JSON.parse(offer);
-      } catch {
-        offer = null;
-      }
-    }
-
-    // Enrich offer with details
-    if (offer) {
-      offer = await enrichOfferWithDetails(db, offer);
-    }
-
-    const currentPackage = offer?.package || 0;
-    const currentType = offer?.company_type || null;
-
-    // --- LOOP THROUGH ALL POSITIONS ---
-    for (const pos of positionsRes.rows) {
-      const {
-        position_id,
-        position_package,
-        job_type,
-        position_company_type,
-        min_cgpa,
-        max_backlogs,
-        allowed_specializations,
-        is_marquee,
-      } = pos;
-
-      // Academic + branch filters
-      if (cgpa < (min_cgpa || 0)) continue;
-
-      // max_backlogs is now BOOLEAN: true = backlogs allowed
-      if (max_backlogs === false && backlogs > 0) continue;
-
-      // 10th marks check
-      if (pos.eligibility_10th && class_10_percentage < pos.eligibility_10th)
-        continue;
-
-      // 12th marks check
-      if (pos.eligibility_12th && class_12_percentage < pos.eligibility_12th)
-        continue;
-
-      if (
-        allowed_specializations?.length > 0 &&
-        !allowed_specializations.includes(branch)
-      )
-        continue;
-
-      // Marquee → eligible directly
-      if (is_marquee)
-        return {
-          isEligible: true,
-          reason: `Marquee company exception (Position ID: ${position_id})`,
-          dreamCompanyUsed: dream_company_used,
-        };
-
-      // --- PLACED STUDENT CHECKS ---
-      if (currentType === "nontech") {
-        return {
-          isEligible: true,
-          reason: `Current offer is non-tech, Position ID: ${position_id}`,
-          dreamCompanyUsed: dream_company_used,
-        };
-      }
-
-      // Tech + package ≤6L + upgrade <3 + new ≥8L (PPO/full-time)
-      if (
-        currentType === "tech" &&
-        currentPackage <= 6 &&
-        upgrade_opportunities_used < 3 &&
-        position_company_type === "tech" &&
-        position_package >= 8 &&
-        ["internship_plus_ppo", "full_time"].includes(job_type)
-      ) {
-        // Increment upgrade usage
-        await db.query(
-          `UPDATE students 
-           SET upgrade_opportunities_used = upgrade_opportunities_used + 1 
-           WHERE id = $1`,
-          [studentId]
-        );
-
-        return {
-          isEligible: true,
-          reason: `Eligible via upgrade rule (Position ID: ${position_id})`,
-          dreamCompanyUsed: dream_company_used,
-          upgradeIncremented: true,
-        };
-      }
-    }
-
-    // If none matched
-    return {
-      isEligible: false,
-      reason: "Does not meet eligibility criteria for any position",
-      dreamCompanyUsed: dream_company_used,
-    };
-  } catch (error) {
-    console.error("Error checking student eligibility:", error);
-    throw error;
-  }
-}
-
 async function manuallyAddEligibleStudent(
   db,
   companyId,
@@ -723,90 +519,6 @@ async function getCompanyEligibility(db, companyId, batchId) {
   }
 }
 
-// async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
-//   try {
-//     // Get eligibility record with JSON arrays
-//     const eligibilityQuery = `
-//       SELECT
-//         id,
-//         company_id,
-//         batch_id,
-//         eligible_student_ids,
-//         placed_student_ids,
-//         ineligible_student_ids,
-//         dream_company_student_ids,
-//         manual_override_reasons,
-//         total_eligible_count,
-//         total_placed_count,
-//         total_ineligible_count,
-//         eligibility_criteria,
-//         snapshot_date,
-//         created_at,
-//         updated_at
-//       FROM company_eligibility
-//       WHERE company_id = $1 AND batch_id = $2
-//     `;
-
-//     const eligibilityResult = await db.query(eligibilityQuery, [
-//       companyId,
-//       batchId,
-//     ]);
-
-//     if (eligibilityResult.rows.length === 0) {
-//       return null;
-//     }
-
-//     const eligibilityRecord = eligibilityResult.rows[0];
-//     const eligibleIds = eligibilityRecord.eligible_student_ids || [];
-//     const placedIds = eligibilityRecord.placed_student_ids || [];
-//     const ineligibleIds = eligibilityRecord.ineligible_student_ids || [];
-//     const dreamCompanyIds = eligibilityRecord.dream_company_student_ids || [];
-//     const manualReasons = eligibilityRecord.manual_override_reasons || {};
-
-//     // Helper function to fetch student details
-//     const fetchStudents = async (ids) => {
-//       if (ids.length === 0) return [];
-//       const query = `
-//         SELECT
-//           id, registration_number, enrollment_number, full_name,
-//           branch, batch_year, cgpa, backlogs, department, class_10_percentage,
-//           class_12_percentage, placement_status, current_offer, upgrade_opportunities_used
-//         FROM students
-//         WHERE id = ANY($1::int[])
-//         ORDER BY cgpa DESC
-//       `;
-//       const result = await db.query(query, [ids]);
-//       return result.rows.map((s) => ({
-//         ...s,
-//         used_dream_company: dreamCompanyIds.includes(s.id),
-//         manual_override_reason: manualReasons[s.id] || null,
-//       }));
-//     };
-
-//     const eligibleStudents = await fetchStudents(eligibleIds);
-//     const placedStudents = await fetchStudents(placedIds);
-//     const ineligibleStudents = await fetchStudents(ineligibleIds);
-
-//     return {
-//       id: eligibilityRecord.id,
-//       company_id: eligibilityRecord.company_id,
-//       batch_id: eligibilityRecord.batch_id,
-//       eligible_students: eligibleStudents,
-//       placed_students: placedStudents,
-//       ineligible_students: ineligibleStudents,
-//       total_eligible_count: eligibilityRecord.total_eligible_count,
-//       total_placed_count: eligibilityRecord.total_placed_count,
-//       total_ineligible_count: eligibilityRecord.total_ineligible_count,
-//       dream_company_usage_count: dreamCompanyIds.length,
-//       eligibility_criteria: eligibilityRecord.eligibility_criteria,
-//       snapshot_date: eligibilityRecord.snapshot_date,
-//       updated_at: eligibilityRecord.updated_at,
-//     };
-//   } catch (error) {
-//     console.error("Error getting company eligibility with students:", error);
-//     throw error;
-//   }
-// }
 async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
   try {
     // Get eligibility record with JSON arrays
@@ -846,21 +558,59 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
     const manualReasons = eligibilityRecord.manual_override_reasons || {};
 
     // Helper function to fetch student details
+    // const fetchStudents = async (ids) => {
+    //   if (ids.length === 0) return [];
+    //   const query = `
+    //     SELECT
+    //       id, registration_number, enrollment_number, full_name,
+    //       branch, batch_year, cgpa, backlogs, department, class_10_percentage,
+    //       class_12_percentage, placement_status, current_offer, upgrade_opportunities_used, dream_company_used
+    //     FROM students
+    //     WHERE id = ANY($1::int[])
+    //     ORDER BY cgpa DESC
+    //   `;
+    //   const result = await db.query(query, [ids]);
+    //   return result.rows.map((s) => ({
+    //     ...s,
+    //     manual_override_reason: manualReasons[s.id] || null,
+    //   }));
+    // };
     const fetchStudents = async (ids) => {
       if (ids.length === 0) return [];
+
       const query = `
         SELECT 
-          id, registration_number, enrollment_number, full_name,
-          branch, batch_year, cgpa, backlogs, department, class_10_percentage, 
-          class_12_percentage, placement_status, current_offer, upgrade_opportunities_used
-        FROM students
-        WHERE id = ANY($1::int[])
-        ORDER BY cgpa DESC
+          s.id, s.registration_number, s.enrollment_number, s.full_name,
+          s.branch, s.batch_year, s.cgpa, s.backlogs, s.department,
+          s.class_10_percentage, s.class_12_percentage, s.placement_status,
+          s.upgrade_opportunities_used, s.dream_company_used,
+
+          -- Joined position fields
+          cp.id AS position_id,
+          cp.position_title AS position_title,
+          cp.package AS package,
+          cp.has_range AS has_range,
+          cp.package_end AS package_end,
+          cp.internship_stipend_monthly AS monthly_stipend,
+          cp.job_type AS job_type,
+
+          -- Joined company fields
+          c.id AS company_id,
+          c.company_name AS company_name
+
+        FROM students s
+        LEFT JOIN company_positions cp
+          ON cp.id = (s.current_offer->>'position_id')::int
+        LEFT JOIN companies c
+          ON c.id = cp.company_id
+        WHERE s.id = ANY($1::int[])
+        ORDER BY s.cgpa DESC;
       `;
+
       const result = await db.query(query, [ids]);
+
       return result.rows.map((s) => ({
         ...s,
-        used_dream_company: dreamCompanyIds.includes(s.id),
         manual_override_reason: manualReasons[s.id] || null,
       }));
     };
@@ -910,7 +660,6 @@ async function getCompanyEligibilityWithStudents(db, companyId, batchId) {
 module.exports = {
   enrichOfferWithDetails,
   calculateEligibleStudents,
-  isStudentEligible,
   getCompanyEligibility,
   getCompanyEligibilityWithStudents,
   manuallyAddEligibleStudent,
