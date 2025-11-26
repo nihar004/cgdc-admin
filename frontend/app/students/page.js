@@ -47,7 +47,6 @@ const CATEGORIES = [
 function StudentManagementContent() {
   const {
     students,
-    setStudents,
     showEditStudentModal,
     showExportModal,
     setShowExportModal,
