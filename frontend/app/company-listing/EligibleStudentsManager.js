@@ -145,10 +145,29 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
   const [briefInfo, setBriefInfo] = useState(null);
   const [showManualOverride, setShowManualOverride] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [packageFilter, setPackageFilter] = useState("all"); // "all", "below6", "6to10", "above10"
 
   useEffect(() => {
     fetchEligibilityBrief();
   }, [companyId, batchYear]);
+
+  const getFilteredPlacedStudents = () => {
+    if (packageFilter === "all") return placedStudents;
+
+    return placedStudents.filter((student) => {
+      const pkg = Number(student.package);
+      switch (packageFilter) {
+        case "below6":
+          return pkg <= 6;
+        case "6to10":
+          return pkg > 6 && pkg <= 10;
+        case "above10":
+          return pkg > 10;
+        default:
+          return true;
+      }
+    });
+  };
 
   const fetchEligibilityBrief = async () => {
     try {
@@ -805,7 +824,68 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
 
             {activeTab === "placed" && (
               <div>
-                {placedStudents.length === 0 ? (
+                <div className="p-4 bg-gray-50 border-b border-gray-100">
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => setPackageFilter("all")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        packageFilter === "all"
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      All ({placedStudents.length})
+                    </button>
+                    <button
+                      onClick={() => setPackageFilter("below6")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        packageFilter === "below6"
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      &lt;= 6 LPA (
+                      {
+                        placedStudents.filter((s) => Number(s.package) <= 6)
+                          .length
+                      }
+                      )
+                    </button>
+                    <button
+                      onClick={() => setPackageFilter("6to10")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        packageFilter === "6to10"
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      6-10 LPA (
+                      {
+                        placedStudents.filter(
+                          (s) =>
+                            Number(s.package) > 6 && Number(s.package) <= 10
+                        ).length
+                      }
+                      )
+                    </button>
+                    <button
+                      onClick={() => setPackageFilter("above10")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        packageFilter === "above10"
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      &gt; 10 LPA (
+                      {
+                        placedStudents.filter((s) => Number(s.package) > 10)
+                          .length
+                      }
+                      )
+                    </button>
+                  </div>
+                </div>
+                {getFilteredPlacedStudents().length === 0 ? (
                   <div className="text-center py-12">
                     <Users className="mx-auto h-12 w-12 text-gray-300 mb-4" />
                     <p className="text-gray-500">No placed students</p>
@@ -851,7 +931,7 @@ export function EligibleStudentsManager({ companyId, batchYear, onClose }) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {placedStudents.map((student) => (
+                        {getFilteredPlacedStudents().map((student) => (
                           <tr
                             key={student.id}
                             className="hover:bg-gray-50 transition-colors"
