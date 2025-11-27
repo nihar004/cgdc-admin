@@ -99,13 +99,14 @@ const RoundTrackingPage = () => {
           is_marquee: company.is_marquee,
           sector: company.sector,
           total_applications: totalApplications,
-          // Calculate company status from position events
-          status: calculateCompanyStatus(company.positions),
+          status: company.status,
           positions: company.positions.map((position) => ({
             id: position.id,
             position_title: position.position_title,
             job_type: position.job_type,
-            package_range: position.package_range,
+            package: position.package,
+            has_range: position.has_range,
+            package_end: position.package_end,
             internship_stipend_monthly: position.internship_stipend_monthly,
             // Backend uses final_selected_count
             selected_students: position.final_selected_count || 0,
@@ -125,7 +126,7 @@ const RoundTrackingPage = () => {
               qualified_count: event.qualified_count,
               // Add defaults for fields that may not exist
               description: event.description || "",
-              round_type: event.mode || "offline", // Use mode as round_type
+              round_type: event.round_type,
             })),
           })),
         };
@@ -138,34 +139,6 @@ const RoundTrackingPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Helper function to calculate company status based on position events
-  const calculateCompanyStatus = (positions) => {
-    let hasUpcoming = false;
-    let hasOngoing = false;
-    let hasCompleted = false;
-
-    positions.forEach((position) => {
-      position.events.forEach((event) => {
-        switch (event.status) {
-          case "upcoming":
-            hasUpcoming = true;
-            break;
-          case "ongoing":
-            hasOngoing = true;
-            break;
-          case "completed":
-            hasCompleted = true;
-            break;
-        }
-      });
-    });
-
-    if (hasOngoing) return "ongoing";
-    if (hasUpcoming) return "upcoming";
-    if (hasCompleted) return "completed";
-    return "upcoming"; // default status
   };
 
   const handleCompanyToggle = (companyId) => {

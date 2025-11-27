@@ -2,9 +2,6 @@ import { useState, useCallback } from "react";
 import {
   Eye,
   Upload,
-  CheckCircle,
-  Clock,
-  AlertCircle,
   Calendar,
   MapPin,
   TrendingUp,
@@ -47,14 +44,6 @@ const RoundsTable = ({
     onUpdate?.();
   }, [onUpdate]);
 
-  const getEventStatusIcon = (event) => {
-    if (event.status === "completed")
-      return <CheckCircle size={14} className="text-emerald-500" />;
-    if (event.status === "ongoing")
-      return <Clock size={14} className="text-blue-500" />;
-    return <AlertCircle size={14} className="text-slate-400" />;
-  };
-
   const getRoundTypeBadge = (mode) => {
     const types = {
       online: "bg-blue-50 text-blue-700 border-blue-200",
@@ -80,6 +69,47 @@ const RoundsTable = ({
     } catch (e) {
       return timeStr;
     }
+  };
+
+  const RoundTypeBadge = ({ roundType }) => {
+    let bg = "";
+    let border = "";
+    let text = "";
+    let label = "";
+
+    switch (roundType) {
+      case "first":
+        bg = "bg-green-50";
+        border = "border-green-400";
+        text = "text-green-800";
+        label = "First Round";
+        break;
+      case "middle":
+        bg = "bg-blue-50";
+        border = "border-blue-400";
+        text = "text-blue-800";
+        label = "Middle Round";
+        break;
+      case "last":
+        bg = "bg-purple-50";
+        border = "border-purple-400";
+        text = "text-purple-800";
+        label = "Final Round";
+        break;
+      default:
+        bg = "bg-gray-50";
+        border = "border-gray-400";
+        text = "text-gray-800";
+        label = roundType || "Round";
+    }
+
+    return (
+      <div
+        className={`ml-1 inline-flex text-xs px-2 py-0.5 rounded border font-medium ${bg} ${border} ${text}`}
+      >
+        {label}
+      </div>
+    );
   };
 
   // Check if this event is the last round
@@ -139,7 +169,6 @@ const RoundsTable = ({
                         <h3 className="text-sm font-semibold text-slate-900">
                           {event.title}
                         </h3>
-                        {getEventStatusIcon(event)}
                       </div>
                       <span
                         className={`inline-block text-xs px-2 py-0.5 rounded border font-medium ${getRoundTypeBadge(
@@ -148,6 +177,7 @@ const RoundsTable = ({
                       >
                         {event.mode?.toUpperCase() || "OFFLINE"}
                       </span>
+                      <RoundTypeBadge roundType={event.round_type} />
                       <div className="mt-1.5 space-y-0.5">
                         {event.event_date && (
                           <div className="flex items-center gap-1 text-xs text-slate-600">

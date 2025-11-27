@@ -490,11 +490,12 @@ routes.get(
       const batchId = batchResult.rows[0].id;
 
       const eligibilityQuery = `
-      SELECT 
-        eligible_student_ids
-      FROM company_eligibility
-      WHERE company_id = $1 AND batch_id = $2
-    `;
+        SELECT 
+          eligible_student_ids,
+          placed_student_ids
+        FROM company_eligibility
+        WHERE company_id = $1 AND batch_id = $2
+      `;
 
       const eligibilityResult = await db.query(eligibilityQuery, [
         companyId,
@@ -511,8 +512,10 @@ routes.get(
       }
 
       const eligibleIds = eligibilityResult.rows[0].eligible_student_ids || [];
+      const placedIds = eligibilityResult.rows[0].placed_student_ids || [];
 
-      if (eligibleIds.length === 0) {
+      // Combine eligible students + upgrade opportunity students
+      if (eligibleIds.length === 0 && placedIds.length === 0) {
         return res.json({
           success: true,
           students: [],
@@ -521,18 +524,59 @@ routes.get(
         });
       }
 
-      const query = `
-      SELECT 
-        s.id,
-        s.full_name,
-        s.college_email
-      FROM students s
-      WHERE s.id = ANY($1::int[])
-        AND s.college_email IS NOT NULL
-      ORDER BY s.full_name 
-    `;
+      // Get company package to determine upgrade eligibility
+      const companyQuery = `
+        SELECT package FROM company_positions 
+        WHERE company_id = $1 
+        ORDER BY package DESC LIMIT 1
+      `;
+      const companyResult = await db.query(companyQuery, [companyId]);
 
-      const result = await db.query(query, [eligibleIds]);
+      // Parse package value and default to 0 if not found
+      let companyPackage = 0;
+      if (
+        companyResult.rows.length > 0 &&
+        companyResult.rows[0].package != null
+      ) {
+        companyPackage = parseFloat(companyResult.rows[0].package);
+        // If parsing fails or negative, set to 0
+        if (isNaN(companyPackage) || companyPackage < 0) {
+          companyPackage = 0;
+        }
+      }
+
+      // Build the query
+      const query = `
+        SELECT DISTINCT
+          s.id,
+          s.full_name,
+          s.college_email
+        FROM students s
+        LEFT JOIN company_positions cp
+          ON cp.id = (s.current_offer->>'position_id')::int
+        WHERE s.college_email IS NOT NULL
+          AND (
+            -- Regular eligible students
+            s.id = ANY($1::int[])
+            OR
+            -- Upgrade opportunity students (placed at <=6, company offers >=8, upgrades left)
+            (
+              s.id = ANY($2::int[])
+              AND s.placement_status = 'placed'
+              AND cp.package IS NOT NULL
+              AND CAST(cp.package AS DECIMAL) <= 6
+              AND $3::DECIMAL >= 8
+              AND COALESCE(s.upgrade_opportunities_used, 0) < 3
+            )
+          )
+        ORDER BY s.full_name
+      `;
+
+      const result = await db.query(query, [
+        eligibleIds,
+        placedIds,
+        companyPackage,
+      ]);
 
       const students = result.rows.map((student) => ({
         id: student.id,
@@ -631,21 +675,54 @@ routes.get(
         });
       }
 
-      // No package constraint for dream company - just check if placed and haven't used it
+      // Get company package to exclude upgrade-eligible students
+      const companyQuery = `
+        SELECT package FROM company_positions 
+        WHERE company_id = $1 
+        ORDER BY package DESC LIMIT 1
+      `;
+      const companyResult = await db.query(companyQuery, [companyId]);
+
+      // Parse package value and default to 0 if not found
+      let companyPackage = 0;
+      if (
+        companyResult.rows.length > 0 &&
+        companyResult.rows[0].package != null
+      ) {
+        companyPackage = parseFloat(companyResult.rows[0].package);
+        // If parsing fails or negative, set to 0
+        if (isNaN(companyPackage) || companyPackage < 0) {
+          companyPackage = 0;
+        }
+      }
+
+      // Exclude students who are eligible via upgrade opportunity
       const query = `
         SELECT 
           s.id,
           s.full_name,
           s.college_email
         FROM students s
+        LEFT JOIN company_positions cp
+          ON cp.id = (s.current_offer->>'position_id')::int
         WHERE s.id = ANY($1::int[])
           AND s.college_email IS NOT NULL
           AND s.placement_status = 'placed'
           AND s.dream_opportunity_used = false
+          AND NOT (
+            -- Exclude if eligible for upgrade
+            cp.package IS NOT NULL
+            AND CAST(cp.package AS DECIMAL) <= 6
+            AND $2::DECIMAL >= 8
+            AND COALESCE(s.upgrade_opportunities_used, 0) < 3
+          )
         ORDER BY s.full_name
       `;
 
-      const result = await db.query(query, [dreamOpportunityIds]);
+      const result = await db.query(query, [
+        dreamOpportunityIds,
+        companyPackage,
+      ]);
 
       const students = result.rows.map((student) => ({
         id: student.id,
@@ -667,117 +744,6 @@ routes.get(
       res.status(500).json({
         success: false,
         error: "Failed to fetch dream opportunity students",
-        details: error.message,
-      });
-    }
-  }
-);
-
-// NEW: GET /eligibility/companies/:companyId/batch/:batchYear/email-targets/upgrade-only
-routes.get(
-  "/companies/:companyId/batch/:batchYear/email-targets/upgrade-only",
-  async (req, res) => {
-    const { companyId, batchYear } = req.params;
-
-    try {
-      if (!companyId || isNaN(companyId)) {
-        return res.status(400).json({ error: "Invalid company ID" });
-      }
-      if (!batchYear || isNaN(batchYear)) {
-        return res.status(400).json({ error: "Invalid batch year" });
-      }
-
-      // Get batch ID from batch year
-      const batchResult = await db.query(
-        "SELECT id FROM batches WHERE year = $1",
-        [parseInt(batchYear)]
-      );
-
-      if (batchResult.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: "Batch not found for the given year",
-          students: [],
-          student_ids: [],
-        });
-      }
-
-      const batchId = batchResult.rows[0].id;
-
-      const eligibilityQuery = `
-        SELECT 
-          placed_student_ids
-        FROM company_eligibility
-        WHERE company_id = $1 AND batch_id = $2
-      `;
-
-      const eligibilityResult = await db.query(eligibilityQuery, [
-        companyId,
-        batchId,
-      ]);
-
-      if (eligibilityResult.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: "No eligibility record found",
-          students: [],
-          student_ids: [],
-        });
-      }
-
-      const placedIds = eligibilityResult.rows[0].placed_student_ids || [];
-
-      if (placedIds.length === 0) {
-        return res.json({
-          success: true,
-          students: [],
-          student_ids: [],
-          total_count: 0,
-        });
-      }
-
-      // Get student details with package info using proper joins
-      const query = `
-        SELECT 
-          s.id,
-          s.full_name,
-          s.college_email,
-          s.upgrade_opportunities_used,
-          cp.package AS package
-        FROM students s
-        LEFT JOIN company_positions cp
-          ON cp.id = (s.current_offer->>'position_id')::int
-        WHERE s.id = ANY($1::int[])
-          AND s.college_email IS NOT NULL
-          AND s.placement_status = 'placed'
-          AND cp.package IS NOT NULL
-          AND cp.package <= 6
-          AND COALESCE(s.upgrade_opportunities_used, 0) < 3
-        ORDER BY s.full_name
-      `;
-
-      const result = await db.query(query, [placedIds]);
-
-      const students = result.rows.map((student) => ({
-        id: student.id,
-        full_name: student.full_name,
-        college_email: student.college_email,
-      }));
-
-      res.json({
-        success: true,
-        company_id: parseInt(companyId),
-        batch_year: parseInt(batchYear),
-        batch_id: batchId,
-        students: students,
-        student_ids: students.map((s) => s.id),
-        total_count: students.length,
-      });
-    } catch (error) {
-      console.error("Error fetching upgrade opportunity students:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch upgrade opportunity students",
         details: error.message,
       });
     }

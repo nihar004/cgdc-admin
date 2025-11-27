@@ -23,6 +23,46 @@ const upload = multer({
   },
 });
 
+// Helper function to determine company status based on events
+const getCompanyStatus = (positions) => {
+  let hasNonFirstRound = false;
+  let allPositionsCompleted = true;
+
+  for (const position of positions) {
+    const events = position.events || [];
+
+    if (events.length === 0) {
+      allPositionsCompleted = false;
+      continue;
+    }
+
+    // Check if any event is not first round
+    const hasOtherRounds = events.some((e) => e.round_type !== "first");
+    if (hasOtherRounds) {
+      hasNonFirstRound = true;
+    }
+
+    // Check if this position has a 'last' round type event
+    const hasLastRound = events.some((e) => e.round_type === "last");
+    if (!hasLastRound) {
+      allPositionsCompleted = false;
+    }
+  }
+
+  // Determine status based on conditions
+  if (
+    allPositionsCompleted &&
+    positions.length > 0 &&
+    positions.every((p) => p.events.length > 0)
+  ) {
+    return "completed";
+  } else if (hasNonFirstRound) {
+    return "ongoing";
+  } else {
+    return "upcoming";
+  }
+};
+
 // GET /round-tracking/companies/:year
 routes.get("/companies/:year", async (req, res) => {
   const { year } = req.params;
@@ -71,6 +111,7 @@ routes.get("/companies/:year", async (req, res) => {
         e.status AS event_status,
         e.is_placement_event,
         e.round_number,
+        e.round_type,
         e.company_id,
         e.position_ids
       FROM events e
@@ -254,6 +295,7 @@ routes.get("/companies/:year", async (req, res) => {
           mode: event.mode,
           status: event.event_status,
           round_number: event.round_number,
+          round_type: event.round_type,
           applied_count: stats.applied_count,
           eligible_count: stats.eligible_count,
           attended_count: stats.attended_count,
@@ -270,8 +312,11 @@ routes.get("/companies/:year", async (req, res) => {
     // Convert maps to arrays
     const companies = Array.from(companiesMap.values()).map((company) => {
       const positions = Array.from(company.positions.values());
+      const companyStatus = getCompanyStatus(positions);
+
       return {
         ...company,
+        status: companyStatus,
         positions,
       };
     });

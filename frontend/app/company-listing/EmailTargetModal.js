@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Users, Star, TrendingUp } from "lucide-react";
+import { X, Users, Star } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -18,9 +18,6 @@ export default function EmailTargetModal({ company, onClose, onSelect }) {
           break;
         case "dream":
           endpoint = `/eligibility/companies/${company.id}/batch/${company.batch_year}/email-targets/dream-only`;
-          break;
-        case "upgrade":
-          endpoint = `/eligibility/companies/${company.id}/batch/${company.batch_year}/email-targets/upgrade-only`;
           break;
         default:
           toast.error("Invalid target type");
@@ -73,7 +70,7 @@ export default function EmailTargetModal({ company, onClose, onSelect }) {
         </div>
 
         <div className="p-6 space-y-4">
-          {/* Eligible Students */}
+          {/* Eligible Students (includes upgrade opportunities) */}
           <button
             onClick={() => handleSelect("eligible")}
             disabled={loading}
@@ -88,7 +85,8 @@ export default function EmailTargetModal({ company, onClose, onSelect }) {
                   Eligible Students
                 </h4>
                 <p className="text-sm text-gray-600">
-                  Send to all eligible students for this company
+                  All eligible students + upgrade opportunities (≤6 LPA for ≥8
+                  LPA roles)
                 </p>
               </div>
             </div>
@@ -109,28 +107,8 @@ export default function EmailTargetModal({ company, onClose, onSelect }) {
                   Dream Company Option
                 </h4>
                 <p className="text-sm text-gray-600">
-                  Placed students who haven&apos;t used dream company
-                </p>
-              </div>
-            </div>
-          </button>
-
-          {/* Upgrade Opportunity */}
-          <button
-            onClick={() => handleSelect("upgrade")}
-            disabled={loading}
-            className="w-full p-4 border border-gray-200 rounded-xl hover:border-purple-500 hover:bg-purple-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="text-left">
-                <h4 className="font-semibold text-gray-900">
-                  Upgrade Opportunity
-                </h4>
-                <p className="text-sm text-gray-600">
-                  Placed students (≤6 LPA) with upgrade opportunities left
+                  Placed students who haven&apos;t used dream company (excludes
+                  upgrade-eligible)
                 </p>
               </div>
             </div>
