@@ -5,13 +5,13 @@ import {
   ArrowLeft,
   Plus,
   Search,
-  Calendar,
   Users,
   Clock,
   Building2,
   Award,
   RefreshCw,
   Download,
+  CheckCircle,
 } from "lucide-react";
 import {
   CompaniesProvider,
@@ -59,10 +59,12 @@ const CompanyListing = () => {
     { value: "ME", label: "ME" },
   ];
 
+  // Updated status colors for new status values
   const statusColors = {
-    "JD Shared": "bg-green-100 text-green-800 border-green-200",
-    upcoming: "bg-blue-100 text-blue-800 border-blue-200",
-    Delayed: "bg-red-100 text-red-800 border-red-200",
+    "Not Started": "bg-gray-100 text-gray-700",
+    "JD Shared": "bg-blue-100 text-blue-700",
+    Ongoing: "bg-yellow-100 text-yellow-700",
+    Completed: "bg-green-100 text-green-700",
   };
 
   const companyTypeColors = {
@@ -155,7 +157,7 @@ const CompanyListing = () => {
             </div>
           </div>
 
-          {/* Enhanced Stats Cards */}
+          {/* Enhanced Stats Cards - UPDATED */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
               <div className="flex items-center gap-3">
@@ -183,6 +185,7 @@ const CompanyListing = () => {
               </div>
             </div>
 
+            {/* UPDATED: JD Shared */}
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
               <div className="flex items-center gap-3">
                 <Users className="text-green-600" size={24} />
@@ -197,27 +200,27 @@ const CompanyListing = () => {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-100">
+            {/* UPDATED: Ongoing (was Upcoming) */}
+            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 rounded-xl border border-yellow-100">
               <div className="flex items-center gap-3">
-                <Clock className="text-purple-600" size={24} />
+                <Clock className="text-yellow-600" size={24} />
                 <div>
-                  <p className="text-purple-600 text-sm font-medium">
-                    Upcoming
-                  </p>
-                  <p className="text-2xl font-bold text-purple-900">
-                    {stats.upcoming}
+                  <p className="text-yellow-600 text-sm font-medium">Ongoing</p>
+                  <p className="text-2xl font-bold text-yellow-900">
+                    {stats.ongoing}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-100">
+            {/* UPDATED: Completed (was Delayed) */}
+            <div className="bg-gradient-to-r from-blue-50 to-sky-50 p-4 rounded-xl border border-blue-100">
               <div className="flex items-center gap-3">
-                <Calendar className="text-gray-600" size={24} />
+                <CheckCircle className="text-blue-600" size={24} />
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">Delayed</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.delayed}
+                  <p className="text-blue-600 text-sm font-medium">Completed</p>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {stats.completed}
                   </p>
                 </div>
               </div>
@@ -227,14 +230,14 @@ const CompanyListing = () => {
 
         {/* Filters and Search */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-          {/* Tabs */}
+          {/* Tabs - UPDATED */}
           <div className="flex flex-wrap gap-2 mb-6">
             {[
               { key: "all", label: "All Companies", icon: Building2 },
               { key: "marquee", label: "Marquee", icon: Award },
-              { key: "JD Shared", label: "JD Shared", icon: Users },
-              { key: "upcoming", label: "Upcoming", icon: Clock },
-              { key: "Delayed", label: "Delayed", icon: Clock },
+              { key: "jd_shared", label: "JD Shared", icon: Users },
+              { key: "ongoing", label: "Ongoing", icon: Clock },
+              { key: "completed", label: "Completed", icon: CheckCircle },
             ].map((tab) => {
               const IconComponent = tab.icon;
               return (
@@ -253,7 +256,7 @@ const CompanyListing = () => {
               );
             })}
           </div>
-          {/* TODO */}
+
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-gray-900">
@@ -283,7 +286,6 @@ const CompanyListing = () => {
                 onChange={(e) => setSectorFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {/* ('E-Commerce, Logistics and Business', 'EdTech', 'IT & Consulting', 'IT Service', 'IT Software (Product)', 'Others*') */}
                 <option value="all">All Sectors</option>
                 <option value="E-Commerce, Logistics and Business">
                   E-Commerce, Logistics and Business
@@ -366,7 +368,6 @@ const CompanyListing = () => {
                     )}
                   </p>
 
-                  {/* Update the condition for showing Add/Reset buttons */}
                   {!searchTerm &&
                     sectorFilter === "all" &&
                     specializationFilter === "all" && (
@@ -387,7 +388,7 @@ const CompanyListing = () => {
                         onClick={() => {
                           setSearchTerm("");
                           setSectorFilter("all");
-                          setSpecializationFilter("all"); // Add this line
+                          setSpecializationFilter("all");
                         }}
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200"
                       >

@@ -2,6 +2,57 @@ const express = require("express");
 const routes = express.Router();
 const db = require("../db");
 
+// Helper function to update position round dates based on events
+async function updatePositionRoundDates(client, companyId, positionIds) {
+  if (!positionIds || positionIds.length === 0) return;
+
+  for (const positionId of positionIds) {
+    // Get all events for this position with round_type 'middle' or 'last'
+    const eventsQuery = `
+      SELECT 
+        event_date,
+        round_type,
+        round_number
+      FROM events
+      WHERE company_id = $1
+        AND is_placement_event = true
+        AND $2 = ANY(position_ids)
+        AND round_type IN ('middle', 'last')
+      ORDER BY event_date ASC, round_number ASC
+    `;
+
+    const eventsResult = await client.query(eventsQuery, [
+      companyId,
+      positionId,
+    ]);
+    const events = eventsResult.rows;
+
+    let rounds_start_date = null;
+    let rounds_end_date = null;
+
+    if (events.length > 0) {
+      // rounds_start_date: earliest event date with round_type 'middle' or 'last'
+      rounds_start_date = events[0].event_date;
+
+      // rounds_end_date: only set if there's a 'last' round event
+      const lastRoundEvent = events.find((e) => e.round_type === "last");
+      if (lastRoundEvent) {
+        rounds_end_date = lastRoundEvent.event_date;
+      }
+    }
+
+    // Update the position with calculated dates
+    await client.query(
+      `UPDATE company_positions 
+       SET rounds_start_date = $1, 
+           rounds_end_date = $2,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3`,
+      [rounds_start_date, rounds_end_date, positionId]
+    );
+  }
+}
+
 // Get all events with attendance data for a specific batch year
 routes.get("/batch/:batch_year", async (req, res) => {
   try {
@@ -362,6 +413,16 @@ routes.post("/", async (req, res) => {
       `INSERT INTO event_batches (event_id, batch_id) VALUES ${values}`
     );
 
+    // Update position round dates if this is a placement event with middle or last round
+    if (
+      isPlacementEvent &&
+      companyId &&
+      positionIds &&
+      (roundType === "middle" || roundType === "last")
+    ) {
+      await updatePositionRoundDates(client, companyId, positionIds);
+    }
+
     await client.query("COMMIT");
 
     res.status(201).json({
@@ -449,6 +510,8 @@ routes.put("/:id", async (req, res) => {
         message: "Event not found",
       });
     }
+
+    const oldEvent = existingEvent.rows[0];
 
     // Prevent changing company/positions for placement events
     if (existingEvent.rows[0].is_placement_event) {
@@ -588,6 +651,22 @@ routes.put("/:id", async (req, res) => {
       `INSERT INTO event_batches (event_id, batch_id) VALUES ${values}`
     );
 
+    // Update position round dates if:
+    // 1. This is a placement event with middle or last round
+    // 2. The date or round_type changed
+    if (isPlacementEvent && companyId && positionIds) {
+      const dateChanged =
+        date !== oldEvent.event_date?.toISOString().split("T")[0];
+      const roundTypeChanged = roundType !== oldEvent.round_type;
+
+      if (
+        (roundType === "middle" || roundType === "last") &&
+        (dateChanged || roundTypeChanged)
+      ) {
+        await updatePositionRoundDates(client, companyId, positionIds);
+      }
+    }
+
     await client.query("COMMIT");
 
     res.json({
@@ -640,7 +719,7 @@ routes.delete("/:id", async (req, res) => {
     // Delete event
     await client.query("DELETE FROM events WHERE id = $1", [id]);
 
-    // If it was a placement event, re-adjust round numbers
+    // If it was a placement event, re-adjust round numbers AND update position dates
     if (event.is_placement_event && event.company_id && event.position_ids) {
       // Fetch remaining rounds for same company & overlapping positions
       const remainingEvents = await client.query(
@@ -664,6 +743,13 @@ routes.delete("/:id", async (req, res) => {
           );
         }
       }
+
+      // Update position round dates after deletion
+      await updatePositionRoundDates(
+        client,
+        event.company_id,
+        event.position_ids
+      );
     }
 
     await client.query("COMMIT");

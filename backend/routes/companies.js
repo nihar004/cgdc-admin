@@ -378,10 +378,90 @@ function processPositionData(position) {
   return processedPosition;
 }
 
+// Helper function to calculate company status and round dates
+async function calculateCompanyStatusAndDates(companyId) {
+  const query = `
+    SELECT 
+      rounds_start_date,
+      rounds_end_date
+    FROM company_positions
+    WHERE company_id = $1
+  `;
+
+  const result = await db.query(query, [companyId]);
+  const positions = result.rows;
+
+  if (positions.length === 0) {
+    return {
+      company_rounds_start_date: null,
+      company_rounds_end_date: null,
+    };
+  }
+
+  // Filter positions that have a start date
+  const relevantPositions = positions.filter(
+    (p) => p.rounds_start_date !== null
+  );
+
+  if (relevantPositions.length === 0) {
+    return {
+      company_rounds_start_date: null,
+      company_rounds_end_date: null,
+    };
+  }
+
+  // Get earliest start date from all positions
+  const startDates = relevantPositions
+    .map((p) => new Date(p.rounds_start_date))
+    .filter((d) => !isNaN(d.getTime()));
+
+  const company_rounds_start_date =
+    startDates.length > 0 ? new Date(Math.min(...startDates)) : null;
+
+  // Get latest end date, but only if ALL positions have end dates
+  const endDates = relevantPositions
+    .map((p) => p.rounds_end_date)
+    .filter((d) => d !== null)
+    .map((d) => new Date(d))
+    .filter((d) => !isNaN(d.getTime()));
+
+  // Only set end date if ALL relevant positions have end dates
+  const company_rounds_end_date =
+    endDates.length === relevantPositions.length && endDates.length > 0
+      ? new Date(Math.max(...endDates))
+      : null;
+
+  return {
+    company_rounds_start_date,
+    company_rounds_end_date,
+  };
+}
+
+// Helper function to determine company status
+function getCompanyStatus(
+  jd_shared_date,
+  company_rounds_start_date,
+  company_rounds_end_date
+) {
+  if (company_rounds_end_date !== null) {
+    return "completed";
+  }
+
+  if (company_rounds_start_date !== null) {
+    return "ongoing";
+  }
+
+  if (jd_shared_date !== null) {
+    return "jd_shared";
+  }
+
+  return null;
+}
+
 // ************** END Helper functions **************
 // **************************************************
 
-// GET all companies for a specific batch with positions, documents
+// GET all companies for a specific batch with positions, documents, and calculated status
 routes.get("/batch/:batchYear", async (req, res) => {
   const { batchYear } = req.params;
 
@@ -468,25 +548,42 @@ routes.get("/batch/:batchYear", async (req, res) => {
       LEFT JOIN company_eligibility ce ON c.id = ce.company_id AND cb.batch_id = ce.batch_id
       WHERE cb.batch_id = $2
       GROUP BY c.id, cb.batch_id, b.year, ce.total_eligible_count
-      ORDER BY c.scheduled_visit DESC NULLS LAST, c.company_name
+      ORDER BY c.company_name
     `;
 
     const result = await db.query(query, [parseInt(batchYear), batchId]);
 
-    // Calculate total selected students across all positions for each company
-    const companiesWithStats = result.rows.map((company) => {
-      const totalSelected = company.positions
-        ? company.positions.reduce(
-            (sum, pos) => sum + (pos.selected_students || 0),
-            0
-          )
-        : 0;
+    // Calculate status and dates for each company using helper functions
+    const companiesWithStats = await Promise.all(
+      result.rows.map(async (company) => {
+        const positions = company.positions || [];
 
-      return {
-        ...company,
-        total_selected: totalSelected,
-      };
-    });
+        // Calculate company round dates
+        const { company_rounds_start_date, company_rounds_end_date } =
+          await calculateCompanyStatusAndDates(company.id);
+
+        // Determine status using helper function
+        const status = getCompanyStatus(
+          company.jd_shared_date,
+          company_rounds_start_date,
+          company_rounds_end_date
+        );
+
+        // Calculate total selected students
+        const totalSelected = positions.reduce(
+          (sum, pos) => sum + (pos.selected_students || 0),
+          0
+        );
+
+        return {
+          ...company,
+          total_selected: totalSelected,
+          company_rounds_start_date,
+          company_rounds_end_date,
+          status,
+        };
+      })
+    );
 
     res.json(companiesWithStats);
   } catch (err) {
@@ -509,8 +606,6 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
     primary_hr_designation,
     primary_hr_email,
     primary_hr_phone,
-    scheduled_visit,
-    actual_arrival,
     glassdoor_rating,
     work_locations,
     min_cgpa,
@@ -545,8 +640,6 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
     primary_hr_designation: primary_hr_designation?.trim() || null,
     primary_hr_email: primary_hr_email?.trim() || null,
     primary_hr_phone: primary_hr_phone?.trim() || null,
-    scheduled_visit: scheduled_visit,
-    actual_arrival: actual_arrival,
     glassdoor_rating:
       glassdoor_rating && glassdoor_rating !== ""
         ? parseFloat(glassdoor_rating)
@@ -575,13 +668,12 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
       INSERT INTO companies (
         company_name, company_description, sector, is_marquee,
         website_url, linkedin_url, primary_hr_name, primary_hr_designation,
-        primary_hr_email, primary_hr_phone, scheduled_visit, actual_arrival,
-        glassdoor_rating, work_locations, min_cgpa, max_backlogs, bond_required,
-        allowed_specializations, account_owner, office_address, jd_shared_date,
-        eligibility_10th, eligibility_12th
+        primary_hr_email, primary_hr_phone, glassdoor_rating, work_locations, 
+        min_cgpa, max_backlogs, bond_required, allowed_specializations, account_owner, 
+        office_address, jd_shared_date, eligibility_10th, eligibility_12th
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-              $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+              $13, $14, $15, $16, $17, $18, $19, $20, $21)
       RETURNING *
     `;
 
@@ -596,8 +688,6 @@ routes.post("/batch/:batchYear", upload.none(), async (req, res) => {
       processedData.primary_hr_designation,
       processedData.primary_hr_email,
       processedData.primary_hr_phone,
-      processedData.scheduled_visit,
-      processedData.actual_arrival,
       processedData.glassdoor_rating,
       processedData.work_locations,
       processedData.min_cgpa,
@@ -658,8 +748,6 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
     primary_hr_designation,
     primary_hr_email,
     primary_hr_phone,
-    scheduled_visit,
-    actual_arrival,
     glassdoor_rating,
     work_locations,
     min_cgpa,
@@ -689,8 +777,6 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
     primary_hr_designation: primary_hr_designation?.trim() || null,
     primary_hr_email: primary_hr_email?.trim() || null,
     primary_hr_phone: primary_hr_phone?.trim() || null,
-    scheduled_visit: scheduled_visit,
-    actual_arrival: actual_arrival,
     glassdoor_rating:
       glassdoor_rating && glassdoor_rating !== ""
         ? parseFloat(glassdoor_rating)
@@ -740,19 +826,17 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
         primary_hr_designation = $9,
         primary_hr_email = $10,
         primary_hr_phone = $11,
-        scheduled_visit = $12,
-        actual_arrival = $13,
-        glassdoor_rating = $14,
-        work_locations = $15,
-        min_cgpa = $16,
-        max_backlogs = $17,
-        bond_required = $18,
-        allowed_specializations = $19,
-        account_owner = $20,
-        office_address = $21, 
-        jd_shared_date = $22,
-        eligibility_10th = $23, 
-        eligibility_12th = $24, 
+        glassdoor_rating = $12,
+        work_locations = $13,
+        min_cgpa = $14,
+        max_backlogs = $15,
+        bond_required = $16,
+        allowed_specializations = $17,
+        account_owner = $18,
+        office_address = $19, 
+        jd_shared_date = $20,
+        eligibility_10th = $21, 
+        eligibility_12th = $22, 
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
@@ -770,8 +854,6 @@ routes.put("/:id/batch/:batchYear", async (req, res) => {
       processedData.primary_hr_designation,
       processedData.primary_hr_email,
       processedData.primary_hr_phone,
-      processedData.scheduled_visit,
-      processedData.actual_arrival,
       processedData.glassdoor_rating,
       processedData.work_locations,
       processedData.min_cgpa,

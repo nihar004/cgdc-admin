@@ -31,11 +31,7 @@ import { useCompaniesContext } from "../../context/CompaniesContext";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import EmailTargetModal from "./EmailTargetModal";
 
-export function CompanyTableView({
-  statusColors,
-  companyTypeColors,
-  onEditClick,
-}) {
+export function CompanyTableView({ companyTypeColors, onEditClick }) {
   const {
     formatPackage,
     formatPackageRange,
@@ -67,6 +63,13 @@ export function CompanyTableView({
   const [selectedCompanyForEmail, setSelectedCompanyForEmail] = useState(null);
 
   const [expandedRows, setExpandedRows] = useState(new Set());
+
+  const statusColors = {
+    not_started: "bg-gray-100 text-gray-700",
+    jd_shared: "bg-blue-100 text-blue-700",
+    ongoing: "bg-yellow-100 text-yellow-700",
+    completed: "bg-green-100 text-green-700",
+  };
 
   // Toggle row expansion
   const toggleRowExpansion = (companyId) => {
@@ -245,6 +248,15 @@ export function CompanyTableView({
 
                         {/* Requirements */}
                         <td className="px-4 py-5 w-[15%]">
+                          {(!company.min_cgpa ||
+                            Number(company.min_cgpa) == 0) &&
+                            !company.max_backlogs &&
+                            !company.bond_required && (
+                              <div className="text-center text-slate-500 italic text-xs">
+                                No Other Specific Requirements
+                              </div>
+                            )}
+
                           <div className="space-y-2">
                             {/* Eligibility */}
                             {(company.eligibility_10th ||
@@ -266,17 +278,18 @@ export function CompanyTableView({
                             )}
 
                             {/* CGPA */}
-                            {company.min_cgpa && company.min_cgpa !== 0 && (
-                              <div className="flex items-center gap-1 text-xs">
-                                <GraduationCap
-                                  size={12}
-                                  className="text-blue-500"
-                                />
-                                <span className="font-medium">
-                                  CGPA: {company.min_cgpa}
-                                </span>
-                              </div>
-                            )}
+                            {company.min_cgpa &&
+                              Number(company.min_cgpa) > 0 && (
+                                <div className="flex items-center gap-1 text-xs">
+                                  <GraduationCap
+                                    size={12}
+                                    className="text-blue-500"
+                                  />
+                                  <span className="font-medium">
+                                    CGPA: {company.min_cgpa}
+                                  </span>
+                                </div>
+                              )}
 
                             {/* Backlogs */}
                             {company.max_backlogs && (
@@ -319,7 +332,9 @@ export function CompanyTableView({
                             <span
                               className={`inline-flex px-2.5 py-1 text-xs font-medium rounded ${statusColors[status]}`}
                             >
-                              {status}
+                              {status
+                                .replace(/_/g, " ")
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
                             </span>
 
                             <div className="space-y-1 text-xs">
@@ -337,22 +352,27 @@ export function CompanyTableView({
                                   </span>
                                 </div>
                               )}
-                              <div className="flex items-center gap-1">
-                                <Calendar size={12} className="text-gray-400" />
-                                <span>
-                                  Visit:{" "}
-                                  {new Date(
-                                    company.scheduled_visit
-                                  ).toLocaleDateString()}
-                                </span>
-                              </div>
-                              {company.actual_arrival && (
+                              {company.company_rounds_start_date && (
+                                <div className="flex items-center gap-1">
+                                  <Calendar
+                                    size={12}
+                                    className="text-blue-500"
+                                  />
+                                  <span>
+                                    Rounds Start:{" "}
+                                    {new Date(
+                                      company.company_rounds_start_date
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              )}
+                              {company.company_rounds_end_date && (
                                 <div className="flex items-center gap-1">
                                   <Clock size={12} className="text-green-500" />
                                   <span>
-                                    Arrived:{" "}
+                                    Completed:{" "}
                                     {new Date(
-                                      company.actual_arrival
+                                      company.company_rounds_end_date
                                     ).toLocaleDateString()}
                                   </span>
                                 </div>

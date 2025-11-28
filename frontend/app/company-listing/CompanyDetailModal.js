@@ -32,23 +32,26 @@ export function CompanyDetailModal() {
   } = useCompaniesContext();
 
   const status = getCompanyStatus(selectedCompany);
-
-  // Modern status colors
   const statusConfig = {
-    upcoming: {
-      color: "bg-blue-50 text-blue-700 border-blue-200",
+    not_started: {
+      color: "bg-gray-50 text-gray-700 border-gray-200",
       icon: Calendar,
-      label: "Upcoming",
-    },
-    delayed: {
-      color: "bg-amber-50 text-amber-700 border-amber-200",
-      icon: AlertCircle,
-      label: "Delayed",
+      label: "Not Started",
     },
     jd_shared: {
-      color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      icon: Clock,
+      color: "bg-blue-50 text-blue-700 border-blue-200",
+      icon: FileText,
       label: "JD Shared",
+    },
+    ongoing: {
+      color: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      icon: Clock,
+      label: "Ongoing",
+    },
+    completed: {
+      color: "bg-green-50 text-green-700 border-green-200",
+      icon: CheckCircle,
+      label: "Completed",
     },
   };
 
@@ -604,19 +607,19 @@ export function CompanyDetailModal() {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                     <Calendar size={16} className="text-slate-600" />
-                    Schedule
+                    Schedule & Timeline
                   </h3>
                   <div className="space-y-3">
                     {/* JD Shared Date */}
                     {selectedCompany.jd_shared_date && (
                       <div className="bg-white rounded-lg p-3 border border-slate-200">
                         <div className="flex items-center gap-2 mb-1">
-                          <FileText size={14} className="text-purple-500" />
+                          <FileText size={14} className="text-blue-500" />
                           <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
                             JD Shared Date
                           </span>
                         </div>
-                        <div className="text-sm font-bold text-purple-600">
+                        <div className="text-sm font-bold text-blue-600">
                           {new Date(
                             selectedCompany.jd_shared_date
                           ).toLocaleDateString("en-US", {
@@ -629,36 +632,18 @@ export function CompanyDetailModal() {
                       </div>
                     )}
 
-                    <div className="bg-white rounded-lg p-3 border border-slate-200">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Calendar size={14} className="text-blue-500" />
-                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
-                          Scheduled Visit
-                        </span>
-                      </div>
-                      <div className="text-sm font-bold text-blue-600">
-                        {new Date(
-                          selectedCompany.scheduled_visit
-                        ).toLocaleDateString("en-US", {
-                          weekday: "short",
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </div>
-                    </div>
-
-                    {selectedCompany.actual_arrival && (
+                    {/* Company Rounds Start Date */}
+                    {selectedCompany.company_rounds_start_date && (
                       <div className="bg-white rounded-lg p-3 border border-slate-200">
                         <div className="flex items-center gap-2 mb-1">
-                          <Clock size={14} className="text-emerald-500" />
+                          <Calendar size={14} className="text-green-500" />
                           <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
-                            Actual Arrival
+                            Rounds Started
                           </span>
                         </div>
-                        <div className="text-sm font-bold text-emerald-600">
+                        <div className="text-sm font-bold text-green-600">
                           {new Date(
-                            selectedCompany.actual_arrival
+                            selectedCompany.company_rounds_start_date
                           ).toLocaleDateString("en-US", {
                             weekday: "short",
                             year: "numeric",
@@ -668,6 +653,39 @@ export function CompanyDetailModal() {
                         </div>
                       </div>
                     )}
+
+                    {/* Company Rounds End Date */}
+                    {selectedCompany.company_rounds_end_date && (
+                      <div className="bg-white rounded-lg p-3 border border-slate-200">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CheckCircle size={14} className="text-purple-500" />
+                          <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                            Rounds Completed
+                          </span>
+                        </div>
+                        <div className="text-sm font-bold text-purple-600">
+                          {new Date(
+                            selectedCompany.company_rounds_end_date
+                          ).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show status if no dates */}
+                    {!selectedCompany.jd_shared_date &&
+                      !selectedCompany.company_rounds_start_date &&
+                      !selectedCompany.company_rounds_end_date && (
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-center">
+                          <span className="text-sm text-gray-500">
+                            No schedule information available
+                          </span>
+                        </div>
+                      )}
                   </div>
                 </div>
 

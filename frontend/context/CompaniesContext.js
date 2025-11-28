@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useBatchContext } from "./BatchContext";
 import { toast } from "react-hot-toast";
-import { format } from "path";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const CompaniesContext = createContext();
@@ -72,66 +71,82 @@ export function CompaniesProvider({ children }) {
     }
   };
 
-  // Helper function to determine company status
+  // Helper function to determine company status - FIXED
   const getCompanyStatus = (company) => {
-    const now = new Date();
-    const scheduledDate = new Date(company.scheduled_visit);
-    const actualDate = company.actual_arrival
-      ? new Date(company.actual_arrival)
-      : null;
+    // Normalize the status from backend (handles "Completed", "completed", etc.)
+    if (company.status) {
+      return company.status.toLowerCase().replace(/ /g, "_");
+    }
 
-    if (actualDate) return "JD Shared";
-    if (scheduledDate < now) return "Delayed";
-    return "upcoming";
+    // Fallback calculation if status not provided by backend
+    if (company.company_rounds_end_date) {
+      return "completed";
+    }
+
+    if (company.company_rounds_start_date) {
+      return "ongoing";
+    }
+
+    if (company.jd_shared_date) {
+      return "jd_shared";
+    }
+
+    return "not_started";
   };
 
-  // Updated filter companies logic
-  const filteredCompanies = companies.filter((company) => {
-    // Search filter
-    const matchesSearch =
-      company.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.company_description
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      company.sector?.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filtered companies - FIXED
+  const filteredCompanies = useMemo(() => {
+    return companies.filter((company) => {
+      // Search filter
+      const matchesSearch = company.company_name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-    const matchesSector =
-      sectorFilter === "all" || company.sector === sectorFilter;
+      // Sector filter
+      const matchesSector =
+        sectorFilter === "all" || company.sector === sectorFilter;
 
-    // Status filter
-    const status = getCompanyStatus(company);
-    const matchesStatus =
-      activeTab === "all" ||
-      (activeTab === "marquee" && company.is_marquee) ||
-      activeTab === status;
+      // Specialization filter
+      const matchesSpecialization =
+        specializationFilter === "all" ||
+        (company.allowed_specializations &&
+          company.allowed_specializations.includes(specializationFilter));
 
-    // Updated specialization filter logic
-    const matchesSpecialization =
-      specializationFilter === "all" ||
-      (company.allowed_specializations &&
-        specializationFilter
-          .split(",")
-          .every((spec) => company.allowed_specializations.includes(spec)));
+      // Get normalized status
+      const status = getCompanyStatus(company);
 
-    return (
-      matchesSearch && matchesSector && matchesStatus && matchesSpecialization
-    );
-  });
+      // Active tab filter - FIXED
+      let matchesTab = true;
+      if (activeTab === "marquee") {
+        matchesTab = company.is_marquee;
+      } else if (activeTab === "jd_shared") {
+        matchesTab = status === "jd_shared";
+      } else if (activeTab === "ongoing") {
+        matchesTab = status === "ongoing";
+      } else if (activeTab === "completed") {
+        matchesTab = status === "completed";
+      }
+      // activeTab === "all" means no filtering
 
-  // Calculate statistics
-  const stats = {
-    total: companies.length,
-    marquee: companies.filter((company) => company.is_marquee).length,
-    jd_shared: companies.filter(
-      (company) => getCompanyStatus(company) === "JD Shared"
-    ).length,
-    upcoming: companies.filter(
-      (company) => getCompanyStatus(company) === "upcoming"
-    ).length,
-    delayed: companies.filter(
-      (company) => getCompanyStatus(company) === "Delayed"
-    ).length,
-  };
+      return (
+        matchesSearch && matchesSector && matchesSpecialization && matchesTab
+      );
+    });
+  }, [companies, searchTerm, sectorFilter, specializationFilter, activeTab]);
+
+  // Calculate statistics - FIXED
+  const stats = useMemo(() => {
+    return {
+      total: companies.length,
+      marquee: companies.filter((c) => c.is_marquee).length,
+      jd_shared: companies.filter((c) => getCompanyStatus(c) === "jd_shared")
+        .length,
+      ongoing: companies.filter((c) => getCompanyStatus(c) === "ongoing")
+        .length,
+      completed: companies.filter((c) => getCompanyStatus(c) === "completed")
+        .length,
+    };
+  }, [companies]);
 
   // Add useEffect to fetch companies when selectedBatch changes
   useEffect(() => {
@@ -169,7 +184,6 @@ export function CompaniesProvider({ children }) {
     }
   };
 
-  // TODO
   // Delete position
   const handleDeletePosition = async (positionId) => {
     try {

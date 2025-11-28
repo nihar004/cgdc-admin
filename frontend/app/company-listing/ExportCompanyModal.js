@@ -64,10 +64,18 @@ export default function ExportCompanyModal({ companies, onClose }) {
       category: "Requirements",
     },
 
-    // Schedule
-    { key: "scheduled_visit", label: "Scheduled Visit", category: "Schedule" },
-    { key: "actual_arrival", label: "Actual Arrival", category: "Schedule" },
     { key: "jd_shared_date", label: "JD Shared Date", category: "Schedule" },
+    {
+      key: "company_rounds_start_date",
+      label: "Company Rounds Start",
+      category: "Schedule",
+    },
+    {
+      key: "company_rounds_end_date",
+      label: "Company Rounds End",
+      category: "Schedule",
+    },
+    { key: "status", label: "Company Status", category: "Schedule" },
 
     // Statistics & Positions
     { key: "total_selected", label: "Total Selected", category: "Statistics" },
@@ -150,12 +158,21 @@ export default function ExportCompanyModal({ companies, onClose }) {
           case "min_cgpa":
             row[key] = company[key] ? parseFloat(company[key]) : "N/A";
             break;
-          case "scheduled_visit":
-          case "actual_arrival":
           case "created_at":
           case "updated_at":
+          case "jd_shared_date":
+          case "company_rounds_start_date":
+          case "company_rounds_end_date":
             row[key] = company[key]
               ? new Date(company[key]).toLocaleDateString()
+              : "N/A";
+            break;
+
+          case "status":
+            row[key] = company.status
+              ? company.status
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase())
               : "N/A";
             break;
           case "position_count":
@@ -235,52 +252,11 @@ export default function ExportCompanyModal({ companies, onClose }) {
               row[key] = "N/A";
             }
             break;
-          case "rounds_start_date":
-            if (company.positions?.length) {
-              const startDates = company.positions
-                .map((p) => p.rounds_start_date)
-                .filter((date) => date !== null && date !== undefined);
-
-              if (startDates.length === 0) {
-                row[key] = "Not Started";
-              } else {
-                const minDate = new Date(
-                  Math.min(...startDates.map((date) => new Date(date)))
-                );
-                row[key] = minDate.toLocaleDateString();
-              }
-            } else {
-              row[key] = "N/A";
-            }
-            break;
-          case "rounds_end_date":
-            if (company.positions?.length) {
-              const endDates = company.positions
-                .map((p) => p.rounds_end_date)
-                .filter((date) => date !== null && date !== undefined);
-
-              const hasOngoingRounds = company.positions.some(
-                (p) => p.rounds_start_date && !p.rounds_end_date
-              );
-
-              if (hasOngoingRounds) {
-                row[key] = "Still Going";
-              } else if (endDates.length === 0) {
-                row[key] = "Not Started";
-              } else {
-                const maxDate = new Date(
-                  Math.max(...endDates.map((date) => new Date(date)))
-                );
-                row[key] = maxDate.toLocaleDateString();
-              }
-            } else {
-              row[key] = "N/A";
-            }
-            break;
           case "eligibility_10th":
           case "eligibility_12th":
             row[key] = company[key] ? `${parseFloat(company[key])}%` : "N/A";
             break;
+
           case "jd_shared_date":
             row[key] = company[key]
               ? new Date(company[key]).toLocaleDateString()
@@ -367,17 +343,17 @@ export default function ExportCompanyModal({ companies, onClose }) {
       "company_type",
       "sector",
       "is_marquee",
+      "status", // ADD
       "primary_hr_name",
       "primary_hr_email",
       "min_cgpa",
       "total_eligible_students",
       "total_selected",
-      "scheduled_visit",
-      "rounds_start_date",
-      "rounds_end_date",
+      "jd_shared_date", // KEEP
+      "company_rounds_start_date", // ADD
+      "company_rounds_end_date", // ADD
       "eligibility_10th",
       "eligibility_12th",
-      "jd_shared_date",
       "unique_package_ranges",
     ];
     const initialSelection = {};

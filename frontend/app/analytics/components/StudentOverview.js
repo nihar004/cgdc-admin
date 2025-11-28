@@ -357,27 +357,6 @@ function EligibleCompanyCard({ company }) {
             </div>
           </div>
         </div>
-
-        {company.scheduledVisit && (
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <div className="text-right">
-                <p className="text-sm text-blue-800 font-semibold">
-                  {new Date(company.scheduledVisit).toLocaleDateString(
-                    "en-IN",
-                    {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    }
-                  )}
-                </p>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Scheduled Visit</p>
-          </div>
-        )}
       </div>
 
       {/* Positions Section */}

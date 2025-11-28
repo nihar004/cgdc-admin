@@ -247,10 +247,10 @@ function CompanyCard({
               {company.name || company.company}
             </h3>
             <p className="text-sm text-gray-600 mt-1">{company.sector}</p>
-            {company.scheduledVisit && (
+            {company.jdSharedDate && (
               <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                Visit: {new Date(company.scheduledVisit).toLocaleDateString()}
+                JD Shared: {new Date(company.jdSharedDate).toLocaleDateString()}
               </p>
             )}
           </div>

@@ -503,9 +503,7 @@ async function addCampusOffer(
       source: "campus",
       offer_date:
         offerDetails.offer_date || new Date().toISOString().split("T")[0],
-      acceptance_date: isFirstOffer
-        ? new Date().toISOString().split("T")[0]
-        : null, // Accept date if first
+      acceptance_date: new Date().toISOString().split("T")[0],
       is_accepted: isFirstOffer, // ✅ Mark first offer as accepted
       work_location: offerDetails.work_location || null,
       created_at: new Date().toISOString(),

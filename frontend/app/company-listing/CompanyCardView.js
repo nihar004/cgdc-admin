@@ -79,28 +79,28 @@ export default function CompanyCardView({
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
-                  statusColors[status]
-                }`}
-              >
-                {status === "jd_shared" && <Clock size={10} className="mr-1" />}
-                {status === "delayed" && (
-                  <AlertCircle size={10} className="mr-1" />
-                )}
-                {status === "upcoming" && (
-                  <Calendar size={10} className="mr-1" />
-                )}
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </span>
-
-              {company.sector && (
-                <span className="bg-white text-slate-600 px-3 py-1 rounded-full text-xs font-medium border border-slate-200">
-                  {company.sector}
-                </span>
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                statusColors[status.toLowerCase().replace(/ /g, "_")] ||
+                statusColors.not_started
+              }`}
+            >
+              {status.toLowerCase() === "jd_shared" && (
+                <Clock size={10} className="mr-1" />
               )}
-            </div>
+              {status.toLowerCase() === "ongoing" && (
+                <Clock size={10} className="mr-1" />
+              )}
+              {status.toLowerCase() === "completed" && (
+                <CheckCircle size={10} className="mr-1" />
+              )}
+              {status.toLowerCase() === "not_started" && (
+                <Calendar size={10} className="mr-1" />
+              )}
+              {status
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())}
+            </span>
           </div>
         </div>
 
@@ -118,33 +118,19 @@ export default function CompanyCardView({
         <div className="flex items-center">
           <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg text-sm font-medium">
             <Users size={14} />
-            <span>
-              {company.total_eligible_students || 0} Eligible Students
-            </span>
+            <span>{company.total_eligible || 0} Eligible Students</span>
           </div>
         </div>
 
         {/* Stats Grid - Updated with new metrics */}
         <div className="grid grid-cols-4 gap-4">
-          {/* Schedule */}
-          <div className="bg-slate-50 rounded-xl p-4 text-center">
-            <Calendar size={16} className="text-slate-500 mx-auto mb-2" />
-            <div className="text-xs text-slate-600 mb-1">Scheduled</div>
-            <div className="text-sm font-semibold text-slate-900">
-              {new Date(company.scheduled_visit).toLocaleDateString("en-US", {
-                day: "numeric",
-                month: "short",
-              })}
-            </div>
-          </div>
-
-          {/* Arrival Date - Only show if actual_arrival exists */}
-          {company.actual_arrival && (
-            <div className="bg-emerald-50 rounded-xl p-4 text-center">
-              <Clock size={16} className="text-emerald-500 mx-auto mb-2" />
-              <div className="text-xs text-emerald-600 mb-1">JD Shared</div>
-              <div className="text-sm font-semibold text-emerald-900">
-                {new Date(company.actual_arrival).toLocaleDateString("en-US", {
+          {/* JD Shared Date */}
+          {company.jd_shared_date && (
+            <div className="bg-blue-50 rounded-xl p-4 text-center">
+              <FileText size={16} className="text-blue-500 mx-auto mb-2" />
+              <div className="text-xs text-blue-600 mb-1">JD Shared</div>
+              <div className="text-sm font-semibold text-blue-900">
+                {new Date(company.jd_shared_date).toLocaleDateString("en-US", {
                   day: "numeric",
                   month: "short",
                 })}
@@ -152,38 +138,56 @@ export default function CompanyCardView({
             </div>
           )}
 
-          {/* Applications - Updated with percentage */}
+          {/* Rounds Start Date */}
+          {company.company_rounds_start_date && (
+            <div className="bg-green-50 rounded-xl p-4 text-center">
+              <Calendar size={16} className="text-green-500 mx-auto mb-2" />
+              <div className="text-xs text-green-600 mb-1">Started</div>
+              <div className="text-sm font-semibold text-green-900">
+                {new Date(company.company_rounds_start_date).toLocaleDateString(
+                  "en-US",
+                  {
+                    day: "numeric",
+                    month: "short",
+                  }
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Rounds End Date */}
+          {company.company_rounds_end_date && (
+            <div className="bg-purple-50 rounded-xl p-4 text-center">
+              <CheckCircle size={16} className="text-purple-500 mx-auto mb-2" />
+              <div className="text-xs text-purple-600 mb-1">Completed</div>
+              <div className="text-sm font-semibold text-purple-900">
+                {new Date(company.company_rounds_end_date).toLocaleDateString(
+                  "en-US",
+                  {
+                    day: "numeric",
+                    month: "short",
+                  }
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Applications - Updated */}
           <div className="bg-blue-50 rounded-xl p-4 text-center relative">
             <Users size={16} className="text-blue-500 mx-auto mb-2" />
             <div className="text-xs text-blue-600 mb-1">Registered</div>
             <div className="text-sm font-semibold text-blue-900">
-              {/* {company.total_applications_count || 0} */}
-              {/* // TODO/ */}
+              {company.total_registered || 0}
             </div>
           </div>
 
-          {/* Selected - Updated with percentage */}
+          {/* Selected */}
           <div className="bg-emerald-50 rounded-xl p-4 text-center relative">
             <CheckCircle size={16} className="text-emerald-500 mx-auto mb-2" />
             <div className="text-xs text-emerald-600 mb-1">Selected</div>
             <div className="text-sm font-semibold text-emerald-900">
               {company.total_selected || 0}
             </div>
-            {company.applications_count > 0 && (
-              <div className="absolute bottom-2 left-0 right-0 px-4">
-                <div className="h-1 bg-emerald-100 rounded-full">
-                  <div
-                    className="h-1 bg-emerald-500 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${Math.min(
-                        (company.selected / company.applications_count) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -357,7 +361,7 @@ export default function CompanyCardView({
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div className="bg-blue-50/50 rounded-lg p-2 text-center">
                         <div className="text-sm font-semibold text-blue-700">
-                          {position.applications_count || 0}
+                          {position.registered_students || 0}
                         </div>
                         <div className="text-xs text-blue-600">Registered</div>
                       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   BarChart,
@@ -11,6 +11,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ComposedChart,
+  Cell,
 } from "recharts";
 
 import { TrendingUp, Building, Target, Award, AlertCircle } from "lucide-react";
@@ -19,97 +21,250 @@ import StatCard from "./StatCard";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// Custom Tooltip for showing companies
-const CustomPlacementTooltip = ({ active, payload, label, monthlyTrends }) => {
+// Custom Tooltip for Placement Timeline
+const PlacementTimelineTooltip = ({ active, payload }) => {
   if (!active || !payload || !payload.length) return null;
 
-  const currentMonth = payload[0]?.payload?.monthKey;
-  const monthData = monthlyTrends.find((m) => m.monthKey === currentMonth);
+  const data = payload[0]?.payload;
 
   return (
     <div
-      className="bg-white p-4 rounded-lg shadow-lg border border-gray-200"
+      className="bg-white rounded-lg shadow-xl border border-gray-200 w-96 max-h-96 flex flex-col"
       style={{
-        minWidth: "320px",
-        maxWidth: "480px",
-        width: "auto",
-        position: "relative",
-        zIndex: 9999,
+        overflow: "hidden",
+        pointerEvents: "auto",
+      }}
+      onWheel={(e) => {
+        e.stopPropagation();
       }}
     >
-      <p className="font-bold text-gray-900 mb-3">
-        {payload[0]?.payload?.month}
-      </p>
-
-      {/* Main metrics */}
-      <div className="space-y-2 mb-4 pb-4 border-b border-gray-200">
-        {payload.map((entry, index) => (
-          <div key={index} className="flex justify-between text-sm">
-            <span style={{ color: entry.color }} className="font-semibold">
-              {entry.name}:
-            </span>
-            <span className="text-gray-900 font-bold">
-              {entry.name.includes("Package")
-                ? `₹${entry.value.toFixed(2)}L`
-                : entry.value}
-            </span>
-          </div>
-        ))}
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <p className="font-bold text-gray-900">{data.month_label}</p>
       </div>
 
-      {/* Companies section */}
-      {monthData && monthData.companies && monthData.companies.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
-            Companies Visited:
-          </p>
-          {monthData.companies.map((company, idx) => (
-            <div
-              key={idx}
-              className="bg-blue-50 p-2 rounded border border-blue-200 text-xs"
-            >
-              <div className="font-semibold text-gray-900">
-                {company.companyName}
-              </div>
-              <div className="text-gray-700 text-xs mt-1 space-y-0.5">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Sector:</span>
-                  <span className="font-medium">{company.sector}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Placed:</span>
-                  <span className="font-medium text-emerald-600">
-                    {company.studentsPlaced} students
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Avg Package:</span>
-                  <span className="font-medium text-orange-600">
-                    ₹{company.avgPackage.toFixed(2)}L
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Highest:</span>
-                  <span className="font-medium text-blue-600">
-                    ₹{company.highestPackage.toFixed(2)}L
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Visit Date:</span>
-                  <span className="font-medium">
-                    {new Date(company.visitDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div
+        className="overflow-y-auto flex-1"
+        style={{
+          scrollBehavior: "smooth",
+          maxHeight: "calc(384px - 60px)",
+        }}
+      >
+        <div className="p-4 space-y-2 mb-4 pb-4 border-b border-gray-200">
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-blue-600">
+              Monthly Placements:
+            </span>
+            <span className="text-gray-900 font-bold">
+              {data.total_placements}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-orange-600">Avg Package:</span>
+            <span className="text-gray-900 font-bold">
+              ₹{data.avg_package}L
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-purple-600">
+              Highest Package:
+            </span>
+            <span className="text-gray-900 font-bold">
+              ₹{data.highest_package}L
+            </span>
+          </div>
         </div>
-      )}
+
+        {data.positions && data.positions.length > 0 && (
+          <div className="space-y-2 p-4">
+            <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+              Position Details:
+            </p>
+            {data.positions.map((position, idx) => (
+              <div
+                key={idx}
+                className="bg-gray-50 p-3 rounded border border-gray-200 text-xs"
+              >
+                <div className="font-semibold text-gray-900 mb-1">
+                  {position.companyName} - {position.positionTitle}
+                </div>
+                <div className="space-y-1 text-gray-700">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Sector:</span>
+                    <span className="font-medium">{position.sector}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Students Placed:</span>
+                    <span className="font-medium text-green-600">
+                      {position.studentsPlaced}
+                    </span>
+                  </div>
+                  {position.avgPackage > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Avg Package:</span>
+                      <span className="font-medium text-blue-600">
+                        ₹{position.avgPackage}L
+                      </span>
+                    </div>
+                  )}
+                  {position.highestPackage > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Highest:</span>
+                      <span className="font-medium text-purple-600">
+                        ₹{position.highestPackage}L
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Selection Date:</span>
+                    <span className="font-medium">
+                      {new Date(position.selectionDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-// ==================== FILTER SECTION ====================
+// Custom Tooltip for Activity Timeline
+const ActivityTimelineTooltip = ({ active, payload }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const data = payload[0]?.payload;
+
+  return (
+    <div
+      className="bg-white rounded-lg shadow-xl border border-gray-200 w-96 max-h-96 flex flex-col"
+      style={{
+        overflow: "hidden",
+        pointerEvents: "auto",
+      }}
+      onWheel={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <p className="font-bold text-gray-900">{data.month_label}</p>
+      </div>
+
+      <div
+        className="overflow-y-auto flex-1"
+        style={{
+          scrollBehavior: "smooth",
+          maxHeight: "calc(384px - 60px)",
+        }}
+      >
+        <div className="p-4 space-y-2 mb-4 pb-4 border-b border-gray-200">
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-blue-600">JD Shared:</span>
+            <span className="text-gray-900 font-bold">
+              {data.jd_shared_count || 0}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-orange-600">
+              Rounds Ongoing:
+            </span>
+            <span className="text-gray-900 font-bold">
+              {data.ongoing_count || 0}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-green-600">Completed:</span>
+            <span className="text-gray-900 font-bold">
+              {data.completed_count || 0}
+            </span>
+          </div>
+        </div>
+
+        {data.companies && data.companies.length > 0 && (
+          <div className="space-y-2 p-4">
+            <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+              Companies Active:
+            </p>
+            {data.companies.map((company, idx) => {
+              const statusConfig = {
+                jd_shared: {
+                  bg: "bg-blue-100",
+                  text: "text-blue-700",
+                  label: "JD Shared",
+                },
+                ongoing: {
+                  bg: "bg-orange-100",
+                  text: "text-orange-700",
+                  label: "Ongoing",
+                },
+                completed: {
+                  bg: "bg-green-100",
+                  text: "text-green-700",
+                  label: "Completed",
+                },
+              };
+              const config =
+                statusConfig[company.status] || statusConfig.jd_shared;
+
+              return (
+                <div
+                  key={idx}
+                  className="bg-gray-50 p-3 rounded border border-gray-200 text-xs"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-semibold text-gray-900">
+                      {company.companyName}
+                    </div>
+                    <span
+                      className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}
+                    >
+                      {config.label}
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-gray-700">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Sector:</span>
+                      <span className="font-medium">{company.sector}</span>
+                    </div>
+                    {company.jdSharedDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">JD Date:</span>
+                        <span className="font-medium">
+                          {new Date(company.jdSharedDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {company.roundsStartDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Rounds Start:</span>
+                        <span className="font-medium">
+                          {new Date(
+                            company.roundsStartDate
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {company.roundsEndDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Rounds End:</span>
+                        <span className="font-medium">
+                          {new Date(company.roundsEndDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Filter Section
 const FilterSection = ({ selectedDepartment, setSelectedDepartment }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
     <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
@@ -133,7 +288,7 @@ const FilterSection = ({ selectedDepartment, setSelectedDepartment }) => (
   </div>
 );
 
-// ==================== TOP COMPANIES TABLE ====================
+// Top Companies Table
 const TopCompaniesTable = ({ companies }) => {
   if (!companies || companies.length === 0) {
     return (
@@ -189,7 +344,9 @@ const TopCompaniesTable = ({ companies }) => {
             {companies.map((company, index) => (
               <tr
                 key={`${company.companyName}-${index}`}
-                className={`${index < 3 ? "bg-blue-50" : ""} hover:bg-gray-50 transition-colors`}
+                className={`${
+                  index < 3 ? "bg-blue-50" : ""
+                } hover:bg-gray-50 transition-colors`}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
@@ -251,11 +408,13 @@ export default function AnalyticsDashboard({ batchYear }) {
   const [departments, setDepartments] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [packagesData, setPackagesData] = useState([]);
-  const [monthlyStats, setMonthlyStats] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [monthlyTrends, setMonthlyTrends] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [placementTimeline, setPlacementTimeline] = useState([]);
+  const [activityTimeline, setActivityTimeline] = useState([]);
+  const [positionGantt, setPositionGantt] = useState([]);
+  const [timelineSummary, setTimelineSummary] = useState(null);
 
   // Fetch all analytics data
   useEffect(() => {
@@ -266,46 +425,36 @@ export default function AnalyticsDashboard({ batchYear }) {
         setLoading(true);
         setError(null);
 
-        // Fetch all data in parallel
-        const [
-          overviewRes,
-          deptsRes,
-          companiesRes,
-          packagesRes,
-          monthlyStatsRes,
-          monthlyTrendsRes,
-        ] = await Promise.all([
-          axios.get(
-            `${backendUrl}/student-analytics/batch/${batchYear}/overview/filter/${selectedDepartment}`
-          ),
-          axios.get(
-            `${backendUrl}/student-analytics/batch/${batchYear}/departments/filter/${selectedDepartment}`
-          ),
-          axios.get(
-            `${backendUrl}/student-analytics/batch/${batchYear}/top-companies/filter/${selectedDepartment}`
-          ),
-          axios.get(
-            `${backendUrl}/student-analytics/batch/${batchYear}/packages/filter/${selectedDepartment}`
-          ),
-          axios.get(
-            `${backendUrl}/student-analytics/monthly-placement-stats/batch/${batchYear}/filter/${selectedDepartment}`
-          ),
-          axios.get(
-            `${backendUrl}/student-analytics/batch/${batchYear}/company-timeline/filter/${selectedDepartment}`
-          ),
-        ]);
+        const [overviewRes, deptsRes, companiesRes, packagesRes, timelineRes] =
+          await Promise.all([
+            axios.get(
+              `${backendUrl}/student-analytics/batch/${batchYear}/overview/filter/${selectedDepartment}`
+            ),
+            axios.get(
+              `${backendUrl}/student-analytics/batch/${batchYear}/departments/filter/${selectedDepartment}`
+            ),
+            axios.get(
+              `${backendUrl}/student-analytics/batch/${batchYear}/top-companies/filter/${selectedDepartment}`
+            ),
+            axios.get(
+              `${backendUrl}/student-analytics/batch/${batchYear}/packages/filter/${selectedDepartment}`
+            ),
+            axios.get(
+              `${backendUrl}/student-analytics/batch/${batchYear}/company-timeline/filter/${selectedDepartment}`
+            ),
+          ]);
 
         setOverview(overviewRes.data.data || overviewRes.data);
         setDepartments(deptsRes.data.data || deptsRes.data || []);
         setCompanies(companiesRes.data.data || companiesRes.data || []);
         setPackagesData(packagesRes.data.data || packagesRes.data || []);
-        setMonthlyStats(
-          monthlyStatsRes.data.data || monthlyStatsRes.data || []
-        );
 
-        // Extract timeline from the company-timeline response
-        const timelineData = monthlyTrendsRes.data.timeline || [];
-        setMonthlyTrends(timelineData);
+        // Set timeline data
+        const timelineData = timelineRes.data;
+        setPlacementTimeline(timelineData.placementTimeline || []);
+        setActivityTimeline(timelineData.activityTimeline || []);
+        setPositionGantt(timelineData.positionGantt || []);
+        setTimelineSummary(timelineData.summary || null);
       } catch (err) {
         console.error("Error fetching analytics data:", err);
         setError(
@@ -318,21 +467,6 @@ export default function AnalyticsDashboard({ batchYear }) {
 
     fetchAllData();
   }, [batchYear, selectedDepartment]);
-
-  // Transform monthlyTrends data for the chart
-  const placementTrendsData = useMemo(() => {
-    if (!monthlyTrends.length) return [];
-
-    return monthlyTrends.map((trend) => ({
-      month: trend.monthLabel,
-      monthKey: trend.monthKey,
-      cumulativePlacements: parseInt(trend.cumulativePlacements) || 0,
-      totalPlacements: parseInt(trend.totalPlacements) || 0,
-      avgPackage: parseFloat(trend.avgPackage) || 0,
-      highestPackage: parseFloat(trend.highestPackage) || 0,
-      totalCompanies: parseInt(trend.totalCompanies) || 0,
-    }));
-  }, [monthlyTrends]);
 
   // Loading state
   if (loading) {
@@ -354,7 +488,7 @@ export default function AnalyticsDashboard({ batchYear }) {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto p-4">
           <div className="bg-red-50 rounded-xl border border-red-200 p-6 flex items-center gap-3">
             <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
             <div>
@@ -373,7 +507,7 @@ export default function AnalyticsDashboard({ batchYear }) {
   if (!overview) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto p-4">
           <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-6">
             <p className="text-yellow-800">
               No data available for batch year {batchYear}
@@ -386,7 +520,7 @@ export default function AnalyticsDashboard({ batchYear }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
         <div className="space-y-6">
           {/* Filter Section */}
@@ -409,7 +543,7 @@ export default function AnalyticsDashboard({ batchYear }) {
               icon={Building}
               label="Companies Visited"
               value={overview.companiesVisited || 0}
-              subtext={`Total companies`}
+              subtext="Total companies"
               color="purple"
             />
             <StatCard
@@ -426,70 +560,32 @@ export default function AnalyticsDashboard({ batchYear }) {
             />
             <StatCard
               icon={Award}
-              subtext={`Highest Package: ₹ ${(overview.highestPackage || 0).toFixed(2)}L`}
-              subtext2={`Average Package: ₹ ${(overview.averagePackage || 0).toFixed(2)}L`}
-              subtext3={`Median Package: ₹ ${(overview.medianPackage || 0).toFixed(2)}L`}
+              label="Package Info"
+              value={`₹${(overview.highestPackage || 0).toFixed(2)}L`}
+              subtext={`Avg: ₹${(overview.averagePackage || 0).toFixed(2)}L`}
+              subtext2={`Median: ₹${(overview.medianPackage || 0).toFixed(2)}L`}
               color="yellow"
             />
           </div>
 
-          {/* Charts Row 1 */}
+          {/* Charts Row 1 - Placement Trends */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Expected vs Actual Companies */}
+            {/* Placement Timeline */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                Monthly Company Visits & Offers
+              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                Placement Trends
               </h3>
-              {monthlyStats.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={monthlyStats}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "8px",
-                        border: "1px solid #e5e7eb",
-                      }}
-                    />
-                    <Legend />
-                    <Bar
-                      dataKey="expected"
-                      fill="#dbeafe"
-                      name="Expected"
-                      radius={[6, 6, 0, 0]}
-                    />
-                    <Bar
-                      dataKey="actual"
-                      fill="#2563eb"
-                      name="Actual"
-                      radius={[6, 6, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-gray-500 text-center py-8">
-                  No monthly data available
-                </p>
-              )}
-            </div>
-
-            {/* Cumulative Placement Trends */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                Cumulative Placement Trends
-                <span className="text-xs text-gray-500 block mt-1">
-                  Hover over data points to see companies
-                </span>
-              </h3>
-              {placementTrendsData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
+              <p className="text-xs text-gray-500 mb-4">
+                Monthly placements over time
+              </p>
+              {placementTimeline.length > 0 ? (
+                <ResponsiveContainer width="100%" height={380}>
                   <LineChart
-                    data={placementTrendsData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    data={placementTimeline}
+                    margin={{ top: 5, right: 30, left: 0, bottom: 60 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" />
+                    <XAxis dataKey="month_label" stroke="#6b7280" />
                     <YAxis yAxisId="left" stroke="#6b7280" />
                     <YAxis
                       yAxisId="right"
@@ -497,48 +593,44 @@ export default function AnalyticsDashboard({ batchYear }) {
                       stroke="#6b7280"
                     />
                     <Tooltip
-                      content={
-                        <CustomPlacementTooltip monthlyTrends={monthlyTrends} />
-                      }
+                      content={<PlacementTimelineTooltip />}
                       cursor={{ strokeDasharray: "3 3" }}
-                      // This ensures tooltip appears above everything
-                      wrapperStyle={{ zIndex: 1000 }}
-                    />
-                    <Legend
                       wrapperStyle={{
-                        paddingTop: "10px",
-                        marginBottom: "-10px",
+                        outline: "none",
+                        pointerEvents: "auto",
+                        zIndex: 1000,
+                      }}
+                      contentStyle={{
+                        overflow: "visible",
+                        outline: "none",
+                        pointerEvents: "auto",
+                        backgroundColor: "transparent",
+                        border: "none",
+                        boxShadow: "none",
                       }}
                     />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="cumulativePlacements"
-                      stroke="#10b981"
-                      strokeWidth={3}
-                      name="Cumulative Placements"
-                      dot={{ fill: "#10b981", r: 5 }}
-                      activeDot={{ r: 7 }}
+                    <Legend
+                      wrapperStyle={{ paddingTop: "30px" }}
+                      verticalAlign="bottom"
+                      height={36}
                     />
                     <Line
                       yAxisId="left"
                       type="monotone"
-                      dataKey="totalPlacements"
+                      dataKey="total_placements"
                       stroke="#2563eb"
                       strokeWidth={2}
                       name="Monthly Placements"
                       dot={{ fill: "#2563eb", r: 4 }}
-                      activeDot={{ r: 6 }}
                     />
                     <Line
                       yAxisId="right"
                       type="monotone"
-                      dataKey="avgPackage"
+                      dataKey="avg_package"
                       stroke="#f59e0b"
                       strokeWidth={2}
                       name="Avg Package (L)"
                       dot={{ fill: "#f59e0b", r: 4 }}
-                      activeDot={{ r: 6 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -548,25 +640,90 @@ export default function AnalyticsDashboard({ batchYear }) {
                 </p>
               )}
             </div>
+
+            {/* Activity Timeline */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                Company Activity
+              </h3>
+              <p className="text-xs text-gray-500 mb-4">
+                Companies by status each month
+              </p>
+              {activityTimeline.length > 0 ? (
+                <ResponsiveContainer width="100%" height={380}>
+                  <ComposedChart
+                    data={activityTimeline}
+                    margin={{ top: 5, right: 30, left: 0, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="month_label" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      content={<ActivityTimelineTooltip />}
+                      wrapperStyle={{
+                        outline: "none",
+                        pointerEvents: "auto",
+                        zIndex: 1000,
+                      }}
+                      contentStyle={{
+                        overflow: "visible",
+                        outline: "none",
+                        pointerEvents: "auto",
+                        backgroundColor: "transparent",
+                        border: "none",
+                        boxShadow: "none",
+                      }}
+                    />
+                    <Legend
+                      wrapperStyle={{ paddingTop: "30px" }}
+                      verticalAlign="bottom"
+                      height={36}
+                    />
+                    <Bar
+                      dataKey="jd_shared_count"
+                      fill="#3b82f6"
+                      name="JD Shared"
+                      radius={[6, 6, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="ongoing_count"
+                      fill="#f59e0b"
+                      name="Ongoing"
+                      radius={[6, 6, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="completed_count"
+                      fill="#10b981"
+                      name="Completed"
+                      radius={[6, 6, 0, 0]}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500 text-center py-8">
+                  No activity data available
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Charts Row 2 */}
+          {/* Charts Row 2 - Department & Package */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Department-wise Placement */}
+            {/* Department Analysis */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
-                Department-wise Analysis
+                Department Analysis
               </h3>
               {departments.length > 0 ? (
                 <div className="space-y-3">
                   {departments.map((dept, index) => (
                     <div
                       key={dept.department}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <div className="flex items-center space-x-3">
                         <div
-                          className="w-3 h-3 rounded-full"
+                          className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{
                             backgroundColor: COLORS[index % COLORS.length],
                           }}

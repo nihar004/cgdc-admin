@@ -44,8 +44,6 @@ const CompanyFormModal = ({
     primary_hr_designation: editData?.primary_hr_designation ?? "",
     primary_hr_email: editData?.primary_hr_email ?? "",
     primary_hr_phone: editData?.primary_hr_phone ?? "",
-    scheduled_visit: formatDateForInput(editData?.scheduled_visit) ?? "",
-    actual_arrival: formatDateForInput(editData?.actual_arrival) ?? "",
     glassdoor_rating: editData?.glassdoor_rating ?? "",
     work_locations: editData?.work_locations ?? "",
     min_cgpa: editData?.min_cgpa ?? "",
@@ -264,16 +262,6 @@ const CompanyFormModal = ({
 
     if (!formData.company_name) {
       newErrors.company_name = "Company name is required";
-    }
-
-    // Validate that actual_arrival is after scheduled_visit if both exist
-    if (formData.actual_arrival && formData.scheduled_visit) {
-      if (
-        new Date(formData.actual_arrival) < new Date(formData.scheduled_visit)
-      ) {
-        newErrors.actual_arrival =
-          "Actual arrival cannot be before scheduled visit";
-      }
     }
 
     if (
@@ -558,8 +546,6 @@ const CompanyFormModal = ({
       // Create a new object with processed data
       const processedData = {
         ...formData,
-        scheduled_visit: formData.scheduled_visit || null,
-        actual_arrival: formData.actual_arrival || null,
         positions: formData.positions.map((position) => ({
           ...position,
           rounds_start_date: position.rounds_start_date || null,
@@ -820,7 +806,7 @@ const CompanyFormModal = ({
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={20} className="text-blue-600" />
               <h3 className="text-lg font-semibold text-neutral-800">
-                Visit Details
+                Additional Information
               </h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -836,35 +822,7 @@ const CompanyFormModal = ({
                   className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Scheduled Visit
-                </label>
-                <input
-                  type="date"
-                  name="scheduled_visit"
-                  value={formData.scheduled_visit}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
-                />
-                {errors.scheduled_visit && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.scheduled_visit}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Actual Arrival
-                </label>
-                <input
-                  type="date"
-                  name="actual_arrival"
-                  value={formData.actual_arrival}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-neutral-50"
-                />
-              </div>
+
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   <Star size={16} className="inline mr-1" />
@@ -886,7 +844,7 @@ const CompanyFormModal = ({
                   </p>
                 )}
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1">
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   <MapPin size={16} className="inline mr-1" />
                   Work Locations
@@ -1274,6 +1232,10 @@ const CompanyFormModal = ({
                     />
                   </div>
                 </div>
+                <p className="mt-1 text-xs text-neutral-600">
+                  ℹ️ Rounds Start and End Dates Will be auto-set when
+                  middle/last round event is created
+                </p>
 
                 {/* Documents for this position */}
                 <div className="space-y-4">
