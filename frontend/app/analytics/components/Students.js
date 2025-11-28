@@ -11,7 +11,6 @@ import {
   exportStudentsCompanyMatrix,
   exportStudentOffers,
 } from "../services/analyticsService";
-import * as XLSX from "xlsx";
 
 export default function Students({ batchYear, setSelectedStudent, setView }) {
   const [students, setStudents] = useState([]);

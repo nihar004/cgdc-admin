@@ -1116,6 +1116,7 @@ routes.get(
             e.position_ids,
             srr.result_status,
             ea.remarks AS remarks,
+            ea.status AS attendance_status,
             -- Get position names from form responses
             (
               SELECT array_agg(DISTINCT sp.position_title)
@@ -1171,6 +1172,7 @@ routes.get(
               'positionIds', cr.position_ids,
               'positionNames', cr.position_names,
               'resultStatus', cr.result_status,
+              'attendance', cr.attendance_status,
               'remarks', cr.remarks
             ) ORDER BY cr.event_date, cr.round_number
           ) FILTER (WHERE cr.event_title IS NOT NULL) as rounds,
@@ -1357,6 +1359,7 @@ routes.get(
               "Round Type",
               "Result",
               "Status",
+              "Attendance",
               "Remarks",
             ];
             headerRow.font = { bold: true };
@@ -1388,6 +1391,7 @@ routes.get(
                 round.roundType || "—",
                 resultSymbol,
                 round.resultStatus || "N/A",
+                round.attendance || "N/A",
                 round.remarks || "—",
               ];
 
