@@ -753,7 +753,7 @@ const ComposeEmailContent = () => {
           {/* Only show radio buttons if not coming from company page */}
           {searchParams.get("from") !== "company" && (
             <div className="flex flex-wrap gap-4 mb-4">
-              {["filter", "manual", "student_ids"].map((type) => (
+              {["filter", "manual"].map((type) => (
                 <label key={type} className="flex items-center cursor-pointer">
                   <input
                     type="radio"
@@ -765,11 +765,7 @@ const ComposeEmailContent = () => {
                     className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
                   />
                   <span className="ml-2 text-sm font-medium text-gray-700">
-                    {type === "filter"
-                      ? "Filter Students"
-                      : type === "manual"
-                        ? "Manual Emails"
-                        : "Selected Students"}
+                    {type === "filter" ? "Filter Students" : "Manual Email"}
                   </span>
                 </label>
               ))}
