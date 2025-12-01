@@ -14,7 +14,13 @@ import {
   ComposedChart,
 } from "recharts";
 
-import { TrendingUp, Building, Target, Award, AlertCircle } from "lucide-react";
+import {
+  TrendingUp,
+  Building,
+  Target,
+  AlertCircle,
+  Wallet,
+} from "lucide-react";
 
 import StatCard from "./StatCard";
 
@@ -558,11 +564,11 @@ export default function AnalyticsDashboard({ batchYear }) {
               ).toFixed(1)}
             />
             <StatCard
-              icon={Award}
-              label="Package Info"
-              value={`₹${(overview.highestPackage || 0).toFixed(2)}L`}
-              subtext={`Avg: ₹${(overview.averagePackage || 0).toFixed(2)}L`}
-              subtext2={`Median: ₹${(overview.medianPackage || 0).toFixed(2)}L`}
+              icon={Wallet}
+              subtext={`Highest: ₹${(overview.highestPackage || 0).toFixed(2)}L`}
+              subtext2={`Average: ₹${(overview.averagePackage || 0).toFixed(2)}L`}
+              subtext3={`Median: ₹${(overview.medianPackage || 0).toFixed(2)}L`}
+              subtext4={`Lowest: ₹${(overview.lowestPackage || 0).toFixed(2)}L`}
               color="yellow"
             />
           </div>

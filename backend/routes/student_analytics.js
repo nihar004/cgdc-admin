@@ -3513,11 +3513,21 @@ routes.get(
         SELECT
           s.id as student_id,
           CASE
-            WHEN s.current_offer IS NOT NULL AND s.current_offer->>'package' IS NOT NULL THEN
-              (s.current_offer->>'package')::numeric
-            ELSE 0
+            WHEN s.current_offer->>'source' = 'manual' THEN
+              CASE
+                WHEN (s.current_offer->>'has_range')::boolean = true THEN
+                  (s.current_offer->>'package_end')::numeric
+                ELSE
+                  (s.current_offer->>'package')::numeric
+              END
+            ELSE
+              CASE
+                WHEN cp.has_range = true THEN cp.package_end
+                ELSE cp.package
+              END
           END as package_amount
         FROM students s
+        LEFT JOIN company_positions cp ON cp.id = (s.current_offer->>'position_id')::integer
         WHERE s.batch_year = $1
           AND s.placement_status = 'placed'
           ${department && department !== "all" ? "AND s.branch = $2" : ""}
@@ -3526,6 +3536,7 @@ routes.get(
         SELECT
           COUNT(student_id) as placed_count,
           ROUND(MAX(package_amount)::numeric, 2) as highest_package,
+          ROUND(MIN(package_amount)::numeric, 2) as lowest_package,
           ROUND(AVG(package_amount)::numeric, 2) as average_package,
           ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY package_amount)::numeric, 2) as median_package
         FROM student_packages
@@ -3549,6 +3560,7 @@ routes.get(
           ELSE 0
         END as placement_rate,
         COALESCE((SELECT highest_package FROM package_stats), 0) as highest_package,
+        COALESCE((SELECT lowest_package FROM package_stats), 0) as lowest_package,
         COALESCE((SELECT average_package FROM package_stats), 0) as average_package,
         COALESCE((SELECT median_package FROM package_stats), 0) as median_package,
         COALESCE((SELECT offers_count FROM total_offers), 0) as total_offers,
@@ -3585,6 +3597,7 @@ routes.get(
             parseInt(stats.total_students) - parseInt(stats.placed_students),
           placementRate: parseFloat(stats.placement_rate),
           highestPackage: parseFloat(stats.highest_package),
+          lowestPackage: parseFloat(stats.lowest_package),
           averagePackage: parseFloat(stats.average_package),
           medianPackage: parseFloat(stats.median_package),
           totalOffers: parseInt(stats.total_offers),
@@ -3813,7 +3826,8 @@ routes.get(
         END as "successRate"
       FROM company_stats
       WHERE total_placed > 0  -- Only show companies with placements
-      ORDER BY total_placed DESC, avg_package DESC;
+      ORDER BY total_placed DESC, avg_package DESC
+      limit 10;
     `;
 
       const params =

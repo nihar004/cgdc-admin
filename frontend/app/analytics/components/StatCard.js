@@ -5,6 +5,7 @@ export default function StatCard({
   subtext,
   subtext2,
   subtext3,
+  subtext4,
   color = "blue",
 }) {
   const colorMap = {
@@ -31,6 +32,7 @@ export default function StatCard({
         {subtext && <div className="text-xs text-gray-500">{subtext}</div>}
         {subtext2 && <div className="text-xs text-gray-500">{subtext2}</div>}
         {subtext3 && <div className="text-xs text-gray-500">{subtext3}</div>}
+        {subtext4 && <div className="text-xs text-gray-500">{subtext4}</div>}
       </div>
     </div>
   );
