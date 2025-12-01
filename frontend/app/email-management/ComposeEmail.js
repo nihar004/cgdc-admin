@@ -182,9 +182,9 @@ const ComposeEmailContent = () => {
     const totalCount =
       manualAttachments.length + validFiles.length + templateAttachmentCount;
 
-    if (totalCount > 5) {
+    if (totalCount > 10) {
       toast.error(
-        "Maximum 5 attachments allowed (including template attachments)"
+        "Maximum 10 attachments allowed (including template attachments)"
       );
       return;
     }
@@ -687,14 +687,14 @@ const ComposeEmailContent = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={getTotalAttachmentCount() >= 5}
+                disabled={getTotalAttachmentCount() >= 10}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 rounded-lg flex items-center gap-2"
               >
                 <Paperclip className="w-4 h-4" />
                 Add Files
               </button>
               <span className="text-sm text-gray-500">
-                Max 5 files total ({getTotalAttachmentCount()}/5 used)
+                Max 10 files total ({getTotalAttachmentCount()}/10 used)
               </span>
             </div>
             <input

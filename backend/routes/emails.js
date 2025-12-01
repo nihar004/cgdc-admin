@@ -7,7 +7,7 @@ const fs = require("fs");
 const fsPromises = require("fs").promises;
 const db = require("../db");
 
-// Configure multer for file uploads
+// Configure multer for file uploads - SINGLE CONFIGURATION
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, "../uploads/email-attachments");
@@ -29,7 +29,7 @@ const upload = multer({
   storage: storage,
   limits: {
     fileSize: 10 * 1024 * 1024,
-    files: 5,
+    files: 10, // Increased to 10 files per request
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
@@ -517,7 +517,7 @@ routes.delete("/email-logs/:id", async (req, res) => {
 // POST Send new email campaign with message tracking
 routes.post(
   "/email-logs/send",
-  upload.array("manual_attachments", 5),
+  upload.array("manual_attachments", 10), // Changed from 5 to 10
   async (req, res) => {
     try {
       const {
@@ -1116,7 +1116,7 @@ routes.post("/email-logs/send/event/:eventId", async (req, res) => {
 // POST /api/email-logs/send/students - Send to filtered students
 routes.post(
   "/email-logs/send/students",
-  upload.array("manual_attachments", 5),
+  upload.array("manual_attachments", 10), // Changed from 10 to 10 (consistent)
   async (req, res) => {
     const startTime = Date.now();
     const requestId = `req-${Date.now()}-${Math.random()
@@ -1339,6 +1339,24 @@ routes.post(
 routes.use((error, req, res, next) => {
   console.error("Error in email routes:", error);
   if (error instanceof multer.MulterError) {
+    if (error.code === "LIMIT_UNEXPECTED_FILE") {
+      return res.status(400).json({
+        success: false,
+        error: `File upload error: Expected field 'manual_attachments' but got '${error.field}'`,
+      });
+    }
+    if (error.code === "LIMIT_FILE_COUNT") {
+      return res.status(400).json({
+        success: false,
+        error: "File upload error: Maximum 10 files allowed",
+      });
+    }
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        success: false,
+        error: "File upload error: File size exceeds 10MB limit",
+      });
+    }
     return res.status(400).json({
       success: false,
       error: `File upload error: ${error.message}`,
