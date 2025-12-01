@@ -42,6 +42,8 @@ const CATEGORIES = [
   { key: "debarred", label: "Debarred", icon: UserX },
   { key: "family_business", label: "Family Business", icon: User },
   { key: "others", label: "Others", icon: User },
+  { key: "campus", label: "Compus Offer", icon: User },
+  { key: "manual", label: "Manual Offer", icon: User },
 ];
 
 function StudentManagementContent() {
@@ -81,6 +83,21 @@ function StudentManagementContent() {
         if (selectedCategory === "multiple-offers") {
           return student.offers_received && student.offers_received.length > 1;
         }
+
+        if (selectedCategory === "manual") {
+          return (
+            student.offers_received &&
+            student.offers_received.some((offer) => offer.source === "manual")
+          );
+        }
+
+        if (selectedCategory === "campus") {
+          return (
+            student.offers_received &&
+            student.offers_received.some((offer) => offer.source === "campus")
+          );
+        }
+
         return student.placement_status === selectedCategory;
       });
     }
@@ -179,8 +196,19 @@ function StudentManagementContent() {
       (s) => s.placement_status === "entrepreneurship"
     ).length;
 
-    // --- UPDATED LOGIC HERE ---
-    // Use package_end if has_range = true
+    const manualOfferStudents = students.filter(
+      (s) =>
+        Array.isArray(s.offers_received) &&
+        s.offers_received.some((offer) => offer.source === "manual")
+    ).length;
+
+    const campusOfferStudents = students.filter(
+      (s) =>
+        Array.isArray(s.offers_received) &&
+        s.offers_received.some((offer) => offer.source === "campus")
+    ).length;
+
+    // Package statistics logic...
     const validStudents = students.filter(
       (s) =>
         s.current_offer &&
@@ -197,10 +225,10 @@ function StudentManagementContent() {
         const offer = s.current_offer;
 
         if (offer.has_range === true && offer.package_end) {
-          return offer.package_end; // use end value
+          return offer.package_end;
         }
 
-        return offer.package; // fallback
+        return offer.package;
       });
 
       packages.sort((a, b) => a - b);
@@ -232,6 +260,8 @@ function StudentManagementContent() {
       familyBusinessStudent,
       higher_studiesStudents,
       entrepreneurshipStudents,
+      manualOfferStudents,
+      campusOfferStudents,
       avgPackage: avgPackage.toFixed(1),
       highestPackage,
       medianPackage,
@@ -405,7 +435,11 @@ function StudentManagementContent() {
                                   ? stats.familyBusinessStudent
                                   : category.key === "others"
                                     ? stats.otherStudent
-                                    : stats[`${category.key}Students`]}
+                                    : category.key === "manual"
+                                      ? stats.manualOfferStudents
+                                      : category.key === "campus"
+                                        ? stats.campusOfferStudents
+                                        : stats[`${category.key}Students`]}
                       )
                     </option>
                   ))}
