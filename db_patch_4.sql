@@ -50,3 +50,76 @@ WHERE NOT EXISTS (
     AND cp.id = ANY(e.position_ids)
 )
 AND (cp.rounds_start_date IS NOT NULL OR cp.rounds_end_date IS NOT NULL);
+
+
+-- Update student acceptance date
+-- 1. Loop through all students
+DO $$
+DECLARE 
+    s RECORD;    -- each student
+    off JSONB;   -- each offer inside offers_received array
+    v_company_id INT;
+    v_position_id INT;
+    v_offer_id TEXT;
+    v_final_event_date DATE;
+BEGIN
+    -- Loop through each student who has offers_received
+    FOR s IN 
+        SELECT id, offers_received, current_offer
+        FROM students
+        WHERE offers_received IS NOT NULL
+    LOOP
+
+        -- Loop through each offer inside offers_received array
+        FOR off IN 
+            SELECT jsonb_array_elements(s.offers_received)
+        LOOP
+            v_company_id := (off->>'company_id')::INT;
+            v_position_id := (off->>'position_id')::INT;
+            v_offer_id := off->>'offer_id';
+
+            -- Get the LAST ROUND event date
+            SELECT e.event_date
+            INTO v_final_event_date
+            FROM events e
+            WHERE e.company_id = v_company_id
+              AND e.round_type = 'last'
+              AND v_position_id = ANY (e.position_ids)
+            ORDER BY e.event_date DESC
+            LIMIT 1;
+
+            -- If no final round event → skip this offer
+            IF v_final_event_date IS NULL THEN
+                CONTINUE;
+            END IF;
+
+            -- Update offers_received JSONB
+            UPDATE students
+            SET offers_received = (
+                SELECT jsonb_agg(
+                    CASE 
+                        WHEN elem->>'offer_id' = v_offer_id THEN
+                            elem || jsonb_build_object('acceptance_date', v_final_event_date::TEXT)
+                        ELSE
+                            elem
+                    END
+                )
+                FROM jsonb_array_elements(offers_received) elem
+            )
+            WHERE id = s.id;
+
+            -- Update current_offer JSONB (if matches)
+            UPDATE students
+            SET current_offer = 
+                CASE 
+                    WHEN current_offer->>'offer_id' = v_offer_id THEN
+                        current_offer || jsonb_build_object('acceptance_date', v_final_event_date::TEXT)
+                    ELSE 
+                        current_offer
+                END
+            WHERE id = s.id;
+
+        END LOOP;
+
+    END LOOP;
+END $$;

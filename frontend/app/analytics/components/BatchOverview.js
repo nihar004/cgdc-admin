@@ -117,7 +117,7 @@ const PlacementTimelineTooltip = ({ active, payload }) => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Selection Date:</span>
                     <span className="font-medium">
-                      {new Date(position.selectionDate).toLocaleDateString()}
+                      {new Date(position.acceptanceDate).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
