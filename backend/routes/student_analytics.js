@@ -3487,7 +3487,7 @@ routes.get(
     try {
       const query = `
       WITH batch_students AS (
-        SELECT 
+        SELECT
           s.id,
           s.branch,
           s.placement_status,
@@ -3512,7 +3512,7 @@ routes.get(
         -- Only consider best package for each student for package stats
         SELECT
           s.id as student_id,
-          CASE 
+          CASE
             WHEN s.current_offer IS NOT NULL AND s.current_offer->>'package' IS NOT NULL THEN
               (s.current_offer->>'package')::numeric
             ELSE 0
@@ -3523,7 +3523,7 @@ routes.get(
           ${department && department !== "all" ? "AND s.branch = $2" : ""}
       ),
       package_stats AS (
-        SELECT 
+        SELECT
           COUNT(student_id) as placed_count,
           ROUND(MAX(package_amount)::numeric, 2) as highest_package,
           ROUND(AVG(package_amount)::numeric, 2) as average_package,
@@ -3537,10 +3537,10 @@ routes.get(
         INNER JOIN batches b ON cb.batch_id = b.id
         WHERE b.year = $1
       )
-      SELECT 
+      SELECT
         (SELECT COUNT(*) FROM batch_students) as total_students,
         COALESCE((SELECT placed_count FROM package_stats), 0) as placed_students,
-        CASE 
+        CASE
           WHEN (SELECT COUNT(*) FROM batch_students) > 0 THEN
             ROUND(
               COALESCE((SELECT placed_count FROM package_stats), 0)::numeric /

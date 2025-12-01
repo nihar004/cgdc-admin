@@ -146,33 +146,45 @@ function StudentManagementContent() {
 
   const getStatistics = () => {
     const totalStudents = students.length;
+
     const placedStudents = students.filter(
       (s) => s.placement_status === "placed"
     ).length;
+
     const unplacedStudents = students.filter(
       (s) => s.placement_status === "unplaced"
     ).length;
+
     const multipleOffersStudents = students.filter(
       (s) => s.offers_received && s.offers_received.length > 1
     ).length;
+
     const debarredStudents = students.filter(
       (s) => s.placement_status === "debarred"
     ).length;
+
     const familyBusinessStudent = students.filter(
       (s) => s.placement_status === "family_business"
     ).length;
+
     const otherStudent = students.filter(
       (s) => s.placement_status === "others"
     ).length;
+
     const higher_studiesStudents = students.filter(
       (s) => s.placement_status === "higher_studies"
     ).length;
+
     const entrepreneurshipStudents = students.filter(
       (s) => s.placement_status === "entrepreneurship"
     ).length;
 
+    // --- UPDATED LOGIC HERE ---
+    // Use package_end if has_range = true
     const validStudents = students.filter(
-      (s) => s.current_offer && s.current_offer.package
+      (s) =>
+        s.current_offer &&
+        (s.current_offer.package || s.current_offer.package_end)
     );
 
     let highestPackage = 0;
@@ -181,7 +193,16 @@ function StudentManagementContent() {
     let medianPackage = 0;
 
     if (validStudents.length > 0) {
-      const packages = validStudents.map((s) => s.current_offer.package);
+      const packages = validStudents.map((s) => {
+        const offer = s.current_offer;
+
+        if (offer.has_range === true && offer.package_end) {
+          return offer.package_end; // use end value
+        }
+
+        return offer.package; // fallback
+      });
+
       packages.sort((a, b) => a - b);
 
       highestPackage = packages[packages.length - 1];
@@ -334,7 +355,7 @@ function StudentManagementContent() {
                   <p className="text-xl font-bold text-purple-900">
                     Avg: {stats.avgPackage} LPA
                   </p>
-                  <div className="flex gap-4 mt-1 text-sm text-purple-800">
+                  <div className="flex gap-2 mt-1 text-sm text-purple-800">
                     <span>High: {stats.highestPackage} LPA</span>
                     <span>•</span>
                     <span>Med: {stats.medianPackage} LPA</span>

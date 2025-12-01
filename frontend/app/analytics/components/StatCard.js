@@ -1,6 +1,3 @@
-import React from "react";
-import { TrendingUp } from "lucide-react";
-
 export default function StatCard({
   icon: Icon,
   label,
@@ -8,7 +5,6 @@ export default function StatCard({
   subtext,
   subtext2,
   subtext3,
-  subtext4,
   color = "blue",
 }) {
   const colorMap = {

@@ -12,7 +12,6 @@ import {
   Legend,
   ResponsiveContainer,
   ComposedChart,
-  Cell,
 } from "recharts";
 
 import { TrendingUp, Building, Target, Award, AlertCircle } from "lucide-react";
