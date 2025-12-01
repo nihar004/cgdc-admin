@@ -3,7 +3,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { Mail, Trash2, Save, Edit, Paperclip, X, Users } from "lucide-react";
 import { useEmail } from "../../context/EmailContext";
 import toast from "react-hot-toast";
-import TiptapEditor from "./TiptapEditor";
+import CKEditorEmail, { convertToEmailHTML } from "./CKEditorEmail";
 
 const Templates = () => {
   const { templates, createTemplate, updateTemplate, deleteTemplate, loading } =
@@ -73,7 +73,7 @@ const Templates = () => {
     const formData = new FormData();
     formData.append("template_name", form.template_name);
     formData.append("subject", form.subject);
-    formData.append("body", form.body);
+    formData.append("body", convertToEmailHTML(form.body));
     formData.append("category", form.category);
 
     // Add new fields
@@ -276,9 +276,11 @@ const Templates = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Body (HTML)
               </label>
-              <TiptapEditor
+              <CKEditorEmail
                 content={form.body}
-                onChange={(html) => setForm({ ...form, body: html })}
+                onChange={(html) =>
+                  setForm((prev) => ({ ...prev, body: html }))
+                }
               />
             </div>
           </div>

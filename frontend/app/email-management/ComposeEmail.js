@@ -7,7 +7,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import TiptapEditor from "./TiptapEditor";
+import CKEditorEmail, { convertToEmailHTML } from "./CKEditorEmail";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -146,13 +146,24 @@ const ComposeEmailContent = () => {
     }
 
     setFormData({
-      ...formData,
       title: template.template_name,
       subject: template.subject,
       body: template.body,
       sender_email: template.sender_email || "",
+      to_emails: "",
+      sendType: "filter",
+      branch: [],
+      batch_year: [],
+      placement_status: "",
+      recipient_emails: "",
+      student_ids: "",
+      event_id: "",
+      recipient_type: "registered",
       cc_emails: parsedCcEmails,
+      message_id: "",
+      parent_message_id: "",
     });
+
     setSelectedTemplate(template);
   };
 
@@ -251,7 +262,7 @@ const ComposeEmailContent = () => {
       const payload = {
         title: formData.title,
         subject: formData.subject,
-        body: formData.body,
+        body: convertToEmailHTML(formData.body),
         sender_email: formData.sender_email,
         to_emails: toEmails,
         cc_emails: formData.cc_emails
@@ -304,7 +315,7 @@ const ComposeEmailContent = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("subject", formData.subject);
-    formDataToSend.append("body", formData.body);
+    formDataToSend.append("body", convertToEmailHTML(formData.body));
     formDataToSend.append("sender_email", formData.sender_email);
     formDataToSend.append("to_emails", JSON.stringify(toEmails));
 
@@ -658,9 +669,11 @@ const ComposeEmailContent = () => {
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Email Body (HTML)
           </label>
-          <TiptapEditor
+          <CKEditorEmail
             content={formData.body}
-            onChange={(html) => setFormData({ ...formData, body: html })}
+            onChange={(html) =>
+              setFormData((prev) => ({ ...prev, body: html }))
+            }
           />
         </div>
 
