@@ -332,64 +332,6 @@ routes.get("/companies/:year", async (req, res) => {
   }
 });
 
-// GET /round-tracking/stats/:year
-routes.get("/stats/:year", async (req, res) => {
-  let { year } = req.params;
-  year = parseInt(year);
-
-  try {
-    const statsQuery = `
-      WITH batch_data AS (
-        SELECT id FROM batches WHERE year = $1
-      )
-      SELECT 
-        (SELECT COUNT(DISTINCT fr.student_id) 
-         FROM form_responses fr 
-         JOIN forms f ON fr.form_id = f.id
-         JOIN events e ON f.event_id = e.id 
-         WHERE e.is_placement_event = true 
-         AND f.batch_year = $1) as total_applications,
-        
-        (SELECT COUNT(DISTINCT c.id) 
-         FROM companies c 
-         JOIN company_batches cb ON c.id = cb.company_id
-         JOIN batch_data bd ON cb.batch_id = bd.id
-         WHERE EXISTS (
-           SELECT 1 FROM events e
-           WHERE e.company_id = c.id
-           AND e.status IN ('ongoing', 'upcoming')
-           AND e.is_placement_event = true
-         )) as active_companies,
-        
-        (SELECT COUNT(DISTINCT srr.student_id)
-         FROM student_round_results srr
-         JOIN events e ON srr.event_id = e.id
-         JOIN event_batches eb ON e.id = eb.event_id
-         JOIN batches bd ON eb.batch_id = bd.id
-         WHERE srr.result_status = 'selected'
-           AND e.is_placement_event = true
-           AND e.round_type = 'last'
-        ) AS total_placements
-    `;
-
-    const result = await db.query(statsQuery, [year]);
-    const stats = result.rows[0];
-
-    res.json({
-      totalApplications: parseInt(stats.total_applications) || 0,
-      activeCompanies: parseInt(stats.active_companies) || 0,
-      totalPlacements: parseInt(stats.total_placements) || 0,
-    });
-  } catch (error) {
-    console.error("Error fetching round tracking stats:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch round tracking stats",
-      error: error.message,
-    });
-  }
-});
-
 // GET /round-tracking/events/:eventId/students
 routes.get("/events/:eventId/students", async (req, res) => {
   try {

@@ -6,7 +6,6 @@ import axios from "axios";
 import { useBatchContext } from "../../context/BatchContext";
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-import StatsCards from "./StatsCards";
 import CompanyCard from "./CompanyCard";
 
 const FilterBar = ({ filters, onFiltersChange }) => {
@@ -221,8 +220,6 @@ const RoundTrackingPage = () => {
               </div>
             </div>
           </div>
-
-          <StatsCards />
         </div>
 
         {/* Filters */}
