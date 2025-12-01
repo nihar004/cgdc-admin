@@ -1217,7 +1217,7 @@ routes.get(
         backCell.tooltip = "Click to return to main index";
 
         // SECTION 1: Student Info
-        worksheet.mergeCells("A4:H4");
+        worksheet.mergeCells("A4:G4");
         worksheet.getCell("A4").value = "STUDENT INFORMATION";
         worksheet.getCell("A4").font = {
           bold: true,
@@ -1309,7 +1309,7 @@ routes.get(
         // SECTION 2: Companies Applied To
         let currentRow = 9;
 
-        worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+        worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
         worksheet.getCell(`A${currentRow}`).value = "COMPANIES APPLIED TO";
         worksheet.getCell(`A${currentRow}`).font = {
           bold: true,
@@ -1336,7 +1336,7 @@ routes.get(
             const positionName = company.rounds[0]?.positionNames?.[0] || "—";
 
             // Company name row with position information in the format "Company (Position)"
-            worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+            worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
             const companyCell = worksheet.getCell(`A${currentRow}`);
             companyCell.value = `${company.company_name} ${
               company.is_marquee ? "⭐" : ""
@@ -1357,31 +1357,26 @@ routes.get(
               "Event Type",
               "Date",
               "Round Type",
-              "Result",
-              "Status",
               "Attendance",
+              "Status",
               "Remarks",
             ];
             headerRow.font = { bold: true };
-            headerRow.fill = {
-              type: "pattern",
-              pattern: "solid",
-              fgColor: { argb: "FFDBEAFE" },
-            };
+            for (let col = 1; col <= 7; col++) {
+              // A–G only
+              const cell = worksheet.getCell(currentRow, col);
+              cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFDBEAFE" },
+              };
+            }
+
             currentRow++;
 
             // Rounds data
             const rounds = company.rounds || [];
             for (const round of rounds) {
-              const resultSymbol =
-                round.resultStatus === "selected"
-                  ? "✓"
-                  : round.resultStatus === "rejected"
-                  ? "✗"
-                  : round.resultStatus === "waitlisted"
-                  ? "⏳"
-                  : "—";
-
               worksheet.getRow(currentRow).values = [
                 round.roundNumber || "—",
                 round.eventType || "—",
@@ -1389,14 +1384,13 @@ routes.get(
                   ? new Date(round.eventDate).toLocaleDateString()
                   : "—",
                 round.roundType || "—",
-                resultSymbol,
-                round.resultStatus || "N/A",
                 round.attendance || "N/A",
+                round.resultStatus || "N/A",
                 round.remarks || "—",
               ];
 
               // Color code result cell
-              const resultCell = worksheet.getCell(`E${currentRow}`);
+              const resultCell = worksheet.getCell(`F${currentRow}`);
               if (round.resultStatus === "selected") {
                 resultCell.fill = {
                   type: "pattern",
@@ -1422,7 +1416,7 @@ routes.get(
 
         // SECTION 3: Eligible But Not Applied
         currentRow++;
-        worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+        worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
         worksheet.getCell(`A${currentRow}`).value = "ELIGIBLE BUT NOT APPLIED";
         worksheet.getCell(`A${currentRow}`).font = {
           bold: true,
@@ -1451,11 +1445,17 @@ routes.get(
             "Dream Company",
           ];
           headerRow.font = { bold: true };
-          headerRow.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: "FFFEF3C7" },
-          };
+          // Apply font + fill only for columns A to G
+          ["A", "B", "C", "D", "E", "F", "G"].forEach((col) => {
+            const cell = worksheet.getCell(`${col}${currentRow}`);
+            cell.font = { bold: true };
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFFEF3C7" },
+            };
+          });
+
           currentRow++;
 
           // Data
@@ -1483,12 +1483,11 @@ routes.get(
           { width: 20 }, // E - Position(s)
           { width: 10 }, // F - Result
           { width: 12 }, // G - Status
-          { width: 15 }, // H - (empty)
         ];
 
         // Add borders to all cells with data
         for (let i = 1; i <= currentRow; i++) {
-          for (let j = 1; j <= 8; j++) {
+          for (let j = 1; j <= 7; j++) {
             const cell = worksheet.getCell(i, j);
             cell.border = {
               top: { style: "thin" },

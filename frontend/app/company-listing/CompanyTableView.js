@@ -261,7 +261,7 @@ export function CompanyTableView({ companyTypeColors, onEditClick }) {
                             {/* Eligibility */}
                             {(company.eligibility_10th ||
                               company.eligibility_12th) && (
-                              <div className="space-y-1">
+                              <div className="space-y-1 flex flex-col items-center text-center">
                                 {company.eligibility_10th && (
                                   <div className="text-xs">
                                     <span className="font-medium">10th:</span>{" "}
@@ -280,7 +280,7 @@ export function CompanyTableView({ companyTypeColors, onEditClick }) {
                             {/* CGPA */}
                             {company.min_cgpa &&
                               Number(company.min_cgpa) > 0 && (
-                                <div className="flex items-center gap-1 text-xs">
+                                <div className="flex items-center gap-1 text-xs justify-center">
                                   <GraduationCap
                                     size={12}
                                     className="text-blue-500"
@@ -293,7 +293,7 @@ export function CompanyTableView({ companyTypeColors, onEditClick }) {
 
                             {/* Backlogs */}
                             {company.max_backlogs && (
-                              <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded">
+                              <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded justify-center">
                                 <AlertCircle size={12} />
                                 <span>Backlogs Allowed</span>
                               </div>
@@ -301,7 +301,7 @@ export function CompanyTableView({ companyTypeColors, onEditClick }) {
 
                             {/* Bond */}
                             {company.bond_required && (
-                              <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded">
+                              <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded justify-center">
                                 <FileText size={12} />
                                 <span>Bond Required</span>
                               </div>
@@ -309,7 +309,7 @@ export function CompanyTableView({ companyTypeColors, onEditClick }) {
 
                             {/* Specializations */}
                             {company.allowed_specializations && (
-                              <div className="flex flex-wrap gap-1 mt-2">
+                              <div className="flex flex-wrap gap-1 mt-2 justify-center">
                                 {company.allowed_specializations
                                   .replace(/[{}]/g, "")
                                   .split(",")

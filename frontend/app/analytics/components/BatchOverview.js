@@ -167,7 +167,7 @@ const ActivityTimelineTooltip = ({ active, payload }) => {
           </div>
           <div className="flex justify-between text-sm">
             <span className="font-semibold text-orange-600">
-              Rounds Ongoing:
+              Ongoing Processes:
             </span>
             <span className="text-gray-900 font-bold">
               {data.ongoing_count || 0}
