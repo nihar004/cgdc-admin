@@ -627,6 +627,21 @@ export default function AnalyticsDashboard({ batchYear }) {
                       strokeWidth={2}
                       name="Monthly Placements"
                       dot={{ fill: "#2563eb", r: 4 }}
+                      label={{
+                        position: "top",
+                        content: ({ x, y, value }) => (
+                          <text
+                            x={x}
+                            y={y - 10}
+                            fill="#1e40af"
+                            fontSize={11}
+                            fontWeight="bold"
+                            textAnchor="middle"
+                          >
+                            {value}
+                          </text>
+                        ),
+                      }}
                     />
                     <Line
                       yAxisId="right"
@@ -636,6 +651,21 @@ export default function AnalyticsDashboard({ batchYear }) {
                       strokeWidth={2}
                       name="Avg Package (L)"
                       dot={{ fill: "#f59e0b", r: 4 }}
+                      label={{
+                        position: "top",
+                        content: ({ x, y, value }) => (
+                          <text
+                            x={x}
+                            y={y - 10}
+                            fill="#b45309"
+                            fontSize={11}
+                            fontWeight="bold"
+                            textAnchor="middle"
+                          >
+                            {value}
+                          </text>
+                        ),
+                      }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -689,18 +719,36 @@ export default function AnalyticsDashboard({ batchYear }) {
                       fill="#3b82f6"
                       name="JD Shared"
                       radius={[6, 6, 0, 0]}
+                      label={{
+                        position: "top",
+                        fill: "#1e40af",
+                        fontSize: 11,
+                        fontWeight: "bold",
+                      }}
                     />
                     <Bar
                       dataKey="ongoing_count"
                       fill="#f59e0b"
                       name="Ongoing"
                       radius={[6, 6, 0, 0]}
+                      label={{
+                        position: "top",
+                        fill: "#b45309",
+                        fontSize: 11,
+                        fontWeight: "bold",
+                      }}
                     />
                     <Bar
                       dataKey="completed_count"
                       fill="#10b981"
                       name="Completed"
                       radius={[6, 6, 0, 0]}
+                      label={{
+                        position: "top",
+                        fill: "#047857",
+                        fontSize: 11,
+                        fontWeight: "bold",
+                      }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -777,6 +825,12 @@ export default function AnalyticsDashboard({ batchYear }) {
                       fill="#6366f1"
                       name="Students"
                       radius={[6, 6, 0, 0]}
+                      label={{
+                        position: "top",
+                        fill: "#4338ca",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                      }}
                     />
                   </BarChart>
                 </ResponsiveContainer>

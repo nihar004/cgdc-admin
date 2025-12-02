@@ -3955,8 +3955,7 @@ routes.get(
           c.id as company_id,
           c.company_name,
           c.sector,
-          c.jd_shared_date,
-          b.id as batch_id
+          c.jd_shared_date
         FROM companies c
         INNER JOIN company_batches cb ON c.id = cb.company_id
         INNER JOIN batches b ON cb.batch_id = b.id
@@ -4076,6 +4075,7 @@ routes.get(
           ROUND(MAX(pp.highest_package)::numeric, 2) as highest_package,
           json_agg(
             json_build_object(
+              'companyId', cs.company_id,
               'companyName', cs.company_name,
               'positionTitle', pp.position_title,
               'sector', cs.sector,
@@ -4093,26 +4093,82 @@ routes.get(
 
       -- Dataset 2: Activity Timeline (grouped by JD / first rounds start)
       activity_timeline AS (
+        -- First, get JD shared entries
         SELECT
-          TO_CHAR(COALESCE(cs.jd_shared_date, cs.company_rounds_start_date), 'YYYY-MM') as month_key,
-          TO_CHAR(COALESCE(cs.jd_shared_date, cs.company_rounds_start_date), 'Month YYYY') as month_label,
-          EXTRACT(YEAR FROM COALESCE(cs.jd_shared_date, cs.company_rounds_start_date)) as year,
-          EXTRACT(MONTH FROM COALESCE(cs.jd_shared_date, cs.company_rounds_start_date)) as month,
-          COUNT(DISTINCT cs.company_id) FILTER (WHERE cs.status = 'jd_shared') as jd_shared_count,
-          COUNT(DISTINCT cs.company_id) FILTER (WHERE cs.status = 'ongoing') as ongoing_count,
-          COUNT(DISTINCT cs.company_id) FILTER (WHERE cs.status = 'completed') as completed_count,
+          month_key,
+          month_label,
+          year,
+          month,
+          COUNT(DISTINCT company_id) as jd_shared_count,
+          0 as ongoing_count,
+          0 as completed_count,
           json_agg(
-            DISTINCT jsonb_build_object(
-              'companyName', cs.company_name,
-              'sector', cs.sector,
-              'status', cs.status,
-              'jdSharedDate', cs.jd_shared_date,
-              'roundsStartDate', cs.company_rounds_start_date,
-              'roundsEndDate', cs.company_rounds_end_date
+            jsonb_build_object(
+              'companyId', company_id,
+              'companyName', company_name,
+              'sector', sector,
+              'status', 'jd_shared',
+              'jdSharedDate', jd_shared_date,
+              'roundsStartDate', company_rounds_start_date,
+              'roundsEndDate', company_rounds_end_date
             )
-          ) FILTER (WHERE cs.company_id IS NOT NULL) as companies
-        FROM company_status cs
-        WHERE COALESCE(cs.jd_shared_date, cs.company_rounds_start_date) IS NOT NULL
+          ) as companies
+        FROM (
+          SELECT DISTINCT ON (cs.company_id, TO_CHAR(cs.jd_shared_date, 'YYYY-MM'))
+            TO_CHAR(cs.jd_shared_date, 'YYYY-MM') as month_key,
+            TO_CHAR(cs.jd_shared_date, 'Month YYYY') as month_label,
+            EXTRACT(YEAR FROM cs.jd_shared_date) as year,
+            EXTRACT(MONTH FROM cs.jd_shared_date) as month,
+            cs.company_id,
+            cs.company_name,
+            cs.sector,
+            cs.jd_shared_date,
+            cs.company_rounds_start_date,
+            cs.company_rounds_end_date
+          FROM company_status cs
+          WHERE cs.jd_shared_date IS NOT NULL
+        ) deduped
+        GROUP BY month_key, month_label, year, month
+
+        UNION ALL
+
+        -- Then, get ongoing/completed entries (based on rounds_start_date)
+        SELECT
+          month_key,
+          month_label,
+          year,
+          month,
+          0 as jd_shared_count,
+          COUNT(DISTINCT company_id) FILTER (WHERE status = 'ongoing') as ongoing_count,
+          COUNT(DISTINCT company_id) FILTER (WHERE status = 'completed') as completed_count,
+          json_agg(
+            jsonb_build_object(
+              'companyId', company_id,
+              'companyName', company_name,
+              'sector', sector,
+              'status', status,
+              'jdSharedDate', jd_shared_date,
+              'roundsStartDate', company_rounds_start_date,
+              'roundsEndDate', company_rounds_end_date
+            )
+          ) as companies
+        FROM (
+          SELECT DISTINCT ON (cs.company_id, TO_CHAR(cs.company_rounds_start_date, 'YYYY-MM'))
+            TO_CHAR(cs.company_rounds_start_date, 'YYYY-MM') as month_key,
+            TO_CHAR(cs.company_rounds_start_date, 'Month YYYY') as month_label,
+            EXTRACT(YEAR FROM cs.company_rounds_start_date) as year,
+            EXTRACT(MONTH FROM cs.company_rounds_start_date) as month,
+            cs.company_id,
+            cs.company_name,
+            cs.sector,
+            cs.status,
+            cs.jd_shared_date,
+            cs.company_rounds_start_date,
+            cs.company_rounds_end_date
+          FROM company_status cs
+          WHERE cs.company_rounds_start_date IS NOT NULL
+            AND cs.status IN ('ongoing', 'completed')
+        ) deduped
         GROUP BY month_key, month_label, year, month
       )
 
@@ -4124,8 +4180,32 @@ routes.get(
             FROM placement_timeline pt
           ),
           'activityTimeline', (
-            SELECT json_agg(at ORDER BY at.year, at.month)
-            FROM activity_timeline at
+            SELECT json_agg(
+              json_build_object(
+                'month_key', agg.month_key,
+                'month_label', agg.month_label,
+                'year', agg.year,
+                'month', agg.month,
+                'jd_shared_count', agg.jd_shared_count,
+                'ongoing_count', agg.ongoing_count,
+                'completed_count', agg.completed_count,
+                'companies', agg.companies
+              ) ORDER BY agg.year, agg.month
+            )
+            FROM (
+              SELECT 
+                at.month_key,
+                at.month_label,
+                at.year,
+                at.month,
+                SUM(at.jd_shared_count) as jd_shared_count,
+                SUM(at.ongoing_count) as ongoing_count,
+                SUM(at.completed_count) as completed_count,
+                json_agg(DISTINCT comp) as companies
+              FROM activity_timeline at
+              CROSS JOIN LATERAL jsonb_array_elements(at.companies::jsonb) as comp
+              GROUP BY at.month_key, at.month_label, at.year, at.month
+            ) agg
           )
         ) as data;
       `;
@@ -4134,6 +4214,7 @@ routes.get(
         department && department !== "all"
           ? [batchYear, department]
           : [batchYear];
+
       const result = await db.query(query, params);
 
       const datasets = result.rows[0]?.data || {
@@ -4144,7 +4225,7 @@ routes.get(
       // Calculate cumulative placements
       let cumulativePlacements = 0;
       const placementTimeline = (datasets.placementTimeline || []).map(
-        (row) => {
+        (row, index) => {
           cumulativePlacements += parseInt(row.total_placements) || 0;
           return {
             ...row,
@@ -4160,9 +4241,9 @@ routes.get(
       );
 
       const allCompanies = new Set();
-      (datasets.activityTimeline || []).forEach((month) => {
+      (datasets.activityTimeline || []).forEach((month, index) => {
         (month.companies || []).forEach((comp) => {
-          allCompanies.add(comp.companyName);
+          allCompanies.add(comp.companyId); // Changed to companyId
         });
       });
 
@@ -4201,7 +4282,8 @@ routes.get(
         activityTimeline: datasets.activityTimeline || [],
       });
     } catch (error) {
-      console.error("Error fetching company timeline:", error);
+      console.error("Error message:", error.message);
+
       return res.status(500).json({
         success: false,
         message: "Failed to fetch company timeline data",
